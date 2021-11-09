@@ -1,12 +1,12 @@
 {
     "presubmit": [
         {
-            "name": "IntentResolverTests"
+            "name": "IntentResolverUnitTests"
         }
     ],
     "postsubmit": [
         {
-            "name": "IntentResolverTests"
+            "name": "IntentResolverUnitTests"
         }
     ]
 }
