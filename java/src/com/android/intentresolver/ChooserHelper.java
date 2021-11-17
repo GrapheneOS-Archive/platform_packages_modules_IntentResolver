@@ -25,15 +25,38 @@ import android.os.StrictMode;
 
 import androidx.annotation.VisibleForTesting;
 
-/**
- * When a target is chosen from the SystemUI Chooser activity, unpack its arguments and
- * startActivityAsCaller to handle the now-chosen intent.
- */
+/** Utilities for executing the action that the user selected from a Chooser UI. */
 public class ChooserHelper {
 
     private static final String TAG = "ChooserHelper";
 
-    /** Dispatch the selected target indicated in the intent that started the provided Activity. */
+    /** Launch the user's selected target. */
+    static void onTargetSelected(
+            Activity activity,
+            Intent chosenIntent,
+            Bundle options,
+            IBinder permissionToken,
+            boolean ignoreTargetSecurity,
+            int userId) {
+
+        // We're dispatching intents that might be coming from legacy apps, so
+        // (as in com.android.internal.app.ResolverActivity) exempt ourselves from death.
+        StrictMode.disableDeathOnFileUriExposure();
+        try {
+            activity.startActivityAsCaller(
+                    chosenIntent, options, permissionToken, ignoreTargetSecurity, userId);
+        } finally {
+            StrictMode.enableDeathOnFileUriExposure();
+        }
+    }
+
+    /**
+     * Launch a pre-selected target. In the earliest versions of the unbundled chooser, the user
+     * has already selected their target from a system-side ChooserActivity UI, and the selection
+     * was delegated to the current Activity to dispatch immediately. Unpack the arguments from the
+     * Intent that was sent from the system-side ChooserActivity for this kind of delegated
+     * dispatch, and launch the user's selected target using the startActivityAsCaller API.
+     */
     @VisibleForTesting
     public static void onChoose(Activity activity) {
         final Intent thisIntent = activity.getIntent();
@@ -46,14 +69,7 @@ public class ChooserHelper {
                 thisIntent.getBooleanExtra(ActivityTaskManager.EXTRA_IGNORE_TARGET_SECURITY, false);
         final int userId = thisIntent.getIntExtra(Intent.EXTRA_USER_ID, -1);
 
-        // We're dispatching intents that might be coming from legacy apps, so
-        // (as in com.android.internal.app.ResolverActivity) exempt ourselves from death.
-        StrictMode.disableDeathOnFileUriExposure();
-        try {
-            activity.startActivityAsCaller(
-                    chosenIntent, options, permissionToken, ignoreTargetSecurity, userId);
-        } finally {
-            StrictMode.enableDeathOnFileUriExposure();
-        }
+        onTargetSelected(
+                activity, chosenIntent, options, permissionToken, ignoreTargetSecurity, userId);
     }
 }

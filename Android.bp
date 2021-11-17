@@ -58,6 +58,9 @@ android_app {
     min_sdk_version: "18",
     certificate: "platform",
     privileged: true,
+    required: [
+        "privapp_whitelist_com.android.intentresolver",
+    ],
     srcs: ["src/**/*.java"],
     platform_apis: true,
     static_libs: [
