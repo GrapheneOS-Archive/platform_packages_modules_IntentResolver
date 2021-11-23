@@ -34,10 +34,10 @@ import android.util.Log;
  * for notes on performing that refactoring step.
  */
 public final class ChooserActivity extends com.android.internal.app.ChooserActivity {
-
     private static final String TAG = "ChooserActivity";
 
     private IBinder mPermissionToken;
+    private boolean mIsAppPredictionServiceAvailable;
 
     /* TODO: the first section of this file contains overrides for ChooserActivity methods that need
      * to be implemented differently in the delegated version. When the two classes are merged
@@ -68,6 +68,11 @@ public final class ChooserActivity extends com.android.internal.app.ChooserActiv
         }
     }
 
+    @Override
+    public boolean isAppPredictionServiceAvailable() {
+        return mIsAppPredictionServiceAvailable;
+    }
+
     /**
      * Process the intent that was used to launch the unbundled chooser, and return true if the
      * chooser should continue to initialize as in the full Sharesheet UI, or false if the activity
@@ -76,6 +81,8 @@ public final class ChooserActivity extends com.android.internal.app.ChooserActiv
     private boolean processIntent() {
         mPermissionToken = getIntent().getExtras().getBinder(
                 ActivityTaskManager.EXTRA_PERMISSION_TOKEN);
+        mIsAppPredictionServiceAvailable = getIntent().getExtras().getBoolean(
+                EXTRA_IS_APP_PREDICTION_SERVICE_AVAILABLE);
 
         if (mPermissionToken == null) {
             Log.e(TAG, "No permission token to launch activities from chooser");
