@@ -89,46 +89,6 @@ public final class ChooserActivity extends com.android.internal.app.ChooserActiv
             return false;
         }
 
-        Intent delegatedIntent = getIntent().getParcelableExtra(Intent.EXTRA_INTENT);
-        if (delegatedIntent == null) {
-            Log.e(TAG, "No delegated intent");
-            return false;
-        }
-
-        if (tryToHandleAsDelegatedSelectionImmediately(delegatedIntent)) {
-            return false;
-        }
-
-        // This activity was launched from the system-side "springboard" component, and the embedded
-        // extra intent is the one that the calling app originally used to launch the system-side
-        // component. Treat it as if that's the intent that launched *this* activity directly (as we
-        // expect it to be when the unbundling migration is complete). This allows the superclass
-        // ChooserActivity implementation to see the same Intent data as it normally would in the
-        // system-side implementation.
-        setIntent(delegatedIntent);
-
-        return true;
-    }
-
-    /**
-     * Try to handle the delegated intent in the style of the earlier unbundled implementations,
-     * where the user has already selected a target and we're just supposed to dispatch it. Return
-     * whether this was an Intent that we were able to handle in this way.
-     *
-     * TODO: we don't need to continue to support this usage as we make more progress on the
-     * unbundling migration, but before we remove it we should double-check that there's no code
-     * path that might result in a client seeing the USE_DELEGATE_CHOOSER flag set to true in
-     * DisplayResolveInfo even though they decided not to hand off to the unbundled UI at onCreate.
-     */
-    private boolean tryToHandleAsDelegatedSelectionImmediately(Intent delegatedIntent) {
-
-        if (Intent.ACTION_CHOOSER.equals(delegatedIntent.getAction())) {
-            // It looks like we're being invoked for a full chooser, not just the selection.
-            return false;
-        }
-
-        Log.i(TAG, "Dispatching selection delegated from system chooser");
-        ChooserHelper.onChoose(this);
         return true;
     }
 }
