@@ -17,12 +17,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.android.intentresolver.tests">
 
-    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="21" />
+    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="30" />
 
-    <uses-permission android:name="android.permission.START_ACTIVITY_AS_CALLER"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+    <uses-permission android:name="android.permission.QUERY_USERS"/>
+    <uses-permission android:name="android.permission.READ_CLIPBOARD_IN_BACKGROUND"/>
+    <uses-permission android:name="android.permission.WRITE_DEVICE_CONFIG"/>
 
     <application>
         <uses-library android:name="android.test.runner" />
+        <activity android:name="com.android.intentresolver.ChooserWrapperActivity" />
+        <activity android:name="com.android.internal.app.ChooserWrapperActivity" />
     </application>
 
     <instrumentation android:name="android.testing.TestableInstrumentation"

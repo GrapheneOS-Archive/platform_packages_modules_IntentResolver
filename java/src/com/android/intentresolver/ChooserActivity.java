@@ -33,7 +33,7 @@ import android.util.Log;
  * then we'll be able to make divergent changes much more quickly. See TODO comments in this file
  * for notes on performing that refactoring step.
  */
-public final class ChooserActivity extends com.android.internal.app.ChooserActivity {
+public class ChooserActivity extends com.android.internal.app.ChooserActivity {
     private static final String TAG = "ChooserActivity";
 
     private IBinder mPermissionToken;

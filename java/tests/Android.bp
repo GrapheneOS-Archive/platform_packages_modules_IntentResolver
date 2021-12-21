@@ -13,10 +13,13 @@ android_test {
         "android.test.runner",
         "android.test.base",
         "android.test.mock",
+        "framework",
+        "framework-res",
     ],
 
     static_libs: [
         "IntentResolver-core",
+        "ChooserActivityTestsLib",
         "androidx.test.rules",
         "mockito-target-minus-junit4",
         "androidx.test.espresso.core",
@@ -24,10 +27,10 @@ android_test {
         "testables",
         "testng",
     ],
-    jni_libs: [
-    ],
     test_suites: ["general-tests"],
-    min_sdk_version: "30",
+    sdk_version: "core_platform",
     platform_apis: true,
     compile_multilib: "both",
+
+    dont_merge_manifests: true,
 }
