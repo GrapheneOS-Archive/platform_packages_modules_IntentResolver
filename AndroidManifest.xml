@@ -43,6 +43,7 @@
         android:supportsRtl="true">
 
         <activity android:name=".ChooserActivity"
+                android:theme="@style/Theme.DeviceDefault.Chooser"
                 android:finishOnCloseSystemDialogs="true"
                 android:excludeFromRecents="true"
                 android:documentLaunchMode="never"

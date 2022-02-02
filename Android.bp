@@ -33,10 +33,10 @@ license {
 
 android_library {
     name: "IntentResolver-core",
+    min_sdk_version: "current",
     srcs: [
         "java/src/**/*.java",
     ],
-    min_sdk_version: "18",
     resource_dirs: [
         "java/res",
     ],
@@ -55,7 +55,7 @@ android_library {
 
 android_app {
     name: "IntentResolver",
-    min_sdk_version: "18",
+    min_sdk_version: "current",
     certificate: "platform",
     privileged: true,
     required: [
