@@ -197,7 +197,7 @@ public class ChooserWrapperActivity
     }
 
     @Override
-    public Cursor queryResolver(ContentResolver resolver, Uri uri) {
+    public Cursor queryResolver(ContentResolver resolver, String[] projection, Uri uri) {
         if (sOverrides.resolverCursor != null) {
             return sOverrides.resolverCursor;
         }
@@ -206,7 +206,7 @@ public class ChooserWrapperActivity
             throw new SecurityException("Test exception handling");
         }
 
-        return super.queryResolver(resolver, uri);
+        return super.queryResolver(resolver, projection, uri);
     }
 
     @Override
