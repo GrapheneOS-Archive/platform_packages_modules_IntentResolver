@@ -20,11 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.when;
 
-import android.app.ActivityTaskManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Binder;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -63,8 +61,6 @@ public class UnbundledChooserActivityTest extends ChooserActivityTest {
     protected Intent getConcreteIntentForLaunch(Intent clientIntent) {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         clientIntent.setClass(context, com.android.intentresolver.ChooserWrapperActivity.class);
-
-        clientIntent.putExtra(ActivityTaskManager.EXTRA_PERMISSION_TOKEN, new Binder());
 
         PackageManager pm = ChooserActivityOverrideData.getInstance().createPackageManager
                 .apply(context.getPackageManager());
