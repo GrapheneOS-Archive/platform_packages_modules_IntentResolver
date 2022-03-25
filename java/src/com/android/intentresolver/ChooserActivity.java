@@ -16,11 +16,9 @@
 
 package com.android.intentresolver;
 
-import android.app.ActivityTaskManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.util.Log;
+import android.os.StrictMode;
 
 /**
  * Activity for selecting which application ought to handle an ACTION_SEND intent.
@@ -28,27 +26,18 @@ import android.util.Log;
 public class ChooserActivity extends com.android.internal.app.ChooserActivity {
     private static final String TAG = "ChooserActivity";
 
-    private IBinder mPermissionToken;
-
     @Override
     public boolean startAsCallerImpl(Intent intent, Bundle options, boolean ignoreTargetSecurity,
             int userId) {
-        ChooserHelper.onTargetSelected(
-                this, intent, options, mPermissionToken, ignoreTargetSecurity, userId);
-        return true;
-    }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        mPermissionToken = getIntent().getExtras().getBinder(
-                ActivityTaskManager.EXTRA_PERMISSION_TOKEN);
-
-        if (mPermissionToken != null) {
-            super.onCreate(savedInstanceState);
-        } else {
-            Log.e(TAG, "No permission token to launch activities from chooser");
-            super_onCreate(savedInstanceState);  // Skip up to Activity::onCreate().
-            finish();
+        // We're dispatching intents that might be coming from legacy apps, so
+        // (as in com.android.internal.app.ResolverActivity) exempt ourselves from death.
+        StrictMode.disableDeathOnFileUriExposure();
+        try {
+            startActivityAsCaller(intent, options, ignoreTargetSecurity, userId);
+        } finally {
+            StrictMode.enableDeathOnFileUriExposure();
         }
+        return true;
     }
 }
