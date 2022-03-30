@@ -20,24 +20,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 
+import androidx.annotation.Nullable;
+
 /**
  * Activity for selecting which application ought to handle an ACTION_SEND intent.
  */
 public class ChooserActivity extends com.android.internal.app.ChooserActivity {
-    private static final String TAG = "ChooserActivity";
 
     @Override
-    public boolean startAsCallerImpl(Intent intent, Bundle options, boolean ignoreTargetSecurity,
-            int userId) {
-
+    public void startActivityAsCaller(Intent intent, @Nullable Bundle options,
+            boolean ignoreTargetSecurity, int userId) {
         // We're dispatching intents that might be coming from legacy apps, so
         // (as in com.android.internal.app.ResolverActivity) exempt ourselves from death.
         StrictMode.disableDeathOnFileUriExposure();
         try {
-            startActivityAsCaller(intent, options, ignoreTargetSecurity, userId);
+            super.startActivityAsCaller(intent, options, ignoreTargetSecurity, userId);
         } finally {
             StrictMode.enableDeathOnFileUriExposure();
         }
-        return true;
     }
 }
