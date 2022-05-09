@@ -29,7 +29,6 @@ android_test {
     ],
     test_suites: ["general-tests"],
     sdk_version: "core_platform",
-    platform_apis: true,
     compile_multilib: "both",
 
     dont_merge_manifests: true,
