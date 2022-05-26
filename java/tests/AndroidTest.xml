@@ -14,15 +14,17 @@
      limitations under the License.
 -->
 <configuration description="Run IntentResolver Tests.">
-    <target_preparer class="com.android.tradefed.targetprep.TestAppInstallSetup">
-        <option name="test-file-name" value="IntentResolverUnitTests.apk" />
-    </target_preparer>
+    <!-- Restore these lines once the unbundled chooser is re-enabled.
+        <target_preparer class="com.android.tradefed.targetprep.TestAppInstallSetup">
+            <option name="test-file-name" value="IntentResolverUnitTests.apk" />
+        </target_preparer>
 
-    <option name="test-suite-tag" value="apct" />
-    <option name="test-tag" value="IntentResolverUnitTests" />
-    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
-        <option name="package" value="com.android.intentresolver.tests" />
-        <option name="runner" value="android.testing.TestableInstrumentation" />
-        <option name="hidden-api-checks" value="false"/>
-    </test>
+        <option name="test-suite-tag" value="apct" />
+        <option name="test-tag" value="IntentResolverUnitTests" />
+        <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+            <option name="package" value="com.android.intentresolver.tests" />
+            <option name="runner" value="android.testing.TestableInstrumentation" />
+            <option name="hidden-api-checks" value="false"/>
+        </test>
+    -->
 </configuration>
