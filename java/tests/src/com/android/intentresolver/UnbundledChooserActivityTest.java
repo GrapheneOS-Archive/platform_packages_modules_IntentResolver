@@ -29,6 +29,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.android.internal.app.ChooserActivity;
 import com.android.internal.app.ChooserActivityTest;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -38,6 +39,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Function;
 
+@Ignore("can't run until unbundled chooser is back in builds")
 @RunWith(Parameterized.class)
 public class UnbundledChooserActivityTest extends ChooserActivityTest {
     private static final Function<PackageManager, PackageManager> DEFAULT_PM = pm -> pm;
