@@ -27,7 +27,6 @@
     <application>
         <uses-library android:name="android.test.runner" />
         <activity android:name="com.android.intentresolver.ChooserWrapperActivity" />
-        <activity android:name="com.android.internal.app.ChooserWrapperActivity" />
     </application>
 
     <instrumentation android:name="android.testing.TestableInstrumentation"

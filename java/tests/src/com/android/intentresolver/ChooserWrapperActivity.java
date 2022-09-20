@@ -33,15 +33,15 @@ import android.net.Uri;
 import android.os.UserHandle;
 import android.util.Size;
 
-import com.android.internal.app.AbstractMultiProfilePagerAdapter;
-import com.android.internal.app.ChooserActivityLogger;
-import com.android.internal.app.ChooserActivityOverrideData;
-import com.android.internal.app.ChooserListAdapter;
-import com.android.internal.app.IChooserWrapper;
-import com.android.internal.app.ResolverListAdapter.ResolveInfoPresentationGetter;
-import com.android.internal.app.ResolverListController;
-import com.android.internal.app.chooser.DisplayResolveInfo;
-import com.android.internal.app.chooser.TargetInfo;
+import com.android.intentresolver.AbstractMultiProfilePagerAdapter;
+import com.android.intentresolver.ChooserActivityLogger;
+import com.android.intentresolver.ChooserActivityOverrideData;
+import com.android.intentresolver.ChooserListAdapter;
+import com.android.intentresolver.IChooserWrapper;
+import com.android.intentresolver.ResolverListAdapter.ResolveInfoPresentationGetter;
+import com.android.intentresolver.ResolverListController;
+import com.android.intentresolver.chooser.DisplayResolveInfo;
+import com.android.intentresolver.chooser.TargetInfo;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
@@ -139,7 +139,7 @@ public class ChooserWrapperActivity
     }
 
     @Override
-    public void safelyStartActivity(com.android.internal.app.chooser.TargetInfo cti) {
+    public void safelyStartActivity(com.android.intentresolver.chooser.TargetInfo cti) {
         if (sOverrides.onSafelyStartCallback != null
                 && sOverrides.onSafelyStartCallback.apply(cti)) {
             return;
