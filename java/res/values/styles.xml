@@ -36,14 +36,14 @@
 <!--        <item name="listPreferredItemPaddingStart">?attr/dialogPreferredPadding</item>-->
 <!--        <item name="listPreferredItemPaddingEnd">?attr/dialogPreferredPadding</item>-->
         <item name="android:navigationBarColor">@android:color/transparent</item>
-<!--        <item name="android:iconfactoryIconSize">@dimen/resolver_icon_size</item>-->
-<!--        <item name="android:iconfactoryBadgeSize">@dimen/resolver_badge_size</item>-->
+        <item name="*android:iconfactoryIconSize">@dimen/resolver_icon_size</item>
+        <item name="*android:iconfactoryBadgeSize">@dimen/resolver_badge_size</item>
     </style>
     <style name="Theme.DeviceDefault.Resolver" parent="Theme.DeviceDefault.ResolverCommon">
         <item name="android:windowLightNavigationBar">true</item>
     </style>
     <style name="Theme.DeviceDefault.Chooser" parent="Theme.DeviceDefault.Resolver">
-<!--        <item name="android:iconfactoryIconSize">@dimen/chooser_icon_size</item>-->
-<!--        <item name="android:iconfactoryBadgeSize">@dimen/chooser_badge_size</item>-->
+        <item name="*android:iconfactoryIconSize">@dimen/chooser_icon_size</item>
+        <item name="*android:iconfactoryBadgeSize">@dimen/chooser_badge_size</item>
     </style>
 </resources>
