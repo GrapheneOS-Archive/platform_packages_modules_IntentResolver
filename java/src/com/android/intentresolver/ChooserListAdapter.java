@@ -48,7 +48,6 @@ import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo;
 import com.android.intentresolver.chooser.TargetInfo;
-
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 
@@ -820,7 +819,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
         public void setViewHolder(ViewHolder viewHolder) {
             mViewHolder = viewHolder;
             mViewHolder.bindIcon(mTargetInfo);
-            notifyDataSetChanged();
         }
 
         /**
