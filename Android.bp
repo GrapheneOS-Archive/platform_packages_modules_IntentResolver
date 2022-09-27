@@ -45,6 +45,7 @@ android_library {
 
     static_libs: [
         "androidx.annotation_annotation",
+        "unsupportedappusage",
     ],
 
     plugins: ["java_api_finder"],
@@ -66,6 +67,12 @@ android_app {
     static_libs: [
         "IntentResolver-core",
     ],
+    optimize: {
+        // TODO: consider re-enabling after setting up Proguard rules to
+        // preserve the name of the ChooserGridLayoutManager class, which is
+        // referenced by name in the chooser_list_per_profile layout XML.
+        enabled: false,
+    },
     apex_available: [
         "//apex_available:platform",
         "com.android.intentresolver",
