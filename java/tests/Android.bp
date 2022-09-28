@@ -7,7 +7,7 @@ android_test {
     name: "IntentResolverUnitTests",
 
     // Include all test java files.
-    srcs: ["src/**/*.java"],
+    srcs: ["src/**/*.java", "src/**/*.kt"],
 
     libs: [
         "android.test.runner",
