@@ -1370,92 +1370,6 @@ public class UnbundledChooserActivityTest {
                 is(testBaseScore * SHORTCUT_TARGET_SCORE_BOOST));
     }
 
-    @Test
-    public void testConvertToChooserTarget_predictionService() {
-        Intent sendIntent = createSendTextIntent();
-        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resolverListController
-                        .getResolversForIntent(
-                                Mockito.anyBoolean(),
-                                Mockito.anyBoolean(),
-                                Mockito.anyBoolean(),
-                                Mockito.isA(List.class)))
-                .thenReturn(resolvedComponentInfos);
-
-        final ChooserActivity activity =
-                mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
-        waitForIdle();
-
-        List<ShareShortcutInfo> shortcuts = createShortcuts(activity);
-
-        int[] expectedOrderAllShortcuts = {0, 1, 2, 3};
-        float[] expectedScoreAllShortcuts = {1.0f, 0.99f, 0.98f, 0.97f};
-
-        List<ChooserTarget> chooserTargets = activity.convertToChooserTarget(shortcuts, shortcuts,
-                null, TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE);
-        assertCorrectShortcutToChooserTargetConversion(shortcuts, chooserTargets,
-                expectedOrderAllShortcuts, expectedScoreAllShortcuts);
-
-        List<ShareShortcutInfo> subset = new ArrayList<>();
-        subset.add(shortcuts.get(1));
-        subset.add(shortcuts.get(2));
-        subset.add(shortcuts.get(3));
-
-        int[] expectedOrderSubset = {1, 2, 3};
-        float[] expectedScoreSubset = {0.99f, 0.98f, 0.97f};
-
-        chooserTargets = activity.convertToChooserTarget(subset, shortcuts, null,
-                TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE);
-        assertCorrectShortcutToChooserTargetConversion(shortcuts, chooserTargets,
-                expectedOrderSubset, expectedScoreSubset);
-    }
-
-    @Test
-    public void testConvertToChooserTarget_shortcutManager() {
-        Intent sendIntent = createSendTextIntent();
-        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resolverListController
-                        .getResolversForIntent(
-                                Mockito.anyBoolean(),
-                                Mockito.anyBoolean(),
-                                Mockito.anyBoolean(),
-                                Mockito.isA(List.class)))
-                .thenReturn(resolvedComponentInfos);
-
-        final ChooserActivity activity =
-                mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
-        waitForIdle();
-
-        List<ShareShortcutInfo> shortcuts = createShortcuts(activity);
-
-        int[] expectedOrderAllShortcuts = {2, 0, 3, 1};
-        float[] expectedScoreAllShortcuts = {1.0f, 0.99f, 0.99f, 0.98f};
-
-        List<ChooserTarget> chooserTargets = activity.convertToChooserTarget(shortcuts, shortcuts,
-                null, TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER);
-        assertCorrectShortcutToChooserTargetConversion(shortcuts, chooserTargets,
-                expectedOrderAllShortcuts, expectedScoreAllShortcuts);
-
-        List<ShareShortcutInfo> subset = new ArrayList<>();
-        subset.add(shortcuts.get(1));
-        subset.add(shortcuts.get(2));
-        subset.add(shortcuts.get(3));
-
-        int[] expectedOrderSubset = {2, 3, 1};
-        float[] expectedScoreSubset = {1.0f, 0.99f, 0.98f};
-
-        chooserTargets = activity.convertToChooserTarget(subset, shortcuts, null,
-                TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER);
-        assertCorrectShortcutToChooserTargetConversion(shortcuts, chooserTargets,
-                expectedOrderSubset, expectedScoreSubset);
-    }
-
     // This test is too long and too slow and should not be taken as an example for future tests.
     @Test @Ignore
     public void testDirectTargetSelectionLogging() throws InterruptedException {
@@ -3110,21 +3024,6 @@ public class UnbundledChooserActivityTest {
                 new ComponentName("package4", "class4")));
 
         return shortcuts;
-    }
-
-    private void assertCorrectShortcutToChooserTargetConversion(List<ShareShortcutInfo> shortcuts,
-            List<ChooserTarget> chooserTargets, int[] expectedOrder, float[] expectedScores) {
-        assertEquals(expectedOrder.length, chooserTargets.size());
-        for (int i = 0; i < chooserTargets.size(); i++) {
-            ChooserTarget ct = chooserTargets.get(i);
-            ShortcutInfo si = shortcuts.get(expectedOrder[i]).getShortcutInfo();
-            ComponentName cn = shortcuts.get(expectedOrder[i]).getTargetComponent();
-
-            assertEquals(si.getId(), ct.getIntentExtras().getString(Intent.EXTRA_SHORTCUT_ID));
-            assertEquals(si.getShortLabel(), ct.getTitle());
-            assertThat(Math.abs(expectedScores[i] - ct.getScore()) < 0.000001, is(true));
-            assertEquals(cn.flattenToString(), ct.getComponentName().flattenToString());
-        }
     }
 
     private void markWorkProfileUserAvailable() {
