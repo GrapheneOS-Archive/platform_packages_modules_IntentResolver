@@ -47,7 +47,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -86,6 +85,7 @@ import android.service.chooser.ChooserTarget;
 import android.view.View;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 import androidx.test.espresso.matcher.BoundedDiagnosingMatcher;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -130,7 +130,6 @@ import java.util.function.Function;
  * TODO: this can simply be renamed to "ChooserActivityTest" if that's ever unambiguous (i.e., if
  * there's no risk of confusion with the framework tests that currently share the same name).
  */
-@Ignore("investigate b/241944046 and re-enabled")
 @RunWith(Parameterized.class)
 public class UnbundledChooserActivityTest {
 
@@ -252,13 +251,31 @@ public class UnbundledChooserActivityTest {
         mTestNum = testNum;
     }
 
+    private void setDeviceConfigProperty(
+            @NonNull String propertyName,
+            @NonNull String value) {
+        // TODO: consider running with {@link #runWithShellPermissionIdentity()} to more narrowly
+        // request WRITE_DEVICE_CONFIG permissions if we get rid of the broad grant we currently
+        // configure in {@link #setup()}.
+        // TODO: is it really appropriate that this is always set with makeDefault=true?
+        boolean valueWasSet = DeviceConfig.setProperty(
+                DeviceConfig.NAMESPACE_SYSTEMUI,
+                propertyName,
+                value,
+                true /* makeDefault */);
+        if (!valueWasSet) {
+            throw new IllegalStateException(
+                        "Could not set " + propertyName + " to " + value);
+        }
+    }
+
     public void cleanOverrideData() {
         ChooserActivityOverrideData.getInstance().reset();
         ChooserActivityOverrideData.getInstance().createPackageManager = mPackageManagerOverride;
-        DeviceConfig.setProperty(DeviceConfig.NAMESPACE_SYSTEMUI,
+
+        setDeviceConfigProperty(
                 SystemUiDeviceConfigFlags.APPLY_SHARING_APP_LIMITS_IN_SYSUI,
-                Boolean.toString(true),
-                true /* makeDefault*/);
+                Boolean.toString(true));
     }
 
     @Test
@@ -282,7 +299,7 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
         assertThat(activity.getAdapter().getCount(), is(2));
         assertThat(activity.getAdapter().getServiceTargetCount(), is(0));
-        onView(withIdFromRuntimeResource("title")).check(matches(withText("chooser test")));
+        onView(withId(android.R.id.title)).check(matches(withText("chooser test")));
     }
 
     @Test
@@ -302,8 +319,8 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "chooser test"));
         waitForIdle();
-        onView(withIdFromRuntimeResource("title"))
-                .check(matches(withTextFromRuntimeResource("whichSendApplication")));
+        onView(withId(android.R.id.title))
+                .check(matches(withText(com.android.internal.R.string.whichSendApplication)));
     }
 
     @Test
@@ -323,8 +340,8 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withIdFromRuntimeResource("title"))
-                .check(matches(withTextFromRuntimeResource("whichSendApplication")));
+        onView(withId(android.R.id.title))
+                .check(matches(withText(com.android.internal.R.string.whichSendApplication)));
     }
 
     @Test
@@ -344,9 +361,9 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withIdFromRuntimeResource("content_preview_title"))
+        onView(withId(com.android.internal.R.id.content_preview_title))
                 .check(matches(not(isDisplayed())));
-        onView(withIdFromRuntimeResource("content_preview_thumbnail"))
+        onView(withId(com.android.internal.R.id.content_preview_thumbnail))
                 .check(matches(not(isDisplayed())));
     }
 
@@ -368,11 +385,11 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withIdFromRuntimeResource("content_preview_title"))
+        onView(withId(com.android.internal.R.id.content_preview_title))
                 .check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("content_preview_title"))
+        onView(withId(com.android.internal.R.id.content_preview_title))
                 .check(matches(withText(previewTitle)));
-        onView(withIdFromRuntimeResource("content_preview_thumbnail"))
+        onView(withId(com.android.internal.R.id.content_preview_thumbnail))
                 .check(matches(not(isDisplayed())));
     }
 
@@ -395,8 +412,9 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withIdFromRuntimeResource("content_preview_title")).check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("content_preview_thumbnail"))
+        onView(withId(com.android.internal.R.id.content_preview_title))
+                .check(matches(isDisplayed()));
+        onView(withId(com.android.internal.R.id.content_preview_thumbnail))
                 .check(matches(not(isDisplayed())));
     }
 
@@ -405,7 +423,7 @@ public class UnbundledChooserActivityTest {
         String previewTitle = "My Content Preview Title";
         Intent sendIntent = createSendTextIntentWithPreview(previewTitle,
                 Uri.parse("android.resource://com.android.frameworks.coretests/"
-                        + com.android.frameworks.coretests.R.drawable.test320x240));
+                        + R.drawable.test320x240));
         ChooserActivityOverrideData.getInstance().previewThumbnail = createBitmap();
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
 
@@ -421,8 +439,9 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withIdFromRuntimeResource("content_preview_title")).check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("content_preview_thumbnail"))
+        onView(withId(com.android.internal.R.id.content_preview_title))
+                .check(matches(isDisplayed()));
+        onView(withId(com.android.internal.R.id.content_preview_thumbnail))
                 .check(matches(isDisplayed()));
     }
 
@@ -447,7 +466,7 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
 
         assertThat(activity.getAdapter().getCount(), is(2));
-        onView(withIdFromRuntimeResource("profile_button")).check(doesNotExist());
+        onView(withId(com.android.internal.R.id.profile_button)).check(doesNotExist());
 
         ResolveInfo[] chosen = new ResolveInfo[1];
         ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
@@ -580,8 +599,8 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
         assertThat(activity.isFinishing(), is(false));
 
-        onView(withIdFromRuntimeResource("empty")).check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("profile_pager")).check(matches(not(isDisplayed())));
+        onView(withId(android.R.id.empty)).check(matches(isDisplayed()));
+        onView(withId(com.android.internal.R.id.profile_pager)).check(matches(not(isDisplayed())));
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 () -> wrapper.getAdapter().handlePackagesChanged()
         );
@@ -748,8 +767,8 @@ public class UnbundledChooserActivityTest {
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
-        onView(withIdFromRuntimeResource("chooser_copy_button")).check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("chooser_copy_button")).perform(click());
+        onView(withId(com.android.internal.R.id.chooser_copy_button)).check(matches(isDisplayed()));
+        onView(withId(com.android.internal.R.id.chooser_copy_button)).perform(click());
         ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(
                 Context.CLIPBOARD_SERVICE);
         ClipData clipData = clipboard.getPrimaryClip();
@@ -778,8 +797,8 @@ public class UnbundledChooserActivityTest {
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
-        onView(withIdFromRuntimeResource("chooser_copy_button")).check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("chooser_copy_button")).perform(click());
+        onView(withId(com.android.internal.R.id.chooser_copy_button)).check(matches(isDisplayed()));
+        onView(withId(com.android.internal.R.id.chooser_copy_button)).perform(click());
 
         verify(mockLogger, atLeastOnce()).write(logMakerCaptor.capture());
 
@@ -806,8 +825,9 @@ public class UnbundledChooserActivityTest {
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
-        onView(withIdFromRuntimeResource("chooser_nearby_button")).check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("chooser_nearby_button")).perform(click());
+        onView(withId(com.android.internal.R.id.chooser_nearby_button))
+                .check(matches(isDisplayed()));
+        onView(withId(com.android.internal.R.id.chooser_nearby_button)).perform(click());
 
         ChooserActivityLoggerFake logger =
                 (ChooserActivityLoggerFake) activity.getChooserActivityLogger();
@@ -860,7 +880,7 @@ public class UnbundledChooserActivityTest {
     public void testEditImageLogs() throws Exception {
         Intent sendIntent = createSendImageIntent(
                 Uri.parse("android.resource://com.android.frameworks.coretests/"
-                        + com.android.frameworks.coretests.R.drawable.test320x240));
+                        + R.drawable.test320x240));
 
         ChooserActivityOverrideData.getInstance().previewThumbnail = createBitmap();
         ChooserActivityOverrideData.getInstance().isImageType = true;
@@ -877,8 +897,8 @@ public class UnbundledChooserActivityTest {
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
-        onView(withIdFromRuntimeResource("chooser_edit_button")).check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("chooser_edit_button")).perform(click());
+        onView(withId(com.android.internal.R.id.chooser_edit_button)).check(matches(isDisplayed()));
+        onView(withId(com.android.internal.R.id.chooser_edit_button)).perform(click());
 
         ChooserActivityLoggerFake logger =
                 (ChooserActivityLoggerFake) activity.getChooserActivityLogger();
@@ -929,7 +949,7 @@ public class UnbundledChooserActivityTest {
     @Test
     public void oneVisibleImagePreview() throws InterruptedException {
         Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
-                + com.android.frameworks.coretests.R.drawable.test320x240);
+                + R.drawable.test320x240);
 
         ArrayList<Uri> uris = new ArrayList<>();
         uris.add(uri);
@@ -952,20 +972,20 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withIdFromRuntimeResource("content_preview_image_1_large"))
+        onView(withId(com.android.internal.R.id.content_preview_image_1_large))
                 .check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("content_preview_image_2_large"))
+        onView(withId(com.android.internal.R.id.content_preview_image_2_large))
                 .check(matches(not(isDisplayed())));
-        onView(withIdFromRuntimeResource("content_preview_image_2_small"))
+        onView(withId(com.android.internal.R.id.content_preview_image_2_small))
                 .check(matches(not(isDisplayed())));
-        onView(withIdFromRuntimeResource("content_preview_image_3_small"))
+        onView(withId(com.android.internal.R.id.content_preview_image_3_small))
                 .check(matches(not(isDisplayed())));
     }
 
     @Test
     public void twoVisibleImagePreview() throws InterruptedException {
         Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
-                + com.android.frameworks.coretests.R.drawable.test320x240);
+                + R.drawable.test320x240);
 
         ArrayList<Uri> uris = new ArrayList<>();
         uris.add(uri);
@@ -989,20 +1009,20 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withIdFromRuntimeResource("content_preview_image_1_large"))
+        onView(withId(com.android.internal.R.id.content_preview_image_1_large))
                 .check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("content_preview_image_2_large"))
+        onView(withId(com.android.internal.R.id.content_preview_image_2_large))
                 .check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("content_preview_image_2_small"))
+        onView(withId(com.android.internal.R.id.content_preview_image_2_small))
                 .check(matches(not(isDisplayed())));
-        onView(withIdFromRuntimeResource("content_preview_image_3_small"))
+        onView(withId(com.android.internal.R.id.content_preview_image_3_small))
                 .check(matches(not(isDisplayed())));
     }
 
     @Test
     public void threeOrMoreVisibleImagePreview() throws InterruptedException {
         Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
-                + com.android.frameworks.coretests.R.drawable.test320x240);
+                + R.drawable.test320x240);
 
         ArrayList<Uri> uris = new ArrayList<>();
         uris.add(uri);
@@ -1029,13 +1049,13 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withIdFromRuntimeResource("content_preview_image_1_large"))
+        onView(withId(com.android.internal.R.id.content_preview_image_1_large))
                 .check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("content_preview_image_2_large"))
+        onView(withId(com.android.internal.R.id.content_preview_image_2_large))
                 .check(matches(not(isDisplayed())));
-        onView(withIdFromRuntimeResource("content_preview_image_2_small"))
+        onView(withId(com.android.internal.R.id.content_preview_image_2_small))
                 .check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("content_preview_image_3_small"))
+        onView(withId(com.android.internal.R.id.content_preview_image_3_small))
                 .check(matches(isDisplayed()));
     }
 
@@ -1135,7 +1155,7 @@ public class UnbundledChooserActivityTest {
     @Test
     public void testImagePreviewLogging() {
         Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
-                + com.android.frameworks.coretests.R.drawable.test320x240);
+                + R.drawable.test320x240);
 
         ArrayList<Uri> uris = new ArrayList<>();
         uris.add(uri);
@@ -1192,10 +1212,11 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withIdFromRuntimeResource("content_preview_filename")).check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("content_preview_filename"))
+        onView(withId(com.android.internal.R.id.content_preview_filename))
+                .check(matches(isDisplayed()));
+        onView(withId(com.android.internal.R.id.content_preview_filename))
                 .check(matches(withText("app.pdf")));
-        onView(withIdFromRuntimeResource("content_preview_file_icon"))
+        onView(withId(com.android.internal.R.id.content_preview_file_icon))
                 .check(matches(isDisplayed()));
     }
 
@@ -1225,11 +1246,11 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withIdFromRuntimeResource("content_preview_filename"))
+        onView(withId(com.android.internal.R.id.content_preview_filename))
                 .check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("content_preview_filename"))
+        onView(withId(com.android.internal.R.id.content_preview_filename))
                 .check(matches(withText("app.pdf + 2 files")));
-        onView(withIdFromRuntimeResource("content_preview_file_icon"))
+        onView(withId(com.android.internal.R.id.content_preview_file_icon))
                 .check(matches(isDisplayed()));
     }
 
@@ -1258,10 +1279,11 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withIdFromRuntimeResource("content_preview_filename")).check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("content_preview_filename"))
+        onView(withId(com.android.internal.R.id.content_preview_filename))
+                .check(matches(isDisplayed()));
+        onView(withId(com.android.internal.R.id.content_preview_filename))
                 .check(matches(withText("app.pdf")));
-        onView(withIdFromRuntimeResource("content_preview_file_icon"))
+        onView(withId(com.android.internal.R.id.content_preview_file_icon))
                 .check(matches(isDisplayed()));
     }
 
@@ -1297,10 +1319,11 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withIdFromRuntimeResource("content_preview_filename")).check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("content_preview_filename"))
+        onView(withId(com.android.internal.R.id.content_preview_filename))
+                .check(matches(isDisplayed()));
+        onView(withId(com.android.internal.R.id.content_preview_filename))
                 .check(matches(withText("app.pdf + 1 file")));
-        onView(withIdFromRuntimeResource("content_preview_file_icon"))
+        onView(withId(com.android.internal.R.id.content_preview_file_icon))
                 .check(matches(isDisplayed()));
     }
 
@@ -1592,8 +1615,7 @@ public class UnbundledChooserActivityTest {
                 ChooserActivityOverrideData
                         .getInstance()
                         .resources
-                        .getInteger(
-                              getRuntimeResourceId("config_maxShortcutTargetsPerApp", "integer")))
+                        .getInteger(R.integer.config_maxShortcutTargetsPerApp))
                 .thenReturn(1);
         Intent sendIntent = createSendTextIntent();
         // We need app targets for direct targets to get displayed
@@ -1654,10 +1676,9 @@ public class UnbundledChooserActivityTest {
 
     @Test @Ignore
     public void testShortcutTargetWithoutApplyAppLimits() throws InterruptedException {
-        DeviceConfig.setProperty(DeviceConfig.NAMESPACE_SYSTEMUI,
+        setDeviceConfigProperty(
                 SystemUiDeviceConfigFlags.APPLY_SHARING_APP_LIMITS_IN_SYSUI,
-                Boolean.toString(false),
-                true /* makeDefault*/);
+                Boolean.toString(false));
         // Set up resources
         ChooserActivityOverrideData.getInstance().resources = Mockito.spy(
                 InstrumentationRegistry.getInstrumentation().getContext().getResources());
@@ -1665,8 +1686,7 @@ public class UnbundledChooserActivityTest {
                 ChooserActivityOverrideData
                         .getInstance()
                         .resources
-                        .getInteger(
-                              getRuntimeResourceId("config_maxShortcutTargetsPerApp", "integer")))
+                        .getInteger(R.integer.config_maxShortcutTargetsPerApp))
                 .thenReturn(1);
         Intent sendIntent = createSendTextIntent();
         // We need app targets for direct targets to get displayed
@@ -1742,7 +1762,7 @@ public class UnbundledChooserActivityTest {
                                 .getContext().getResources().getConfiguration()));
 
         waitForIdle();
-        onView(withIdFromRuntimeResource("resolver_list"))
+        onView(withId(com.android.internal.R.id.resolver_list))
                 .check(matches(withGridColumnCount(6)));
     }
 
@@ -1859,7 +1879,7 @@ public class UnbundledChooserActivityTest {
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
 
-        onView(withIdFromRuntimeResource("tabs")).check(matches(isDisplayed()));
+        onView(withId(android.R.id.tabs)).check(matches(isDisplayed()));
     }
 
     @Test
@@ -1872,7 +1892,7 @@ public class UnbundledChooserActivityTest {
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
 
-        onView(withIdFromRuntimeResource("tabs")).check(matches(not(isDisplayed())));
+        onView(withId(android.R.id.tabs)).check(matches(not(isDisplayed())));
     }
 
     @Test
@@ -1897,7 +1917,7 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
 
         assertThat(activity.getCurrentUserHandle().getIdentifier(), is(0));
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         assertThat(activity.getCurrentUserHandle().getIdentifier(), is(10));
         assertThat(activity.getPersonalListAdapter().getCount(), is(personalProfileTargets));
         assertThat(activity.getWorkListAdapter().getCount(), is(workProfileTargets));
@@ -1920,7 +1940,7 @@ public class UnbundledChooserActivityTest {
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
         assertThat(activity.getWorkListAdapter().getCount(), is(workProfileTargets));
@@ -1948,7 +1968,7 @@ public class UnbundledChooserActivityTest {
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
         // wait for the share sheet to expand
         Thread.sleep(((ChooserActivity) activity).mListViewUpdateDelayMs);
@@ -1979,12 +1999,12 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
-        onView(withIdFromRuntimeResource("contentPanel"))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
 
-        onView(withTextFromRuntimeResource("resolver_cross_profile_blocked"))
+        onView(withText(R.string.resolver_cross_profile_blocked))
                 .check(matches(isDisplayed()));
     }
 
@@ -2005,12 +2025,12 @@ public class UnbundledChooserActivityTest {
         ResolverActivity.ENABLE_TABBED_VIEW = true;
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
-        onView(withIdFromRuntimeResource("contentPanel"))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
-        onView(withTextFromRuntimeResource("resolver_turn_on_work_apps"))
+        onView(withText(R.string.resolver_turn_on_work_apps))
                 .check(matches(isDisplayed()));
     }
 
@@ -2029,12 +2049,12 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
-        onView(withIdFromRuntimeResource("contentPanel"))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
-        onView(withTextFromRuntimeResource("resolver_no_work_apps_available"))
+        onView(withText(R.string.resolver_no_work_apps_available))
                 .check(matches(isDisplayed()));
     }
 
@@ -2056,12 +2076,12 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
-        onView(withIdFromRuntimeResource("contentPanel"))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
-        onView(withTextFromRuntimeResource("resolver_cross_profile_blocked"))
+        onView(withText(R.string.resolver_cross_profile_blocked))
                 .check(matches(isDisplayed()));
     }
 
@@ -2081,12 +2101,12 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
-        onView(withIdFromRuntimeResource("contentPanel"))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
-        onView(withTextFromRuntimeResource("resolver_no_work_apps_available"))
+        onView(withText(R.string.resolver_no_work_apps_available))
                 .check(matches(isDisplayed()));
     }
 
@@ -2115,7 +2135,7 @@ public class UnbundledChooserActivityTest {
         // timeout everywhere instead of introducing one to fix this particular test.
 
         assertThat(activity.getAdapter().getCount(), is(2));
-        onView(withIdFromRuntimeResource("profile_button")).check(doesNotExist());
+        onView(withId(com.android.internal.R.id.profile_button)).check(doesNotExist());
 
         ResolveInfo[] chosen = new ResolveInfo[1];
         ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
@@ -2351,8 +2371,8 @@ public class UnbundledChooserActivityTest {
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
-        onView(withIdFromRuntimeResource("chooser_copy_button")).check(matches(isDisplayed()));
-        onView(withIdFromRuntimeResource("chooser_copy_button")).perform(click());
+        onView(withId(com.android.internal.R.id.chooser_copy_button)).check(matches(isDisplayed()));
+        onView(withId(com.android.internal.R.id.chooser_copy_button)).perform(click());
 
         ChooserActivityLoggerFake logger =
                 (ChooserActivityLoggerFake) activity.getChooserActivityLogger();
@@ -2416,9 +2436,9 @@ public class UnbundledChooserActivityTest {
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
-        onView(withTextFromRuntimeResource("resolver_personal_tab")).perform(click());
+        onView(withText(R.string.resolver_personal_tab)).perform(click());
         waitForIdle();
 
         ChooserActivityLoggerFake logger =
@@ -2662,12 +2682,12 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(chooserIntent);
         waitForIdle();
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
-        onView(withIdFromRuntimeResource("contentPanel"))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
 
-        onView(withTextFromRuntimeResource("resolver_cross_profile_blocked"))
+        onView(withText(R.string.resolver_cross_profile_blocked))
                 .check(matches(isDisplayed()));
     }
 
@@ -2696,12 +2716,12 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(chooserIntent);
         waitForIdle();
-        onView(withIdFromRuntimeResource("contentPanel"))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
-        onView(withTextFromRuntimeResource("resolver_no_work_apps_available"))
+        onView(withText(R.string.resolver_no_work_apps_available))
                 .check(matches(isDisplayed()));
     }
 
@@ -2762,9 +2782,9 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
-        onView(withIdFromRuntimeResource("contentPanel"))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
         assertFalse("Direct share targets were queried on a paused work profile",
@@ -2794,9 +2814,9 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
-        onView(withIdFromRuntimeResource("contentPanel"))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
         assertFalse("Direct share targets were queried on a locked work profile user",
@@ -2821,8 +2841,8 @@ public class UnbundledChooserActivityTest {
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         final IChooserWrapper wrapper = (IChooserWrapper) activity;
         waitForIdle();
-        onView(withIdFromRuntimeResource("contentPanel")).perform(swipeUp());
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withId(com.android.internal.R.id.contentPanel)).perform(swipeUp());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
         assertEquals(3, wrapper.getWorkListAdapter().getCount());
@@ -2851,9 +2871,9 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
-        onView(withIdFromRuntimeResource("contentPanel"))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
         assertFalse("Direct share targets were queried on a locked work profile user",
@@ -2878,9 +2898,9 @@ public class UnbundledChooserActivityTest {
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         final IChooserWrapper wrapper = (IChooserWrapper) activity;
         waitForIdle();
-        onView(withIdFromRuntimeResource("contentPanel"))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
-        onView(withTextFromRuntimeResource("resolver_work_tab")).perform(click());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
         assertEquals(3, wrapper.getWorkListAdapter().getCount());
@@ -3147,14 +3167,6 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(new ArrayList<>(personalResolvedComponentInfos));
     }
 
-    private Matcher<View> withIdFromRuntimeResource(String id) {
-        return withId(getRuntimeResourceId(id, "id"));
-    }
-
-    private Matcher<View> withTextFromRuntimeResource(String id) {
-        return withText(getRuntimeResourceId(id, "string"));
-    }
-
     private static GridRecyclerSpanCountMatcher withGridColumnCount(int columnCount) {
         return new GridRecyclerSpanCountMatcher(Matchers.is(columnCount));
     }
@@ -3212,27 +3224,5 @@ public class UnbundledChooserActivityTest {
                         .resources
                         .getInteger(R.integer.config_chooser_max_targets_per_row))
                 .thenReturn(targetsPerRow);
-    }
-
-    // ChooserWrapperActivity inherits from the framework ChooserActivity, so if the framework
-    // resources have been updated since the framework was last built/pushed, the inherited behavior
-    // (which is the focus of our testing) will still be implemented in terms of the old resource
-    // IDs; then when we try to assert those IDs in tests (e.g. `onView(withText(R.string.foo))`),
-    // the expected values won't match. The tests can instead call this method (with the same
-    // general semantics as Resources#getIdentifier() e.g. `getRuntimeResourceId("foo", "string")`)
-    // to refer to the resource by that name in the runtime chooser, regardless of whether the
-    // framework code on the device is up-to-date.
-    // TODO: is there a better way to do this? (Other than abandoning inheritance-based DI wrapper?)
-    private int getRuntimeResourceId(String name, String defType) {
-        int id = -1;
-        if (ChooserActivityOverrideData.getInstance().resources != null) {
-            id = ChooserActivityOverrideData.getInstance().resources.getIdentifier(
-                  name, defType, "android");
-        } else {
-            id = mActivityRule.getActivity().getResources().getIdentifier(name, defType, "android");
-        }
-        assertThat(id, greaterThan(0));
-
-        return id;
     }
 }
