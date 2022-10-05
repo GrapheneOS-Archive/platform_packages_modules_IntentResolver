@@ -16,19 +16,20 @@
 * limitations under the License.
 */
 -->
-<com.android.internal.widget.ResolverDrawerLayout
+<com.android.intentresolver.widget.ResolverDrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:maxWidth="@dimen/resolver_max_width"
-    androidprv:maxCollapsedHeight="@dimen/resolver_max_collapsed_height_with_default"
+    app:maxCollapsedHeight="@dimen/resolver_max_collapsed_height_with_default"
     android:id="@androidprv:id/contentPanel">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        androidprv:layout_alwaysShow="true"
+        app:layout_alwaysShow="true"
         android:orientation="vertical"
         android:background="@drawable/bottomsheet_background"
         android:paddingTop="@dimen/resolver_small_margin"
@@ -105,7 +106,7 @@
             style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            androidprv:layout_alwaysShow="true"
+            app:layout_alwaysShow="true"
             android:gravity="end|center_vertical"
             android:orientation="horizontal"
             android:layoutDirection="locale"
@@ -146,7 +147,7 @@
 
     <View
         android:id="@androidprv:id/divider"
-        androidprv:layout_alwaysShow="true"
+        app:layout_alwaysShow="true"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="?android:attr/colorBackground"
@@ -154,14 +155,14 @@
 
     <FrameLayout
         android:id="@androidprv:id/stub"
-        androidprv:layout_alwaysShow="true"
+        app:layout_alwaysShow="true"
         android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/colorBackground"/>
 
     <TabHost
-        androidprv:layout_alwaysShow="true"
+        app:layout_alwaysShow="true"
         android:id="@androidprv:id/profile_tabhost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -198,9 +199,9 @@
     </TabHost>
 
     <View
-        androidprv:layout_alwaysShow="true"
+        app:layout_alwaysShow="true"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="?android:attr/colorBackground"
         android:foreground="?android:attr/dividerVertical" />
-</com.android.internal.widget.ResolverDrawerLayout>
+</com.android.intentresolver.widget.ResolverDrawerLayout>

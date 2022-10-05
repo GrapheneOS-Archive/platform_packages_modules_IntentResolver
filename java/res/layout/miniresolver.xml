@@ -14,20 +14,21 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<com.android.internal.widget.ResolverDrawerLayout
+<com.android.intentresolver.widget.ResolverDrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:maxWidth="@dimen/resolver_max_width"
-    androidprv:maxCollapsedHeight="@dimen/resolver_max_collapsed_height"
-    androidprv:maxCollapsedHeightSmall="56dp"
+    app:maxCollapsedHeight="@dimen/resolver_max_collapsed_height"
+    app:maxCollapsedHeightSmall="56dp"
     android:id="@androidprv:id/contentPanel">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        androidprv:layout_alwaysShow="true"
+        app:layout_alwaysShow="true"
         android:elevation="@dimen/resolver_elevation"
         android:paddingTop="24dp"
         android:paddingStart="@dimen/resolver_edge_margin"
@@ -62,18 +63,18 @@
         android:id="@androidprv:id/button_bar_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        androidprv:layout_alwaysShow="true"
+        app:layout_alwaysShow="true"
         android:paddingTop="32dp"
         android:paddingBottom="@dimen/resolver_button_bar_spacing"
         android:orientation="vertical"
         android:background="?android:attr/colorBackground"
-        androidprv:layout_ignoreOffset="true">
+        app:layout_ignoreOffset="true">
         <RelativeLayout
             style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            androidprv:layout_ignoreOffset="true"
-            androidprv:layout_hasNestedScrollIndicator="true"
+            app:layout_ignoreOffset="true"
+            app:layout_hasNestedScrollIndicator="true"
             android:gravity="end|center_vertical"
             android:orientation="horizontal"
             android:layoutDirection="locale"
@@ -112,4 +113,4 @@
             />
         </RelativeLayout>
     </LinearLayout>
-</com.android.internal.widget.ResolverDrawerLayout>
+</com.android.intentresolver.widget.ResolverDrawerLayout>

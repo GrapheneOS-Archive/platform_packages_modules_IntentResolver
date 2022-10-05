@@ -49,9 +49,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.intentresolver.chooser.DisplayResolveInfo;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.internal.widget.RecyclerView;
+import com.android.intentresolver.chooser.DisplayResolveInfo;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -112,6 +112,10 @@ import android.widget.ImageView;
 import android.widget.Space;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
+
 import com.android.intentresolver.ResolverListAdapter.ActivityInfoPresentationGetter;
 import com.android.intentresolver.ResolverListAdapter.ViewHolder;
 import com.android.intentresolver.chooser.ChooserTargetInfo;
@@ -121,16 +125,13 @@ import com.android.intentresolver.chooser.NotSelectableTargetInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.content.PackageMonitor;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.util.FrameworkStatsLog;
-import com.android.internal.widget.GridLayoutManager;
-import com.android.internal.widget.RecyclerView;
-import com.android.internal.widget.ResolverDrawerLayout;
-import com.android.internal.widget.ViewPager;
 
 import com.google.android.collect.Lists;
 

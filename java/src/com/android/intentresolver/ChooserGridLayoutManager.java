@@ -19,8 +19,8 @@ package com.android.intentresolver;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import com.android.internal.widget.GridLayoutManager;
-import com.android.internal.widget.RecyclerView;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * For a11y and per {@link RecyclerView#onInitializeAccessibilityNodeInfo}, override
