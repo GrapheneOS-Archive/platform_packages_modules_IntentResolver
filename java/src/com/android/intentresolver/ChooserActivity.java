@@ -115,7 +115,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
-import com.android.intentresolver.ResolverListAdapter.ActivityInfoPresentationGetter;
 import com.android.intentresolver.ResolverListAdapter.ViewHolder;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
@@ -1128,7 +1127,7 @@ public class ChooserActivity extends ResolverActivity implements
         if (ti == null) return null;
 
         final Button b = createActionButton(
-                ti.getDisplayIcon(this),
+                ti.getDisplayIcon(),
                 ti.getDisplayLabel(),
                 (View unused) -> {
                     // Log share completion via nearby
@@ -1151,7 +1150,7 @@ public class ChooserActivity extends ResolverActivity implements
         if (ti == null) return null;
 
         final Button b = createActionButton(
-                ti.getDisplayIcon(this),
+                ti.getDisplayIcon(),
                 ti.getDisplayLabel(),
                 (View unused) -> {
                     // Log share completion via edit
@@ -2455,11 +2454,6 @@ public class ChooserActivity extends ResolverActivity implements
     public void onHandlePackagesChanged(ResolverListAdapter listAdapter) {
         mChooserMultiProfilePagerAdapter.getActiveListAdapter().notifyDataSetChanged();
         super.onHandlePackagesChanged(listAdapter);
-    }
-
-    @Override // SelectableTargetInfoCommunicator
-    public ActivityInfoPresentationGetter makePresentationGetter(ActivityInfo info) {
-        return mChooserMultiProfilePagerAdapter.getActiveListAdapter().makePresentationGetter(info);
     }
 
     @Override // SelectableTargetInfoCommunicator

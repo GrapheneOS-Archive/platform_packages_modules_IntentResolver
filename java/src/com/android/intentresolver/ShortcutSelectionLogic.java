@@ -19,13 +19,15 @@ package com.android.intentresolver;
 import android.annotation.Nullable;
 import android.app.prediction.AppTarget;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.service.chooser.ChooserTarget;
 import android.util.Log;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo;
-import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator;
 import com.android.intentresolver.chooser.TargetInfo;
 
 import java.util.Collections;
@@ -65,7 +67,8 @@ class ShortcutSelectionLogic {
             Map<ChooserTarget, ShortcutInfo> directShareToShortcutInfos,
             Map<ChooserTarget, AppTarget> directShareToAppTargets,
             Context userContext,
-            SelectableTargetInfoCommunicator mSelectableTargetInfoCommunicator,
+            Intent targetIntent,
+            Intent referrerFillInIntent,
             int maxRankedTargets,
             List<TargetInfo> serviceTargets) {
         if (DEBUG) {
@@ -100,15 +103,28 @@ class ShortcutSelectionLogic {
             if ((shortcutInfo != null) && shortcutInfo.isPinned()) {
                 targetScore += PINNED_SHORTCUT_TARGET_SCORE_BOOST;
             }
+            ResolveInfo backupResolveInfo;
+            Intent resolvedIntent;
+            if (origTarget == null) {
+                resolvedIntent = createResolvedIntentForCallerTarget(target, targetIntent);
+                backupResolveInfo = userContext.getPackageManager()
+                        .resolveActivity(
+                                resolvedIntent,
+                                PackageManager.ResolveInfoFlags.of(PackageManager.GET_META_DATA));
+            } else {
+                resolvedIntent = origTarget.getResolvedIntent();
+                backupResolveInfo = null;
+            }
             boolean isInserted = insertServiceTarget(
                     SelectableTargetInfo.newSelectableTargetInfo(
-                            userContext,
                             origTarget,
+                            backupResolveInfo,
+                            resolvedIntent,
                             target,
                             targetScore,
-                            mSelectableTargetInfoCommunicator,
                             shortcutInfo,
-                            directShareToAppTargets.get(target)),
+                            directShareToAppTargets.get(target),
+                            referrerFillInIntent),
                     maxRankedTargets,
                     serviceTargets);
 
@@ -126,6 +142,19 @@ class ShortcutSelectionLogic {
         }
 
         return shouldNotify;
+    }
+
+    /**
+     * Creates a resolved intent for a caller-specified target.
+     * @param target, a caller-specified target.
+     * @param targetIntent, a target intent for the Chooser (see {@link Intent#EXTRA_INTENT}).
+     */
+    private static Intent createResolvedIntentForCallerTarget(
+            ChooserTarget target, Intent targetIntent) {
+        final Intent resolvedIntent = new Intent(targetIntent);
+        resolvedIntent.setComponent(target.getComponentName());
+        resolvedIntent.putExtras(target.getIntentExtras());
+        return resolvedIntent;
     }
 
     private boolean insertServiceTarget(

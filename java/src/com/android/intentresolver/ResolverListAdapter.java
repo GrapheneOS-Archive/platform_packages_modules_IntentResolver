@@ -921,7 +921,7 @@ public class ResolverListAdapter extends BaseAdapter {
         }
 
         public void bindIcon(TargetInfo info) {
-            icon.setImageDrawable(info.getDisplayIcon(itemView.getContext()));
+            icon.setImageDrawable(info.getDisplayIcon());
             if (info.isSuspended()) {
                 icon.setColorFilter(getSuspendedColorMatrix());
             } else {

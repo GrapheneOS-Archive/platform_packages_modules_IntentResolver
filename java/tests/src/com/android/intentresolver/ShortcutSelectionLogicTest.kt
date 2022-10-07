@@ -18,11 +18,10 @@ package com.android.intentresolver
 
 import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.service.chooser.ChooserTarget
 import com.android.intentresolver.chooser.TargetInfo
-import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -31,6 +30,7 @@ private const val PACKAGE_A = "package.a"
 private const val PACKAGE_B = "package.b"
 private const val CLASS_NAME = "./MainActivity"
 
+@SmallTest
 class ShortcutSelectionLogicTest {
     private val packageTargets = HashMap<String, Array<ChooserTarget>>().apply {
         arrayOf(PACKAGE_A, PACKAGE_B).forEach { pkg ->
@@ -68,7 +68,8 @@ class ShortcutSelectionLogicTest {
             /* directShareToShortcutInfos = */ emptyMap(),
             /* directShareToAppTargets = */ emptyMap(),
             /* userContext = */ mock(),
-            /* mSelectableTargetInfoCommunicator = */ mock(),
+            /* targetIntent = */ mock(),
+            /* refererFillInIntent = */ mock(),
             /* maxRankedTargets = */ 4,
             /* serviceTargets = */ serviceResults
         )
@@ -99,7 +100,8 @@ class ShortcutSelectionLogicTest {
             /* directShareToShortcutInfos = */ emptyMap(),
             /* directShareToAppTargets = */ emptyMap(),
             /* userContext = */ mock(),
-            /* mSelectableTargetInfoCommunicator = */ mock(),
+            /* targetIntent = */ mock(),
+            /* refererFillInIntent = */ mock(),
             /* maxRankedTargets = */ 4,
             /* serviceTargets = */ serviceResults
         )
@@ -130,7 +132,8 @@ class ShortcutSelectionLogicTest {
             /* directShareToShortcutInfos = */ emptyMap(),
             /* directShareToAppTargets = */ emptyMap(),
             /* userContext = */ mock(),
-            /* mSelectableTargetInfoCommunicator = */ mock(),
+            /* targetIntent = */ mock(),
+            /* refererFillInIntent = */ mock(),
             /* maxRankedTargets = */ 1,
             /* serviceTargets = */ serviceResults
         )
@@ -163,7 +166,8 @@ class ShortcutSelectionLogicTest {
             /* directShareToShortcutInfos = */ emptyMap(),
             /* directShareToAppTargets = */ emptyMap(),
             /* userContext = */ mock(),
-            /* mSelectableTargetInfoCommunicator = */ mock(),
+            /* targetIntent = */ mock(),
+            /* refererFillInIntent = */ mock(),
             /* maxRankedTargets = */ 4,
             /* serviceTargets = */ serviceResults
         )
@@ -175,7 +179,8 @@ class ShortcutSelectionLogicTest {
             /* directShareToShortcutInfos = */ emptyMap(),
             /* directShareToAppTargets = */ emptyMap(),
             /* userContext = */ mock(),
-            /* mSelectableTargetInfoCommunicator = */ mock(),
+            /* targetIntent = */ mock(),
+            /* refererFillInIntent = */ mock(),
             /* maxRankedTargets = */ 4,
             /* serviceTargets = */ serviceResults
         )
@@ -211,7 +216,8 @@ class ShortcutSelectionLogicTest {
             ),
             /* directShareToAppTargets = */ emptyMap(),
             /* userContext = */ mock(),
-            /* mSelectableTargetInfoCommunicator = */ mock(),
+            /* targetIntent = */ mock(),
+            /* refererFillInIntent = */ mock(),
             /* maxRankedTargets = */ 4,
             /* serviceTargets = */ serviceResults
         )
@@ -234,9 +240,6 @@ class ShortcutSelectionLogicTest {
             /* maxShortcutTargetsPerApp = */ 1,
             /* applySharingAppLimits = */ true
         )
-        val targetInfoCommunicator = mock<SelectableTargetInfoCommunicator> {
-            whenever(targetIntent).thenReturn(Intent())
-        }
         val context = mock<Context> {
             whenever(packageManager).thenReturn(mock())
         }
@@ -249,7 +252,8 @@ class ShortcutSelectionLogicTest {
             /* directShareToShortcutInfos = */ emptyMap(),
             /* directShareToAppTargets = */ emptyMap(),
             /* userContext = */ context,
-            /* mSelectableTargetInfoCommunicator = */ targetInfoCommunicator,
+            /* targetIntent = */ mock(),
+            /* refererFillInIntent = */ mock(),
             /* maxRankedTargets = */ 4,
             /* serviceTargets = */ serviceResults
         )

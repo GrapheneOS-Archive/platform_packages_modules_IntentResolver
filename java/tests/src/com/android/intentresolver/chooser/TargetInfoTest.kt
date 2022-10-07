@@ -18,16 +18,16 @@ package com.android.intentresolver.chooser
 
 import android.app.prediction.AppTarget
 import android.app.prediction.AppTargetId
+import android.content.ComponentName
 import android.content.Intent
-import android.content.pm.ShortcutInfo
+import android.content.pm.ActivityInfo
+import android.content.pm.ResolveInfo
 import android.os.UserHandle
-import android.service.chooser.ChooserTarget
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.intentresolver.createChooserTarget
 import com.android.intentresolver.createShortcutInfo
 import com.android.intentresolver.mock
 import com.android.intentresolver.ResolverDataProvider
-import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -40,12 +40,12 @@ class TargetInfoTest {
         assertThat(info.isEmptyTargetInfo()).isTrue()
         assertThat(info.isChooserTargetInfo()).isTrue()  // From legacy inheritance model.
         assertThat(info.hasDisplayIcon()).isFalse()
-        assertThat(info.getDisplayIcon(context)).isNull()
+        assertThat(info.getDisplayIcon()).isNull()
     }
 
     @Test
     fun testNewPlaceholderTargetInfo() {
-        val info = NotSelectableTargetInfo.newPlaceHolderTargetInfo()
+        val info = NotSelectableTargetInfo.newPlaceHolderTargetInfo(context)
         assertThat(info.isPlaceHolderTargetInfo()).isTrue()
         assertThat(info.isChooserTargetInfo()).isTrue()  // From legacy inheritance model.
         assertThat(info.hasDisplayIcon()).isTrue()
@@ -57,31 +57,65 @@ class TargetInfoTest {
         val displayInfo: DisplayResolveInfo = mock()
         val chooserTarget = createChooserTarget(
             "title", 0.3f, ResolverDataProvider.createComponentName(1), "test_shortcut_id")
-        val selectableTargetInfoCommunicator: SelectableTargetInfoCommunicator = mock()
         val shortcutInfo = createShortcutInfo("id", ResolverDataProvider.createComponentName(2), 3)
         val appTarget = AppTarget(
             AppTargetId("id"),
-            chooserTarget.getComponentName().getPackageName(),
-            chooserTarget.getComponentName().getClassName(),
+            chooserTarget.componentName.packageName,
+            chooserTarget.componentName.className,
             UserHandle.CURRENT)
+        val resolvedIntent = mock<Intent>()
 
         val targetInfo = SelectableTargetInfo.newSelectableTargetInfo(
-            context,
             displayInfo,
+            mock(),
+            resolvedIntent,
             chooserTarget,
             0.1f,
-            selectableTargetInfoCommunicator,
             shortcutInfo,
-            appTarget)
-        assertThat(targetInfo.isSelectableTargetInfo()).isTrue()
-        assertThat(targetInfo.isChooserTargetInfo()).isTrue()  // From legacy inheritance model.
-        assertThat(targetInfo.getDisplayResolveInfo()).isSameInstanceAs(displayInfo)
-        assertThat(targetInfo.getChooserTargetComponentName())
-            .isEqualTo(chooserTarget.getComponentName())
-        assertThat(targetInfo.getDirectShareShortcutId()).isEqualTo(shortcutInfo.getId())
-        assertThat(targetInfo.getDirectShareShortcutInfo()).isSameInstanceAs(shortcutInfo)
-        assertThat(targetInfo.getDirectShareAppTarget()).isSameInstanceAs(appTarget)
+            appTarget,
+            mock(),
+        )
+        assertThat(targetInfo.isSelectableTargetInfo).isTrue()
+        assertThat(targetInfo.isChooserTargetInfo).isTrue()  // From legacy inheritance model.
+        assertThat(targetInfo.displayResolveInfo).isSameInstanceAs(displayInfo)
+        assertThat(targetInfo.chooserTargetComponentName).isEqualTo(chooserTarget.componentName)
+        assertThat(targetInfo.directShareShortcutId).isEqualTo(shortcutInfo.id)
+        assertThat(targetInfo.directShareShortcutInfo).isSameInstanceAs(shortcutInfo)
+        assertThat(targetInfo.directShareAppTarget).isSameInstanceAs(appTarget)
+        assertThat(targetInfo.resolvedIntent).isSameInstanceAs(resolvedIntent)
         // TODO: make more meaningful assertions about the behavior of a selectable target.
+    }
+
+    @Test
+    fun test_SelectableTargetInfo_componentName_no_source_info() {
+        val chooserTarget = createChooserTarget(
+            "title", 0.3f, ResolverDataProvider.createComponentName(1), "test_shortcut_id")
+        val shortcutInfo = createShortcutInfo("id", ResolverDataProvider.createComponentName(2), 3)
+        val appTarget = AppTarget(
+            AppTargetId("id"),
+            chooserTarget.componentName.packageName,
+            chooserTarget.componentName.className,
+            UserHandle.CURRENT)
+        val pkgName = "org.package"
+        val className = "MainActivity"
+        val backupResolveInfo = ResolveInfo().apply {
+            activityInfo = ActivityInfo().apply {
+                packageName = pkgName
+                name = className
+            }
+        }
+
+        val targetInfo = SelectableTargetInfo.newSelectableTargetInfo(
+            null,
+            backupResolveInfo,
+            mock(),
+            chooserTarget,
+            0.1f,
+            shortcutInfo,
+            appTarget,
+            mock(),
+        )
+        assertThat(targetInfo.resolvedComponentName).isEqualTo(ComponentName(pkgName, className))
     }
 
     @Test
