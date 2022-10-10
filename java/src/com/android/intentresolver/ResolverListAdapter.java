@@ -764,7 +764,6 @@ public class ResolverListAdapter extends BaseAdapter {
         }
     }
 
-    @VisibleForTesting
     public UserHandle getUserHandle() {
         return mResolverListController.getUserHandle();
     }
