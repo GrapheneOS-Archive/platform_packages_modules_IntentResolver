@@ -32,8 +32,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import androidx.viewpager.widget.PagerAdapter;
+
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.widget.PagerAdapter;
 
 /**
  * A {@link PagerAdapter} which describes the work and personal profile intent resolver screens.

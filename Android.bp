@@ -45,6 +45,8 @@ android_library {
 
     static_libs: [
         "androidx.annotation_annotation",
+        "androidx.recyclerview_recyclerview",
+        "androidx.viewpager_viewpager",
         "unsupportedappusage",
     ],
 

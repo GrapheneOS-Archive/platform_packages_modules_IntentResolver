@@ -16,12 +16,13 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <com.android.internal.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        androidprv:layoutManager="com.android.intentresolver.ChooserGridLayoutManager"
+        app:layoutManager="com.android.intentresolver.ChooserGridLayoutManager"
         android:id="@androidprv:id/resolver_list"
         android:clipToPadding="false"
         android:background="?android:attr/colorBackground"
