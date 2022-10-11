@@ -2525,7 +2525,7 @@ public class UnbundledChooserActivityTest {
         when(
                 ChooserActivityOverrideData
                         .getInstance().packageManager
-                        .resolveActivity(any(Intent.class), anyInt()))
+                        .resolveActivity(any(Intent.class), any()))
                 .thenReturn(ri);
         waitForIdle();
 
@@ -2558,7 +2558,7 @@ public class UnbundledChooserActivityTest {
                 ChooserActivityOverrideData
                         .getInstance()
                         .packageManager
-                        .resolveActivity(any(Intent.class), anyInt()))
+                        .resolveActivity(any(Intent.class), any()))
                 .thenReturn(createFakeResolveInfo());
         waitForIdle();
 
@@ -2591,7 +2591,7 @@ public class UnbundledChooserActivityTest {
                 ChooserActivityOverrideData
                         .getInstance()
                         .packageManager
-                        .resolveActivity(any(Intent.class), anyInt()))
+                        .resolveActivity(any(Intent.class), any()))
                 .thenReturn(createFakeResolveInfo());
 
         mActivityRule.launchActivity(chooserIntent);
@@ -2625,7 +2625,7 @@ public class UnbundledChooserActivityTest {
                 ChooserActivityOverrideData
                         .getInstance()
                         .packageManager
-                        .resolveActivity(any(Intent.class), anyInt()))
+                        .resolveActivity(any(Intent.class), any()))
                 .thenReturn(createFakeResolveInfo());
 
         mActivityRule.launchActivity(chooserIntent);
@@ -2660,7 +2660,7 @@ public class UnbundledChooserActivityTest {
                 ChooserActivityOverrideData
                         .getInstance()
                         .packageManager
-                        .resolveActivity(any(Intent.class), anyInt()))
+                        .resolveActivity(any(Intent.class), any()))
                 .thenReturn(ri);
         waitForIdle();
 
