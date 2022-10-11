@@ -34,9 +34,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.widget.PagerAdapter;
-import com.android.internal.widget.ViewPager;
 
 import java.util.HashSet;
 import java.util.List;

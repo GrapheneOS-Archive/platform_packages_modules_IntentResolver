@@ -21,7 +21,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.android.internal.widget.ViewPager;
+import androidx.viewpager.widget.ViewPager;
 
 /**
  * A {@link ViewPager} which wraps around its tallest child's height.
@@ -39,15 +39,6 @@ public class ResolverViewPager extends ViewPager {
 
     public ResolverViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-    }
-
-    public ResolverViewPager(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
-    public ResolverViewPager(Context context, AttributeSet attrs,
-            int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
     }
 
     @Override

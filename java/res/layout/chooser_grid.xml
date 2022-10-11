@@ -16,14 +16,15 @@
 * limitations under the License.
 */
 -->
-<com.android.internal.widget.ResolverDrawerLayout
+<com.android.intentresolver.widget.ResolverDrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
-    androidprv:maxCollapsedHeight="0dp"
-    androidprv:maxCollapsedHeightSmall="56dp"
+    app:maxCollapsedHeight="0dp"
+    app:maxCollapsedHeightSmall="56dp"
     android:maxWidth="@dimen/chooser_width"
     android:id="@androidprv:id/contentPanel">
 
@@ -31,7 +32,7 @@
         android:id="@androidprv:id/chooser_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        androidprv:layout_alwaysShow="true"
+        app:layout_alwaysShow="true"
         android:elevation="0dp"
         android:background="@drawable/bottomsheet_background">
 
@@ -94,4 +95,4 @@
         </LinearLayout>
     </TabHost>
 
-</com.android.internal.widget.ResolverDrawerLayout>
+</com.android.intentresolver.widget.ResolverDrawerLayout>
