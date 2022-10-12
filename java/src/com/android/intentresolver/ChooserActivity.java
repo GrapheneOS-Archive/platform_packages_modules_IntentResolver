@@ -38,7 +38,6 @@ import android.app.prediction.AppPredictor;
 import android.app.prediction.AppTarget;
 import android.app.prediction.AppTargetEvent;
 import android.app.prediction.AppTargetId;
-import android.compat.annotation.UnsupportedAppUsage;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
@@ -164,7 +163,6 @@ public class ChooserActivity extends ResolverActivity implements
     private AppPredictor mWorkAppPredictor;
     private boolean mShouldDisplayLandscape;
 
-    @UnsupportedAppUsage
     public ChooserActivity() {
     }
     /**
@@ -1760,7 +1758,7 @@ public class ChooserActivity extends ResolverActivity implements
                 targetList);
         fragment.setArguments(bundle);
 
-        fragment.show(getFragmentManager(), TARGET_DETAILS_FRAGMENT_TAG);
+        fragment.show(getSupportFragmentManager(), TARGET_DETAILS_FRAGMENT_TAG);
     }
 
     private void modifyTargetIntent(Intent in) {
@@ -1826,7 +1824,7 @@ public class ChooserActivity extends ResolverActivity implements
                 b.putInt(ChooserStackedAppDialogFragment.WHICH_KEY, which);
                 f.setArguments(b);
 
-                f.show(getFragmentManager(), TARGET_DETAILS_FRAGMENT_TAG);
+                f.show(getSupportFragmentManager(), TARGET_DETAILS_FRAGMENT_TAG);
                 return;
             }
         }

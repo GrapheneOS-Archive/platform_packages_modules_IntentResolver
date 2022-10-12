@@ -47,7 +47,8 @@ android_library {
         "androidx.annotation_annotation",
         "androidx.recyclerview_recyclerview",
         "androidx.viewpager_viewpager",
-        "unsupportedappusage",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "androidx.lifecycle_lifecycle-extensions",
     ],
 
     plugins: ["java_api_finder"],
