@@ -41,6 +41,7 @@ import com.android.intentresolver.IChooserWrapper;
 import com.android.intentresolver.ResolverListAdapter.ResolveInfoPresentationGetter;
 import com.android.intentresolver.ResolverListController;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
+import com.android.intentresolver.chooser.NotSelectableTargetInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
@@ -119,7 +120,7 @@ public class ChooserWrapperActivity
 
     @Override
     protected TargetInfo getNearbySharingTarget(Intent originalIntent) {
-        return new ChooserWrapperActivity.EmptyTargetInfo();
+        return NotSelectableTargetInfo.newEmptyTargetInfo();
     }
 
     @Override
