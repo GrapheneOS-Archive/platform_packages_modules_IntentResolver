@@ -17,6 +17,7 @@
 package com.android.intentresolver.chooser;
 
 
+import android.annotation.Nullable;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -25,10 +26,12 @@ import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.service.chooser.ChooserTarget;
 
 import com.android.intentresolver.ResolverActivity;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A single target as represented in the chooser.
@@ -134,6 +137,77 @@ public interface TargetInfo {
      * @return true if this target should be pinned to the front by the request of the user
      */
     boolean isPinned();
+
+    /**
+     * Determine whether two targets represent "similar" content that could be de-duped.
+     * Note an earlier version of this code cautioned maintainers,
+     * "do not label as 'equals', since this doesn't quite work as intended with java 8."
+     * This seems to refer to the rule that interfaces can't provide defaults that conflict with the
+     * definitions of "real" methods in {@code java.lang.Object}, and (if desired) it could be
+     * presumably resolved by converting {@code TargetInfo} from an interface to an abstract class.
+     */
+    default boolean isSimilar(TargetInfo other) {
+        return Objects.equals(this, other);
+    }
+
+    /**
+     * @return the target score, including any Chooser-specific modifications that may have been
+     * applied (either overriding by special-case for "non-selectable" targets, or by twiddling the
+     * scores of "selectable" targets in {@link ChooserListAdapter}). Higher scores are "better."
+     * Targets that aren't intended for ranking/scoring should return a negative value.
+     */
+    default float getModifiedScore() {
+        return -0.1f;
+    }
+
+    /**
+     * @return the {@link ChooserTarget} record that contains additional data about this target, if
+     * any. This is only non-null for selectable targets (and probably only Direct Share targets?).
+     *
+     * @deprecated {@link ChooserTarget} (and any other related {@code ChooserTargetService} APIs)
+     * got deprecated as part of sunsetting that old system design, but for historical reasons
+     * Chooser continues to shoehorn data from other sources into this representation to maintain
+     * compatibility with legacy internal APIs. New clients should avoid taking any further
+     * dependencies on the {@link ChooserTarget} type; any data they want to query from those
+     * records should instead be pulled up to new query methods directly on this class (or on the
+     * root {@link TargetInfo}).
+     */
+    @Deprecated
+    @Nullable
+    default ChooserTarget getChooserTarget() {
+        return null;
+    }
+
+    /**
+     * Attempt to load the display icon, if we have the info for one but it hasn't been loaded yet.
+     * @return true if an icon may have been loaded as the result of this operation, potentially
+     * prompting a UI refresh. If this returns false, clients can safely assume there was no change.
+     */
+    default boolean loadIcon() {
+        return false;
+    }
+
+    /**
+     * Get more info about this target in the form of a {@link DisplayResolveInfo}, if available.
+     * TODO: this seems to return non-null only for ChooserTargetInfo subclasses. Determine the
+     * meaning of a TargetInfo (ChooserTargetInfo) embedding another kind of TargetInfo
+     * (DisplayResolveInfo) in this way, and - at least - improve this documentation; OTOH this
+     * probably indicates an opportunity to simplify or better separate these APIs. (For example,
+     * targets that <em>don't</em> descend from ChooserTargetInfo instead descend directly from
+     * DisplayResolveInfo; should they return `this`? Do we always use DisplayResolveInfo to
+     * represent visual properties, and then either assume some implicit metadata properties *or*
+     * embed that visual representation within a ChooserTargetInfo to carry additional metadata? If
+     * that's the case, maybe we could decouple by saying that all TargetInfos compose-in their
+     * visual representation [as a DisplayResolveInfo, now the root of its own class hierarchy] and
+     * then add a new TargetInfo type that explicitly represents the "implicit metadata" that we
+     * previously assumed for "naked DisplayResolveInfo targets" that weren't wrapped as
+     * ChooserTargetInfos. Or does all this complexity disappear once we stop relying on the
+     * deprecated ChooserTarget type?)
+     */
+    @Nullable
+    default DisplayResolveInfo getDisplayResolveInfo() {
+        return null;
+    }
 
     /**
      * @return true if this target represents a legacy {@code ChooserTargetInfo}. These objects were

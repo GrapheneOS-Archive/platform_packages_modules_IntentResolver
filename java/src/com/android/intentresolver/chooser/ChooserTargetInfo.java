@@ -16,7 +16,6 @@
 
 package com.android.intentresolver.chooser;
 
-import android.annotation.Nullable;
 import android.service.chooser.ChooserTarget;
 import android.text.TextUtils;
 
@@ -25,59 +24,14 @@ import android.text.TextUtils;
  * Direct Share deep link into an application.
  */
 public abstract class ChooserTargetInfo implements TargetInfo {
-    /**
-     * @return the target score, including any Chooser-specific modifications that may have been
-     * applied (either overriding by special-case for "non-selectable" targets, or by twiddling the
-     * scores of "selectable" targets in {@link ChooserListAdapter}). Higher scores are "better."
-     */
-    public abstract float getModifiedScore();
-
-    /**
-     * @return the {@link ChooserTarget} record that contains additional data about this target, if
-     * any. This is only non-null for selectable targets (and probably only Direct Share targets?).
-     *
-     * @deprecated {@link ChooserTarget} (and any other related {@code ChooserTargetService} APIs)
-     * got deprecated as part of sunsetting that old system design, but for historical reasons
-     * Chooser continues to shoehorn data from other sources into this representation to maintain
-     * compatibility with legacy internal APIs. New clients should avoid taking any further
-     * dependencies on the {@link ChooserTarget} type; any data they want to query from those
-     * records should instead be pulled up to new query methods directly on this class (or on the
-     * root {@link TargetInfo}).
-     */
-    @Deprecated
-    @Nullable
-    public abstract ChooserTarget getChooserTarget();
 
     @Override
     public final boolean isChooserTargetInfo() {
         return true;
     }
 
-    /**
-     * Attempt to load the display icon, if we have the info for one but it hasn't been loaded yet.
-     * @return true if an icon may have been loaded as the result of this operation, potentially
-     * prompting a UI refresh. If this returns false, clients can safely assume there was no change.
-     */
-    public boolean loadIcon() {
-        return false;
-    }
-
-    /**
-     * Get more info about this target in the form of a {@link DisplayResolveInfo}, if available.
-     * TODO: determine the meaning of a TargetInfo (ChooserTargetInfo) embedding another kind of
-     * TargetInfo (DisplayResolveInfo) in this way, and - at least - improve this documentation;
-     * OTOH this probably indicates an opportunity to simplify or better separate these APIs.
-     */
-    @Nullable
-    public DisplayResolveInfo getDisplayResolveInfo() {
-        return null;
-    }
-
-    /**
-     * Do not label as 'equals', since this doesn't quite work
-     * as intended with java 8.
-     */
-    public boolean isSimilar(ChooserTargetInfo other) {
+    @Override
+    public boolean isSimilar(TargetInfo other) {
         if (other == null) return false;
 
         ChooserTarget ct1 = getChooserTarget();
