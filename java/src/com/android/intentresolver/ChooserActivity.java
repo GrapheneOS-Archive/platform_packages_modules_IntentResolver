@@ -38,7 +38,6 @@ import android.app.prediction.AppPredictor;
 import android.app.prediction.AppTarget;
 import android.app.prediction.AppTargetEvent;
 import android.app.prediction.AppTargetId;
-import android.compat.annotation.UnsupportedAppUsage;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
@@ -112,6 +111,10 @@ import android.widget.ImageView;
 import android.widget.Space;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
+
 import com.android.intentresolver.ResolverListAdapter.ActivityInfoPresentationGetter;
 import com.android.intentresolver.ResolverListAdapter.ViewHolder;
 import com.android.intentresolver.chooser.ChooserTargetInfo;
@@ -121,16 +124,13 @@ import com.android.intentresolver.chooser.NotSelectableTargetInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.content.PackageMonitor;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.util.FrameworkStatsLog;
-import com.android.internal.widget.GridLayoutManager;
-import com.android.internal.widget.RecyclerView;
-import com.android.internal.widget.ResolverDrawerLayout;
-import com.android.internal.widget.ViewPager;
 
 import com.google.android.collect.Lists;
 
@@ -163,7 +163,6 @@ public class ChooserActivity extends ResolverActivity implements
     private AppPredictor mWorkAppPredictor;
     private boolean mShouldDisplayLandscape;
 
-    @UnsupportedAppUsage
     public ChooserActivity() {
     }
     /**
@@ -1759,7 +1758,7 @@ public class ChooserActivity extends ResolverActivity implements
                 targetList);
         fragment.setArguments(bundle);
 
-        fragment.show(getFragmentManager(), TARGET_DETAILS_FRAGMENT_TAG);
+        fragment.show(getSupportFragmentManager(), TARGET_DETAILS_FRAGMENT_TAG);
     }
 
     private void modifyTargetIntent(Intent in) {
@@ -1825,7 +1824,7 @@ public class ChooserActivity extends ResolverActivity implements
                 b.putInt(ChooserStackedAppDialogFragment.WHICH_KEY, which);
                 f.setArguments(b);
 
-                f.show(getFragmentManager(), TARGET_DETAILS_FRAGMENT_TAG);
+                f.show(getSupportFragmentManager(), TARGET_DETAILS_FRAGMENT_TAG);
                 return;
             }
         }

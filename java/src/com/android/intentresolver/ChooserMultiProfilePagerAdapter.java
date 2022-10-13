@@ -33,10 +33,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.PagerAdapter;
+
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.widget.GridLayoutManager;
-import com.android.internal.widget.PagerAdapter;
-import com.android.internal.widget.RecyclerView;
 
 /**
  * A {@link PagerAdapter} which describes the work and personal profile share sheet screens.

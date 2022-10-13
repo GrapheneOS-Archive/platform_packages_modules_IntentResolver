@@ -39,7 +39,6 @@ import android.app.VoiceInteractor.PickOptionRequest.Option;
 import android.app.VoiceInteractor.Prompt;
 import android.app.admin.DevicePolicyEventLogger;
 import android.app.admin.DevicePolicyManager;
-import android.compat.annotation.UnsupportedAppUsage;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -91,17 +90,19 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager.widget.ViewPager;
+
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.Profile;
 import com.android.intentresolver.chooser.ChooserTargetInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.content.PackageMonitor;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto;
 import com.android.internal.util.LatencyTracker;
-import com.android.internal.widget.ResolverDrawerLayout;
-import com.android.internal.widget.ViewPager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,10 +117,9 @@ import java.util.Set;
  * which to go to.  It is not normally used directly by application developers.
  */
 @UiThread
-public class ResolverActivity extends Activity implements
+public class ResolverActivity extends FragmentActivity implements
         ResolverListAdapter.ResolverListCommunicator {
 
-    @UnsupportedAppUsage
     public ResolverActivity() {
         mIsIntentPicker = getClass().equals(ResolverActivity.class);
     }
@@ -149,7 +149,6 @@ public class ResolverActivity extends Activity implements
     @VisibleForTesting
     protected boolean mSupportsAlwaysUseOption;
     protected ResolverDrawerLayout mResolverDrawerLayout;
-    @UnsupportedAppUsage
     protected PackageManager mPm;
     protected int mLaunchedFromUid;
 
@@ -360,7 +359,6 @@ public class ResolverActivity extends Activity implements
      * Compatibility version for other bundled services that use this overload without
      * a default title resource
      */
-    @UnsupportedAppUsage
     protected void onCreate(Bundle savedInstanceState, Intent intent,
             CharSequence title, Intent[] initialIntents,
             List<ResolveInfo> rList, boolean supportsAlwaysUseOption) {
