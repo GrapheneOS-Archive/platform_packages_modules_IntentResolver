@@ -644,7 +644,7 @@ public class ResolverListAdapter extends BaseAdapter {
             return;
         }
 
-        if (info instanceof DisplayResolveInfo) {
+        if (info.isDisplayResolveInfo()) {
             DisplayResolveInfo dri = (DisplayResolveInfo) info;
             boolean hasLabel = dri.hasDisplayLabel();
             holder.bindLabel(
