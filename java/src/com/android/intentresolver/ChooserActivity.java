@@ -1724,7 +1724,7 @@ public class ChooserActivity extends ResolverActivity implements
         ChooserTargetActionsDialogFragment fragment = new ChooserTargetActionsDialogFragment();
         Bundle bundle = new Bundle();
 
-        if (targetInfo instanceof SelectableTargetInfo) {
+        if (targetInfo.isSelectableTargetInfo()) {
             SelectableTargetInfo selectableTargetInfo = (SelectableTargetInfo) targetInfo;
             if (selectableTargetInfo.getDisplayResolveInfo() == null
                     || selectableTargetInfo.getChooserTarget() == null) {
@@ -1744,7 +1744,7 @@ public class ChooserActivity extends ResolverActivity implements
                 bundle.putString(ChooserTargetActionsDialogFragment.SHORTCUT_TITLE_KEY,
                         selectableTargetInfo.getDisplayLabel().toString());
             }
-        } else if (targetInfo instanceof MultiDisplayResolveInfo) {
+        } else if (targetInfo.isMultiDisplayResolveInfo()) {
             // For multiple targets, include info on all targets
             MultiDisplayResolveInfo mti = (MultiDisplayResolveInfo) targetInfo;
             targetList = mti.getTargets();
@@ -1806,13 +1806,13 @@ public class ChooserActivity extends ResolverActivity implements
                 mChooserMultiProfilePagerAdapter.getActiveListAdapter();
         TargetInfo targetInfo = currentListAdapter
                 .targetInfoForPosition(which, filtered);
-        if (targetInfo != null && targetInfo instanceof NotSelectableTargetInfo) {
+        if (targetInfo != null && targetInfo.isNotSelectableTargetInfo()) {
             return;
         }
 
         final long selectionCost = System.currentTimeMillis() - mChooserShownTime;
 
-        if (targetInfo instanceof MultiDisplayResolveInfo) {
+        if (targetInfo.isMultiDisplayResolveInfo()) {
             MultiDisplayResolveInfo mti = (MultiDisplayResolveInfo) targetInfo;
             if (!mti.hasSelected()) {
                 ChooserStackedAppDialogFragment f = new ChooserStackedAppDialogFragment();
@@ -2135,7 +2135,7 @@ public class ChooserActivity extends ResolverActivity implements
     }
 
     void updateModelAndChooserCounts(TargetInfo info) {
-        if (info != null && info instanceof MultiDisplayResolveInfo) {
+        if (info != null && info.isMultiDisplayResolveInfo()) {
             info = ((MultiDisplayResolveInfo) info).getSelectedTarget();
         }
         if (info != null) {
@@ -2169,7 +2169,7 @@ public class ChooserActivity extends ResolverActivity implements
             return;
         }
         // Send DS target impression info to AppPredictor, only when user chooses app share.
-        if (targetInfo instanceof ChooserTargetInfo) {
+        if (targetInfo.isChooserTargetInfo()) {
             return;
         }
         List<ChooserTargetInfo> surfacedTargetInfo = adapter.getSurfacedTargetInfo();
@@ -2193,7 +2193,7 @@ public class ChooserActivity extends ResolverActivity implements
         if (directShareAppPredictor == null) {
             return;
         }
-        if (!(targetInfo instanceof ChooserTargetInfo)) {
+        if (!targetInfo.isChooserTargetInfo()) {
             return;
         }
         ChooserTarget chooserTarget = ((ChooserTargetInfo) targetInfo).getChooserTarget();
@@ -2446,6 +2446,11 @@ public class ChooserActivity extends ResolverActivity implements
     }
 
     static final class PlaceHolderTargetInfo extends NotSelectableTargetInfo {
+        @Override
+        public boolean isPlaceHolderTargetInfo() {
+            return true;
+        }
+
         public Drawable getDisplayIcon(Context context) {
             AnimatedVectorDrawable avd = (AnimatedVectorDrawable)
                     context.getDrawable(R.drawable.chooser_direct_share_icon_placeholder);
@@ -2456,6 +2461,11 @@ public class ChooserActivity extends ResolverActivity implements
 
     protected static final class EmptyTargetInfo extends NotSelectableTargetInfo {
         public EmptyTargetInfo() {}
+
+        @Override
+        public boolean isEmptyTargetInfo() {
+            return true;
+        }
 
         public Drawable getDisplayIcon(Context context) {
             return null;
@@ -2954,7 +2964,7 @@ public class ChooserActivity extends ResolverActivity implements
                             .targetInfoForPosition(mListPosition, /* filtered */ true);
 
                     // This should always be the case for ItemViewHolder, check for validity
-                    if (ti instanceof DisplayResolveInfo && shouldShowTargetDetails(ti)) {
+                    if (ti.isDisplayResolveInfo() && shouldShowTargetDetails(ti)) {
                         showTargetDetails((DisplayResolveInfo) ti);
                     }
                     return true;
@@ -2968,8 +2978,8 @@ public class ChooserActivity extends ResolverActivity implements
         //  Suppress target details for nearby share to hide pin/unpin action
         boolean isNearbyShare = nearbyShare != null && nearbyShare.equals(
                 ti.getResolvedComponentName()) && shouldNearbyShareBeFirstInRankedRow();
-        return ti instanceof SelectableTargetInfo
-                || (ti instanceof DisplayResolveInfo && !isNearbyShare);
+        return ti.isSelectableTargetInfo()
+                || (ti.isDisplayResolveInfo() && !isNearbyShare);
     }
 
     /**
@@ -3452,7 +3462,7 @@ public class ChooserActivity extends ResolverActivity implements
                 end--;
             }
 
-            if (end == start && mChooserListAdapter.getItem(start) instanceof EmptyTargetInfo) {
+            if (end == start && mChooserListAdapter.getItem(start).isEmptyTargetInfo()) {
                 final TextView textView = viewGroup.findViewById(com.android.internal.R.id.chooser_row_text_option);
 
                 if (textView.getVisibility() != View.VISIBLE) {

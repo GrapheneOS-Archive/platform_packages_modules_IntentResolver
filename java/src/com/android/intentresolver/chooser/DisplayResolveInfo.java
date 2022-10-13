@@ -100,6 +100,11 @@ public class DisplayResolveInfo implements TargetInfo, Parcelable {
         mResolveInfoPresentationGetter = other.mResolveInfoPresentationGetter;
     }
 
+    @Override
+    public final boolean isDisplayResolveInfo() {
+        return true;
+    }
+
     public ResolveInfo getResolveInfo() {
         return mResolveInfo;
     }
