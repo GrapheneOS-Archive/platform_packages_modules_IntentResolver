@@ -94,7 +94,6 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
 
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.Profile;
-import com.android.intentresolver.chooser.ChooserTargetInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
@@ -1373,7 +1372,7 @@ public class ResolverActivity extends FragmentActivity implements
                 .createEvent(DevicePolicyEnums.RESOLVER_CROSS_PROFILE_TARGET_OPENED)
                 .setBoolean(currentUserHandle.equals(getPersonalProfileUserHandle()))
                 .setStrings(getMetricsCategory(),
-                        cti instanceof ChooserTargetInfo ? "direct_share" : "other_target")
+                        cti.isInDirectShareMetricsCategory() ? "direct_share" : "other_target")
                 .write();
     }
 

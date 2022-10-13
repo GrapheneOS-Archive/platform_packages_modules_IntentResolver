@@ -45,6 +45,11 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
     }
 
     @Override
+    public final boolean isMultiDisplayResolveInfo() {
+        return true;
+    }
+
+    @Override
     public CharSequence getExtendedInfo() {
         // Never show subtitle for stacked apps
         return null;
