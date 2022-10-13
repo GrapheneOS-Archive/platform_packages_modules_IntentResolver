@@ -145,10 +145,12 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         return sb.toString();
     }
 
+    @Override
     public boolean isSuspended() {
         return mIsSuspended;
     }
 
+    @Override
     @Nullable
     public DisplayResolveInfo getDisplayResolveInfo() {
         return mSourceInfo;
@@ -157,6 +159,7 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     /**
      * Load display icon, if needed.
      */
+    @Override
     public boolean loadIcon() {
         ShortcutInfo shortcutInfo;
         Drawable icon;
@@ -215,6 +218,7 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         return new BitmapDrawable(mContext.getResources(), directShareBadgedIcon);
     }
 
+    @Override
     public float getModifiedScore() {
         return mModifiedScore;
     }
@@ -315,10 +319,12 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     /**
      * @return true if display icon is available
      */
+    @Override
     public synchronized boolean hasDisplayIcon() {
         return mDisplayIcon != null;
     }
 
+    @Override
     public ChooserTarget getChooserTarget() {
         return mChooserTarget;
     }
