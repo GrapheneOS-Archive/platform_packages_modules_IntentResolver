@@ -50,7 +50,7 @@ import java.util.List;
  * Live target, currently selectable by the user.
  * @see NotSelectableTargetInfo
  */
-public final class SelectableTargetInfo implements ChooserTargetInfo {
+public final class SelectableTargetInfo extends ChooserTargetInfo {
     private static final String TAG = "SelectableTargetInfo";
 
     private final Context mContext;
@@ -132,6 +132,11 @@ public final class SelectableTargetInfo implements ChooserTargetInfo {
         mIsPinned = other.mIsPinned;
 
         mDisplayLabel = sanitizeDisplayLabel(mChooserTarget.getTitle());
+    }
+
+    @Override
+    public boolean isSelectableTargetInfo() {
+        return true;
     }
 
     private String sanitizeDisplayLabel(CharSequence label) {

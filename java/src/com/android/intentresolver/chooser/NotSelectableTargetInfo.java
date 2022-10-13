@@ -32,7 +32,10 @@ import java.util.List;
  * Distinguish between targets that selectable by the user, vs those that are
  * placeholders for the system while information is loading in an async manner.
  */
-public abstract class NotSelectableTargetInfo implements ChooserTargetInfo {
+public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
+    public final boolean isNotSelectableTargetInfo() {
+        return true;
+    }
 
     public Intent getResolvedIntent() {
         return null;
