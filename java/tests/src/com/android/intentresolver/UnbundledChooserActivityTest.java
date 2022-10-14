@@ -40,7 +40,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -639,8 +638,6 @@ public class UnbundledChooserActivityTest {
 
     @Test @Ignore
     public void hasOtherProfileOneOption() throws Exception {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(2, /* userId */ 10);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4);
@@ -676,9 +673,6 @@ public class UnbundledChooserActivityTest {
 
     @Test @Ignore
     public void hasOtherProfileTwoOptionsAndUserSelectsOne() throws Exception {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
-
         Intent sendIntent = createSendTextIntent();
         List<ResolvedComponentInfo> resolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3);
@@ -716,9 +710,6 @@ public class UnbundledChooserActivityTest {
 
     @Test @Ignore
     public void hasLastChosenActivityAndOtherProfile() throws Exception {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
-
         Intent sendIntent = createSendTextIntent();
         List<ResolvedComponentInfo> resolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3);
@@ -1784,8 +1775,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_displayedWhenWorkProfileUserAvailable() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         Intent sendIntent = createSendTextIntent();
         sendIntent.setType(TEST_MIME_TYPE);
         markWorkProfileUserAvailable();
@@ -1798,8 +1787,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_hiddenWhenWorkProfileUserNotAvailable() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         Intent sendIntent = createSendTextIntent();
         sendIntent.setType(TEST_MIME_TYPE);
 
@@ -1811,8 +1798,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_eachTabUsesExpectedAdapter() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         int personalProfileTargets = 3;
         int otherProfileTargets = 1;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
@@ -1839,8 +1824,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_workProfileHasExpectedNumberOfTargets() throws InterruptedException {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
@@ -1862,8 +1845,6 @@ public class UnbundledChooserActivityTest {
 
     @Test @Ignore
     public void testWorkTab_selectingWorkTabAppOpensAppInWorkProfile() throws InterruptedException {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
@@ -1898,8 +1879,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_crossProfileIntentsDisabled_personalToWork_emptyStateShown() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
@@ -1924,7 +1903,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_workProfileDisabled_emptyStateShown() {
-        // enable the work tab feature flag
         markWorkProfileUserAvailable();
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
@@ -1936,7 +1914,6 @@ public class UnbundledChooserActivityTest {
         Intent sendIntent = createSendTextIntent();
         sendIntent.setType(TEST_MIME_TYPE);
 
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
         onView(withId(com.android.internal.R.id.contentPanel))
@@ -1950,8 +1927,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_noWorkAppsAvailable_emptyStateShown() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(3);
@@ -1975,8 +1950,6 @@ public class UnbundledChooserActivityTest {
     @Ignore // b/220067877
     @Test
     public void testWorkTab_xProfileOff_noAppsAvailable_workOff_xProfileOffEmptyStateShown() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(3);
@@ -2001,8 +1974,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_noAppsAvailable_workOff_noAppsAvailableEmptyStateShown() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(3);
@@ -2335,8 +2306,6 @@ public class UnbundledChooserActivityTest {
 
     @Test @Ignore("b/222124533")
     public void testSwitchProfileLogging() throws InterruptedException {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
@@ -2415,69 +2384,7 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    public void testAutolaunch_singleTarget_wifthWorkProfileAndTabbedViewOff_noAutolaunch() {
-        ResolverActivity.ENABLE_TABBED_VIEW = false;
-        List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(2, /* userId */ 10);
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resolverListController
-                        .getResolversForIntent(
-                                Mockito.anyBoolean(),
-                                Mockito.anyBoolean(),
-                                Mockito.anyBoolean(),
-                                Mockito.isA(List.class)))
-                .thenReturn(new ArrayList<>(personalResolvedComponentInfos));
-        Intent sendIntent = createSendTextIntent();
-        sendIntent.setType(TEST_MIME_TYPE);
-        ResolveInfo[] chosen = new ResolveInfo[1];
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
-            chosen[0] = targetInfo.getResolveInfo();
-            return true;
-        };
-        waitForIdle();
-
-        mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
-        waitForIdle();
-
-        assertTrue(chosen[0] == null);
-    }
-
-    @Test
-    public void testAutolaunch_singleTarget_noWorkProfile_autolaunch() {
-        ResolverActivity.ENABLE_TABBED_VIEW = false;
-        List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTest(1);
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resolverListController
-                        .getResolversForIntent(
-                                Mockito.anyBoolean(),
-                                Mockito.anyBoolean(),
-                                Mockito.anyBoolean(),
-                                Mockito.isA(List.class)))
-                .thenReturn(new ArrayList<>(personalResolvedComponentInfos));
-        Intent sendIntent = createSendTextIntent();
-        sendIntent.setType(TEST_MIME_TYPE);
-        ResolveInfo[] chosen = new ResolveInfo[1];
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
-            chosen[0] = targetInfo.getResolveInfo();
-            return true;
-        };
-        waitForIdle();
-
-        mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
-        waitForIdle();
-
-        assertThat(chosen[0], is(personalResolvedComponentInfos.get(0).getResolveInfoAt(0)));
-    }
-
-    @Test
     public void testWorkTab_onePersonalTarget_emptyStateOnWorkTarget_autolaunch() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
@@ -2539,8 +2446,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_withInitialIntents_workTabDoesNotIncludePersonalInitialIntents() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         int workProfileTargets = 1;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
@@ -2571,8 +2476,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_xProfileIntentsDisabled_personalToWork_nonSendIntent_emptyStateShown() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
@@ -2607,8 +2510,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_noWorkAppsAvailable_nonSendIntent_emptyStateShown() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(3);
@@ -2675,8 +2576,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_selectingWorkTabWithPausedWorkProfile_directShareTargetsNotQueried() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
@@ -2707,8 +2606,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_selectingWorkTabWithNotRunningWorkUser_directShareTargetsNotQueried() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
@@ -2739,8 +2636,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_workUserNotRunning_workTargetsShown() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
@@ -2764,8 +2659,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_selectingWorkTabWithLockedWorkUser_directShareTargetsNotQueried() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
@@ -2796,8 +2689,6 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_workUserLocked_workTargetsShown() {
-        // enable the work tab feature flag
-        ResolverActivity.ENABLE_TABBED_VIEW = true;
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
