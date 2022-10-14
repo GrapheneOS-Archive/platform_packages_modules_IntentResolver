@@ -268,7 +268,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
 
         holder.bindLabel(info.getDisplayLabel(), info.getExtendedInfo(), alwaysShowSubLabel());
         holder.bindIcon(info);
-        if (info instanceof SelectableTargetInfo) {
+        if (info.isSelectableTargetInfo()) {
             // direct share targets should append the application name for a better readout
             DisplayResolveInfo rInfo = ((SelectableTargetInfo) info).getDisplayResolveInfo();
             CharSequence appName = rInfo != null ? rInfo.getDisplayLabel() : "";
@@ -276,7 +276,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
             String contentDescription = String.join(" ", info.getDisplayLabel(),
                     extendedInfo != null ? extendedInfo : "", appName);
             holder.updateContentDescription(contentDescription);
-        } else if (info instanceof DisplayResolveInfo) {
+        } else if (info.isDisplayResolveInfo()) {
             DisplayResolveInfo dri = (DisplayResolveInfo) info;
             if (!dri.hasDisplayIcon()) {
                 loadIcon(dri);
@@ -284,7 +284,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
         }
 
         // If target is loading, show a special placeholder shape in the label, make unclickable
-        if (info instanceof ChooserActivity.PlaceHolderTargetInfo) {
+        if (info.isPlaceHolderTargetInfo()) {
             final int maxWidth = mContext.getResources().getDimensionPixelSize(
                     R.dimen.chooser_direct_share_label_placeholder_max_width);
             holder.text.setMaxWidth(maxWidth);
@@ -301,7 +301,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
         // Always remove the spacing listener, attach as needed to direct share targets below.
         holder.text.removeOnLayoutChangeListener(mPinTextSpacingListener);
 
-        if (info instanceof MultiDisplayResolveInfo) {
+        if (info.isMultiDisplayResolveInfo()) {
             // If the target is grouped show an indicator
             Drawable bkg = mContext.getDrawable(R.drawable.chooser_group_background);
             holder.text.setPaddingRelative(0, 0, bkg.getIntrinsicWidth() /* end */, 0);
@@ -338,7 +338,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
                     DisplayResolveInfo multiDri = consolidated.get(resolvedTarget);
                     if (multiDri == null) {
                         consolidated.put(resolvedTarget, info);
-                    } else if (multiDri instanceof MultiDisplayResolveInfo) {
+                    } else if (multiDri.isMultiDisplayResolveInfo()) {
                         ((MultiDisplayResolveInfo) multiDri).addTarget(info);
                     } else {
                         // create consolidated target from the single DisplayResolveInfo
@@ -387,7 +387,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
     public int getSelectableServiceTargetCount() {
         int count = 0;
         for (ChooserTargetInfo info : mServiceTargets) {
-            if (info instanceof SelectableTargetInfo) {
+            if (info.isSelectableTargetInfo()) {
                 count++;
             }
         }
@@ -530,8 +530,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
             @ChooserActivity.ShareTargetType int targetType,
             Map<ChooserTarget, ShortcutInfo> directShareToShortcutInfos) {
         // Avoid inserting any potentially late results.
-        if ((mServiceTargets.size() == 1)
-                && (mServiceTargets.get(0) instanceof ChooserActivity.EmptyTargetInfo)) {
+        if ((mServiceTargets.size() == 1) && mServiceTargets.get(0).isEmptyTargetInfo()) {
             return;
         }
         boolean isShortcutResult = targetType == TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER
@@ -579,7 +578,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
      * update the direct share area.
      */
     public void completeServiceTargetLoading() {
-        mServiceTargets.removeIf(o -> o instanceof ChooserActivity.PlaceHolderTargetInfo);
+        mServiceTargets.removeIf(o -> o.isPlaceHolderTargetInfo());
         if (mServiceTargets.isEmpty()) {
             mServiceTargets.add(new ChooserActivity.EmptyTargetInfo());
             mChooserActivityLogger.logSharesheetEmptyDirectShareRow();
