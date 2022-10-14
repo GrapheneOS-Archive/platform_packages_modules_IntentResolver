@@ -163,17 +163,12 @@ public class ResolverActivity extends FragmentActivity implements
     /** See {@link #setRetainInOnStop}. */
     private boolean mRetainInOnStop;
 
-    private static final String EXTRA_SHOW_FRAGMENT_ARGS = ":settings:show_fragment_args";
-    private static final String EXTRA_FRAGMENT_ARG_KEY = ":settings:fragment_args_key";
-    private static final String OPEN_LINKS_COMPONENT_KEY = "app_link_state";
     protected static final String METRICS_CATEGORY_RESOLVER = "intent_resolver";
     protected static final String METRICS_CATEGORY_CHOOSER = "intent_chooser";
 
     /** Tracks if we should ignore future broadcasts telling us the work profile is enabled */
     private boolean mWorkProfileHasBeenEnabled = false;
 
-    @VisibleForTesting
-    public static boolean ENABLE_TABBED_VIEW = true;
     private static final String TAB_TAG_PERSONAL = "personal";
     private static final String TAB_TAG_WORK = "work";
 
@@ -591,7 +586,7 @@ public class ResolverActivity extends FragmentActivity implements
     }
 
     protected boolean shouldShowTabs() {
-        return hasWorkProfile() && ENABLE_TABBED_VIEW;
+        return hasWorkProfile();
     }
 
     protected void onProfileClick(View v) {
