@@ -98,8 +98,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
     private AppPredictor mAppPredictor;
     private AppPredictor.Callback mAppPredictorCallback;
 
-    private LoadDirectShareIconTaskProvider mTestLoadDirectShareTaskProvider;
-
     private final ShortcutSelectionLogic mShortcutSelectionLogic;
 
     // For pinned direct share labels, if the text spans multiple lines, the TextView will consume
@@ -177,7 +175,9 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 final ComponentName cn = ii.getComponent();
                 if (cn != null) {
                     try {
-                        ai = packageManager.getActivityInfo(ii.getComponent(), 0);
+                        ai = packageManager.getActivityInfo(
+                                ii.getComponent(),
+                                PackageManager.ComponentInfoFlags.of(PackageManager.GET_META_DATA));
                         ri = new ResolveInfo();
                         ri.activityInfo = ai;
                     } catch (PackageManager.NameNotFoundException ignored) {
@@ -187,7 +187,9 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 if (ai == null) {
                     // Because of AIDL bug, resolveActivity can't accept subclasses of Intent.
                     final Intent rii = (ii.getClass() == Intent.class) ? ii : new Intent(ii);
-                    ri = packageManager.resolveActivity(rii, PackageManager.MATCH_DEFAULT_ONLY);
+                    ri = packageManager.resolveActivity(
+                            rii,
+                            PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY));
                     ai = ri != null ? ri.activityInfo : null;
                 }
                 if (ai == null) {
@@ -243,7 +245,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
         mListViewDataChanged = false;
     }
 
-
     private void createPlaceHolders() {
         mServiceTargets.clear();
         for (int i = 0; i < mChooserListCommunicator.getMaxRankedTargets(); i++) {
@@ -256,8 +257,9 @@ public class ChooserListAdapter extends ResolverListAdapter {
         return mInflater.inflate(R.layout.resolve_grid_item, parent, false);
     }
 
+    @VisibleForTesting
     @Override
-    protected void onBindView(View view, TargetInfo info, int position) {
+    public void onBindView(View view, TargetInfo info, int position) {
         final ViewHolder holder = (ViewHolder) view.getTag();
 
         if (info == null) {
@@ -270,12 +272,16 @@ public class ChooserListAdapter extends ResolverListAdapter {
         holder.bindIcon(info);
         if (info.isSelectableTargetInfo()) {
             // direct share targets should append the application name for a better readout
-            DisplayResolveInfo rInfo = ((SelectableTargetInfo) info).getDisplayResolveInfo();
+            SelectableTargetInfo sti = (SelectableTargetInfo) info;
+            DisplayResolveInfo rInfo = sti.getDisplayResolveInfo();
             CharSequence appName = rInfo != null ? rInfo.getDisplayLabel() : "";
             CharSequence extendedInfo = info.getExtendedInfo();
             String contentDescription = String.join(" ", info.getDisplayLabel(),
                     extendedInfo != null ? extendedInfo : "", appName);
             holder.updateContentDescription(contentDescription);
+            if (!sti.hasDisplayIcon()) {
+                loadDirectShareIcon(sti);
+            }
         } else if (info.isDisplayResolveInfo()) {
             DisplayResolveInfo dri = (DisplayResolveInfo) info;
             if (!dri.hasDisplayIcon()) {
@@ -318,6 +324,20 @@ public class ChooserListAdapter extends ResolverListAdapter {
             holder.text.setBackground(null);
             holder.text.setPaddingRelative(0, 0, 0, 0);
         }
+    }
+
+    private void loadDirectShareIcon(SelectableTargetInfo info) {
+        LoadDirectShareIconTask task = (LoadDirectShareIconTask) mIconLoaders.get(info);
+        if (task == null) {
+            task = createLoadDirectShareIconTask(info);
+            mIconLoaders.put(info, task);
+            task.loadIcon();
+        }
+    }
+
+    @VisibleForTesting
+    protected LoadDirectShareIconTask createLoadDirectShareIconTask(SelectableTargetInfo info) {
+        return new LoadDirectShareIconTask(info);
     }
 
     void updateAlphabeticalList() {
@@ -660,34 +680,23 @@ public class ChooserListAdapter extends ResolverListAdapter {
      * Loads direct share targets icons.
      */
     @VisibleForTesting
-    public class LoadDirectShareIconTask extends AsyncTask<Void, Void, Void> {
+    public class LoadDirectShareIconTask extends AsyncTask<Void, Void, Boolean> {
         private final SelectableTargetInfo mTargetInfo;
-        private ViewHolder mViewHolder;
 
         private LoadDirectShareIconTask(SelectableTargetInfo targetInfo) {
             mTargetInfo = targetInfo;
         }
 
         @Override
-        protected Void doInBackground(Void... voids) {
-            mTargetInfo.loadIcon();
-            return null;
+        protected Boolean doInBackground(Void... voids) {
+            return mTargetInfo.loadIcon();
         }
 
         @Override
-        protected void onPostExecute(Void arg) {
-            if (mViewHolder != null) {
-                mViewHolder.bindIcon(mTargetInfo);
+        protected void onPostExecute(Boolean isLoaded) {
+            if (isLoaded) {
                 notifyDataSetChanged();
             }
-        }
-
-        /**
-         * Specifies a view holder that will be updated when the task is completed.
-         */
-        public void setViewHolder(ViewHolder viewHolder) {
-            mViewHolder = viewHolder;
-            mViewHolder.bindIcon(mTargetInfo);
         }
 
         /**
@@ -696,17 +705,5 @@ public class ChooserListAdapter extends ResolverListAdapter {
         public void loadIcon() {
             execute();
         }
-    }
-
-    /**
-     * An interface for the unit tests to override icon loading task creation
-     */
-    @VisibleForTesting
-    public interface LoadDirectShareIconTaskProvider {
-        /**
-         * Provides an instance of the task.
-         * @return
-         */
-        LoadDirectShareIconTask get();
     }
 }

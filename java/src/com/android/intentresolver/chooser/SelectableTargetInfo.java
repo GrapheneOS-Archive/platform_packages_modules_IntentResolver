@@ -157,20 +157,25 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     /**
      * Load display icon, if needed.
      */
-    public void loadIcon() {
+    public boolean loadIcon() {
         ShortcutInfo shortcutInfo;
         Drawable icon;
         synchronized (this) {
             shortcutInfo = mShortcutInfo;
             icon = mDisplayIcon;
         }
-        if (icon == null && shortcutInfo != null) {
+        boolean shouldLoadIcon = (icon == null) && (shortcutInfo != null);
+        if (shouldLoadIcon) {
             icon = getChooserTargetIconDrawable(mChooserTarget, shortcutInfo);
+            if (icon == null) {
+                return false;
+            }
             synchronized (this) {
                 mDisplayIcon = icon;
                 mShortcutInfo = null;
             }
         }
+        return shouldLoadIcon;
     }
 
     private Drawable getChooserTargetIconDrawable(ChooserTarget target,
@@ -305,6 +310,13 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     @Override
     public synchronized Drawable getDisplayIcon(Context context) {
         return mDisplayIcon;
+    }
+
+    /**
+     * @return true if display icon is available
+     */
+    public synchronized boolean hasDisplayIcon() {
+        return mDisplayIcon != null;
     }
 
     public ChooserTarget getChooserTarget() {
