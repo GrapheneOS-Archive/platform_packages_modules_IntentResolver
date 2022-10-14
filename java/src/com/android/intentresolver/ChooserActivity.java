@@ -1120,8 +1120,13 @@ public class ChooserActivity extends ResolverActivity implements
             return null;
         }
 
-        final DisplayResolveInfo dri = new DisplayResolveInfo(
-                originalIntent, ri, getString(com.android.internal.R.string.screenshot_edit), "", resolveIntent, null);
+        final DisplayResolveInfo dri = DisplayResolveInfo.newDisplayResolveInfo(
+                originalIntent,
+                ri,
+                getString(com.android.internal.R.string.screenshot_edit),
+                "",
+                resolveIntent,
+                null);
         dri.setDisplayIcon(getDrawable(com.android.internal.R.drawable.ic_screenshot_edit));
         return dri;
     }
@@ -1164,7 +1169,7 @@ public class ChooserActivity extends ResolverActivity implements
             icon = ri.loadIcon(getPackageManager());
         }
 
-        final DisplayResolveInfo dri = new DisplayResolveInfo(
+        final DisplayResolveInfo dri = DisplayResolveInfo.newDisplayResolveInfo(
                 originalIntent, ri, name, "", resolveIntent, null);
         dri.setDisplayIcon(icon);
         return dri;

@@ -59,7 +59,7 @@ internal fun createAppTarget(shortcutInfo: ShortcutInfo) =
         shortcutInfo.activity?.className ?: error("missing activity info")
     )
 
-internal fun createChooserTarget(
+fun createChooserTarget(
     title: String, score: Float, componentName: ComponentName, shortcutId: String
 ): ChooserTarget =
     ChooserTarget(
