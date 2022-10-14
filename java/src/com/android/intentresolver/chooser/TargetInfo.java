@@ -112,6 +112,10 @@ public interface TargetInfo {
     Drawable getDisplayIcon(Context context);
 
     /**
+     * @return true if display icon is available.
+     */
+    boolean hasDisplayIcon();
+    /**
      * Clone this target with the given fill-in information.
      */
     TargetInfo cloneFilledIn(Intent fillInIntent, int flags);
