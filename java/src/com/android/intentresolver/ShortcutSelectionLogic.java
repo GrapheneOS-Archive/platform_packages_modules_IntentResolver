@@ -17,7 +17,6 @@
 package com.android.intentresolver;
 
 import android.annotation.Nullable;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ShortcutInfo;
 import android.service.chooser.ChooserTarget;
@@ -158,9 +157,5 @@ class ShortcutSelectionLogic {
         }
 
         return false;
-    }
-
-    public interface ScoreProvider {
-        float getScore(ComponentName componentName);
     }
 }

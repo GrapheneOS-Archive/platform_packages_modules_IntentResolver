@@ -554,32 +554,23 @@ public class ChooserActivity extends ResolverActivity implements
             super.onCreate(null);
             return;
         }
-        Intent target = (Intent) targetParcelable;
-        if (target != null) {
-            modifyTargetIntent(target);
-        }
+        final Intent target = (Intent) targetParcelable;
+        modifyTargetIntent(target);
         Parcelable[] targetsParcelable
                 = intent.getParcelableArrayExtra(Intent.EXTRA_ALTERNATE_INTENTS);
         if (targetsParcelable != null) {
-            final boolean offset = target == null;
-            Intent[] additionalTargets =
-                    new Intent[offset ? targetsParcelable.length - 1 : targetsParcelable.length];
+            Intent[] additionalTargets = new Intent[targetsParcelable.length];
             for (int i = 0; i < targetsParcelable.length; i++) {
                 if (!(targetsParcelable[i] instanceof Intent)) {
-                    Log.w(TAG, "EXTRA_ALTERNATE_INTENTS array entry #" + i + " is not an Intent: "
-                            + targetsParcelable[i]);
+                    Log.w(TAG, "EXTRA_ALTERNATE_INTENTS array entry #" + i
+                            + " is not an Intent: " + targetsParcelable[i]);
                     finish();
                     super.onCreate(null);
                     return;
                 }
                 final Intent additionalTarget = (Intent) targetsParcelable[i];
-                if (i == 0 && target == null) {
-                    target = additionalTarget;
-                    modifyTargetIntent(target);
-                } else {
-                    additionalTargets[offset ? i - 1 : i] = additionalTarget;
-                    modifyTargetIntent(additionalTarget);
-                }
+                additionalTargets[i] = additionalTarget;
+                modifyTargetIntent(additionalTarget);
             }
             setAdditionalTargets(additionalTargets);
         }
@@ -588,14 +579,12 @@ public class ChooserActivity extends ResolverActivity implements
 
         // Do not allow the title to be changed when sharing content
         CharSequence title = null;
-        if (target != null) {
-            if (!isSendAction(target)) {
-                title = intent.getCharSequenceExtra(Intent.EXTRA_TITLE);
-            } else {
-                Log.w(TAG, "Ignoring intent's EXTRA_TITLE, deprecated in P. You may wish to set a"
-                        + " preview title by using EXTRA_TITLE property of the wrapped"
-                        + " EXTRA_INTENT.");
-            }
+        if (!isSendAction(target)) {
+            title = intent.getCharSequenceExtra(Intent.EXTRA_TITLE);
+        } else {
+            Log.w(TAG, "Ignoring intent's EXTRA_TITLE, deprecated in P. You may wish to set a"
+                    + " preview title by using EXTRA_TITLE property of the wrapped"
+                    + " EXTRA_INTENT.");
         }
 
         int defaultTitleRes = 0;
