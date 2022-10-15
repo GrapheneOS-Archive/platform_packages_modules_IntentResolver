@@ -2457,6 +2457,10 @@ public class ChooserActivity extends ResolverActivity implements
             avd.start(); // Start animation after generation
             return avd;
         }
+
+        public boolean hasDisplayIcon() {
+            return true;
+        }
     }
 
     protected static final class EmptyTargetInfo extends NotSelectableTargetInfo {
@@ -2469,6 +2473,10 @@ public class ChooserActivity extends ResolverActivity implements
 
         public Drawable getDisplayIcon(Context context) {
             return null;
+        }
+
+        public boolean hasDisplayIcon() {
+            return false;
         }
     }
 
