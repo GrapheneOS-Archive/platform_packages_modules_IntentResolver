@@ -47,6 +47,7 @@ import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.ChooserTargetInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
+import com.android.intentresolver.chooser.NotSelectableTargetInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.internal.annotations.VisibleForTesting;
@@ -86,8 +87,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
     private final Map<TargetInfo, AsyncTask> mIconLoaders = new HashMap<>();
 
     // Reserve spots for incoming direct share targets by adding placeholders
-    private ChooserTargetInfo
-            mPlaceHolderTargetInfo = new ChooserActivity.PlaceHolderTargetInfo();
+    private ChooserTargetInfo mPlaceHolderTargetInfo =
+            NotSelectableTargetInfo.newPlaceHolderTargetInfo();
     private final List<ChooserTargetInfo> mServiceTargets = new ArrayList<>();
     private final List<DisplayResolveInfo> mCallerTargets = new ArrayList<>();
 
@@ -600,7 +601,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
     public void completeServiceTargetLoading() {
         mServiceTargets.removeIf(o -> o.isPlaceHolderTargetInfo());
         if (mServiceTargets.isEmpty()) {
-            mServiceTargets.add(new ChooserActivity.EmptyTargetInfo());
+            mServiceTargets.add(NotSelectableTargetInfo.newEmptyTargetInfo());
             mChooserActivityLogger.logSharesheetEmptyDirectShareRow();
         }
         notifyDataSetChanged();
