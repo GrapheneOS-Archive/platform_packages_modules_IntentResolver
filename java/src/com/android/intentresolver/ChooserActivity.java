@@ -65,7 +65,6 @@ import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.metrics.LogMaker;
 import android.net.Uri;
@@ -120,7 +119,6 @@ import com.android.intentresolver.ResolverListAdapter.ViewHolder;
 import com.android.intentresolver.chooser.ChooserTargetInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
-import com.android.intentresolver.chooser.NotSelectableTargetInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator;
 import com.android.intentresolver.chooser.TargetInfo;
@@ -2443,41 +2441,6 @@ public class ChooserActivity extends ResolverActivity implements
             logContentPreviewWarning(uri);
         }
         return null;
-    }
-
-    static final class PlaceHolderTargetInfo extends NotSelectableTargetInfo {
-        @Override
-        public boolean isPlaceHolderTargetInfo() {
-            return true;
-        }
-
-        public Drawable getDisplayIcon(Context context) {
-            AnimatedVectorDrawable avd = (AnimatedVectorDrawable)
-                    context.getDrawable(R.drawable.chooser_direct_share_icon_placeholder);
-            avd.start(); // Start animation after generation
-            return avd;
-        }
-
-        public boolean hasDisplayIcon() {
-            return true;
-        }
-    }
-
-    protected static final class EmptyTargetInfo extends NotSelectableTargetInfo {
-        public EmptyTargetInfo() {}
-
-        @Override
-        public boolean isEmptyTargetInfo() {
-            return true;
-        }
-
-        public Drawable getDisplayIcon(Context context) {
-            return null;
-        }
-
-        public boolean hasDisplayIcon() {
-            return false;
-        }
     }
 
     private void handleScroll(View view, int x, int y, int oldx, int oldy) {

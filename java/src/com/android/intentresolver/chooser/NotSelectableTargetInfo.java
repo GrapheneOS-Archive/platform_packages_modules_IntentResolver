@@ -18,12 +18,16 @@ package com.android.intentresolver.chooser;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.graphics.drawable.AnimatedVectorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.service.chooser.ChooserTarget;
 
+import com.android.intentresolver.R;
 import com.android.intentresolver.ResolverActivity;
 
 import java.util.List;
@@ -33,6 +37,52 @@ import java.util.List;
  * placeholders for the system while information is loading in an async manner.
  */
 public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
+    /** Create a non-selectable {@link TargetInfo} with no content. */
+    public static ChooserTargetInfo newEmptyTargetInfo() {
+        return new NotSelectableTargetInfo() {
+                @Override
+                public boolean isEmptyTargetInfo() {
+                    return true;
+                }
+
+                @Override
+                public Drawable getDisplayIcon(Context context) {
+                    return null;
+                }
+
+                @Override
+                public boolean hasDisplayIcon() {
+                    return false;
+                }
+            };
+    }
+
+    /**
+     * Create a non-selectable {@link TargetInfo} with placeholder content to be displayed
+     * unless/until it can be replaced by the result of a pending asynchronous load.
+     */
+    public static ChooserTargetInfo newPlaceHolderTargetInfo() {
+        return new NotSelectableTargetInfo() {
+                @Override
+                public boolean isPlaceHolderTargetInfo() {
+                    return true;
+                }
+
+                @Override
+                public Drawable getDisplayIcon(Context context) {
+                    AnimatedVectorDrawable avd = (AnimatedVectorDrawable)
+                            context.getDrawable(R.drawable.chooser_direct_share_icon_placeholder);
+                    avd.start();  // Start animation after generation.
+                    return avd;
+                }
+
+                @Override
+                public boolean hasDisplayIcon() {
+                    return true;
+                }
+            };
+    }
+
     public final boolean isNotSelectableTargetInfo() {
         return true;
     }
