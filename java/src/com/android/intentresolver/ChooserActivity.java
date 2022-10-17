@@ -119,7 +119,6 @@ import com.android.intentresolver.ResolverListAdapter.ViewHolder;
 import com.android.intentresolver.chooser.ChooserTargetInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
-import com.android.intentresolver.chooser.SelectableTargetInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
@@ -1712,7 +1711,7 @@ public class ChooserActivity extends ResolverActivity implements
         Bundle bundle = new Bundle();
 
         if (targetInfo.isSelectableTargetInfo()) {
-            SelectableTargetInfo selectableTargetInfo = (SelectableTargetInfo) targetInfo;
+            ChooserTargetInfo selectableTargetInfo = (ChooserTargetInfo) targetInfo;
             if (selectableTargetInfo.getDisplayResolveInfo() == null
                     || selectableTargetInfo.getChooserTarget() == null) {
                 Log.e(TAG, "displayResolveInfo or chooserTarget in selectableTargetInfo are null");
@@ -1838,7 +1837,7 @@ public class ChooserActivity extends ResolverActivity implements
                             target.getComponentName().getPackageName()
                                     + target.getTitle().toString(),
                             mMaxHashSaltDays);
-                    SelectableTargetInfo selectableTargetInfo = (SelectableTargetInfo) targetInfo;
+                    ChooserTargetInfo selectableTargetInfo = (ChooserTargetInfo) targetInfo;
                     directTargetAlsoRanked = getRankedPosition(selectableTargetInfo);
 
                     if (mCallerChooserTargets != null) {
@@ -1906,7 +1905,7 @@ public class ChooserActivity extends ResolverActivity implements
         }
     }
 
-    private int getRankedPosition(SelectableTargetInfo targetInfo) {
+    private int getRankedPosition(ChooserTargetInfo targetInfo) {
         String targetPackageName =
                 targetInfo.getChooserTarget().getComponentName().getPackageName();
         ChooserListAdapter currentListAdapter =
