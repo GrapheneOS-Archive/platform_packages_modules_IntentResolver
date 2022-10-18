@@ -65,7 +65,6 @@ import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.metrics.LogMaker;
 import android.net.Uri;
@@ -120,7 +119,6 @@ import com.android.intentresolver.ResolverListAdapter.ViewHolder;
 import com.android.intentresolver.chooser.ChooserTargetInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
-import com.android.intentresolver.chooser.NotSelectableTargetInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator;
 import com.android.intentresolver.chooser.TargetInfo;
@@ -554,32 +552,23 @@ public class ChooserActivity extends ResolverActivity implements
             super.onCreate(null);
             return;
         }
-        Intent target = (Intent) targetParcelable;
-        if (target != null) {
-            modifyTargetIntent(target);
-        }
+        final Intent target = (Intent) targetParcelable;
+        modifyTargetIntent(target);
         Parcelable[] targetsParcelable
                 = intent.getParcelableArrayExtra(Intent.EXTRA_ALTERNATE_INTENTS);
         if (targetsParcelable != null) {
-            final boolean offset = target == null;
-            Intent[] additionalTargets =
-                    new Intent[offset ? targetsParcelable.length - 1 : targetsParcelable.length];
+            Intent[] additionalTargets = new Intent[targetsParcelable.length];
             for (int i = 0; i < targetsParcelable.length; i++) {
                 if (!(targetsParcelable[i] instanceof Intent)) {
-                    Log.w(TAG, "EXTRA_ALTERNATE_INTENTS array entry #" + i + " is not an Intent: "
-                            + targetsParcelable[i]);
+                    Log.w(TAG, "EXTRA_ALTERNATE_INTENTS array entry #" + i
+                            + " is not an Intent: " + targetsParcelable[i]);
                     finish();
                     super.onCreate(null);
                     return;
                 }
                 final Intent additionalTarget = (Intent) targetsParcelable[i];
-                if (i == 0 && target == null) {
-                    target = additionalTarget;
-                    modifyTargetIntent(target);
-                } else {
-                    additionalTargets[offset ? i - 1 : i] = additionalTarget;
-                    modifyTargetIntent(additionalTarget);
-                }
+                additionalTargets[i] = additionalTarget;
+                modifyTargetIntent(additionalTarget);
             }
             setAdditionalTargets(additionalTargets);
         }
@@ -588,14 +577,12 @@ public class ChooserActivity extends ResolverActivity implements
 
         // Do not allow the title to be changed when sharing content
         CharSequence title = null;
-        if (target != null) {
-            if (!isSendAction(target)) {
-                title = intent.getCharSequenceExtra(Intent.EXTRA_TITLE);
-            } else {
-                Log.w(TAG, "Ignoring intent's EXTRA_TITLE, deprecated in P. You may wish to set a"
-                        + " preview title by using EXTRA_TITLE property of the wrapped"
-                        + " EXTRA_INTENT.");
-            }
+        if (!isSendAction(target)) {
+            title = intent.getCharSequenceExtra(Intent.EXTRA_TITLE);
+        } else {
+            Log.w(TAG, "Ignoring intent's EXTRA_TITLE, deprecated in P. You may wish to set a"
+                    + " preview title by using EXTRA_TITLE property of the wrapped"
+                    + " EXTRA_INTENT.");
         }
 
         int defaultTitleRes = 0;
@@ -2443,41 +2430,6 @@ public class ChooserActivity extends ResolverActivity implements
             logContentPreviewWarning(uri);
         }
         return null;
-    }
-
-    static final class PlaceHolderTargetInfo extends NotSelectableTargetInfo {
-        @Override
-        public boolean isPlaceHolderTargetInfo() {
-            return true;
-        }
-
-        public Drawable getDisplayIcon(Context context) {
-            AnimatedVectorDrawable avd = (AnimatedVectorDrawable)
-                    context.getDrawable(R.drawable.chooser_direct_share_icon_placeholder);
-            avd.start(); // Start animation after generation
-            return avd;
-        }
-
-        public boolean hasDisplayIcon() {
-            return true;
-        }
-    }
-
-    protected static final class EmptyTargetInfo extends NotSelectableTargetInfo {
-        public EmptyTargetInfo() {}
-
-        @Override
-        public boolean isEmptyTargetInfo() {
-            return true;
-        }
-
-        public Drawable getDisplayIcon(Context context) {
-            return null;
-        }
-
-        public boolean hasDisplayIcon() {
-            return false;
-        }
     }
 
     private void handleScroll(View view, int x, int y, int oldx, int oldy) {
