@@ -1830,14 +1830,14 @@ public class ChooserActivity extends ResolverActivity implements
                     cat = MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET;
                     // Log the package name + target name to answer the question if most users
                     // share to mostly the same person or to a bunch of different people.
-                    ChooserTarget target = currentListAdapter.getChooserTargetForValue(value);
+                    ChooserTargetInfo selectableTargetInfo = (ChooserTargetInfo) targetInfo;
+                    ChooserTarget target = selectableTargetInfo.getChooserTarget();
                     directTargetHashed = HashedStringCache.getInstance().hashString(
                             this,
                             TAG,
                             target.getComponentName().getPackageName()
                                     + target.getTitle().toString(),
                             mMaxHashSaltDays);
-                    ChooserTargetInfo selectableTargetInfo = (ChooserTargetInfo) targetInfo;
                     directTargetAlsoRanked = getRankedPosition(selectableTargetInfo);
 
                     if (mCallerChooserTargets != null) {
