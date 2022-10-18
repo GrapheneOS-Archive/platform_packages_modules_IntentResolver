@@ -71,10 +71,7 @@ android_app {
         "IntentResolver-core",
     ],
     optimize: {
-        // TODO: consider re-enabling after setting up Proguard rules to
-        // preserve the name of the ChooserGridLayoutManager class, which is
-        // referenced by name in the chooser_list_per_profile layout XML.
-        enabled: false,
+        enabled: true,
     },
     apex_available: [
         "//apex_available:platform",
