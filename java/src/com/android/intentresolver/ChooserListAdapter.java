@@ -605,10 +605,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
         notifyDataSetChanged();
     }
 
-    public ChooserTarget getChooserTargetForValue(int value) {
-        return mServiceTargets.get(value).getChooserTarget();
-    }
-
     protected boolean alwaysShowSubLabel() {
         // Always show a subLabel for visual consistency across list items. Show an empty
         // subLabel if the subLabel is the same as the label
