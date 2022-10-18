@@ -54,6 +54,26 @@ public abstract class ChooserTargetInfo implements TargetInfo {
     }
 
     /**
+     * Attempt to load the display icon, if we have the info for one but it hasn't been loaded yet.
+     * @return true if an icon may have been loaded as the result of this operation, potentially
+     * prompting a UI refresh. If this returns false, clients can safely assume there was no change.
+     */
+    public boolean loadIcon() {
+        return false;
+    }
+
+    /**
+     * Get more info about this target in the form of a {@link DisplayResolveInfo}, if available.
+     * TODO: determine the meaning of a TargetInfo (ChooserTargetInfo) embedding another kind of
+     * TargetInfo (DisplayResolveInfo) in this way, and - at least - improve this documentation;
+     * OTOH this probably indicates an opportunity to simplify or better separate these APIs.
+     */
+    @Nullable
+    public DisplayResolveInfo getDisplayResolveInfo() {
+        return null;
+    }
+
+    /**
      * Do not label as 'equals', since this doesn't quite work
      * as intended with java 8.
      */
