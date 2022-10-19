@@ -24,14 +24,16 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.UserHandle;
-import android.util.Pair;
 
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.logging.MetricsLogger;
 
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
+
+import kotlin.jvm.functions.Function2;
 
 /**
  * Singleton providing overrides to be applied by any {@code IChooserWrapper} used in testing.
@@ -51,10 +53,8 @@ public class ChooserActivityOverrideData {
     @SuppressWarnings("Since15")
     public Function<PackageManager, PackageManager> createPackageManager;
     public Function<TargetInfo, Boolean> onSafelyStartCallback;
-    public Function<ChooserListAdapter, Void> onQueryDirectShareTargets;
-    public BiFunction<
-            IChooserWrapper, ChooserListAdapter, Pair<Integer, ChooserActivity.ServiceResultInfo[]>>
-            directShareTargets;
+    public Function2<UserHandle, Consumer<ShortcutLoader.Result>, ShortcutLoader>
+            shortcutLoaderFactory = (userHandle, callback) -> null;
     public ResolverListController resolverListController;
     public ResolverListController workResolverListController;
     public Boolean isVoiceInteraction;
@@ -69,15 +69,11 @@ public class ChooserActivityOverrideData {
     public UserHandle workProfileUserHandle;
     public boolean hasCrossProfileIntents;
     public boolean isQuietModeEnabled;
-    public boolean isWorkProfileUserRunning;
-    public boolean isWorkProfileUserUnlocked;
     public AbstractMultiProfilePagerAdapter.Injector multiPagerAdapterInjector;
     public PackageManager packageManager;
 
     public void reset() {
         onSafelyStartCallback = null;
-        onQueryDirectShareTargets = null;
-        directShareTargets = null;
         isVoiceInteraction = null;
         createPackageManager = null;
         previewThumbnail = null;
@@ -93,8 +89,6 @@ public class ChooserActivityOverrideData {
         workProfileUserHandle = null;
         hasCrossProfileIntents = true;
         isQuietModeEnabled = false;
-        isWorkProfileUserRunning = true;
-        isWorkProfileUserUnlocked = true;
         packageManager = null;
         multiPagerAdapterInjector = new AbstractMultiProfilePagerAdapter.Injector() {
             @Override
@@ -114,6 +108,7 @@ public class ChooserActivityOverrideData {
                 isQuietModeEnabled = enabled;
             }
         };
+        shortcutLoaderFactory = ((userHandle, resultConsumer) -> null);
     }
 
     private ChooserActivityOverrideData() {}
