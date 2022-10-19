@@ -48,7 +48,7 @@ import com.android.intentresolver.chooser.ChooserTargetInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.NotSelectableTargetInfo;
-import com.android.intentresolver.chooser.SelectableTargetInfo;
+import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
@@ -80,8 +80,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
     public static final float SHORTCUT_TARGET_SCORE_BOOST = 90.f;
 
     private final ChooserListCommunicator mChooserListCommunicator;
-    private final SelectableTargetInfo.SelectableTargetInfoCommunicator
-            mSelectableTargetInfoCommunicator;
+    private final SelectableTargetInfoCommunicator mSelectableTargetInfoCommunicator;
     private final ChooserActivityLogger mChooserActivityLogger;
 
     private final Map<TargetInfo, AsyncTask> mIconLoaders = new HashMap<>();
@@ -140,7 +139,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
             boolean filterLastUsed,
             ResolverListController resolverListController,
             ChooserListCommunicator chooserListCommunicator,
-            SelectableTargetInfo.SelectableTargetInfoCommunicator selectableTargetInfoCommunicator,
+            SelectableTargetInfoCommunicator selectableTargetInfoCommunicator,
             PackageManager packageManager,
             ChooserActivityLogger chooserActivityLogger) {
         // Don't send the initial intents through the shared ResolverActivity path,
@@ -273,15 +272,14 @@ public class ChooserListAdapter extends ResolverListAdapter {
         holder.bindIcon(info);
         if (info.isSelectableTargetInfo()) {
             // direct share targets should append the application name for a better readout
-            SelectableTargetInfo sti = (SelectableTargetInfo) info;
-            DisplayResolveInfo rInfo = sti.getDisplayResolveInfo();
+            DisplayResolveInfo rInfo = ((ChooserTargetInfo) info).getDisplayResolveInfo();
             CharSequence appName = rInfo != null ? rInfo.getDisplayLabel() : "";
             CharSequence extendedInfo = info.getExtendedInfo();
             String contentDescription = String.join(" ", info.getDisplayLabel(),
                     extendedInfo != null ? extendedInfo : "", appName);
             holder.updateContentDescription(contentDescription);
-            if (!sti.hasDisplayIcon()) {
-                loadDirectShareIcon(sti);
+            if (!info.hasDisplayIcon()) {
+                loadDirectShareIcon((ChooserTargetInfo) info);
             }
         } else if (info.isDisplayResolveInfo()) {
             DisplayResolveInfo dri = (DisplayResolveInfo) info;
@@ -327,7 +325,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
         }
     }
 
-    private void loadDirectShareIcon(SelectableTargetInfo info) {
+    private void loadDirectShareIcon(ChooserTargetInfo info) {
         LoadDirectShareIconTask task = (LoadDirectShareIconTask) mIconLoaders.get(info);
         if (task == null) {
             task = createLoadDirectShareIconTask(info);
@@ -337,7 +335,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
     }
 
     @VisibleForTesting
-    protected LoadDirectShareIconTask createLoadDirectShareIconTask(SelectableTargetInfo info) {
+    protected LoadDirectShareIconTask createLoadDirectShareIconTask(ChooserTargetInfo info) {
         return new LoadDirectShareIconTask(info);
     }
 
@@ -607,10 +605,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
         notifyDataSetChanged();
     }
 
-    public ChooserTarget getChooserTargetForValue(int value) {
-        return mServiceTargets.get(value).getChooserTarget();
-    }
-
     protected boolean alwaysShowSubLabel() {
         // Always show a subLabel for visual consistency across list items. Show an empty
         // subLabel if the subLabel is the same as the label
@@ -682,9 +676,9 @@ public class ChooserListAdapter extends ResolverListAdapter {
      */
     @VisibleForTesting
     public class LoadDirectShareIconTask extends AsyncTask<Void, Void, Boolean> {
-        private final SelectableTargetInfo mTargetInfo;
+        private final ChooserTargetInfo mTargetInfo;
 
-        private LoadDirectShareIconTask(SelectableTargetInfo targetInfo) {
+        private LoadDirectShareIconTask(ChooserTargetInfo targetInfo) {
             mTargetInfo = targetInfo;
         }
 
