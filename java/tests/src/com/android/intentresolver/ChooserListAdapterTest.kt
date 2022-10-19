@@ -31,6 +31,7 @@ import com.android.intentresolver.ChooserListAdapter.LoadDirectShareIconTask
 import com.android.intentresolver.chooser.ChooserTargetInfo
 import com.android.intentresolver.chooser.SelectableTargetInfo
 import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator
+import com.android.intentresolver.chooser.TargetInfo
 import com.android.internal.R
 import org.junit.Before
 import org.junit.Test
@@ -57,7 +58,7 @@ class ChooserListAdapterTest {
     private val chooserActivityLogger = mock<ChooserActivityLogger>()
 
     private fun createChooserListAdapter(
-        taskProvider: (ChooserTargetInfo?) -> LoadDirectShareIconTask
+        taskProvider: (TargetInfo?) -> LoadDirectShareIconTask
     ) = object : ChooserListAdapter(
             context,
             emptyList(),
@@ -71,7 +72,7 @@ class ChooserListAdapterTest {
             chooserActivityLogger,
         ) {
             override fun createLoadDirectShareIconTask(
-                info: ChooserTargetInfo?
+                info: TargetInfo?
             ): LoadDirectShareIconTask = taskProvider(info)
         }
 
@@ -120,7 +121,7 @@ class ChooserListAdapterTest {
         verify(testTaskProvider, times(1)).invoke()
     }
 
-    private fun createSelectableTargetInfo(): ChooserTargetInfo =
+    private fun createSelectableTargetInfo(): TargetInfo =
         SelectableTargetInfo(
             context,
             null,

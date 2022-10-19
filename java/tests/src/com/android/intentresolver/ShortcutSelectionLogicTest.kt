@@ -21,7 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.service.chooser.ChooserTarget
-import com.android.intentresolver.chooser.ChooserTargetInfo
+import com.android.intentresolver.chooser.TargetInfo
 import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -52,7 +52,7 @@ class ShortcutSelectionLogicTest {
 
     @Test
     fun testAddShortcuts_no_limits() {
-        val serviceResults = ArrayList<ChooserTargetInfo>()
+        val serviceResults = ArrayList<TargetInfo>()
         val sc1 = packageTargets[PACKAGE_A, 0]
         val sc2 = packageTargets[PACKAGE_A, 1]
         val testSubject = ShortcutSelectionLogic(
@@ -82,7 +82,7 @@ class ShortcutSelectionLogicTest {
 
     @Test
     fun testAddShortcuts_same_package_with_per_package_limit() {
-        val serviceResults = ArrayList<ChooserTargetInfo>()
+        val serviceResults = ArrayList<TargetInfo>()
         val sc1 = packageTargets[PACKAGE_A, 0]
         val sc2 = packageTargets[PACKAGE_A, 1]
         val testSubject = ShortcutSelectionLogic(
@@ -112,7 +112,7 @@ class ShortcutSelectionLogicTest {
 
     @Test
     fun testAddShortcuts_same_package_no_per_app_limit_with_target_limit() {
-        val serviceResults = ArrayList<ChooserTargetInfo>()
+        val serviceResults = ArrayList<TargetInfo>()
         val sc1 = packageTargets[PACKAGE_A, 0]
         val sc2 = packageTargets[PACKAGE_A, 1]
         val testSubject = ShortcutSelectionLogic(
@@ -142,7 +142,7 @@ class ShortcutSelectionLogicTest {
 
     @Test
     fun testAddShortcuts_different_packages_with_per_package_limit() {
-        val serviceResults = ArrayList<ChooserTargetInfo>()
+        val serviceResults = ArrayList<TargetInfo>()
         val pkgAsc1 = packageTargets[PACKAGE_A, 0]
         val pkgAsc2 = packageTargets[PACKAGE_A, 1]
         val pkgBsc1 = packageTargets[PACKAGE_B, 0]
@@ -184,7 +184,7 @@ class ShortcutSelectionLogicTest {
 
     @Test
     fun testAddShortcuts_pinned_shortcut() {
-        val serviceResults = ArrayList<ChooserTargetInfo>()
+        val serviceResults = ArrayList<TargetInfo>()
         val sc1 = packageTargets[PACKAGE_A, 0]
         val sc2 = packageTargets[PACKAGE_A, 1]
         val testSubject = ShortcutSelectionLogic(
@@ -220,7 +220,7 @@ class ShortcutSelectionLogicTest {
 
     @Test
     fun test_available_caller_shortcuts_count_is_limited() {
-        val serviceResults = ArrayList<ChooserTargetInfo>()
+        val serviceResults = ArrayList<TargetInfo>()
         val sc1 = packageTargets[PACKAGE_A, 0]
         val sc2 = packageTargets[PACKAGE_A, 1]
         val sc3 = packageTargets[PACKAGE_A, 2]
@@ -255,7 +255,7 @@ class ShortcutSelectionLogicTest {
     }
 
     private fun assertShortcutsInOrder(
-        expected: List<ChooserTarget>, actual: List<ChooserTargetInfo>, msg: String? = ""
+        expected: List<ChooserTarget>, actual: List<TargetInfo>, msg: String? = ""
     ) {
         assertEquals(msg, expected.size, actual.size)
         for (i in expected.indices) {
