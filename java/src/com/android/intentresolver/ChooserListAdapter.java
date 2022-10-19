@@ -44,7 +44,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
-import com.android.intentresolver.chooser.ChooserTargetInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.NotSelectableTargetInfo;
@@ -86,9 +85,9 @@ public class ChooserListAdapter extends ResolverListAdapter {
     private final Map<TargetInfo, AsyncTask> mIconLoaders = new HashMap<>();
 
     // Reserve spots for incoming direct share targets by adding placeholders
-    private ChooserTargetInfo mPlaceHolderTargetInfo =
+    private TargetInfo mPlaceHolderTargetInfo =
             NotSelectableTargetInfo.newPlaceHolderTargetInfo();
-    private final List<ChooserTargetInfo> mServiceTargets = new ArrayList<>();
+    private final List<TargetInfo> mServiceTargets = new ArrayList<>();
     private final List<DisplayResolveInfo> mCallerTargets = new ArrayList<>();
 
     private boolean mListViewDataChanged = false;
@@ -272,14 +271,14 @@ public class ChooserListAdapter extends ResolverListAdapter {
         holder.bindIcon(info);
         if (info.isSelectableTargetInfo()) {
             // direct share targets should append the application name for a better readout
-            DisplayResolveInfo rInfo = ((ChooserTargetInfo) info).getDisplayResolveInfo();
+            DisplayResolveInfo rInfo = info.getDisplayResolveInfo();
             CharSequence appName = rInfo != null ? rInfo.getDisplayLabel() : "";
             CharSequence extendedInfo = info.getExtendedInfo();
             String contentDescription = String.join(" ", info.getDisplayLabel(),
                     extendedInfo != null ? extendedInfo : "", appName);
             holder.updateContentDescription(contentDescription);
             if (!info.hasDisplayIcon()) {
-                loadDirectShareIcon((ChooserTargetInfo) info);
+                loadDirectShareIcon(info);
             }
         } else if (info.isDisplayResolveInfo()) {
             DisplayResolveInfo dri = (DisplayResolveInfo) info;
@@ -325,7 +324,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
         }
     }
 
-    private void loadDirectShareIcon(ChooserTargetInfo info) {
+    private void loadDirectShareIcon(TargetInfo info) {
         LoadDirectShareIconTask task = (LoadDirectShareIconTask) mIconLoaders.get(info);
         if (task == null) {
             task = createLoadDirectShareIconTask(info);
@@ -335,7 +334,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
     }
 
     @VisibleForTesting
-    protected LoadDirectShareIconTask createLoadDirectShareIconTask(ChooserTargetInfo info) {
+    protected LoadDirectShareIconTask createLoadDirectShareIconTask(TargetInfo info) {
         return new LoadDirectShareIconTask(info);
     }
 
@@ -405,7 +404,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
      */
     public int getSelectableServiceTargetCount() {
         int count = 0;
-        for (ChooserTargetInfo info : mServiceTargets) {
+        for (TargetInfo info : mServiceTargets) {
             if (info.isSelectableTargetInfo()) {
                 count++;
             }
@@ -532,7 +531,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
     /**
      * Fetch surfaced direct share target info
      */
-    public List<ChooserTargetInfo> getSurfacedTargetInfo() {
+    public List<TargetInfo> getSurfacedTargetInfo() {
         int maxSurfacedTargets = mChooserListCommunicator.getMaxRankedTargets();
         return mServiceTargets.subList(0,
                 Math.min(maxSurfacedTargets, getSelectableServiceTargetCount()));
@@ -676,9 +675,9 @@ public class ChooserListAdapter extends ResolverListAdapter {
      */
     @VisibleForTesting
     public class LoadDirectShareIconTask extends AsyncTask<Void, Void, Boolean> {
-        private final ChooserTargetInfo mTargetInfo;
+        private final TargetInfo mTargetInfo;
 
-        private LoadDirectShareIconTask(ChooserTargetInfo targetInfo) {
+        private LoadDirectShareIconTask(TargetInfo targetInfo) {
             mTargetInfo = targetInfo;
         }
 

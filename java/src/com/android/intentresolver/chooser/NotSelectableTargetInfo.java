@@ -38,7 +38,7 @@ import java.util.List;
  */
 public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
     /** Create a non-selectable {@link TargetInfo} with no content. */
-    public static ChooserTargetInfo newEmptyTargetInfo() {
+    public static TargetInfo newEmptyTargetInfo() {
         return new NotSelectableTargetInfo() {
                 @Override
                 public boolean isEmptyTargetInfo() {
@@ -61,7 +61,7 @@ public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
      * Create a non-selectable {@link TargetInfo} with placeholder content to be displayed
      * unless/until it can be replaced by the result of a pending asynchronous load.
      */
-    public static ChooserTargetInfo newPlaceHolderTargetInfo() {
+    public static TargetInfo newPlaceHolderTargetInfo() {
         return new NotSelectableTargetInfo() {
                 @Override
                 public boolean isPlaceHolderTargetInfo() {

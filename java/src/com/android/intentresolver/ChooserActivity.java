@@ -116,7 +116,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.android.intentresolver.ResolverListAdapter.ActivityInfoPresentationGetter;
 import com.android.intentresolver.ResolverListAdapter.ViewHolder;
-import com.android.intentresolver.chooser.ChooserTargetInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator;
@@ -1711,24 +1710,23 @@ public class ChooserActivity extends ResolverActivity implements
         Bundle bundle = new Bundle();
 
         if (targetInfo.isSelectableTargetInfo()) {
-            ChooserTargetInfo selectableTargetInfo = (ChooserTargetInfo) targetInfo;
-            if (selectableTargetInfo.getDisplayResolveInfo() == null
-                    || selectableTargetInfo.getChooserTarget() == null) {
+            if (targetInfo.getDisplayResolveInfo() == null
+                    || targetInfo.getChooserTarget() == null) {
                 Log.e(TAG, "displayResolveInfo or chooserTarget in selectableTargetInfo are null");
                 return;
             }
             targetList = new ArrayList<>();
-            targetList.add(selectableTargetInfo.getDisplayResolveInfo());
+            targetList.add(targetInfo.getDisplayResolveInfo());
             bundle.putString(ChooserTargetActionsDialogFragment.SHORTCUT_ID_KEY,
-                    selectableTargetInfo.getChooserTarget().getIntentExtras().getString(
+                    targetInfo.getChooserTarget().getIntentExtras().getString(
                             Intent.EXTRA_SHORTCUT_ID));
             bundle.putBoolean(ChooserTargetActionsDialogFragment.IS_SHORTCUT_PINNED_KEY,
-                    selectableTargetInfo.isPinned());
+                    targetInfo.isPinned());
             bundle.putParcelable(ChooserTargetActionsDialogFragment.INTENT_FILTER_KEY,
                     getTargetIntentFilter());
-            if (selectableTargetInfo.getDisplayLabel() != null) {
+            if (targetInfo.getDisplayLabel() != null) {
                 bundle.putString(ChooserTargetActionsDialogFragment.SHORTCUT_TITLE_KEY,
-                        selectableTargetInfo.getDisplayLabel().toString());
+                        targetInfo.getDisplayLabel().toString());
             }
         } else if (targetInfo.isMultiDisplayResolveInfo()) {
             // For multiple targets, include info on all targets
@@ -1830,15 +1828,14 @@ public class ChooserActivity extends ResolverActivity implements
                     cat = MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET;
                     // Log the package name + target name to answer the question if most users
                     // share to mostly the same person or to a bunch of different people.
-                    ChooserTargetInfo selectableTargetInfo = (ChooserTargetInfo) targetInfo;
-                    ChooserTarget target = selectableTargetInfo.getChooserTarget();
+                    ChooserTarget target = targetInfo.getChooserTarget();
                     directTargetHashed = HashedStringCache.getInstance().hashString(
                             this,
                             TAG,
                             target.getComponentName().getPackageName()
                                     + target.getTitle().toString(),
                             mMaxHashSaltDays);
-                    directTargetAlsoRanked = getRankedPosition(selectableTargetInfo);
+                    directTargetAlsoRanked = getRankedPosition(targetInfo);
 
                     if (mCallerChooserTargets != null) {
                         numCallerProvided = mCallerChooserTargets.length;
@@ -1847,7 +1844,7 @@ public class ChooserActivity extends ResolverActivity implements
                             SELECTION_TYPE_SERVICE,
                             targetInfo.getResolveInfo().activityInfo.processName,
                             value,
-                            selectableTargetInfo.isPinned()
+                            targetInfo.isPinned()
                     );
                     break;
                 case ChooserListAdapter.TARGET_CALLER:
@@ -1905,7 +1902,7 @@ public class ChooserActivity extends ResolverActivity implements
         }
     }
 
-    private int getRankedPosition(ChooserTargetInfo targetInfo) {
+    private int getRankedPosition(TargetInfo targetInfo) {
         String targetPackageName =
                 targetInfo.getChooserTarget().getComponentName().getPackageName();
         ChooserListAdapter currentListAdapter =
@@ -2158,9 +2155,9 @@ public class ChooserActivity extends ResolverActivity implements
         if (targetInfo.isChooserTargetInfo()) {
             return;
         }
-        List<ChooserTargetInfo> surfacedTargetInfo = adapter.getSurfacedTargetInfo();
+        List<TargetInfo> surfacedTargetInfo = adapter.getSurfacedTargetInfo();
         List<AppTargetId> targetIds = new ArrayList<>();
-        for (ChooserTargetInfo chooserTargetInfo : surfacedTargetInfo) {
+        for (TargetInfo chooserTargetInfo : surfacedTargetInfo) {
             ChooserTarget chooserTarget = chooserTargetInfo.getChooserTarget();
             ComponentName componentName = chooserTarget.getComponentName();
             if (mDirectShareShortcutInfoCache.containsKey(chooserTarget)) {
@@ -2182,7 +2179,7 @@ public class ChooserActivity extends ResolverActivity implements
         if (!targetInfo.isChooserTargetInfo()) {
             return;
         }
-        ChooserTarget chooserTarget = ((ChooserTargetInfo) targetInfo).getChooserTarget();
+        ChooserTarget chooserTarget = targetInfo.getChooserTarget();
         AppTarget appTarget = null;
         if (mDirectShareAppTargetCache != null) {
             appTarget = mDirectShareAppTargetCache.get(chooserTarget);
