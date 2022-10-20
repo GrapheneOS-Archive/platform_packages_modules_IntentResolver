@@ -271,8 +271,6 @@ public class ChooserActivity extends ResolverActivity implements
     private int mLastNumberOfChildren = -1;
     private int mMaxTargetsPerRow = 1;
 
-    private static final String TARGET_DETAILS_FRAGMENT_TAG = "targetDetailsFragment";
-
     private static final int MAX_LOG_RANK_POSITION = 12;
 
     private static final int MAX_EXTRA_INITIAL_INTENTS = 2;
@@ -1718,33 +1716,28 @@ public class ChooserActivity extends ResolverActivity implements
             return;
         }
 
-        ChooserTargetActionsDialogFragment fragment = new ChooserTargetActionsDialogFragment();
-        Bundle bundle = new Bundle();
+        // TODO: implement these type-conditioned behaviors polymorphically, and consider moving
+        // the logic into `ChooserTargetActionsDialogFragment.show()`.
+        boolean isShortcutPinned = targetInfo.isSelectableTargetInfo() && targetInfo.isPinned();
+        IntentFilter intentFilter =
+                targetInfo.isSelectableTargetInfo() ? getTargetIntentFilter() : null;
+        String shortcutTitle = targetInfo.isSelectableTargetInfo()
+                ? targetInfo.getDisplayLabel().toString() : null;
+        String shortcutIdKey = targetInfo.isSelectableTargetInfo()
+                ? targetInfo
+                        .getChooserTarget()
+                        .getIntentExtras()
+                        .getString(Intent.EXTRA_SHORTCUT_ID)
+                : null;
 
-        bundle.putParcelable(ChooserTargetActionsDialogFragment.USER_HANDLE_KEY,
-                mChooserMultiProfilePagerAdapter.getCurrentUserHandle());
-        bundle.putParcelableArrayList(ChooserTargetActionsDialogFragment.TARGET_INFOS_KEY,
-                new ArrayList<>(targetList));
-
-        if (targetInfo.isSelectableTargetInfo()) {
-            // TODO: migrate this condition to polymorphic calls on TargetInfo (maybe in some cases
-            // we can safely drop the `isSelectableTargetInfo()` condition and populate the bundle
-            // with any non-null values we find, regardless of the target type?)
-            bundle.putString(ChooserTargetActionsDialogFragment.SHORTCUT_ID_KEY,
-                    targetInfo.getChooserTarget().getIntentExtras().getString(
-                            Intent.EXTRA_SHORTCUT_ID));
-            bundle.putBoolean(ChooserTargetActionsDialogFragment.IS_SHORTCUT_PINNED_KEY,
-                    targetInfo.isPinned());
-            bundle.putParcelable(ChooserTargetActionsDialogFragment.INTENT_FILTER_KEY,
-                    getTargetIntentFilter());
-            if (targetInfo.getDisplayLabel() != null) {
-                bundle.putString(ChooserTargetActionsDialogFragment.SHORTCUT_TITLE_KEY,
-                        targetInfo.getDisplayLabel().toString());
-            }
-        }
-
-        fragment.setArguments(bundle);
-        fragment.show(getSupportFragmentManager(), TARGET_DETAILS_FRAGMENT_TAG);
+        ChooserTargetActionsDialogFragment.show(
+                getSupportFragmentManager(),
+                targetList,
+                mChooserMultiProfilePagerAdapter.getCurrentUserHandle(),
+                shortcutIdKey,
+                shortcutTitle,
+                isShortcutPinned,
+                intentFilter);
     }
 
     private void modifyTargetIntent(Intent in) {
@@ -1801,16 +1794,11 @@ public class ChooserActivity extends ResolverActivity implements
         if (targetInfo.isMultiDisplayResolveInfo()) {
             MultiDisplayResolveInfo mti = (MultiDisplayResolveInfo) targetInfo;
             if (!mti.hasSelected()) {
-                ChooserStackedAppDialogFragment f = new ChooserStackedAppDialogFragment();
-                Bundle b = new Bundle();
-                b.putParcelable(ChooserTargetActionsDialogFragment.USER_HANDLE_KEY,
+                ChooserStackedAppDialogFragment.show(
+                        getSupportFragmentManager(),
+                        mti,
+                        which,
                         mChooserMultiProfilePagerAdapter.getCurrentUserHandle());
-                b.putObject(ChooserStackedAppDialogFragment.MULTI_DRI_KEY,
-                        mti);
-                b.putInt(ChooserStackedAppDialogFragment.WHICH_KEY, which);
-                f.setArguments(b);
-
-                f.show(getSupportFragmentManager(), TARGET_DETAILS_FRAGMENT_TAG);
                 return;
             }
         }
