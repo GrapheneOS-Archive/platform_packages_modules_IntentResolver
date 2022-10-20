@@ -122,7 +122,8 @@ class TargetInfoTest {
 
         assertThat(multiTargetInfo.getExtendedInfo()).isNull()
 
-        assertThat(multiTargetInfo.getTargets()).containsExactly(firstTargetInfo, secondTargetInfo)
+        assertThat(multiTargetInfo.getAllDisplayTargets())
+                .containsExactly(firstTargetInfo, secondTargetInfo)
 
         assertThat(multiTargetInfo.hasSelected()).isFalse()
         assertThat(multiTargetInfo.getSelectedTarget()).isNull()

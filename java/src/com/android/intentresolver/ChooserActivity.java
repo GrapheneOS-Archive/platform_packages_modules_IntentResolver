@@ -1712,18 +1712,24 @@ public class ChooserActivity extends ResolverActivity implements
     private void showTargetDetails(TargetInfo targetInfo) {
         if (targetInfo == null) return;
 
-        ArrayList<DisplayResolveInfo> targetList;
+        List<DisplayResolveInfo> targetList = targetInfo.getAllDisplayTargets();
+        if (targetList.isEmpty()) {
+            Log.e(TAG, "No displayable data to show target details");
+            return;
+        }
+
         ChooserTargetActionsDialogFragment fragment = new ChooserTargetActionsDialogFragment();
         Bundle bundle = new Bundle();
 
+        bundle.putParcelable(ChooserTargetActionsDialogFragment.USER_HANDLE_KEY,
+                mChooserMultiProfilePagerAdapter.getCurrentUserHandle());
+        bundle.putParcelableArrayList(ChooserTargetActionsDialogFragment.TARGET_INFOS_KEY,
+                new ArrayList<>(targetList));
+
         if (targetInfo.isSelectableTargetInfo()) {
-            if (targetInfo.getDisplayResolveInfo() == null
-                    || targetInfo.getChooserTarget() == null) {
-                Log.e(TAG, "displayResolveInfo or chooserTarget in selectableTargetInfo are null");
-                return;
-            }
-            targetList = new ArrayList<>();
-            targetList.add(targetInfo.getDisplayResolveInfo());
+            // TODO: migrate this condition to polymorphic calls on TargetInfo (maybe in some cases
+            // we can safely drop the `isSelectableTargetInfo()` condition and populate the bundle
+            // with any non-null values we find, regardless of the target type?)
             bundle.putString(ChooserTargetActionsDialogFragment.SHORTCUT_ID_KEY,
                     targetInfo.getChooserTarget().getIntentExtras().getString(
                             Intent.EXTRA_SHORTCUT_ID));
@@ -1735,20 +1741,9 @@ public class ChooserActivity extends ResolverActivity implements
                 bundle.putString(ChooserTargetActionsDialogFragment.SHORTCUT_TITLE_KEY,
                         targetInfo.getDisplayLabel().toString());
             }
-        } else if (targetInfo.isMultiDisplayResolveInfo()) {
-            // For multiple targets, include info on all targets
-            MultiDisplayResolveInfo mti = (MultiDisplayResolveInfo) targetInfo;
-            targetList = mti.getTargets();
-        } else {
-            targetList = new ArrayList<DisplayResolveInfo>();
-            targetList.add((DisplayResolveInfo) targetInfo);
         }
-        bundle.putParcelable(ChooserTargetActionsDialogFragment.USER_HANDLE_KEY,
-                mChooserMultiProfilePagerAdapter.getCurrentUserHandle());
-        bundle.putParcelableArrayList(ChooserTargetActionsDialogFragment.TARGET_INFOS_KEY,
-                targetList);
-        fragment.setArguments(bundle);
 
+        fragment.setArguments(bundle);
         fragment.show(getSupportFragmentManager(), TARGET_DETAILS_FRAGMENT_TAG);
     }
 
