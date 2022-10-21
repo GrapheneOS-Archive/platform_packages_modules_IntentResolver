@@ -53,10 +53,10 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ChooserListAdapter extends ResolverListAdapter {
     private static final String TAG = "ChooserListAdapter";
@@ -341,6 +341,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
     }
 
     void updateAlphabeticalList() {
+        // TODO: this procedure seems like it should be relatively lightweight. Why does it need to
+        // run in an `AsyncTask`?
         new AsyncTask<Void, Void, List<DisplayResolveInfo>>() {
             @Override
             protected List<DisplayResolveInfo> doInBackground(Void... voids) {
@@ -350,29 +352,22 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 if (!mEnableStackedApps) {
                     return allTargets;
                 }
+
                 // Consolidate multiple targets from same app.
-                Map<String, DisplayResolveInfo> consolidated = new HashMap<>();
-                for (DisplayResolveInfo info : allTargets) {
-                    String resolvedTarget = info.getResolvedComponentName().getPackageName()
-                            + '#' + info.getDisplayLabel();
-                    DisplayResolveInfo multiDri = consolidated.get(resolvedTarget);
-                    if (multiDri == null) {
-                        consolidated.put(resolvedTarget, info);
-                    } else if (multiDri.isMultiDisplayResolveInfo()) {
-                        ((MultiDisplayResolveInfo) multiDri).addTarget(info);
-                    } else {
-                        // create consolidated target from the single DisplayResolveInfo
-                        MultiDisplayResolveInfo multiDisplayResolveInfo =
-                                MultiDisplayResolveInfo.newMultiDisplayResolveInfo(
-                                        resolvedTarget, multiDri);
-                        multiDisplayResolveInfo.addTarget(info);
-                        consolidated.put(resolvedTarget, multiDisplayResolveInfo);
-                    }
-                }
-                List<DisplayResolveInfo> groupedTargets = new ArrayList<>();
-                groupedTargets.addAll(consolidated.values());
-                Collections.sort(groupedTargets, new ChooserActivity.AzInfoComparator(mContext));
-                return groupedTargets;
+                return allTargets
+                        .stream()
+                        .collect(Collectors.groupingBy(target ->
+                                target.getResolvedComponentName().getPackageName()
+                                + "#" + target.getDisplayLabel()
+                        ))
+                        .values()
+                        .stream()
+                        .map(appTargets ->
+                                (appTargets.size() == 1)
+                                ? appTargets.get(0)
+                                : MultiDisplayResolveInfo.newMultiDisplayResolveInfo(appTargets))
+                        .sorted(new ChooserActivity.AzInfoComparator(mContext))
+                        .collect(Collectors.toList());
             }
             @Override
             protected void onPostExecute(List<DisplayResolveInfo> newList) {
