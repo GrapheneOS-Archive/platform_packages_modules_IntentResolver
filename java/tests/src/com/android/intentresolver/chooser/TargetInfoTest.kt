@@ -114,8 +114,7 @@ class TargetInfoTest {
             /* resolveInfoPresentationGetter= */ null)
 
         val multiTargetInfo = MultiDisplayResolveInfo.newMultiDisplayResolveInfo(
-            "", firstTargetInfo)
-        multiTargetInfo.addTarget(secondTargetInfo)
+            listOf(firstTargetInfo, secondTargetInfo))
 
         assertThat(multiTargetInfo.isMultiDisplayResolveInfo()).isTrue()
         assertThat(multiTargetInfo.isDisplayResolveInfo()).isTrue()  // From legacy inheritance.
