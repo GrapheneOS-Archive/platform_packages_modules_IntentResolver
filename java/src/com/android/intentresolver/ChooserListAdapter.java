@@ -209,7 +209,9 @@ public class ChooserListAdapter extends ResolverListAdapter {
                     ri.noResourceId = true;
                     ri.icon = 0;
                 }
-                mCallerTargets.add(new DisplayResolveInfo(ii, ri, ii, makePresentationGetter(ri)));
+                DisplayResolveInfo displayResolveInfo = DisplayResolveInfo.newDisplayResolveInfo(
+                        ii, ri, ii, makePresentationGetter(ri));
+                mCallerTargets.add(displayResolveInfo);
                 if (mCallerTargets.size() == MAX_SUGGESTED_APP_TARGETS) break;
             }
         }
@@ -361,7 +363,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
                     } else {
                         // create consolidated target from the single DisplayResolveInfo
                         MultiDisplayResolveInfo multiDisplayResolveInfo =
-                                new MultiDisplayResolveInfo(resolvedTarget, multiDri);
+                                MultiDisplayResolveInfo.newMultiDisplayResolveInfo(
+                                        resolvedTarget, multiDri);
                         multiDisplayResolveInfo.addTarget(info);
                         consolidated.put(resolvedTarget, multiDisplayResolveInfo);
                     }

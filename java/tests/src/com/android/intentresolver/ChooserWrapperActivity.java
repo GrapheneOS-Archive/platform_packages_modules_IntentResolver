@@ -222,7 +222,12 @@ public class ChooserWrapperActivity
     public DisplayResolveInfo createTestDisplayResolveInfo(Intent originalIntent, ResolveInfo pri,
             CharSequence pLabel, CharSequence pInfo, Intent replacementIntent,
             @Nullable ResolveInfoPresentationGetter resolveInfoPresentationGetter) {
-        return new DisplayResolveInfo(originalIntent, pri, pLabel, pInfo, replacementIntent,
+        return DisplayResolveInfo.newDisplayResolveInfo(
+                originalIntent,
+                pri,
+                pLabel,
+                pInfo,
+                replacementIntent,
                 resolveInfoPresentationGetter);
     }
 

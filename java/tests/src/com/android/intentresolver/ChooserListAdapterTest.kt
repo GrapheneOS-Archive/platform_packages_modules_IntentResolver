@@ -28,7 +28,6 @@ import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.intentresolver.ChooserListAdapter.LoadDirectShareIconTask
-import com.android.intentresolver.chooser.ChooserTargetInfo
 import com.android.intentresolver.chooser.SelectableTargetInfo
 import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator
 import com.android.intentresolver.chooser.TargetInfo
@@ -122,7 +121,7 @@ class ChooserListAdapterTest {
     }
 
     private fun createSelectableTargetInfo(): TargetInfo =
-        SelectableTargetInfo(
+        SelectableTargetInfo.newSelectableTargetInfo(
             context,
             null,
             createChooserTarget(),

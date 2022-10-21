@@ -73,9 +73,29 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     private final float mModifiedScore;
     private boolean mIsSuspended = false;
 
-    public SelectableTargetInfo(Context context, @Nullable DisplayResolveInfo sourceInfo,
+    /** Create a new {@link TargetInfo} instance representing a selectable target. */
+    public static TargetInfo newSelectableTargetInfo(
+            Context context,
+            @Nullable DisplayResolveInfo sourceInfo,
             ChooserTarget chooserTarget,
-            float modifiedScore, SelectableTargetInfoCommunicator selectableTargetInfoComunicator,
+            float modifiedScore,
+            SelectableTargetInfoCommunicator selectableTargetInfoCommunicator,
+            @Nullable ShortcutInfo shortcutInfo) {
+        return new SelectableTargetInfo(
+                context,
+                sourceInfo,
+                chooserTarget,
+                modifiedScore,
+                selectableTargetInfoCommunicator,
+                shortcutInfo);
+    }
+
+    private SelectableTargetInfo(
+            Context context,
+            @Nullable DisplayResolveInfo sourceInfo,
+            ChooserTarget chooserTarget,
+            float modifiedScore,
+            SelectableTargetInfoCommunicator selectableTargetInfoComunicator,
             @Nullable ShortcutInfo shortcutInfo) {
         mContext = context;
         mSourceInfo = sourceInfo;
@@ -112,8 +132,7 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         mDisplayLabel = sanitizeDisplayLabel(chooserTarget.getTitle());
     }
 
-    private SelectableTargetInfo(SelectableTargetInfo other,
-            Intent fillInIntent, int flags) {
+    private SelectableTargetInfo(SelectableTargetInfo other, Intent fillInIntent, int flags) {
         mContext = other.mContext;
         mPm = other.mPm;
         mSelectableTargetInfoCommunicator = other.mSelectableTargetInfoCommunicator;

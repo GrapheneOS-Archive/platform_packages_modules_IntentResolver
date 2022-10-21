@@ -32,7 +32,7 @@ import android.test.mock.MockResources;
 /**
  * Utility class used by resolver tests to create mock data
  */
-class ResolverDataProvider {
+public class ResolverDataProvider {
 
     static private int USER_SOMEONE_ELSE = 10;
 
@@ -52,12 +52,12 @@ class ResolverDataProvider {
                 createResolverIntent(i), createResolveInfo(i, userId));
     }
 
-    static ComponentName createComponentName(int i) {
+    public static ComponentName createComponentName(int i) {
         final String name = "component" + i;
         return new ComponentName("foo.bar." + name, name);
     }
 
-    static ResolveInfo createResolveInfo(int i, int userId) {
+    public static ResolveInfo createResolveInfo(int i, int userId) {
         final ResolveInfo resolveInfo = new ResolveInfo();
         resolveInfo.activityInfo = createActivityInfo(i);
         resolveInfo.targetUserId = userId;
