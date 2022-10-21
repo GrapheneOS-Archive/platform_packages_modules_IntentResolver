@@ -99,7 +99,7 @@ class ShortcutSelectionLogic {
                 targetScore += PINNED_SHORTCUT_TARGET_SCORE_BOOST;
             }
             boolean isInserted = insertServiceTarget(
-                    new SelectableTargetInfo(
+                    SelectableTargetInfo.newSelectableTargetInfo(
                             userContext,
                             origTarget,
                             target,

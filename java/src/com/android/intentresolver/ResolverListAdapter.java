@@ -445,8 +445,13 @@ public class ResolverListAdapter extends BaseAdapter {
                         ri.icon = 0;
                     }
 
-                    addResolveInfo(new DisplayResolveInfo(ii, ri,
-                            ri.loadLabel(mPm), null, ii, makePresentationGetter(ri)));
+                    addResolveInfo(DisplayResolveInfo.newDisplayResolveInfo(
+                            ii,
+                            ri,
+                            ri.loadLabel(mPm),
+                            null,
+                            ii,
+                            makePresentationGetter(ri)));
                 }
             }
 
@@ -495,9 +500,11 @@ public class ResolverListAdapter extends BaseAdapter {
                 mResolverListCommunicator.getReplacementIntent(add.activityInfo, intent);
         final Intent defaultIntent = mResolverListCommunicator.getReplacementIntent(
                 add.activityInfo, mResolverListCommunicator.getTargetIntent());
-        final DisplayResolveInfo
-                dri = new DisplayResolveInfo(intent, add,
-                replaceIntent != null ? replaceIntent : defaultIntent, makePresentationGetter(add));
+        final DisplayResolveInfo dri = DisplayResolveInfo.newDisplayResolveInfo(
+                intent,
+                add,
+                (replaceIntent != null) ? replaceIntent : defaultIntent,
+                makePresentationGetter(add));
         dri.setPinned(rci.isPinned());
         if (rci.isPinned()) {
             Log.i(TAG, "Pinned item: " + rci.name);
@@ -828,7 +835,7 @@ public class ResolverListAdapter extends BaseAdapter {
         ResolveInfoPresentationGetter presentationGetter =
                 new ResolveInfoPresentationGetter(context, iconDpi, resolveInfo);
 
-        return new DisplayResolveInfo(
+        return DisplayResolveInfo.newDisplayResolveInfo(
                 resolvedComponentInfo.getIntentAt(0),
                 resolveInfo,
                 resolveInfo.loadLabel(pm),

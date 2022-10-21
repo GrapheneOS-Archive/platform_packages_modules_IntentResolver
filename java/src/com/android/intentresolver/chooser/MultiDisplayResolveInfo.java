@@ -38,7 +38,15 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
     /**
      * @param firstInfo A representative DRI to use for the main icon, title, etc for this Info.
      */
-    public MultiDisplayResolveInfo(String packageName, DisplayResolveInfo firstInfo) {
+    public static MultiDisplayResolveInfo newMultiDisplayResolveInfo(
+            String packageName, DisplayResolveInfo firstInfo) {
+        return new MultiDisplayResolveInfo(packageName, firstInfo);
+    }
+
+    /**
+     * @param firstInfo A representative DRI to use for the main icon, title, etc for this Info.
+     */
+    private MultiDisplayResolveInfo(String packageName, DisplayResolveInfo firstInfo) {
         super(firstInfo);
         mBaseInfo = firstInfo;
         mTargetInfos.add(firstInfo);
