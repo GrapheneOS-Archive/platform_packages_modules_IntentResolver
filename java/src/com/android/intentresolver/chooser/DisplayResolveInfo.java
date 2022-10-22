@@ -52,30 +52,60 @@ public class DisplayResolveInfo implements TargetInfo, Parcelable {
     private ResolveInfoPresentationGetter mResolveInfoPresentationGetter;
     private boolean mPinned = false;
 
-    public DisplayResolveInfo(Intent originalIntent, ResolveInfo pri, Intent pOrigIntent,
-            ResolveInfoPresentationGetter resolveInfoPresentationGetter) {
-        this(originalIntent, pri, null /*mDisplayLabel*/, null /*mExtendedInfo*/, pOrigIntent,
+    /** Create a new {@code DisplayResolveInfo} instance. */
+    public static DisplayResolveInfo newDisplayResolveInfo(
+            Intent originalIntent,
+            ResolveInfo resolveInfo,
+            @NonNull Intent resolvedIntent,
+            @Nullable ResolveInfoPresentationGetter presentationGetter) {
+        return newDisplayResolveInfo(
+                originalIntent,
+                resolveInfo,
+                /* displayLabel=*/ null,
+                /* extendedInfo=*/ null,
+                resolvedIntent,
+                presentationGetter);
+    }
+
+    /** Create a new {@code DisplayResolveInfo} instance. */
+    public static DisplayResolveInfo newDisplayResolveInfo(
+            Intent originalIntent,
+            ResolveInfo resolveInfo,
+            CharSequence displayLabel,
+            CharSequence extendedInfo,
+            @NonNull Intent resolvedIntent,
+            @Nullable ResolveInfoPresentationGetter resolveInfoPresentationGetter) {
+        return new DisplayResolveInfo(
+                originalIntent,
+                resolveInfo,
+                displayLabel,
+                extendedInfo,
+                resolvedIntent,
                 resolveInfoPresentationGetter);
     }
 
-    public DisplayResolveInfo(Intent originalIntent, ResolveInfo pri, CharSequence pLabel,
-            CharSequence pInfo, @NonNull Intent resolvedIntent,
+    private DisplayResolveInfo(
+            Intent originalIntent,
+            ResolveInfo resolveInfo,
+            CharSequence displayLabel,
+            CharSequence extendedInfo,
+            @NonNull Intent resolvedIntent,
             @Nullable ResolveInfoPresentationGetter resolveInfoPresentationGetter) {
         mSourceIntents.add(originalIntent);
-        mResolveInfo = pri;
-        mDisplayLabel = pLabel;
-        mExtendedInfo = pInfo;
+        mResolveInfo = resolveInfo;
+        mDisplayLabel = displayLabel;
+        mExtendedInfo = extendedInfo;
         mResolveInfoPresentationGetter = resolveInfoPresentationGetter;
+
+        final ActivityInfo ai = mResolveInfo.activityInfo;
+        mIsSuspended = (ai.applicationInfo.flags & ApplicationInfo.FLAG_SUSPENDED) != 0;
 
         final Intent intent = new Intent(resolvedIntent);
         intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT
                 | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-        final ActivityInfo ai = mResolveInfo.activityInfo;
         intent.setComponent(new ComponentName(ai.applicationInfo.packageName, ai.name));
-
-        mIsSuspended = (ai.applicationInfo.flags & ApplicationInfo.FLAG_SUSPENDED) != 0;
-
         mResolvedIntent = intent;
+
     }
 
     private DisplayResolveInfo(DisplayResolveInfo other, Intent fillInIntent, int flags,
@@ -90,7 +120,7 @@ public class DisplayResolveInfo implements TargetInfo, Parcelable {
         mResolveInfoPresentationGetter = resolveInfoPresentationGetter;
     }
 
-    DisplayResolveInfo(DisplayResolveInfo other) {
+    protected DisplayResolveInfo(DisplayResolveInfo other) {
         mSourceIntents.addAll(other.getAllSourceIntents());
         mResolveInfo = other.mResolveInfo;
         mDisplayLabel = other.mDisplayLabel;

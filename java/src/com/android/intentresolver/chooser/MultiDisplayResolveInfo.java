@@ -23,25 +23,36 @@ import android.os.UserHandle;
 import com.android.intentresolver.ResolverActivity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a "stack" of chooser targets for various activities within the same component.
  */
 public class MultiDisplayResolveInfo extends DisplayResolveInfo {
 
+    /* TODO: hold as a generic `List<DisplayResolveInfo>` once we're unconstrained by the TODO
+     * regarding the return type of `#getTargets()`. */
     ArrayList<DisplayResolveInfo> mTargetInfos = new ArrayList<>();
-    // We'll use this DRI for basic presentation info - eg icon, name.
-    final DisplayResolveInfo mBaseInfo;
+
     // Index of selected target
     private int mSelected = -1;
 
     /**
-     * @param firstInfo A representative DRI to use for the main icon, title, etc for this Info.
+     * @param targetInfos A list of targets in this stack. The first item is treated as the
+     * "representative" that provides the main icon, title, etc.
      */
-    public MultiDisplayResolveInfo(String packageName, DisplayResolveInfo firstInfo) {
-        super(firstInfo);
-        mBaseInfo = firstInfo;
-        mTargetInfos.add(firstInfo);
+    public static MultiDisplayResolveInfo newMultiDisplayResolveInfo(
+            List<DisplayResolveInfo> targetInfos) {
+        return new MultiDisplayResolveInfo(targetInfos);
+    }
+
+    /**
+     * @param targetInfos A list of targets in this stack. The first item is treated as the
+     * "representative" that provides the main icon, title, etc.
+     */
+    private MultiDisplayResolveInfo(List<DisplayResolveInfo> targetInfos) {
+        super(targetInfos.get(0));
+        mTargetInfos = new ArrayList<>(targetInfos);
     }
 
     @Override
@@ -56,14 +67,9 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
     }
 
     /**
-     * Add another DisplayResolveInfo to the list included for this target.
-     */
-    public void addTarget(DisplayResolveInfo target) {
-        mTargetInfos.add(target);
-    }
-
-    /**
-     * List of all DisplayResolveInfos included in this target.
+     * List of all {@link DisplayResolveInfo}s included in this target.
+     * TODO: provide as a generic {@code List<DisplayResolveInfo>} once {@link ChooserActivity}
+     * stops requiring the signature to match that of the other "lists" it builds up.
      */
     public ArrayList<DisplayResolveInfo> getTargets() {
         return mTargetInfos;
@@ -101,5 +107,4 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
     public boolean startAsUser(Activity activity, Bundle options, UserHandle user) {
         return mTargetInfos.get(mSelected).startAsUser(activity, options, user);
     }
-
 }

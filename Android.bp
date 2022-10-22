@@ -36,6 +36,7 @@ android_library {
     min_sdk_version: "current",
     srcs: [
         "java/src/**/*.java",
+        "java/src/**/*.kt",
     ],
     resource_dirs: [
         "java/res",
