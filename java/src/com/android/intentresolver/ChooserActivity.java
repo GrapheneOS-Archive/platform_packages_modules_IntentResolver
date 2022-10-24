@@ -2275,7 +2275,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     protected ChooserActivityLogger getChooserActivityLogger() {
         if (mChooserActivityLogger == null) {
-            mChooserActivityLogger = new ChooserActivityLoggerImpl();
+            mChooserActivityLogger = new ChooserActivityLogger();
         }
         return mChooserActivityLogger;
     }
@@ -4008,7 +4008,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     @Override
     protected void maybeLogProfileChange() {
-        getChooserActivityLogger().logShareheetProfileChanged();
+        getChooserActivityLogger().logSharesheetProfileChanged();
     }
 
     private boolean shouldNearbyShareBeFirstInRankedRow() {
