@@ -23,10 +23,12 @@
     <uses-permission android:name="android.permission.QUERY_USERS"/>
     <uses-permission android:name="android.permission.READ_CLIPBOARD_IN_BACKGROUND"/>
     <uses-permission android:name="android.permission.WRITE_DEVICE_CONFIG"/>
+    <uses-permission android:name="android.permission.READ_DEVICE_CONFIG" />
 
     <application>
         <uses-library android:name="android.test.runner" />
         <activity android:name="com.android.intentresolver.ChooserWrapperActivity" />
+        <activity android:name="com.android.intentresolver.ResolverWrapperActivity" />
     </application>
 
     <instrumentation android:name="android.testing.TestableInstrumentation"
