@@ -81,7 +81,7 @@ public class ChooserActivityOverrideData {
         resolverListController = mock(ResolverListController.class);
         workResolverListController = mock(ResolverListController.class);
         metricsLogger = mock(MetricsLogger.class);
-        chooserActivityLogger = new ChooserActivityLoggerFake();
+        chooserActivityLogger = mock(ChooserActivityLogger.class);
         alternateProfileSetting = 0;
         resources = null;
         workProfileUserHandle = null;
