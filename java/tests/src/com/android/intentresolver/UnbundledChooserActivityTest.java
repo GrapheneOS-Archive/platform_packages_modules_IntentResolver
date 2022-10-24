@@ -1317,7 +1317,8 @@ public class UnbundledChooserActivityTest {
                                 /* resolveInfoPresentationGetter */ null),
                         serviceTargets,
                         TARGET_TYPE_CHOOSER_TARGET,
-                        directShareToShortcutInfos)
+                        directShareToShortcutInfos,
+                        /* directShareToAppTargets */ null)
         );
 
         // Thread.sleep shouldn't be a thing in an integration test but it's
@@ -1395,7 +1396,8 @@ public class UnbundledChooserActivityTest {
                                 /* resolveInfoPresentationGetter */ null),
                         serviceTargets,
                         TARGET_TYPE_CHOOSER_TARGET,
-                        directShareToShortcutInfos)
+                        directShareToShortcutInfos,
+                        /* directShareToAppTargets */ null)
         );
         // Thread.sleep shouldn't be a thing in an integration test but it's
         // necessary here because of the way the code is structured
@@ -1477,7 +1479,8 @@ public class UnbundledChooserActivityTest {
                                 /* resolveInfoPresentationGetter */ null),
                         serviceTargets,
                         TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE,
-                        directShareToShortcutInfos)
+                        directShareToShortcutInfos,
+                        /* directShareToAppTargets */ null)
         );
         // Thread.sleep shouldn't be a thing in an integration test but it's
         // necessary here because of the way the code is structured
@@ -1548,7 +1551,8 @@ public class UnbundledChooserActivityTest {
                                 /* resolveInfoPresentationGetter */ null),
                         serviceTargets,
                         TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE,
-                        directShareToShortcutInfos)
+                        directShareToShortcutInfos,
+                        /* directShareToAppTargets */ null)
         );
         // Thread.sleep shouldn't be a thing in an integration test but it's
         // necessary here because of the way the code is structured
@@ -1655,7 +1659,8 @@ public class UnbundledChooserActivityTest {
                                 /* resolveInfoPresentationGetter */ null),
                         serviceTargets,
                         TARGET_TYPE_CHOOSER_TARGET,
-                        directShareToShortcutInfos)
+                        directShareToShortcutInfos,
+                        /* directShareToAppTargets */ null)
         );
         // Thread.sleep shouldn't be a thing in an integration test but it's
         // necessary here because of the way the code is structured
@@ -1989,7 +1994,8 @@ public class UnbundledChooserActivityTest {
                                 /* resolveInfoPresentationGetter */ null),
                         serviceTargets,
                         TARGET_TYPE_CHOOSER_TARGET,
-                        directShareToShortcutInfos)
+                        directShareToShortcutInfos,
+                        /* directShareToAppTargets */ null)
         );
         // Thread.sleep shouldn't be a thing in an integration test but it's
         // necessary here because of the way the code is structured
