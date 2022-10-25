@@ -35,6 +35,7 @@ import com.android.intentresolver.ResolverActivity;
 import com.android.intentresolver.ResolverListAdapter.ResolveInfoPresentationGetter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -171,6 +172,11 @@ public class DisplayResolveInfo implements TargetInfo, Parcelable {
     @Override
     public List<Intent> getAllSourceIntents() {
         return mSourceIntents;
+    }
+
+    @Override
+    public ArrayList<DisplayResolveInfo> getAllDisplayTargets() {
+        return new ArrayList<>(Arrays.asList(this));
     }
 
     public void addAlternateSourceIntent(Intent alt) {

@@ -30,8 +30,6 @@ import java.util.List;
  */
 public class MultiDisplayResolveInfo extends DisplayResolveInfo {
 
-    /* TODO: hold as a generic `List<DisplayResolveInfo>` once we're unconstrained by the TODO
-     * regarding the return type of `#getTargets()`. */
     ArrayList<DisplayResolveInfo> mTargetInfos = new ArrayList<>();
 
     // Index of selected target
@@ -71,7 +69,8 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
      * TODO: provide as a generic {@code List<DisplayResolveInfo>} once {@link ChooserActivity}
      * stops requiring the signature to match that of the other "lists" it builds up.
      */
-    public ArrayList<DisplayResolveInfo> getTargets() {
+    @Override
+    public ArrayList<DisplayResolveInfo> getAllDisplayTargets() {
         return mTargetInfos;
     }
 
