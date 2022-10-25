@@ -22,6 +22,7 @@ import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_SHORTCUTS_F
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.prediction.AppPredictor;
+import android.app.prediction.AppTarget;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -544,7 +545,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
             @Nullable DisplayResolveInfo origTarget,
             List<ChooserTarget> targets,
             @ChooserActivity.ShareTargetType int targetType,
-            Map<ChooserTarget, ShortcutInfo> directShareToShortcutInfos) {
+            Map<ChooserTarget, ShortcutInfo> directShareToShortcutInfos,
+            Map<ChooserTarget, AppTarget> directShareToAppTargets) {
         // Avoid inserting any potentially late results.
         if ((mServiceTargets.size() == 1) && mServiceTargets.get(0).isEmptyTargetInfo()) {
             return;
@@ -557,6 +559,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 targets,
                 isShortcutResult,
                 directShareToShortcutInfos,
+                directShareToAppTargets,
                 mContext.createContextAsUser(getUserHandle(), 0),
                 mSelectableTargetInfoCommunicator,
                 mChooserListCommunicator.getMaxRankedTargets(),

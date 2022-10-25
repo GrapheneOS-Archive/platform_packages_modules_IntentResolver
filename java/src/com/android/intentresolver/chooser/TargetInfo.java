@@ -19,10 +19,12 @@ package com.android.intentresolver.chooser;
 
 import android.annotation.Nullable;
 import android.app.Activity;
+import android.app.prediction.AppTarget;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.content.pm.ShortcutInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -198,6 +200,23 @@ public interface TargetInfo {
     @Deprecated
     @Nullable
     default ChooserTarget getChooserTarget() {
+        return null;
+    }
+
+    /**
+     * @return the {@link ShortcutManager} data for any shortcut associated with this target.
+     */
+    @Nullable
+    default ShortcutInfo getDirectShareShortcutInfo() {
+        return null;
+    }
+
+    /**
+     * @return the {@link AppTarget} metadata if this target was sourced from App Prediction
+     * service, or null otherwise.
+     */
+    @Nullable
+    default AppTarget getDirectShareAppTarget() {
         return null;
     }
 
