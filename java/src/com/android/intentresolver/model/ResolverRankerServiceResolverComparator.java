@@ -15,7 +15,7 @@
  */
 
 
-package com.android.intentresolver;
+package com.android.intentresolver.model;
 
 import android.app.usage.UsageStats;
 import android.content.ComponentName;
@@ -37,8 +37,8 @@ import android.service.resolver.ResolverRankerService;
 import android.service.resolver.ResolverTarget;
 import android.util.Log;
 
+import com.android.intentresolver.ChooserActivityLogger;
 import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
-
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
@@ -54,7 +54,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Ranks and compares packages based on usage stats and uses the {@link ResolverRankerService}.
  */
-class ResolverRankerServiceResolverComparator extends AbstractResolverComparator {
+public class ResolverRankerServiceResolverComparator extends AbstractResolverComparator {
     private static final String TAG = "RRSResolverComparator";
 
     private static final boolean DEBUG = false;
@@ -87,7 +87,7 @@ class ResolverRankerServiceResolverComparator extends AbstractResolverComparator
     private ResolverRankerServiceComparatorModel mComparatorModel;
 
     public ResolverRankerServiceResolverComparator(Context context, Intent intent,
-                String referrerPackage, AfterCompute afterCompute,
+                String referrerPackage, Runnable afterCompute,
                 ChooserActivityLogger chooserActivityLogger) {
         super(context, intent);
         mCollator = Collator.getInstance(context.getResources().getConfiguration().locale);
@@ -191,9 +191,9 @@ class ResolverRankerServiceResolverComparator extends AbstractResolverComparator
                     if (mAction == null) {
                         Log.d(TAG, "Action type is null");
                     } else {
-                        Log.d(TAG, "Chooser Count of " + mAction + ":" +
-                                target.name.getPackageName() + " is " +
-                                Float.toString(chooserScore));
+                        Log.d(TAG, "Chooser Count of " + mAction + ":"
+                                + target.name.getPackageName() + " is "
+                                + Float.toString(chooserScore));
                     }
                 }
                 resolverTarget.setChooserScore(chooserScore);
@@ -333,7 +333,7 @@ class ResolverRankerServiceResolverComparator extends AbstractResolverComparator
     private class ResolverRankerServiceConnection implements ServiceConnection {
         private final CountDownLatch mConnectSignal;
 
-        public ResolverRankerServiceConnection(CountDownLatch connectSignal) {
+        ResolverRankerServiceConnection(CountDownLatch connectSignal) {
             mConnectSignal = connectSignal;
         }
 
@@ -424,8 +424,10 @@ class ResolverRankerServiceResolverComparator extends AbstractResolverComparator
 
     // adds select prob as the default values, according to a pre-trained Logistic Regression model.
     private void addDefaultSelectProbability(ResolverTarget target) {
-        float sum = 2.5543f * target.getLaunchScore() + 2.8412f * target.getTimeSpentScore() +
-                0.269f * target.getRecencyScore() + 4.2222f * target.getChooserScore();
+        float sum = (2.5543f * target.getLaunchScore())
+                + (2.8412f * target.getTimeSpentScore())
+                + (0.269f * target.getRecencyScore())
+                + (4.2222f * target.getChooserScore());
         target.setSelectProbability((float) (1.0 / (1.0 + Math.exp(1.6568f - sum))));
     }
 
@@ -440,8 +442,8 @@ class ResolverRankerServiceResolverComparator extends AbstractResolverComparator
 
     static boolean isPersistentProcess(ResolvedComponentInfo rci) {
         if (rci != null && rci.getCount() > 0) {
-            return (rci.getResolveInfoAt(0).activityInfo.applicationInfo.flags &
-                    ApplicationInfo.FLAG_PERSISTENT) != 0;
+            int flags = rci.getResolveInfoAt(0).activityInfo.applicationInfo.flags;
+            return (flags & ApplicationInfo.FLAG_PERSISTENT) != 0;
         }
         return false;
     }

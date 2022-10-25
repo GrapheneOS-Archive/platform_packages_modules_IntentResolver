@@ -2244,8 +2244,9 @@ public class ResolverActivity extends FragmentActivity implements
 
     }
 
-    static final boolean isSpecificUriMatch(int match) {
-        match = match&IntentFilter.MATCH_CATEGORY_MASK;
+    /** Determine whether a given match result is considered "specific" in our application. */
+    public static final boolean isSpecificUriMatch(int match) {
+        match = (match & IntentFilter.MATCH_CATEGORY_MASK);
         return match >= IntentFilter.MATCH_CATEGORY_HOST
                 && match <= IntentFilter.MATCH_CATEGORY_PATH;
     }
