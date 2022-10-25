@@ -19,45 +19,116 @@ package com.android.intentresolver;
 import android.content.Intent;
 import android.provider.MediaStore;
 
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.logging.InstanceId;
+import com.android.internal.logging.InstanceIdSequence;
 import com.android.internal.logging.UiEvent;
 import com.android.internal.logging.UiEventLogger;
+import com.android.internal.logging.UiEventLoggerImpl;
 import com.android.internal.util.FrameworkStatsLog;
 
 /**
- * Interface for writing Sharesheet atoms to statsd log.
+ * Helper for writing Sharesheet atoms to statsd log.
  * @hide
  */
-public interface ChooserActivityLogger {
+public class ChooserActivityLogger {
+    /**
+     * This shim is provided only for testing. In production, clients will only ever use a
+     * {@link DefaultFrameworkStatsLogger}.
+     */
+    @VisibleForTesting
+    interface FrameworkStatsLogger {
+        /** Overload to use for logging {@code FrameworkStatsLog.SHARESHEET_STARTED}. */
+        void write(
+                int frameworkEventId,
+                int appEventId,
+                String packageName,
+                int instanceId,
+                String mimeType,
+                int numAppProvidedDirectTargets,
+                int numAppProvidedAppTargets,
+                boolean isWorkProfile,
+                int previewType,
+                int intentType);
+
+        /** Overload to use for logging {@code FrameworkStatsLog.RANKING_SELECTED}. */
+        void write(
+                int frameworkEventId,
+                int appEventId,
+                String packageName,
+                int instanceId,
+                int positionPicked,
+                boolean isPinned);
+    }
+
+    private static final int SHARESHEET_INSTANCE_ID_MAX = (1 << 13);
+
+    // A small per-notification ID, used for statsd logging.
+    // TODO: consider precomputing and storing as final.
+    private static InstanceIdSequence sInstanceIdSequence;
+    private InstanceId mInstanceId;
+
+    private final UiEventLogger mUiEventLogger;
+    private final FrameworkStatsLogger mFrameworkStatsLogger;
+
+    public ChooserActivityLogger() {
+        this(new UiEventLoggerImpl(), new DefaultFrameworkStatsLogger());
+    }
+
+    @VisibleForTesting
+    ChooserActivityLogger(UiEventLogger uiEventLogger, FrameworkStatsLogger frameworkLogger) {
+        mUiEventLogger = uiEventLogger;
+        mFrameworkStatsLogger = frameworkLogger;
+    }
+
     /** Logs a UiEventReported event for the system sharesheet completing initial start-up. */
-    void logShareStarted(int eventId, String packageName, String mimeType, int appProvidedDirect,
-            int appProvidedApp, boolean isWorkprofile, int previewType, String intent);
+    public void logShareStarted(int eventId, String packageName, String mimeType,
+            int appProvidedDirect, int appProvidedApp, boolean isWorkprofile, int previewType,
+            String intent) {
+        mFrameworkStatsLogger.write(FrameworkStatsLog.SHARESHEET_STARTED,
+                /* event_id = 1 */ SharesheetStartedEvent.SHARE_STARTED.getId(),
+                /* package_name = 2 */ packageName,
+                /* instance_id = 3 */ getInstanceId().getId(),
+                /* mime_type = 4 */ mimeType,
+                /* num_app_provided_direct_targets = 5 */ appProvidedDirect,
+                /* num_app_provided_app_targets = 6 */ appProvidedApp,
+                /* is_workprofile = 7 */ isWorkprofile,
+                /* previewType = 8 */ typeFromPreviewInt(previewType),
+                /* intentType = 9 */ typeFromIntentString(intent));
+    }
 
     /** Logs a UiEventReported event for the system sharesheet when the user selects a target. */
-    void logShareTargetSelected(int targetType, String packageName, int positionPicked,
-            boolean isPinned);
+    public void logShareTargetSelected(int targetType, String packageName, int positionPicked,
+            boolean isPinned) {
+        mFrameworkStatsLogger.write(FrameworkStatsLog.RANKING_SELECTED,
+                /* event_id = 1 */ SharesheetTargetSelectedEvent.fromTargetType(targetType).getId(),
+                /* package_name = 2 */ packageName,
+                /* instance_id = 3 */ getInstanceId().getId(),
+                /* position_picked = 4 */ positionPicked,
+                /* is_pinned = 5 */ isPinned);
+    }
 
     /** Logs a UiEventReported event for the system sharesheet being triggered by the user. */
-    default void logSharesheetTriggered() {
+    public void logSharesheetTriggered() {
         log(SharesheetStandardEvent.SHARESHEET_TRIGGERED, getInstanceId());
     }
 
     /** Logs a UiEventReported event for the system sharesheet completing loading app targets. */
-    default void logSharesheetAppLoadComplete() {
+    public void logSharesheetAppLoadComplete() {
         log(SharesheetStandardEvent.SHARESHEET_APP_LOAD_COMPLETE, getInstanceId());
     }
 
     /**
      * Logs a UiEventReported event for the system sharesheet completing loading service targets.
      */
-    default void logSharesheetDirectLoadComplete() {
+    public void logSharesheetDirectLoadComplete() {
         log(SharesheetStandardEvent.SHARESHEET_DIRECT_LOAD_COMPLETE, getInstanceId());
     }
 
     /**
      * Logs a UiEventReported event for the system sharesheet timing out loading service targets.
      */
-    default void logSharesheetDirectLoadTimeout() {
+    public void logSharesheetDirectLoadTimeout() {
         log(SharesheetStandardEvent.SHARESHEET_DIRECT_LOAD_TIMEOUT, getInstanceId());
     }
 
@@ -65,12 +136,12 @@ public interface ChooserActivityLogger {
      * Logs a UiEventReported event for the system sharesheet switching
      * between work and main profile.
      */
-    default void logShareheetProfileChanged() {
+    public void logSharesheetProfileChanged() {
         log(SharesheetStandardEvent.SHARESHEET_PROFILE_CHANGED, getInstanceId());
     }
 
     /** Logs a UiEventReported event for the system sharesheet getting expanded or collapsed. */
-    default void logSharesheetExpansionChanged(boolean isCollapsed) {
+    public void logSharesheetExpansionChanged(boolean isCollapsed) {
         log(isCollapsed ? SharesheetStandardEvent.SHARESHEET_COLLAPSED :
                 SharesheetStandardEvent.SHARESHEET_EXPANDED, getInstanceId());
     }
@@ -78,14 +149,14 @@ public interface ChooserActivityLogger {
     /**
      * Logs a UiEventReported event for the system sharesheet app share ranking timing out.
      */
-    default void logSharesheetAppShareRankingTimeout() {
+    public void logSharesheetAppShareRankingTimeout() {
         log(SharesheetStandardEvent.SHARESHEET_APP_SHARE_RANKING_TIMEOUT, getInstanceId());
     }
 
     /**
      * Logs a UiEventReported event for the system sharesheet when direct share row is empty.
      */
-    default void logSharesheetEmptyDirectShareRow() {
+    public void logSharesheetEmptyDirectShareRow() {
         log(SharesheetStandardEvent.SHARESHEET_EMPTY_DIRECT_SHARE_ROW, getInstanceId());
     }
 
@@ -94,13 +165,26 @@ public interface ChooserActivityLogger {
      * @param event
      * @param instanceId
      */
-    void log(UiEventLogger.UiEventEnum event, InstanceId instanceId);
+    private void log(UiEventLogger.UiEventEnum event, InstanceId instanceId) {
+        mUiEventLogger.logWithInstanceId(
+                event,
+                0,
+                null,
+                instanceId);
+    }
 
     /**
-     *
-     * @return
+     * @return A unique {@link InstanceId} to join across events recorded by this logger instance.
      */
-    InstanceId getInstanceId();
+    private InstanceId getInstanceId() {
+        if (mInstanceId == null) {
+            if (sInstanceIdSequence == null) {
+                sInstanceIdSequence = new InstanceIdSequence(SHARESHEET_INSTANCE_ID_MAX);
+            }
+            mInstanceId = sInstanceIdSequence.newInstanceId();
+        }
+        return mInstanceId;
+    }
 
     /**
      * The UiEvent enums that this class can log.
@@ -201,7 +285,7 @@ public interface ChooserActivityLogger {
     /**
      * Returns the enum used in sharesheet started atom to indicate what preview type was used.
      */
-    default int typeFromPreviewInt(int previewType) {
+    private static int typeFromPreviewInt(int previewType) {
         switch(previewType) {
             case ChooserActivity.CONTENT_PREVIEW_IMAGE:
                 return FrameworkStatsLog.SHARESHEET_STARTED__PREVIEW_TYPE__CONTENT_PREVIEW_IMAGE;
@@ -218,7 +302,7 @@ public interface ChooserActivityLogger {
      * Returns the enum used in sharesheet started atom to indicate what intent triggers the
      * ChooserActivity.
      */
-    default int typeFromIntentString(String intent) {
+    private static int typeFromIntentString(String intent) {
         if (intent == null) {
             return FrameworkStatsLog.SHARESHEET_STARTED__INTENT_TYPE__INTENT_DEFAULT;
         }
@@ -241,6 +325,50 @@ public interface ChooserActivityLogger {
                 return FrameworkStatsLog.SHARESHEET_STARTED__INTENT_TYPE__INTENT_ACTION_MAIN;
             default:
                 return FrameworkStatsLog.SHARESHEET_STARTED__INTENT_TYPE__INTENT_DEFAULT;
+        }
+    }
+
+    private static class DefaultFrameworkStatsLogger implements FrameworkStatsLogger {
+        @Override
+        public void write(
+                int frameworkEventId,
+                int appEventId,
+                String packageName,
+                int instanceId,
+                String mimeType,
+                int numAppProvidedDirectTargets,
+                int numAppProvidedAppTargets,
+                boolean isWorkProfile,
+                int previewType,
+                int intentType) {
+            FrameworkStatsLog.write(
+                    frameworkEventId,
+                    /* event_id = 1 */ appEventId,
+                    /* package_name = 2 */ packageName,
+                    /* instance_id = 3 */ instanceId,
+                    /* mime_type = 4 */ mimeType,
+                    /* num_app_provided_direct_targets */ numAppProvidedDirectTargets,
+                    /* num_app_provided_app_targets */ numAppProvidedAppTargets,
+                    /* is_workprofile */ isWorkProfile,
+                    /* previewType = 8 */ previewType,
+                    /* intentType = 9 */ intentType);
+        }
+
+        @Override
+        public void write(
+                int frameworkEventId,
+                int appEventId,
+                String packageName,
+                int instanceId,
+                int positionPicked,
+                boolean isPinned) {
+            FrameworkStatsLog.write(
+                    frameworkEventId,
+                    /* event_id = 1 */ appEventId,
+                    /* package_name = 2 */ packageName,
+                    /* instance_id = 3 */ instanceId,
+                    /* position_picked = 4 */ positionPicked,
+                    /* is_pinned = 5 */ isPinned);
         }
     }
 }
