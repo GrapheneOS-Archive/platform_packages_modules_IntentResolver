@@ -138,6 +138,7 @@ import java.net.URISyntaxException;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -498,9 +499,10 @@ public class ChooserActivity extends ResolverActivity implements
                             if (adapterForUserHandle != null) {
                                 adapterForUserHandle.addServiceResults(
                                         resultInfo.originalTarget,
-                                        resultInfo.resultTargets, msg.arg1,
-                                        mDirectShareShortcutInfoCache,
-                                        mDirectShareAppTargetCache);
+                                        resultInfo.resultTargets,
+                                        msg.arg1,
+                                        emptyIfNull(mDirectShareShortcutInfoCache),
+                                        emptyIfNull(mDirectShareAppTargetCache));
                             }
                         }
                     }
@@ -1689,8 +1691,8 @@ public class ChooserActivity extends ResolverActivity implements
                     /* origTarget */ null,
                     Lists.newArrayList(mCallerChooserTargets),
                     TARGET_TYPE_DEFAULT,
-                    /* directShareShortcutInfoCache */ null,
-                    /* directShareAppTargetCache */ null);
+                    /* directShareShortcutInfoCache */ Collections.emptyMap(),
+                    /* directShareAppTargetCache */ Collections.emptyMap());
         }
     }
 
@@ -4021,5 +4023,9 @@ public class ChooserActivity extends ResolverActivity implements
 
     private boolean shouldNearbyShareBeIncludedAsActionButton() {
         return !shouldNearbyShareBeFirstInRankedRow();
+    }
+
+    private static <K, V> Map<K, V> emptyIfNull(@Nullable Map<K, V> map) {
+        return map == null ? Collections.emptyMap() : map;
     }
 }
