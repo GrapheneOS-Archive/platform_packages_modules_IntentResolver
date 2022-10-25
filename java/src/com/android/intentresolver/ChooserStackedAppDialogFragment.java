@@ -43,7 +43,7 @@ public class ChooserStackedAppDialogFragment extends ChooserTargetActionsDialogF
 
     void setStateFromBundle(Bundle b) {
         mMultiDisplayResolveInfo = (MultiDisplayResolveInfo) b.get(MULTI_DRI_KEY);
-        mTargetInfos = mMultiDisplayResolveInfo.getTargets();
+        mTargetInfos = mMultiDisplayResolveInfo.getAllDisplayTargets();
         mUserHandle = (UserHandle) b.get(USER_HANDLE_KEY);
         mParentWhich = b.getInt(WHICH_KEY);
     }

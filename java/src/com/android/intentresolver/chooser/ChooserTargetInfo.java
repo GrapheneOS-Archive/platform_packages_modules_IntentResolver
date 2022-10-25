@@ -19,6 +19,9 @@ package com.android.intentresolver.chooser;
 import android.service.chooser.ChooserTarget;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * A TargetInfo for Direct Share. Includes a {@link ChooserTarget} representing the
  * Direct Share deep link into an application.
@@ -28,6 +31,16 @@ public abstract class ChooserTargetInfo implements TargetInfo {
     @Override
     public final boolean isChooserTargetInfo() {
         return true;
+    }
+
+    @Override
+    public ArrayList<DisplayResolveInfo> getAllDisplayTargets() {
+        // TODO: consider making this the default behavior for all `TargetInfo` implementations
+        // (if it's reasonable for `DisplayResolveInfo.getDisplayResolveInfo()` to return `this`).
+        if (getDisplayResolveInfo() == null) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(Arrays.asList(getDisplayResolveInfo()));
     }
 
     @Override
