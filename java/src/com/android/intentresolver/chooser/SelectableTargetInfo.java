@@ -18,6 +18,7 @@ package com.android.intentresolver.chooser;
 
 import android.annotation.Nullable;
 import android.app.Activity;
+import android.app.prediction.AppTarget;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -61,17 +62,23 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     private final String mDisplayLabel;
     private final PackageManager mPm;
     private final SelectableTargetInfoCommunicator mSelectableTargetInfoCommunicator;
-    @GuardedBy("this")
-    private ShortcutInfo mShortcutInfo;
-    private Drawable mBadgeIcon = null;
-    private CharSequence mBadgeContentDescription;
-    @GuardedBy("this")
-    private Drawable mDisplayIcon;
+    @Nullable
+    private final AppTarget mAppTarget;
+    @Nullable
+    private final ShortcutInfo mShortcutInfo;
     private final Intent mFillInIntent;
     private final int mFillInFlags;
     private final boolean mIsPinned;
     private final float mModifiedScore;
-    private boolean mIsSuspended = false;
+    private final boolean mIsSuspended;
+    private final Drawable mBadgeIcon;
+    private final CharSequence mBadgeContentDescription;
+
+    @GuardedBy("this")
+    private Drawable mDisplayIcon;
+
+    @GuardedBy("this")
+    private boolean mHasAttemptedIconLoad;
 
     /** Create a new {@link TargetInfo} instance representing a selectable target. */
     public static TargetInfo newSelectableTargetInfo(
@@ -80,14 +87,16 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
             ChooserTarget chooserTarget,
             float modifiedScore,
             SelectableTargetInfoCommunicator selectableTargetInfoCommunicator,
-            @Nullable ShortcutInfo shortcutInfo) {
+            @Nullable ShortcutInfo shortcutInfo,
+            @Nullable AppTarget appTarget) {
         return new SelectableTargetInfo(
                 context,
                 sourceInfo,
                 chooserTarget,
                 modifiedScore,
                 selectableTargetInfoCommunicator,
-                shortcutInfo);
+                shortcutInfo,
+                appTarget);
     }
 
     private SelectableTargetInfo(
@@ -96,7 +105,8 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
             ChooserTarget chooserTarget,
             float modifiedScore,
             SelectableTargetInfoCommunicator selectableTargetInfoComunicator,
-            @Nullable ShortcutInfo shortcutInfo) {
+            @Nullable ShortcutInfo shortcutInfo,
+            @Nullable AppTarget appTarget) {
         mContext = context;
         mSourceInfo = sourceInfo;
         mChooserTarget = chooserTarget;
@@ -104,20 +114,17 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         mPm = mContext.getPackageManager();
         mSelectableTargetInfoCommunicator = selectableTargetInfoComunicator;
         mShortcutInfo = shortcutInfo;
+        mAppTarget = appTarget;
         mIsPinned = shortcutInfo != null && shortcutInfo.isPinned();
-        if (sourceInfo != null) {
-            final ResolveInfo ri = sourceInfo.getResolveInfo();
-            if (ri != null) {
-                final ActivityInfo ai = ri.activityInfo;
-                if (ai != null && ai.applicationInfo != null) {
-                    final PackageManager pm = mContext.getPackageManager();
-                    mBadgeIcon = pm.getApplicationIcon(ai.applicationInfo);
-                    mBadgeContentDescription = pm.getApplicationLabel(ai.applicationInfo);
-                    mIsSuspended =
-                            (ai.applicationInfo.flags & ApplicationInfo.FLAG_SUSPENDED) != 0;
-                }
-            }
-        }
+
+        final PackageManager pm = mContext.getPackageManager();
+        final ApplicationInfo applicationInfo = getApplicationInfoFromSource(sourceInfo);
+
+        mBadgeIcon = (applicationInfo == null) ? null : pm.getApplicationIcon(applicationInfo);
+        mBadgeContentDescription =
+                (applicationInfo == null) ? null : pm.getApplicationLabel(applicationInfo);
+        mIsSuspended = (applicationInfo != null)
+                && ((applicationInfo.flags & ApplicationInfo.FLAG_SUSPENDED) != 0);
 
         if (sourceInfo != null) {
             mBackupResolveInfo = null;
@@ -141,9 +148,12 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         mChooserTarget = other.mChooserTarget;
         mBadgeIcon = other.mBadgeIcon;
         mBadgeContentDescription = other.mBadgeContentDescription;
+        mShortcutInfo = other.mShortcutInfo;
+        mAppTarget = other.mAppTarget;
+        mIsSuspended = other.mIsSuspended;
         synchronized (other) {
-            mShortcutInfo = other.mShortcutInfo;
             mDisplayIcon = other.mDisplayIcon;
+            mHasAttemptedIconLoad = other.mHasAttemptedIconLoad;
         }
         mFillInIntent = fillInIntent;
         mFillInFlags = flags;
@@ -156,12 +166,6 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     @Override
     public boolean isSelectableTargetInfo() {
         return true;
-    }
-
-    private String sanitizeDisplayLabel(CharSequence label) {
-        SpannableStringBuilder sb = new SpannableStringBuilder(label);
-        sb.clearSpans();
-        return sb.toString();
     }
 
     @Override
@@ -180,24 +184,35 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
      */
     @Override
     public boolean loadIcon() {
-        ShortcutInfo shortcutInfo;
-        Drawable icon;
         synchronized (this) {
-            shortcutInfo = mShortcutInfo;
-            icon = mDisplayIcon;
-        }
-        boolean shouldLoadIcon = (icon == null) && (shortcutInfo != null);
-        if (shouldLoadIcon) {
-            icon = getChooserTargetIconDrawable(mChooserTarget, shortcutInfo);
-            if (icon == null) {
+            // TODO: evaluating these conditions while `synchronized` ensures that we get consistent
+            // reads between `mDisplayIcon` and `mHasAttemptedIconLoad`, but doesn't otherwise
+            // prevent races where two threads might check the conditions (in synchrony) and then
+            // both go on to load the icon (in parallel, even though one of the loads would be
+            // redundant, and even though we have no logic to decide which result to keep if they
+            // differ). This is probably a "safe optimization" in some cases, but our correctness
+            // can't rely on this eliding the duplicate load, and with a more careful design we
+            // could probably optimize it out in more cases (or else maybe we should get rid of
+            // this complexity altogether).
+            if ((mDisplayIcon != null) || (mShortcutInfo == null) || mHasAttemptedIconLoad) {
                 return false;
             }
-            synchronized (this) {
-                mDisplayIcon = icon;
-                mShortcutInfo = null;
-            }
         }
-        return shouldLoadIcon;
+
+        Drawable icon = getChooserTargetIconDrawable(mChooserTarget, mShortcutInfo);
+        if (icon == null) {
+            return false;
+        }
+
+        synchronized (this) {
+            mDisplayIcon = icon;
+            // TODO: we only end up setting `mHasAttemptedIconLoad` if we were successful in loading
+            // a (non-null) display icon; in that case, our guard clause above will already
+            // early-return `false` regardless of `mHasAttemptedIconLoad`. This should be refined,
+            // or removed if we don't need the extra complexity (including the synchronizaiton?).
+            mHasAttemptedIconLoad = true;
+        }
+        return true;
     }
 
     private Drawable getChooserTargetIconDrawable(ChooserTarget target,
@@ -349,6 +364,18 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     }
 
     @Override
+    @Nullable
+    public ShortcutInfo getDirectShareShortcutInfo() {
+        return mShortcutInfo;
+    }
+
+    @Override
+    @Nullable
+    public AppTarget getDirectShareAppTarget() {
+        return mAppTarget;
+    }
+
+    @Override
     public TargetInfo cloneFilledIn(Intent fillInIntent, int flags) {
         return new SelectableTargetInfo(this, fillInIntent, flags);
     }
@@ -366,6 +393,32 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     @Override
     public boolean isPinned() {
         return mIsPinned;
+    }
+
+    @Nullable
+    private static ApplicationInfo getApplicationInfoFromSource(
+            @Nullable DisplayResolveInfo sourceInfo) {
+        if (sourceInfo == null) {
+            return null;
+        }
+
+        final ResolveInfo resolveInfo = sourceInfo.getResolveInfo();
+        if (resolveInfo == null) {
+            return null;
+        }
+
+        final ActivityInfo activityInfo = resolveInfo.activityInfo;
+        if (activityInfo == null) {
+            return null;
+        }
+
+        return activityInfo.applicationInfo;
+    }
+
+    private static String sanitizeDisplayLabel(CharSequence label) {
+        SpannableStringBuilder sb = new SpannableStringBuilder(label);
+        sb.clearSpans();
+        return sb.toString();
     }
 
     /**

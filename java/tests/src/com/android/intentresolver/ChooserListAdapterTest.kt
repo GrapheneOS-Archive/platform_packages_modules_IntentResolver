@@ -127,6 +127,7 @@ class ChooserListAdapterTest {
             createChooserTarget(),
             1f,
             selectableTargetInfoCommunicator,
+            null,
             null
         )
 

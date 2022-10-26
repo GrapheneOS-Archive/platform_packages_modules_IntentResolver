@@ -16,8 +16,11 @@
 
 package com.android.intentresolver.chooser
 
+import android.app.prediction.AppTarget
+import android.app.prediction.AppTargetId
 import android.content.Intent
 import android.content.pm.ShortcutInfo
+import android.os.UserHandle
 import android.service.chooser.ChooserTarget
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.intentresolver.createChooserTarget
@@ -56,6 +59,11 @@ class TargetInfoTest {
             "title", 0.3f, ResolverDataProvider.createComponentName(1), "test_shortcut_id")
         val selectableTargetInfoCommunicator: SelectableTargetInfoCommunicator = mock()
         val shortcutInfo = createShortcutInfo("id", ResolverDataProvider.createComponentName(2), 3)
+        val appTarget = AppTarget(
+            AppTargetId("id"),
+            chooserTarget.getComponentName().getPackageName(),
+            chooserTarget.getComponentName().getClassName(),
+            UserHandle.CURRENT)
 
         val targetInfo = SelectableTargetInfo.newSelectableTargetInfo(
             context,
@@ -63,11 +71,14 @@ class TargetInfoTest {
             chooserTarget,
             0.1f,
             selectableTargetInfoCommunicator,
-            shortcutInfo)
+            shortcutInfo,
+            appTarget)
         assertThat(targetInfo.isSelectableTargetInfo()).isTrue()
         assertThat(targetInfo.isChooserTargetInfo()).isTrue()  // From legacy inheritance model.
         assertThat(targetInfo.getDisplayResolveInfo()).isSameInstanceAs(displayInfo)
         assertThat(targetInfo.getChooserTarget()).isSameInstanceAs(chooserTarget)
+        assertThat(targetInfo.getDirectShareShortcutInfo()).isSameInstanceAs(shortcutInfo)
+        assertThat(targetInfo.getDirectShareAppTarget()).isSameInstanceAs(appTarget)
         // TODO: make more meaningful assertions about the behavior of a selectable target.
     }
 
@@ -122,7 +133,8 @@ class TargetInfoTest {
 
         assertThat(multiTargetInfo.getExtendedInfo()).isNull()
 
-        assertThat(multiTargetInfo.getTargets()).containsExactly(firstTargetInfo, secondTargetInfo)
+        assertThat(multiTargetInfo.getAllDisplayTargets())
+                .containsExactly(firstTargetInfo, secondTargetInfo)
 
         assertThat(multiTargetInfo.hasSelected()).isFalse()
         assertThat(multiTargetInfo.getSelectedTarget()).isNull()

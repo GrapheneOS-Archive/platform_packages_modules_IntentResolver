@@ -17,6 +17,7 @@
 package com.android.intentresolver;
 
 import android.annotation.Nullable;
+import android.app.prediction.AppTarget;
 import android.content.Context;
 import android.content.pm.ShortcutInfo;
 import android.service.chooser.ChooserTarget;
@@ -62,6 +63,7 @@ class ShortcutSelectionLogic {
             List<ChooserTarget> targets,
             boolean isShortcutResult,
             Map<ChooserTarget, ShortcutInfo> directShareToShortcutInfos,
+            Map<ChooserTarget, AppTarget> directShareToAppTargets,
             Context userContext,
             SelectableTargetInfoCommunicator mSelectableTargetInfoCommunicator,
             int maxRankedTargets,
@@ -105,7 +107,8 @@ class ShortcutSelectionLogic {
                             target,
                             targetScore,
                             mSelectableTargetInfoCommunicator,
-                            shortcutInfo),
+                            shortcutInfo,
+                            directShareToAppTargets.get(target)),
                     maxRankedTargets,
                     serviceTargets);
 

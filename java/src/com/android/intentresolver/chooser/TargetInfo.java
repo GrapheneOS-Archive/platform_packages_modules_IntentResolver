@@ -19,10 +19,12 @@ package com.android.intentresolver.chooser;
 
 import android.annotation.Nullable;
 import android.app.Activity;
+import android.app.prediction.AppTarget;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.content.pm.ShortcutInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -30,6 +32,7 @@ import android.service.chooser.ChooserTarget;
 
 import com.android.intentresolver.ResolverActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -129,6 +132,28 @@ public interface TargetInfo {
     List<Intent> getAllSourceIntents();
 
     /**
+     * @return the one or more {@link DisplayResolveInfo}s that this target represents in the UI.
+     *
+     * TODO: clarify the semantics of the {@link DisplayResolveInfo} branch of {@link TargetInfo}'s
+     * class hierarchy. Why is it that {@link MultiDisplayResolveInfo} can stand in for some
+     * "virtual" {@link DisplayResolveInfo} targets that aren't individually represented in the UI,
+     * but OTOH a {@link ChooserTargetInfo} (which doesn't inherit from {@link DisplayResolveInfo})
+     * can't provide its own UI treatment, and instead needs us to reach into its composed-in
+     * info via {@link #getDisplayResolveInfo()}? It seems like {@link DisplayResolveInfo} may be
+     * required to populate views in our UI, while {@link ChooserTargetInfo} may carry some other
+     * metadata. For non-{@link ChooserTargetInfo} targets (e.g. in {@link ResolverActivity}) the
+     * "naked" {@link DisplayResolveInfo} might also be taken to provide some of this metadata, but
+     * this presents a denormalization hazard since the "UI info" ({@link DisplayResolveInfo}) that
+     * represents a {@link ChooserTargetInfo} might provide different values than its enclosing
+     * {@link ChooserTargetInfo} (as they both implement {@link TargetInfo}). We could try to
+     * address this by splitting {@link DisplayResolveInfo} into two types; one (which implements
+     * the same {@link TargetInfo} interface as {@link ChooserTargetInfo}) provides the previously-
+     * implicit "metadata", and the other provides only the UI treatment for a target of any type
+     * (taking over the respective methods that previously belonged to {@link TargetInfo}).
+     */
+    ArrayList<DisplayResolveInfo> getAllDisplayTargets();
+
+    /**
      * @return true if this target cannot be selected by the user
      */
     boolean isSuspended();
@@ -175,6 +200,23 @@ public interface TargetInfo {
     @Deprecated
     @Nullable
     default ChooserTarget getChooserTarget() {
+        return null;
+    }
+
+    /**
+     * @return the {@link ShortcutManager} data for any shortcut associated with this target.
+     */
+    @Nullable
+    default ShortcutInfo getDirectShareShortcutInfo() {
+        return null;
+    }
+
+    /**
+     * @return the {@link AppTarget} metadata if this target was sourced from App Prediction
+     * service, or null otherwise.
+     */
+    @Nullable
+    default AppTarget getDirectShareAppTarget() {
         return null;
     }
 
