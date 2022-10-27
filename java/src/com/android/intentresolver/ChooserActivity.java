@@ -74,6 +74,7 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.os.PatternMatcher;
 import android.os.ResultReceiver;
+import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.storage.StorageManager;
@@ -87,6 +88,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.HashedStringCache;
 import android.util.Log;
+import android.util.Pair;
 import android.util.PluralsMessageFormatter;
 import android.util.Size;
 import android.util.Slog;
@@ -270,8 +272,6 @@ public class ChooserActivity extends ResolverActivity implements
     private long mChooserShownTime;
     protected boolean mIsSuccessfullySelected;
 
-    private long mQueriedSharingShortcutsTimeMs;
-
     private int mCurrAvailableWidth = 0;
     private Insets mLastAppliedInsets = null;
     private int mLastNumberOfChildren = -1;
@@ -313,7 +313,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     private final ShortcutToChooserTargetConverter mShortcutToChooserTargetConverter =
             new ShortcutToChooserTargetConverter();
-    private final SparseArray<AppPredictor> mProfileAppPredictors = new SparseArray<>();
+    private final SparseArray<ProfileRecord> mProfileRecords = new SparseArray<>();
 
     private class ContentPreviewCoordinator {
         private static final int IMAGE_FADE_IN_MILLIS = 150;
@@ -483,14 +483,18 @@ public class ChooserActivity extends ResolverActivity implements
                         Log.d(TAG, "LIST_VIEW_UPDATE_MESSAGE; ");
                     }
 
-                    UserHandle userHandle = (UserHandle) msg.obj;
-                    mChooserMultiProfilePagerAdapter.getListAdapterForUserHandle(userHandle)
+                    mChooserMultiProfilePagerAdapter
+                            .getListAdapterForUserHandle((UserHandle) msg.obj)
                             .refreshListView();
                     break;
 
                 case SHORTCUT_MANAGER_ALL_SHARE_TARGET_RESULTS:
                     if (DEBUG) Log.d(TAG, "SHORTCUT_MANAGER_ALL_SHARE_TARGET_RESULTS");
-                    final ServiceResultInfo[] resultInfos = (ServiceResultInfo[]) msg.obj;
+                    final Pair<UserHandle, ServiceResultInfo[]> args =
+                            (Pair<UserHandle, ServiceResultInfo[]>) msg.obj;
+                    final UserHandle userHandle = args.first;
+                    final ServiceResultInfo[] resultInfos = args.second;
+
                     for (ServiceResultInfo resultInfo : resultInfos) {
                         if (resultInfo.resultTargets != null) {
                             ChooserListAdapter adapterForUserHandle =
@@ -508,7 +512,9 @@ public class ChooserActivity extends ResolverActivity implements
                     }
 
                     logDirectShareTargetReceived(
-                            MetricsEvent.ACTION_DIRECT_SHARE_TARGETS_LOADED_SHORTCUT_MANAGER);
+                            MetricsEvent.ACTION_DIRECT_SHARE_TARGETS_LOADED_SHORTCUT_MANAGER,
+                            userHandle);
+
                     sendVoiceChoicesIfNeeded();
                     getChooserActivityLogger().logSharesheetDirectLoadComplete();
 
@@ -660,7 +666,7 @@ public class ChooserActivity extends ResolverActivity implements
         mShouldDisplayLandscape =
                 shouldDisplayLandscape(getResources().getConfiguration().orientation);
         setRetainInOnStop(intent.getBooleanExtra(EXTRA_PRIVATE_RETAIN_IN_ON_STOP, false));
-        createAppPredictors(
+        createProfileRecords(
                 new AppPredictorFactory(
                         this,
                         target.getStringExtra(Intent.EXTRA_TEXT),
@@ -738,31 +744,35 @@ public class ChooserActivity extends ResolverActivity implements
         return R.style.Theme_DeviceDefault_Chooser;
     }
 
-    private void createAppPredictors(AppPredictorFactory factory) {
+    private void createProfileRecords(AppPredictorFactory factory) {
         UserHandle mainUserHandle = getPersonalProfileUserHandle();
-        createAppPredictorForProfile(mainUserHandle, factory);
+        createProfileRecord(mainUserHandle, factory);
+
         UserHandle workUserHandle = getWorkProfileUserHandle();
         if (workUserHandle != null) {
-            createAppPredictorForProfile(workUserHandle, factory);
+            createProfileRecord(workUserHandle, factory);
         }
     }
 
-    private void createAppPredictorForProfile(UserHandle userHandle, AppPredictorFactory factory) {
+    private void createProfileRecord(UserHandle userHandle, AppPredictorFactory factory) {
         AppPredictor appPredictor = factory.create(userHandle);
-        if (appPredictor != null) {
-            mProfileAppPredictors.put(userHandle.getIdentifier(), appPredictor);
-        }
+        mProfileRecords.put(
+                userHandle.getIdentifier(), new ProfileRecord(appPredictor));
     }
 
-    private AppPredictor setupAppPredictorForUser(UserHandle userHandle,
-            AppPredictor.Callback appPredictorCallback) {
+    @Nullable
+    private ProfileRecord getProfileRecord(UserHandle userHandle) {
+        return mProfileRecords.get(userHandle.getIdentifier(), null);
+    }
+
+    private void setupAppPredictorForUser(
+            UserHandle userHandle, AppPredictor.Callback appPredictorCallback) {
         AppPredictor appPredictor = getAppPredictor(userHandle);
         if (appPredictor == null) {
-            return null;
+            return;
         }
         mDirectShareAppTargetCache = new HashMap<>();
         appPredictor.registerPredictionUpdates(this.getMainExecutor(), appPredictorCallback);
-        return appPredictor;
     }
 
     private AppPredictor.Callback createAppPredictorCallback(
@@ -1638,11 +1648,14 @@ public class ChooserActivity extends ResolverActivity implements
 
         if (mPreviewCoord != null) mPreviewCoord.cancelLoads();
 
-        mChooserMultiProfilePagerAdapter.getActiveListAdapter().destroyAppPredictor();
-        if (mChooserMultiProfilePagerAdapter.getInactiveListAdapter() != null) {
-            mChooserMultiProfilePagerAdapter.getInactiveListAdapter().destroyAppPredictor();
+        destroyProfileRecords();
+    }
+
+    private void destroyProfileRecords() {
+        for (int i = 0; i < mProfileRecords.size(); ++i) {
+            mProfileRecords.valueAt(i).destroy();
         }
-        mProfileAppPredictors.clear();
+        mProfileRecords.clear();
     }
 
     @Override // ResolverListCommunicator
@@ -1987,12 +2000,17 @@ public class ChooserActivity extends ResolverActivity implements
     @VisibleForTesting
     protected void queryDirectShareTargets(
                 ChooserListAdapter adapter, boolean skipAppPredictionService) {
-        mQueriedSharingShortcutsTimeMs = System.currentTimeMillis();
+        ProfileRecord record = getProfileRecord(adapter.getUserHandle());
+        if (record == null) {
+            return;
+        }
+
+        record.loadingStartTime = SystemClock.elapsedRealtime();
+
         UserHandle userHandle = adapter.getUserHandle();
         if (!skipAppPredictionService) {
-            AppPredictor appPredictor = getAppPredictor(userHandle);
-            if (appPredictor != null) {
-                appPredictor.requestPredictionUpdate();
+            if (record.appPredictor != null) {
+                record.appPredictor.requestPredictionUpdate();
                 return;
             }
         }
@@ -2062,8 +2080,7 @@ public class ChooserActivity extends ResolverActivity implements
         // for direct share targets. After ShareSheet is refactored we should use the
         // ShareShortcutInfos directly.
         List<ServiceResultInfo> resultRecords = new ArrayList<>();
-        for (int i = 0; i < chooserListAdapter.getDisplayResolveInfoCount(); i++) {
-            DisplayResolveInfo displayResolveInfo = chooserListAdapter.getDisplayResolveInfo(i);
+        for (DisplayResolveInfo displayResolveInfo : chooserListAdapter.getDisplayResolveInfos()) {
             List<ShortcutManager.ShareShortcutInfo> matchingShortcuts =
                     filterShortcutsByTargetComponentName(
                             resultList, displayResolveInfo.getResolvedComponentName());
@@ -2085,7 +2102,7 @@ public class ChooserActivity extends ResolverActivity implements
         }
 
         sendShortcutManagerShareTargetResults(
-                shortcutType, resultRecords.toArray(new ServiceResultInfo[0]));
+                userHandle, shortcutType, resultRecords.toArray(new ServiceResultInfo[0]));
     }
 
     private List<ShortcutManager.ShareShortcutInfo> filterShortcutsByTargetComponentName(
@@ -2100,10 +2117,10 @@ public class ChooserActivity extends ResolverActivity implements
     }
 
     private void sendShortcutManagerShareTargetResults(
-            int shortcutType, ServiceResultInfo[] results) {
+            UserHandle userHandle, int shortcutType, ServiceResultInfo[] results) {
         final Message msg = Message.obtain();
         msg.what = ChooserHandler.SHORTCUT_MANAGER_ALL_SHARE_TARGET_RESULTS;
-        msg.obj = results;
+        msg.obj = Pair.create(userHandle, results);
         msg.arg1 = shortcutType;
         mChooserHandler.sendMessage(msg);
     }
@@ -2126,8 +2143,14 @@ public class ChooserActivity extends ResolverActivity implements
         return false;
     }
 
-    private void logDirectShareTargetReceived(int logCategory) {
-        final int apiLatency = (int) (System.currentTimeMillis() - mQueriedSharingShortcutsTimeMs);
+    private void logDirectShareTargetReceived(int logCategory, UserHandle forUser) {
+        ProfileRecord profileRecord = getProfileRecord(forUser);
+        if (profileRecord == null) {
+            return;
+        }
+
+        final int apiLatency =
+                (int) (SystemClock.elapsedRealtime() - profileRecord.loadingStartTime);
         getMetricsLogger().write(new LogMaker(logCategory).setSubtype(apiLatency));
     }
 
@@ -2213,7 +2236,8 @@ public class ChooserActivity extends ResolverActivity implements
 
     @Nullable
     private AppPredictor getAppPredictor(UserHandle userHandle) {
-        return mProfileAppPredictors.get(userHandle.getIdentifier(), null);
+        ProfileRecord record = getProfileRecord(userHandle);
+        return (record == null) ? null : record.appPredictor;
     }
 
     void onRefinementResult(TargetInfo selectedTarget, Intent matchingIntent) {
@@ -2333,9 +2357,7 @@ public class ChooserActivity extends ResolverActivity implements
         if (!ActivityManager.isLowRamDeviceStatic()) {
             AppPredictor.Callback appPredictorCallback =
                     createAppPredictorCallback(chooserListAdapter);
-            AppPredictor appPredictor = setupAppPredictorForUser(userHandle, appPredictorCallback);
-            chooserListAdapter.setAppPredictor(appPredictor);
-            chooserListAdapter.setAppPredictorCallback(appPredictorCallback);
+            setupAppPredictorForUser(userHandle, appPredictorCallback);
         }
         return new ChooserGridAdapter(chooserListAdapter);
     }
@@ -4027,5 +4049,23 @@ public class ChooserActivity extends ResolverActivity implements
 
     private static <K, V> Map<K, V> emptyIfNull(@Nullable Map<K, V> map) {
         return map == null ? Collections.emptyMap() : map;
+    }
+
+    private static class ProfileRecord {
+        /** The {@link AppPredictor} for this profile, if any. */
+        @Nullable
+        public final AppPredictor appPredictor;
+
+        public long loadingStartTime;
+
+        ProfileRecord(@Nullable AppPredictor appPredictor) {
+            this.appPredictor = appPredictor;
+        }
+
+        public void destroy() {
+            if (appPredictor != null) {
+                appPredictor.destroy();
+            }
+        }
     }
 }

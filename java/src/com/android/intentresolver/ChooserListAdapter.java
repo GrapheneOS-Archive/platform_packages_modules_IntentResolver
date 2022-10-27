@@ -21,7 +21,6 @@ import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_SHORTCUTS_F
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
-import android.app.prediction.AppPredictor;
 import android.app.prediction.AppTarget;
 import android.content.ComponentName;
 import android.content.Context;
@@ -95,8 +94,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
 
     // Sorted list of DisplayResolveInfos for the alphabetical app section.
     private List<DisplayResolveInfo> mSortedList = new ArrayList<>();
-    private AppPredictor mAppPredictor;
-    private AppPredictor.Callback mAppPredictorCallback;
 
     private final ShortcutSelectionLogic mShortcutSelectionLogic;
 
@@ -216,10 +213,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 if (mCallerTargets.size() == MAX_SUGGESTED_APP_TARGETS) break;
             }
         }
-    }
-
-    AppPredictor getAppPredictor() {
-        return mAppPredictor;
     }
 
     @Override
@@ -435,6 +428,16 @@ public class ChooserListAdapter extends ResolverListAdapter {
         return Math.min(spacesAvailable, super.getCount());
     }
 
+    /** Get all the {@link DisplayResolveInfo} data for our targets. */
+    public DisplayResolveInfo[] getDisplayResolveInfos() {
+        int size = getDisplayResolveInfoCount();
+        DisplayResolveInfo[] resolvedTargets = new DisplayResolveInfo[size];
+        for (int i = 0; i < size; i++) {
+            resolvedTargets[i] = getDisplayResolveInfo(i);
+        }
+        return resolvedTargets;
+    }
+
     public int getPositionTargetType(int position) {
         int offset = 0;
 
@@ -468,7 +471,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
     public TargetInfo getItem(int position) {
         return targetInfoForPosition(position, true);
     }
-
 
     /**
      * Find target info for a given position.
@@ -640,22 +642,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 }
             }
         };
-    }
-
-    public void setAppPredictor(AppPredictor appPredictor) {
-        mAppPredictor = appPredictor;
-    }
-
-    public void setAppPredictorCallback(AppPredictor.Callback appPredictorCallback) {
-        mAppPredictorCallback = appPredictorCallback;
-    }
-
-    public void destroyAppPredictor() {
-        if (getAppPredictor() != null) {
-            getAppPredictor().unregisterPredictionUpdates(mAppPredictorCallback);
-            getAppPredictor().destroy();
-            setAppPredictor(null);
-        }
     }
 
     /**
