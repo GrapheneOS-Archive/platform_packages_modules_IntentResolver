@@ -118,7 +118,6 @@ import androidx.viewpager.widget.ViewPager;
 import com.android.intentresolver.ResolverListAdapter.ViewHolder;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
-import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
@@ -153,8 +152,7 @@ import java.util.function.Supplier;
  *
  */
 public class ChooserActivity extends ResolverActivity implements
-        ChooserListAdapter.ChooserListCommunicator,
-        SelectableTargetInfoCommunicator {
+        ChooserListAdapter.ChooserListCommunicator {
     private static final String TAG = "ChooserActivity";
 
     private boolean mShouldDisplayLandscape;
@@ -2222,9 +2220,15 @@ public class ChooserActivity extends ResolverActivity implements
     public ChooserListAdapter createChooserListAdapter(Context context,
             List<Intent> payloadIntents, Intent[] initialIntents, List<ResolveInfo> rList,
             boolean filterLastUsed, ResolverListController resolverListController) {
-        return new ChooserListAdapter(context, payloadIntents, initialIntents, rList,
-                filterLastUsed, resolverListController, this,
-                this, context.getPackageManager(),
+        return new ChooserListAdapter(
+                context,
+                payloadIntents,
+                initialIntents,
+                rList,
+                filterLastUsed,
+                resolverListController,
+                this,
+                context.getPackageManager(),
                 getChooserActivityLogger());
     }
 

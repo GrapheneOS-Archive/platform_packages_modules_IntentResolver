@@ -80,9 +80,15 @@ public class ChooserWrapperActivity
         PackageManager packageManager =
                 sOverrides.packageManager == null ? context.getPackageManager()
                         : sOverrides.packageManager;
-        return new ChooserListAdapter(context, payloadIntents, initialIntents, rList,
-                filterLastUsed, resolverListController,
-                this, this, packageManager,
+        return new ChooserListAdapter(
+                context,
+                payloadIntents,
+                initialIntents,
+                rList,
+                filterLastUsed,
+                resolverListController,
+                this,
+                packageManager,
                 getChooserActivityLogger());
     }
 
