@@ -33,7 +33,6 @@ import android.content.pm.ShortcutInfo;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Trace;
-import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.DeviceConfig;
 import android.service.chooser.ChooserTarget;
@@ -89,8 +88,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
             NotSelectableTargetInfo.newPlaceHolderTargetInfo();
     private final List<TargetInfo> mServiceTargets = new ArrayList<>();
     private final List<DisplayResolveInfo> mCallerTargets = new ArrayList<>();
-
-    private boolean mListViewDataChanged = false;
 
     // Sorted list of DisplayResolveInfos for the alphabetical app section.
     private List<DisplayResolveInfo> mSortedList = new ArrayList<>();
@@ -223,21 +220,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
         createPlaceHolders();
         mChooserListCommunicator.onHandlePackagesChanged(this);
 
-    }
-
-    @Override
-    public void notifyDataSetChanged() {
-        if (!mListViewDataChanged) {
-            mChooserListCommunicator.sendListViewUpdateMessage(getUserHandle());
-            mListViewDataChanged = true;
-        }
-    }
-
-    void refreshListView() {
-        if (mListViewDataChanged) {
-            super.notifyDataSetChanged();
-        }
-        mListViewDataChanged = false;
     }
 
     private void createPlaceHolders() {
@@ -651,8 +633,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
     interface ChooserListCommunicator extends ResolverListCommunicator {
 
         int getMaxRankedTargets();
-
-        void sendListViewUpdateMessage(UserHandle userHandle);
 
         boolean isSendAction(Intent targetIntent);
     }
