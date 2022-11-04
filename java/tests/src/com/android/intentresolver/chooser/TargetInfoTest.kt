@@ -76,7 +76,9 @@ class TargetInfoTest {
         assertThat(targetInfo.isSelectableTargetInfo()).isTrue()
         assertThat(targetInfo.isChooserTargetInfo()).isTrue()  // From legacy inheritance model.
         assertThat(targetInfo.getDisplayResolveInfo()).isSameInstanceAs(displayInfo)
-        assertThat(targetInfo.getChooserTarget()).isSameInstanceAs(chooserTarget)
+        assertThat(targetInfo.getChooserTargetComponentName())
+            .isEqualTo(chooserTarget.getComponentName())
+        assertThat(targetInfo.getDirectShareShortcutId()).isEqualTo(shortcutInfo.getId())
         assertThat(targetInfo.getDirectShareShortcutInfo()).isSameInstanceAs(shortcutInfo)
         assertThat(targetInfo.getDirectShareAppTarget()).isSameInstanceAs(appTarget)
         // TODO: make more meaningful assertions about the behavior of a selectable target.

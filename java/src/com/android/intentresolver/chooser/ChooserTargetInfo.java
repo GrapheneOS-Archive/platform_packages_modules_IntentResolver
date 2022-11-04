@@ -16,9 +16,6 @@
 
 package com.android.intentresolver.chooser;
 
-import android.service.chooser.ChooserTarget;
-import android.text.TextUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -41,25 +38,5 @@ public abstract class ChooserTargetInfo implements TargetInfo {
             return new ArrayList<>();
         }
         return new ArrayList<>(Arrays.asList(getDisplayResolveInfo()));
-    }
-
-    @Override
-    public boolean isSimilar(TargetInfo other) {
-        if (other == null) return false;
-
-        ChooserTarget ct1 = getChooserTarget();
-        ChooserTarget ct2 = other.getChooserTarget();
-
-        // If either is null, there is not enough info to make an informed decision
-        // about equality, so just exit
-        if (ct1 == null || ct2 == null) return false;
-
-        if (ct1.getComponentName().equals(ct2.getComponentName())
-                && TextUtils.equals(getDisplayLabel(), other.getDisplayLabel())
-                && TextUtils.equals(getExtendedInfo(), other.getExtendedInfo())) {
-            return true;
-        }
-
-        return false;
     }
 }

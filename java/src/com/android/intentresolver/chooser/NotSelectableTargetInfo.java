@@ -25,7 +25,6 @@ import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.UserHandle;
-import android.service.chooser.ChooserTarget;
 
 import com.android.intentresolver.R;
 import com.android.intentresolver.ResolverActivity;
@@ -129,10 +128,6 @@ public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
 
     public float getModifiedScore() {
         return -0.1f;
-    }
-
-    public ChooserTarget getChooserTarget() {
-        return null;
     }
 
     public boolean isSuspended() {
