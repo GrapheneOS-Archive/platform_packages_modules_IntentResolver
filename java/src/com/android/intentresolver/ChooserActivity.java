@@ -1723,12 +1723,7 @@ public class ChooserActivity extends ResolverActivity implements
                 targetInfo.isSelectableTargetInfo() ? getTargetIntentFilter() : null;
         String shortcutTitle = targetInfo.isSelectableTargetInfo()
                 ? targetInfo.getDisplayLabel().toString() : null;
-        String shortcutIdKey = targetInfo.isSelectableTargetInfo()
-                ? targetInfo
-                        .getChooserTarget()
-                        .getIntentExtras()
-                        .getString(Intent.EXTRA_SHORTCUT_ID)
-                : null;
+        String shortcutIdKey = targetInfo.getDirectShareShortcutId();
 
         ChooserTargetActionsDialogFragment.show(
                 getSupportFragmentManager(),
@@ -1816,15 +1811,7 @@ public class ChooserActivity extends ResolverActivity implements
             switch (currentListAdapter.getPositionTargetType(which)) {
                 case ChooserListAdapter.TARGET_SERVICE:
                     cat = MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET;
-                    // Log the package name + target name to answer the question if most users
-                    // share to mostly the same person or to a bunch of different people.
-                    ChooserTarget target = targetInfo.getChooserTarget();
-                    directTargetHashed = HashedStringCache.getInstance().hashString(
-                            this,
-                            TAG,
-                            target.getComponentName().getPackageName()
-                                    + target.getTitle().toString(),
-                            mMaxHashSaltDays);
+                    directTargetHashed = targetInfo.getHashedTargetIdForMetrics(this);
                     directTargetAlsoRanked = getRankedPosition(targetInfo);
 
                     if (mCallerChooserTargets != null) {
@@ -1894,7 +1881,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     private int getRankedPosition(TargetInfo targetInfo) {
         String targetPackageName =
-                targetInfo.getChooserTarget().getComponentName().getPackageName();
+                targetInfo.getChooserTargetComponentName().getPackageName();
         ChooserListAdapter currentListAdapter =
                 mChooserMultiProfilePagerAdapter.getActiveListAdapter();
         int maxRankedResults = Math.min(currentListAdapter.mDisplayList.size(),
@@ -2165,7 +2152,7 @@ public class ChooserActivity extends ResolverActivity implements
             ShortcutInfo shortcutInfo = chooserTargetInfo.getDirectShareShortcutInfo();
             if (shortcutInfo != null) {
                 ComponentName componentName =
-                        chooserTargetInfo.getChooserTarget().getComponentName();
+                        chooserTargetInfo.getChooserTargetComponentName();
                 targetIds.add(new AppTargetId(
                         String.format(
                                 "%s/%s/%s",

@@ -261,6 +261,8 @@ class ShortcutSelectionLogicTest {
         )
     }
 
+    // TODO: consider renaming. Not all `ChooserTarget`s are "shortcuts" and many of our test cases
+    // add results with `isShortcutResult = false` and `directShareToShortcutInfos = emptyMap()`.
     private fun assertShortcutsInOrder(
         expected: List<ChooserTarget>, actual: List<TargetInfo>, msg: String? = ""
     ) {
@@ -268,8 +270,13 @@ class ShortcutSelectionLogicTest {
         for (i in expected.indices) {
             assertEquals(
                 "Unexpected item at position $i",
-                expected[i],
-                actual[i].chooserTarget
+                expected[i].componentName,
+                actual[i].chooserTargetComponentName
+            )
+            assertEquals(
+                "Unexpected item at position $i",
+                expected[i].title,
+                actual[i].displayLabel
             )
         }
     }
