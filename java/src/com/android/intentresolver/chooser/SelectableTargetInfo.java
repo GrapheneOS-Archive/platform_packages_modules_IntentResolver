@@ -34,8 +34,10 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.provider.DeviceConfig;
 import android.service.chooser.ChooserTarget;
 import android.text.SpannableStringBuilder;
+import android.util.HashedStringCache;
 import android.util.Log;
 
 import com.android.intentresolver.ChooserActivity;
@@ -43,6 +45,7 @@ import com.android.intentresolver.ResolverActivity;
 import com.android.intentresolver.ResolverListAdapter.ActivityInfoPresentationGetter;
 import com.android.intentresolver.SimpleIconFactory;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +56,14 @@ import java.util.List;
  */
 public final class SelectableTargetInfo extends ChooserTargetInfo {
     private static final String TAG = "SelectableTargetInfo";
+
+    private static final String HASHED_STRING_CACHE_TAG = "ChooserActivity";  // For legacy reasons.
+    private static final int DEFAULT_SALT_EXPIRATION_DAYS = 7;
+
+    private final int mMaxHashSaltDays = DeviceConfig.getInt(
+            DeviceConfig.NAMESPACE_SYSTEMUI,
+            SystemUiDeviceConfigFlags.HASH_SALT_MAX_DAYS,
+            DEFAULT_SALT_EXPIRATION_DAYS);
 
     private final Context mContext;
     @Nullable
@@ -280,6 +291,11 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         return null;
     }
 
+    @Override
+    public ComponentName getChooserTargetComponentName() {
+        return mChooserTarget.getComponentName();
+    }
+
     private Intent getBaseIntentToSend() {
         Intent result = getResolvedIntent();
         if (result == null) {
@@ -359,11 +375,6 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     }
 
     @Override
-    public ChooserTarget getChooserTarget() {
-        return mChooserTarget;
-    }
-
-    @Override
     @Nullable
     public ShortcutInfo getDirectShareShortcutInfo() {
         return mShortcutInfo;
@@ -393,6 +404,18 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     @Override
     public boolean isPinned() {
         return mIsPinned;
+    }
+
+    @Override
+    public HashedStringCache.HashResult getHashedTargetIdForMetrics(Context context) {
+        final String plaintext =
+                mChooserTarget.getComponentName().getPackageName()
+                + mChooserTarget.getTitle().toString();
+        return HashedStringCache.getInstance().hashString(
+                context,
+                HASHED_STRING_CACHE_TAG,
+                plaintext,
+                mMaxHashSaltDays);
     }
 
     @Nullable

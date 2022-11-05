@@ -29,6 +29,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.service.chooser.ChooserTarget;
+import android.text.TextUtils;
+import android.util.HashedStringCache;
 
 import com.android.intentresolver.ResolverActivity;
 
@@ -52,11 +54,32 @@ public interface TargetInfo {
     /**
      * Get the resolved component name that represents this target. Note that this may not
      * be the component that will be directly launched by calling one of the <code>start</code>
-     * methods provided; this is the component that will be credited with the launch.
+     * methods provided; this is the component that will be credited with the launch. This may be
+     * null if the target was specified by a caller-provided {@link ChooserTarget} that we failed to
+     * resolve to a component on the system.
      *
      * @return the resolved ComponentName for this target
      */
+    @Nullable
     ComponentName getResolvedComponentName();
+
+    /**
+     * If this target was historically built from a (now-deprecated) {@link ChooserTarget} record,
+     * get the {@link ComponentName} that would've been provided by that record.
+     *
+     * TODO: for (historical) {@link ChooserTargetInfo} targets, this differs from the result of
+     * {@link #getResolvedComponentName()} only for caller-provided targets that we fail to resolve;
+     * then this returns the name of the component that was requested, and the other returns null.
+     * At the time of writing, this method is only called in contexts where the client knows that
+     * the target was a historical {@link ChooserTargetInfo}. Thus this method could be removed and
+     * all clients consolidated on the other, if we have some alternate mechanism of tracking this
+     * discrepancy; or if we know that the distinction won't apply in the conditions when we call
+     * this method; or if we determine that tracking the distinction isn't a requirement for us.
+     */
+    @Nullable
+    default ComponentName getChooserTargetComponentName() {
+        return null;
+    }
 
     /**
      * Start the activity referenced by this target.
@@ -172,7 +195,25 @@ public interface TargetInfo {
      * presumably resolved by converting {@code TargetInfo} from an interface to an abstract class.
      */
     default boolean isSimilar(TargetInfo other) {
-        return Objects.equals(this, other);
+        if (other == null) {
+            return false;
+        }
+
+        // TODO: audit usage and try to reconcile a behavior that doesn't depend on the legacy
+        // subclass type. Note that the `isSimilar()` method was pulled up from the legacy
+        // `ChooserTargetInfo`, so no legacy behavior currently depends on calling `isSimilar()` on
+        // an instance where `isChooserTargetInfo()` would return false (although technically it may
+        // have been possible for the `other` target to be of a different type). Thus we have
+        // flexibility in defining the similarity conditions between pairs of non "chooser" targets.
+        if (isChooserTargetInfo()) {
+            return other.isChooserTargetInfo()
+                    && Objects.equals(
+                            getChooserTargetComponentName(), other.getChooserTargetComponentName())
+                    && TextUtils.equals(getDisplayLabel(), other.getDisplayLabel())
+                    && TextUtils.equals(getExtendedInfo(), other.getExtendedInfo());
+        } else {
+            return !other.isChooserTargetInfo() && Objects.equals(this, other);
+        }
     }
 
     /**
@@ -186,29 +227,24 @@ public interface TargetInfo {
     }
 
     /**
-     * @return the {@link ChooserTarget} record that contains additional data about this target, if
-     * any. This is only non-null for selectable targets (and probably only Direct Share targets?).
-     *
-     * @deprecated {@link ChooserTarget} (and any other related {@code ChooserTargetService} APIs)
-     * got deprecated as part of sunsetting that old system design, but for historical reasons
-     * Chooser continues to shoehorn data from other sources into this representation to maintain
-     * compatibility with legacy internal APIs. New clients should avoid taking any further
-     * dependencies on the {@link ChooserTarget} type; any data they want to query from those
-     * records should instead be pulled up to new query methods directly on this class (or on the
-     * root {@link TargetInfo}).
-     */
-    @Deprecated
-    @Nullable
-    default ChooserTarget getChooserTarget() {
-        return null;
-    }
-
-    /**
      * @return the {@link ShortcutManager} data for any shortcut associated with this target.
      */
     @Nullable
     default ShortcutInfo getDirectShareShortcutInfo() {
         return null;
+    }
+
+    /**
+     * @return the ID of the shortcut represented by this target, or null if the target didn't come
+     * from a {@link ShortcutManager} shortcut.
+     */
+    @Nullable
+    default String getDirectShareShortcutId() {
+        ShortcutInfo shortcut = getDirectShareShortcutInfo();
+        if (shortcut == null) {
+            return null;
+        }
+        return shortcut.getId();
     }
 
     /**
@@ -255,11 +291,11 @@ public interface TargetInfo {
      * @return true if this target represents a legacy {@code ChooserTargetInfo}. These objects were
      * historically documented as representing "[a] TargetInfo for Direct Share." However, not all
      * of these targets are actually *valid* for direct share; e.g. some represent "empty" items
-     * (although perhaps only for display in the Direct Share UI?). {@link #getChooserTarget()} will
-     * return null for any of these "invalid" items. In even earlier versions, these targets may
-     * also have been results from (now-deprecated/unsupported) {@code ChooserTargetService} peers;
-     * even though we no longer use these services, we're still shoehorning other target data into
-     * the deprecated {@link ChooserTarget} structure for compatibility with some internal APIs.
+     * (although perhaps only for display in the Direct Share UI?). In even earlier versions, these
+     * targets may also have been results from peers in the (now-deprecated/unsupported)
+     * {@code ChooserTargetService} ecosystem; even though we no longer use these services, we're
+     * still shoehorning other target data into the deprecated {@link ChooserTarget} structure for
+     * compatibility with some internal APIs.
      * TODO: refactor to clarify the semantics of any target for which this method returns true
      * (e.g., are they characterized by their application in the Direct Share UI?), and to remove
      * the scaffolding that adapts to and from the {@link ChooserTarget} structure. Eventually, we
@@ -349,6 +385,19 @@ public interface TargetInfo {
      */
     default boolean isInDirectShareMetricsCategory() {
         return isChooserTargetInfo();
+    }
+
+    /**
+     * @param context caller's context, to provide the {@link SharedPreferences} for use by the
+     * {@link HashedStringCache}.
+     * @return a hashed ID that should be logged along with our target-selection metrics, or null.
+     * The contents of the plaintext are defined for historical reasons, "the package name + target
+     * name to answer the question if most users share to mostly the same person
+     * or to a bunch of different people." Clients should consider this as opaque data for logging
+     * only; they should not rely on any particular semantics about the value.
+     */
+    default HashedStringCache.HashResult getHashedTargetIdForMetrics(Context context) {
+        return null;
     }
 
     /**

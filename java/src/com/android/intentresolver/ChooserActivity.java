@@ -88,7 +88,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.HashedStringCache;
 import android.util.Log;
-import android.util.Pair;
 import android.util.PluralsMessageFormatter;
 import android.util.Size;
 import android.util.Slog;
@@ -111,6 +110,7 @@ import android.widget.ImageView;
 import android.widget.Space;
 import android.widget.TextView;
 
+import androidx.annotation.MainThread;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
@@ -238,21 +238,14 @@ public class ChooserActivity extends ResolverActivity implements
     private static final float DIRECT_SHARE_EXPANSION_RATE = 0.78f;
 
     private static final int DEFAULT_SALT_EXPIRATION_DAYS = 7;
-    private int mMaxHashSaltDays = DeviceConfig.getInt(DeviceConfig.NAMESPACE_SYSTEMUI,
+    private final int mMaxHashSaltDays = DeviceConfig.getInt(DeviceConfig.NAMESPACE_SYSTEMUI,
             SystemUiDeviceConfigFlags.HASH_SALT_MAX_DAYS,
             DEFAULT_SALT_EXPIRATION_DAYS);
-
-    private static final int DEFAULT_LIST_VIEW_UPDATE_DELAY_MS = 0;
 
     private static final int URI_PERMISSION_INTENT_FLAGS = Intent.FLAG_GRANT_READ_URI_PERMISSION
             | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
             | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION;
-
-    @VisibleForTesting
-    int mListViewUpdateDelayMs = DeviceConfig.getInt(DeviceConfig.NAMESPACE_SYSTEMUI,
-            SystemUiDeviceConfigFlags.SHARESHEET_LIST_VIEW_UPDATE_DELAY,
-            DEFAULT_LIST_VIEW_UPDATE_DELAY_MS);
 
     private Bundle mReplacementExtras;
     private IntentSender mChosenComponentSender;
@@ -451,74 +444,6 @@ public class ChooserActivity extends ResolverActivity implements
             v.invalidate();
         }
     }
-
-    private final ChooserHandler mChooserHandler = new ChooserHandler();
-
-    private class ChooserHandler extends Handler {
-        private static final int LIST_VIEW_UPDATE_MESSAGE = 6;
-        private static final int SHORTCUT_MANAGER_ALL_SHARE_TARGET_RESULTS = 7;
-
-        private void removeAllMessages() {
-            removeMessages(LIST_VIEW_UPDATE_MESSAGE);
-            removeMessages(SHORTCUT_MANAGER_ALL_SHARE_TARGET_RESULTS);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            if (mChooserMultiProfilePagerAdapter.getActiveListAdapter() == null || isDestroyed()) {
-                return;
-            }
-
-            switch (msg.what) {
-                case LIST_VIEW_UPDATE_MESSAGE:
-                    if (DEBUG) {
-                        Log.d(TAG, "LIST_VIEW_UPDATE_MESSAGE; ");
-                    }
-
-                    mChooserMultiProfilePagerAdapter
-                            .getListAdapterForUserHandle((UserHandle) msg.obj)
-                            .refreshListView();
-                    break;
-
-                case SHORTCUT_MANAGER_ALL_SHARE_TARGET_RESULTS:
-                    if (DEBUG) Log.d(TAG, "SHORTCUT_MANAGER_ALL_SHARE_TARGET_RESULTS");
-                    final Pair<UserHandle, ServiceResultInfo[]> args =
-                            (Pair<UserHandle, ServiceResultInfo[]>) msg.obj;
-                    final UserHandle userHandle = args.first;
-                    final ServiceResultInfo[] resultInfos = args.second;
-
-                    for (ServiceResultInfo resultInfo : resultInfos) {
-                        if (resultInfo.resultTargets != null) {
-                            ChooserListAdapter adapterForUserHandle =
-                                    mChooserMultiProfilePagerAdapter.getListAdapterForUserHandle(
-                                            resultInfo.userHandle);
-                            if (adapterForUserHandle != null) {
-                                adapterForUserHandle.addServiceResults(
-                                        resultInfo.originalTarget,
-                                        resultInfo.resultTargets,
-                                        msg.arg1,
-                                        emptyIfNull(mDirectShareShortcutInfoCache),
-                                        emptyIfNull(mDirectShareAppTargetCache));
-                            }
-                        }
-                    }
-
-                    logDirectShareTargetReceived(
-                            MetricsEvent.ACTION_DIRECT_SHARE_TARGETS_LOADED_SHORTCUT_MANAGER,
-                            userHandle);
-
-                    sendVoiceChoicesIfNeeded();
-                    getChooserActivityLogger().logSharesheetDirectLoadComplete();
-
-                    mChooserMultiProfilePagerAdapter.getActiveListAdapter()
-                            .completeServiceTargetLoading();
-                    break;
-
-                default:
-                    super.handleMessage(msg);
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -789,8 +714,7 @@ public class ChooserActivity extends ResolverActivity implements
                         new ComponentName(
                                 appTarget.getPackageName(), appTarget.getClassName())));
             }
-            sendShareShortcutInfoList(shareShortcutInfos, chooserListAdapter, resultList,
-                    chooserListAdapter.getUserHandle());
+            sendShareShortcutInfoList(shareShortcutInfos, chooserListAdapter, resultList);
         };
     }
 
@@ -1620,7 +1544,6 @@ public class ChooserActivity extends ResolverActivity implements
             mRefinementResultReceiver.destroy();
             mRefinementResultReceiver = null;
         }
-        mChooserHandler.removeAllMessages();
 
         if (mPreviewCoord != null) mPreviewCoord.cancelLoads();
 
@@ -1723,12 +1646,7 @@ public class ChooserActivity extends ResolverActivity implements
                 targetInfo.isSelectableTargetInfo() ? getTargetIntentFilter() : null;
         String shortcutTitle = targetInfo.isSelectableTargetInfo()
                 ? targetInfo.getDisplayLabel().toString() : null;
-        String shortcutIdKey = targetInfo.isSelectableTargetInfo()
-                ? targetInfo
-                        .getChooserTarget()
-                        .getIntentExtras()
-                        .getString(Intent.EXTRA_SHORTCUT_ID)
-                : null;
+        String shortcutIdKey = targetInfo.getDirectShareShortcutId();
 
         ChooserTargetActionsDialogFragment.show(
                 getSupportFragmentManager(),
@@ -1816,15 +1734,7 @@ public class ChooserActivity extends ResolverActivity implements
             switch (currentListAdapter.getPositionTargetType(which)) {
                 case ChooserListAdapter.TARGET_SERVICE:
                     cat = MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET;
-                    // Log the package name + target name to answer the question if most users
-                    // share to mostly the same person or to a bunch of different people.
-                    ChooserTarget target = targetInfo.getChooserTarget();
-                    directTargetHashed = HashedStringCache.getInstance().hashString(
-                            this,
-                            TAG,
-                            target.getComponentName().getPackageName()
-                                    + target.getTitle().toString(),
-                            mMaxHashSaltDays);
+                    directTargetHashed = targetInfo.getHashedTargetIdForMetrics(this);
                     directTargetAlsoRanked = getRankedPosition(targetInfo);
 
                     if (mCallerChooserTargets != null) {
@@ -1894,7 +1804,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     private int getRankedPosition(TargetInfo targetInfo) {
         String targetPackageName =
-                targetInfo.getChooserTarget().getComponentName().getPackageName();
+                targetInfo.getChooserTargetComponentName().getPackageName();
         ChooserListAdapter currentListAdapter =
                 mChooserMultiProfilePagerAdapter.getActiveListAdapter();
         int maxRankedResults = Math.min(currentListAdapter.mDisplayList.size(),
@@ -1991,7 +1901,7 @@ public class ChooserActivity extends ResolverActivity implements
             ShortcutManager sm = (ShortcutManager) selectedProfileContext
                     .getSystemService(Context.SHORTCUT_SERVICE);
             List<ShortcutManager.ShareShortcutInfo> resultList = sm.getShareTargets(filter);
-            sendShareShortcutInfoList(resultList, adapter, null, userHandle);
+            sendShareShortcutInfoList(resultList, adapter, null);
         });
     }
 
@@ -2021,12 +1931,13 @@ public class ChooserActivity extends ResolverActivity implements
     private void sendShareShortcutInfoList(
                 List<ShortcutManager.ShareShortcutInfo> resultList,
                 ChooserListAdapter chooserListAdapter,
-                @Nullable List<AppTarget> appTargets, UserHandle userHandle) {
+                @Nullable List<AppTarget> appTargets) {
         if (appTargets != null && appTargets.size() != resultList.size()) {
             throw new RuntimeException("resultList and appTargets must have the same size."
                     + " resultList.size()=" + resultList.size()
                     + " appTargets.size()=" + appTargets.size());
         }
+        UserHandle userHandle = chooserListAdapter.getUserHandle();
         Context selectedProfileContext = createContextAsUser(userHandle, 0 /* flags */);
         for (int i = resultList.size() - 1; i >= 0; i--) {
             final String packageName = resultList.get(i).getTargetComponent().getPackageName();
@@ -2063,12 +1974,15 @@ public class ChooserActivity extends ResolverActivity implements
                         mDirectShareShortcutInfoCache);
 
             ServiceResultInfo resultRecord = new ServiceResultInfo(
-                    displayResolveInfo, chooserTargets, userHandle);
+                    displayResolveInfo, chooserTargets);
             resultRecords.add(resultRecord);
         }
 
-        sendShortcutManagerShareTargetResults(
-                userHandle, shortcutType, resultRecords.toArray(new ServiceResultInfo[0]));
+        runOnUiThread(() -> {
+            if (!isDestroyed()) {
+                onShortcutsLoaded(chooserListAdapter, shortcutType, resultRecords);
+            }
+        });
     }
 
     private List<ShortcutManager.ShareShortcutInfo> filterShortcutsByTargetComponentName(
@@ -2080,15 +1994,6 @@ public class ChooserActivity extends ResolverActivity implements
             }
         }
         return matchingShortcuts;
-    }
-
-    private void sendShortcutManagerShareTargetResults(
-            UserHandle userHandle, int shortcutType, ServiceResultInfo[] results) {
-        final Message msg = Message.obtain();
-        msg.what = ChooserHandler.SHORTCUT_MANAGER_ALL_SHARE_TARGET_RESULTS;
-        msg.obj = Pair.create(userHandle, results);
-        msg.arg1 = shortcutType;
-        mChooserHandler.sendMessage(msg);
     }
 
     private boolean isPackageEnabled(Context context, String packageName) {
@@ -2165,7 +2070,7 @@ public class ChooserActivity extends ResolverActivity implements
             ShortcutInfo shortcutInfo = chooserTargetInfo.getDirectShareShortcutInfo();
             if (shortcutInfo != null) {
                 ComponentName componentName =
-                        chooserTargetInfo.getChooserTarget().getComponentName();
+                        chooserTargetInfo.getChooserTargetComponentName();
                 targetIds.add(new AppTargetId(
                         String.format(
                                 "%s/%s/%s",
@@ -2567,14 +2472,6 @@ public class ChooserActivity extends ResolverActivity implements
         return mMaxTargetsPerRow;
     }
 
-    @Override // ChooserListCommunicator
-    public void sendListViewUpdateMessage(UserHandle userHandle) {
-        Message msg = Message.obtain();
-        msg.what = ChooserHandler.LIST_VIEW_UPDATE_MESSAGE;
-        msg.obj = userHandle;
-        mChooserHandler.sendMessageDelayed(msg, mListViewUpdateDelayMs);
-    }
-
     @Override
     public void onListRebuilt(ResolverListAdapter listAdapter, boolean rebuildComplete) {
         setupScrollListener();
@@ -2619,6 +2516,33 @@ public class ChooserActivity extends ResolverActivity implements
         }
 
         queryDirectShareTargets(chooserListAdapter, false);
+    }
+
+    @MainThread
+    private void onShortcutsLoaded(
+            ChooserListAdapter adapter, int targetType, List<ServiceResultInfo> resultInfos) {
+        UserHandle userHandle = adapter.getUserHandle();
+        if (DEBUG) {
+            Log.d(TAG, "onShortcutsLoaded for user: " + userHandle);
+        }
+        for (ServiceResultInfo resultInfo : resultInfos) {
+            if (resultInfo.resultTargets != null) {
+                adapter.addServiceResults(
+                        resultInfo.originalTarget,
+                        resultInfo.resultTargets,
+                        targetType,
+                        emptyIfNull(mDirectShareShortcutInfoCache),
+                        emptyIfNull(mDirectShareAppTargetCache));
+            }
+        }
+        adapter.completeServiceTargetLoading();
+
+        logDirectShareTargetReceived(
+                MetricsEvent.ACTION_DIRECT_SHARE_TARGETS_LOADED_SHORTCUT_MANAGER,
+                userHandle);
+
+        sendVoiceChoicesIfNeeded();
+        getChooserActivityLogger().logSharesheetDirectLoadComplete();
     }
 
     @VisibleForTesting
@@ -2953,12 +2877,12 @@ public class ChooserActivity extends ResolverActivity implements
      */
     @VisibleForTesting
     public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-        private ChooserListAdapter mChooserListAdapter;
+        private final ChooserListAdapter mChooserListAdapter;
         private final LayoutInflater mLayoutInflater;
 
         private DirectShareViewHolder mDirectShareViewHolder;
         private int mChooserTargetWidth = 0;
-        private boolean mShowAzLabelIfPoss;
+        private final boolean mShowAzLabelIfPoss;
         private boolean mLayoutRequested = false;
 
         private int mFooterHeight = 0;
@@ -3691,13 +3615,10 @@ public class ChooserActivity extends ResolverActivity implements
     static class ServiceResultInfo {
         public final DisplayResolveInfo originalTarget;
         public final List<ChooserTarget> resultTargets;
-        public final UserHandle userHandle;
 
-        public ServiceResultInfo(DisplayResolveInfo ot, List<ChooserTarget> rt,
-                UserHandle userHandle) {
+        ServiceResultInfo(DisplayResolveInfo ot, List<ChooserTarget> rt) {
             originalTarget = ot;
             resultTargets = rt;
-            this.userHandle = userHandle;
         }
     }
 
