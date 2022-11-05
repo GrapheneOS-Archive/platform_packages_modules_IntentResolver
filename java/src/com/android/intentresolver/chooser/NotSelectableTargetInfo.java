@@ -45,13 +45,8 @@ public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
                 }
 
                 @Override
-                public Drawable getDisplayIcon(Context context) {
+                public Drawable getDisplayIcon() {
                     return null;
-                }
-
-                @Override
-                public boolean hasDisplayIcon() {
-                    return false;
                 }
             };
     }
@@ -60,7 +55,7 @@ public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
      * Create a non-selectable {@link TargetInfo} with placeholder content to be displayed
      * unless/until it can be replaced by the result of a pending asynchronous load.
      */
-    public static TargetInfo newPlaceHolderTargetInfo() {
+    public static TargetInfo newPlaceHolderTargetInfo(Context context) {
         return new NotSelectableTargetInfo() {
                 @Override
                 public boolean isPlaceHolderTargetInfo() {
@@ -68,7 +63,7 @@ public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
                 }
 
                 @Override
-                public Drawable getDisplayIcon(Context context) {
+                public Drawable getDisplayIcon() {
                     AnimatedVectorDrawable avd = (AnimatedVectorDrawable)
                             context.getDrawable(R.drawable.chooser_direct_share_icon_placeholder);
                     avd.start();  // Start animation after generation.

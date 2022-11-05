@@ -20,7 +20,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.Activity;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
@@ -47,7 +46,7 @@ public class DisplayResolveInfo implements TargetInfo {
     private CharSequence mExtendedInfo;
     private final Intent mResolvedIntent;
     private final List<Intent> mSourceIntents = new ArrayList<>();
-    private boolean mIsSuspended;
+    private final boolean mIsSuspended;
     private ResolveInfoPresentationGetter mResolveInfoPresentationGetter;
     private boolean mPinned = false;
 
@@ -107,10 +106,14 @@ public class DisplayResolveInfo implements TargetInfo {
 
     }
 
-    private DisplayResolveInfo(DisplayResolveInfo other, Intent fillInIntent, int flags,
+    private DisplayResolveInfo(
+            DisplayResolveInfo other,
+            Intent fillInIntent,
+            int flags,
             ResolveInfoPresentationGetter resolveInfoPresentationGetter) {
         mSourceIntents.addAll(other.getAllSourceIntents());
         mResolveInfo = other.mResolveInfo;
+        mIsSuspended = other.mIsSuspended;
         mDisplayLabel = other.mDisplayLabel;
         mDisplayIcon = other.mDisplayIcon;
         mExtendedInfo = other.mExtendedInfo;
@@ -122,6 +125,7 @@ public class DisplayResolveInfo implements TargetInfo {
     protected DisplayResolveInfo(DisplayResolveInfo other) {
         mSourceIntents.addAll(other.getAllSourceIntents());
         mResolveInfo = other.mResolveInfo;
+        mIsSuspended = other.mIsSuspended;
         mDisplayLabel = other.mDisplayLabel;
         mDisplayIcon = other.mDisplayIcon;
         mExtendedInfo = other.mExtendedInfo;
@@ -158,7 +162,8 @@ public class DisplayResolveInfo implements TargetInfo {
         mExtendedInfo = extendedInfo;
     }
 
-    public Drawable getDisplayIcon(Context context) {
+    @Override
+    public Drawable getDisplayIcon() {
         return mDisplayIcon;
     }
 
@@ -183,10 +188,6 @@ public class DisplayResolveInfo implements TargetInfo {
 
     public void setDisplayIcon(Drawable icon) {
         mDisplayIcon = icon;
-    }
-
-    public boolean hasDisplayIcon() {
-        return mDisplayIcon != null;
     }
 
     public CharSequence getExtendedInfo() {
