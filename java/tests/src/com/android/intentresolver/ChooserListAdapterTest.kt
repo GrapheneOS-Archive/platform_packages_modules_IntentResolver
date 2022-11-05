@@ -17,10 +17,9 @@
 package com.android.intentresolver
 
 import android.content.ComponentName
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.ResolveInfoFlags
-import android.os.Bundle
-import android.service.chooser.ChooserTarget
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -71,7 +70,7 @@ class ChooserListAdapterTest {
             chooserActivityLogger,
         ) {
             override fun createLoadDirectShareIconTask(
-                info: TargetInfo?
+                info: SelectableTargetInfo
             ): LoadDirectShareIconTask = taskProvider(info)
         }
 
@@ -122,22 +121,16 @@ class ChooserListAdapterTest {
 
     private fun createSelectableTargetInfo(): TargetInfo =
         SelectableTargetInfo.newSelectableTargetInfo(
-            context,
-            null,
-            createChooserTarget(),
-            1f,
-            selectableTargetInfoCommunicator,
-            null,
-            null
-        )
-
-    private fun createChooserTarget(): ChooserTarget =
-        ChooserTarget(
-            "Title",
-            null,
-            1f,
-            ComponentName("package", "package.Class"),
-            Bundle()
+            /* sourceInfo = */ mock(),
+            /* backupResolveInfo = */ mock(),
+            /* resolvedIntent = */ Intent(),
+            /* chooserTarget = */ createChooserTarget(
+                "Target", 0.5f, ComponentName("pkg", "Class"), "id-1"
+            ),
+            /* modifiedScore = */ 1f,
+            /* shortcutInfo = */ createShortcutInfo("id-1", ComponentName("pkg", "Class"), 1),
+            /* appTarget */ null,
+            /* referrerFillInIntent = */ Intent()
         )
 
     private fun createView(): View {
