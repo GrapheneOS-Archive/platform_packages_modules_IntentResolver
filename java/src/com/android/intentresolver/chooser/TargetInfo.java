@@ -136,14 +136,16 @@ public interface TargetInfo {
 
     /**
      * @return The drawable that should be used to represent this target including badge
-     * @param context
      */
-    Drawable getDisplayIcon(Context context);
+    @Nullable
+    Drawable getDisplayIcon();
 
     /**
      * @return true if display icon is available.
      */
-    boolean hasDisplayIcon();
+    default boolean hasDisplayIcon() {
+        return getDisplayIcon() != null;
+    }
     /**
      * Clone this target with the given fill-in information.
      */
@@ -254,15 +256,6 @@ public interface TargetInfo {
     @Nullable
     default AppTarget getDirectShareAppTarget() {
         return null;
-    }
-
-    /**
-     * Attempt to load the display icon, if we have the info for one but it hasn't been loaded yet.
-     * @return true if an icon may have been loaded as the result of this operation, potentially
-     * prompting a UI refresh. If this returns false, clients can safely assume there was no change.
-     */
-    default boolean loadIcon() {
-        return false;
     }
 
     /**
