@@ -75,7 +75,7 @@
       android:background="@androidprv:drawable/chooser_content_preview_rounded"
       android:id="@androidprv:id/content_preview_title_layout">
 
-    <view class="com.android.intentresolver.ChooserActivity$RoundedRectImageView"
+    <com.android.intentresolver.widget.RoundedRectImageView
           android:id="@androidprv:id/content_preview_thumbnail"
           android:layout_width="75dp"
           android:layout_height="75dp"
