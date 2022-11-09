@@ -31,6 +31,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.UserHandle;
+import android.util.Pair;
 import android.util.Size;
 
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter;
@@ -46,6 +47,7 @@ import com.android.intentresolver.chooser.TargetInfo;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -248,8 +250,17 @@ public class ChooserWrapperActivity
     }
 
     @Override
-    protected void queryDirectShareTargets(ChooserListAdapter adapter,
-            boolean skipAppPredictionService) {
+    protected void queryDirectShareTargets(
+            ChooserListAdapter adapter, boolean skipAppPredictionService) {
+        if (sOverrides.directShareTargets != null) {
+            Pair<Integer, ServiceResultInfo[]> result =
+                    sOverrides.directShareTargets.apply(this, adapter);
+            // Imitate asynchronous shortcut loading
+            getMainExecutor().execute(
+                    () -> onShortcutsLoaded(
+                            adapter, result.first, Arrays.asList(result.second)));
+            return;
+        }
         if (sOverrides.onQueryDirectShareTargets != null) {
             sOverrides.onQueryDirectShareTargets.apply(adapter);
         }

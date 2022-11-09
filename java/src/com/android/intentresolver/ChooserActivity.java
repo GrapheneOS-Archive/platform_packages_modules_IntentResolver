@@ -2512,8 +2512,9 @@ public class ChooserActivity extends ResolverActivity implements
         queryDirectShareTargets(chooserListAdapter, false);
     }
 
+    @VisibleForTesting
     @MainThread
-    private void onShortcutsLoaded(
+    protected void onShortcutsLoaded(
             ChooserListAdapter adapter, int targetType, List<ServiceResultInfo> resultInfos) {
         UserHandle userHandle = adapter.getUserHandle();
         if (DEBUG) {
