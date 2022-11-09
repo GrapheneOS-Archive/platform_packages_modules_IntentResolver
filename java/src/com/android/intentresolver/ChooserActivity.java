@@ -147,6 +147,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -300,149 +301,139 @@ public class ChooserActivity extends ResolverActivity implements
             new ShortcutToChooserTargetConverter();
     private final SparseArray<ProfileRecord> mProfileRecords = new SparseArray<>();
 
-    private class ContentPreviewCoordinator {
-        private static final int IMAGE_FADE_IN_MILLIS = 150;
-        private static final int IMAGE_LOAD_TIMEOUT = 1;
-        private static final int IMAGE_LOAD_INTO_VIEW = 2;
+    private static class ContentPreviewCoordinator {
 
-        private final int mImageLoadTimeoutMillis =
-                getResources().getInteger(R.integer.config_shortAnimTime);
-
-        private final View mParentView;
-        private boolean mHideParentOnFail;
-        private boolean mAtLeastOneLoaded = false;
-
-        class LoadUriTask {
-            public final Uri mUri;
-            public final int mImageResourceId;
-            public final int mExtraCount;
-            public final Bitmap mBmp;
-
-            LoadUriTask(int imageResourceId, Uri uri, int extraCount, Bitmap bmp) {
-                this.mImageResourceId = imageResourceId;
-                this.mUri = uri;
-                this.mExtraCount = extraCount;
-                this.mBmp = bmp;
-            }
-        }
-
-        // If at least one image loads within the timeout period, allow other
-        // loads to continue. Otherwise terminate and optionally hide
-        // the parent area
-        private final Handler mHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                switch (msg.what) {
-                    case IMAGE_LOAD_TIMEOUT:
-                        maybeHideContentPreview();
-                        break;
-
-                    case IMAGE_LOAD_INTO_VIEW:
-                        if (isFinishing()) break;
-
-                        LoadUriTask task = (LoadUriTask) msg.obj;
-                        RoundedRectImageView imageView = mParentView.findViewById(
-                                task.mImageResourceId);
-                        if (task.mBmp == null) {
-                            imageView.setVisibility(View.GONE);
-                            maybeHideContentPreview();
-                            return;
-                        }
-
-                        mAtLeastOneLoaded = true;
-                        imageView.setVisibility(View.VISIBLE);
-                        imageView.setAlpha(0.0f);
-                        imageView.setImageBitmap(task.mBmp);
-
-                        ValueAnimator fadeAnim = ObjectAnimator.ofFloat(imageView, "alpha", 0.0f,
-                                1.0f);
-                        fadeAnim.setInterpolator(new DecelerateInterpolator(1.0f));
-                        fadeAnim.setDuration(IMAGE_FADE_IN_MILLIS);
-                        fadeAnim.start();
-
-                        if (task.mExtraCount > 0) {
-                            imageView.setExtraImageCount(task.mExtraCount);
-                        }
-
-                        setupPreDrawForSharedElementTransition(imageView);
-                }
-            }
-        };
-
-        private void setupPreDrawForSharedElementTransition(View v) {
-            v.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    v.getViewTreeObserver().removeOnPreDrawListener(this);
-
-                    if (!mRemoveSharedElements && isActivityTransitionRunning()) {
-                        // Disable the window animations as it interferes with the
-                        // transition animation.
-                        getWindow().setWindowAnimations(0);
-                    }
-                    mEnterTransitionAnimationDelegate.markImagePreviewReady();
-                    return true;
-                }
-            });
-        }
-
-        ContentPreviewCoordinator(View parentView, boolean hideParentOnFail) {
-            super();
-
+        /* public */ ContentPreviewCoordinator(
+                ChooserActivity chooserActivity,
+                View parentView,
+                Runnable onFailCallback,
+                Consumer<View> onSingleImageSuccessCallback) {
+            this.mChooserActivity = chooserActivity;
             this.mParentView = parentView;
-            this.mHideParentOnFail = hideParentOnFail;
+            this.mOnFailCallback = onFailCallback;
+            this.mOnSingleImageSuccessCallback = onSingleImageSuccessCallback;
+
+            this.mImageLoadTimeoutMillis =
+                    chooserActivity.getResources().getInteger(R.integer.config_shortAnimTime);
         }
 
-        private void loadUriIntoView(final int imageResourceId, final Uri uri,
-                final int extraImages) {
-            mHandler.sendEmptyMessageDelayed(IMAGE_LOAD_TIMEOUT, mImageLoadTimeoutMillis);
-
-            AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
-                int size = getResources().getDimensionPixelSize(
-                        R.dimen.chooser_preview_image_max_dimen);
-                final Bitmap bmp = loadThumbnail(uri, new Size(size, size));
-                final Message msg = Message.obtain();
-                msg.what = IMAGE_LOAD_INTO_VIEW;
-                msg.obj = new LoadUriTask(imageResourceId, uri, extraImages, bmp);
-                mHandler.sendMessage(msg);
-            });
-        }
-
-        private void cancelLoads() {
+        public void cancelLoads() {
             mHandler.removeMessages(IMAGE_LOAD_INTO_VIEW);
             mHandler.removeMessages(IMAGE_LOAD_TIMEOUT);
         }
 
-        private void maybeHideContentPreview() {
-            if (!mAtLeastOneLoaded) {
-                if (mHideParentOnFail) {
-                    Log.i(TAG, "Hiding image preview area. Timed out waiting for preview to load"
-                            + " within " + mImageLoadTimeoutMillis + "ms.");
-                    collapseParentView();
-                    if (shouldShowTabs()) {
-                        hideStickyContentPreview();
-                    } else if (mChooserMultiProfilePagerAdapter.getCurrentRootAdapter() != null) {
-                        mChooserMultiProfilePagerAdapter.getCurrentRootAdapter()
-                                .hideContentPreview();
-                    }
-                    mHideParentOnFail = false;
+        private static final int IMAGE_FADE_IN_MILLIS = 150;
+        private static final int IMAGE_LOAD_TIMEOUT = 1;
+        private static final int IMAGE_LOAD_INTO_VIEW = 2;
+
+        private final ChooserActivity mChooserActivity;
+        private final View mParentView;
+        private final Runnable mOnFailCallback;
+        private final Consumer<View> mOnSingleImageSuccessCallback;
+        private final int mImageLoadTimeoutMillis;
+
+        private boolean mAtLeastOneLoaded = false;
+
+        private final Handler mHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                if (mChooserActivity.isFinishing()) {
+                    return;
                 }
-                mRemoveSharedElements = true;
-                mEnterTransitionAnimationDelegate.markImagePreviewReady();
+
+                if (msg.what == IMAGE_LOAD_TIMEOUT) {
+                    // If at least one image loads within the timeout period, allow other loads to
+                    // continue. (I.e., only fail if no images have loaded by the timeout event.)
+                    if (!mAtLeastOneLoaded) {
+                        mOnFailCallback.run();
+                    }
+                    return;
+                }
+
+                // TODO: switch off using `Handler`. For now the following conditions implicitly
+                // rely on the knowledge that we only have two message types (and so after the guard
+                // clause above, we know this is an `IMAGE_LOAD_INTO_VIEW` message).
+
+                RoundedRectImageView imageView = mParentView.findViewById(msg.arg1);
+                if (msg.obj != null) {
+                    onImageLoaded((Bitmap) msg.obj, imageView, msg.arg2);
+                } else {
+                    imageView.setVisibility(View.GONE);
+                    if (!mAtLeastOneLoaded) {
+                        // TODO: this looks like a race condition. We know that this specific image
+                        // failed (i.e. it got a null Bitmap), but we'll only report that to the
+                        // client (thereby failing out our pending loads) if we haven't yet
+                        // succeeded in loading some other non-null Bitmap. But there could be other
+                        // pending loads that would've returned non-null within the timeout window,
+                        // except they end up (effectively) cancelled because this one single-image
+                        // load "finished" (failed) faster. The outcome of that race may be fairly
+                        // predictable (since we *might* imagine that the nulls would usually "load"
+                        // faster?), but it's not guaranteed since the loads are queued in
+                        // `AsyncTask.THREAD_POOL_EXECUTOR` (i.e., in parallel). One option we might
+                        // prefer for more deterministic behavior: don't signal the failure callback
+                        // on a single-image load unless there are no other loads currently pending.
+                        mOnFailCallback.run();
+                    }
+                }
             }
+        };
+
+        private void onImageLoaded(
+                @NonNull Bitmap image,
+                RoundedRectImageView imageView,
+                int extraImageCount) {
+            mAtLeastOneLoaded = true;
+
+            imageView.setVisibility(View.VISIBLE);
+            imageView.setAlpha(0.0f);
+            imageView.setImageBitmap(image);
+
+            ValueAnimator fadeAnim = ObjectAnimator.ofFloat(imageView, "alpha", 0.0f, 1.0f);
+            fadeAnim.setInterpolator(new DecelerateInterpolator(1.0f));
+            fadeAnim.setDuration(IMAGE_FADE_IN_MILLIS);
+            fadeAnim.start();
+
+            if (extraImageCount > 0) {
+                imageView.setExtraImageCount(extraImageCount);
+            }
+
+            mOnSingleImageSuccessCallback.accept(imageView);
         }
 
-        private void collapseParentView() {
-            // This will effectively hide the content preview row by forcing the height
-            // to zero. It is faster than forcing a relayout of the listview
-            final View v = mParentView;
-            int widthSpec = MeasureSpec.makeMeasureSpec(v.getWidth(), MeasureSpec.EXACTLY);
-            int heightSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY);
-            v.measure(widthSpec, heightSpec);
-            v.getLayoutParams().height = 0;
-            v.layout(v.getLeft(), v.getTop(), v.getRight(), v.getTop());
-            v.invalidate();
+        private void loadUriIntoView(
+                final int imageViewResourceId, final Uri uri, final int extraImages) {
+            mHandler.sendEmptyMessageDelayed(IMAGE_LOAD_TIMEOUT, mImageLoadTimeoutMillis);
+
+            AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+                int size = mChooserActivity.getResources().getDimensionPixelSize(
+                        R.dimen.chooser_preview_image_max_dimen);
+                final Bitmap bmp = mChooserActivity.loadThumbnail(uri, new Size(size, size));
+                final Message msg = mHandler.obtainMessage(
+                        IMAGE_LOAD_INTO_VIEW, imageViewResourceId, extraImages, bmp);
+                mHandler.sendMessage(msg);
+            });
         }
+    }
+
+    private void setupPreDrawForSharedElementTransition(View v) {
+        v.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                v.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                if (!mRemoveSharedElements && isActivityTransitionRunning()) {
+                    // Disable the window animations as it interferes with the transition animation.
+                    getWindow().setWindowAnimations(0);
+                }
+                mEnterTransitionAnimationDelegate.markImagePreviewReady();
+                return true;
+            }
+        });
+    }
+
+    private void hideContentPreview() {
+        mRemoveSharedElements = true;
+        mEnterTransitionAnimationDelegate.markImagePreviewReady();
     }
 
     @Override
@@ -1265,7 +1256,11 @@ public class ChooserActivity extends ResolverActivity implements
             if (previewThumbnail == null) {
                 previewThumbnailView.setVisibility(View.GONE);
             } else {
-                mPreviewCoord = new ContentPreviewCoordinator(contentPreviewLayout, false);
+                mPreviewCoord = new ContentPreviewCoordinator(
+                        this,
+                        contentPreviewLayout,
+                        this::hideContentPreview,
+                        this::setupPreDrawForSharedElementTransition);
                 mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_thumbnail, previewThumbnail, 0);
             }
         }
@@ -1285,7 +1280,11 @@ public class ChooserActivity extends ResolverActivity implements
         addActionButton(actionRow, createNearbyButton(targetIntent));
         addActionButton(actionRow, createEditButton(targetIntent));
 
-        mPreviewCoord = new ContentPreviewCoordinator(contentPreviewLayout, false);
+        mPreviewCoord = new ContentPreviewCoordinator(
+                this,
+                contentPreviewLayout,
+                this::hideContentPreview,
+                this::setupPreDrawForSharedElementTransition);
 
         String action = targetIntent.getAction();
         if (Intent.ACTION_SEND.equals(action)) {
@@ -1456,7 +1455,11 @@ public class ChooserActivity extends ResolverActivity implements
         fileNameView.setText(fileInfo.name);
 
         if (fileInfo.hasThumbnail) {
-            mPreviewCoord = new ContentPreviewCoordinator(parent, false);
+            mPreviewCoord = new ContentPreviewCoordinator(
+                    this,
+                    parent,
+                    this::hideContentPreview,
+                    this::setupPreDrawForSharedElementTransition);
             mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_file_thumbnail, uri, 0);
         } else {
             View thumbnailView = parent.findViewById(com.android.internal.R.id.content_preview_file_thumbnail);
@@ -2298,8 +2301,8 @@ public class ChooserActivity extends ResolverActivity implements
         }
 
         final int availableWidth = right - left - v.getPaddingLeft() - v.getPaddingRight();
-        boolean isLayoutUpdated = gridAdapter.consumeLayoutRequest()
-                || gridAdapter.calculateChooserTargetWidth(availableWidth)
+        boolean isLayoutUpdated =
+                gridAdapter.calculateChooserTargetWidth(availableWidth)
                 || recyclerView.getAdapter() == null
                 || availableWidth != mCurrAvailableWidth;
 
@@ -2881,11 +2884,10 @@ public class ChooserActivity extends ResolverActivity implements
     public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private final ChooserListAdapter mChooserListAdapter;
         private final LayoutInflater mLayoutInflater;
+        private final boolean mShowAzLabelIfPoss;
 
         private DirectShareViewHolder mDirectShareViewHolder;
         private int mChooserTargetWidth = 0;
-        private final boolean mShowAzLabelIfPoss;
-        private boolean mLayoutRequested = false;
 
         private int mFooterHeight = 0;
 
@@ -2947,22 +2949,6 @@ public class ChooserActivity extends ResolverActivity implements
             }
 
             return false;
-        }
-
-        /**
-         * Hides the list item content preview.
-         * <p>Not to be confused with the sticky content preview which is above the
-         * personal and work tabs.
-         */
-        public void hideContentPreview() {
-            mLayoutRequested = true;
-            notifyDataSetChanged();
-        }
-
-        public boolean consumeLayoutRequest() {
-            boolean oldValue = mLayoutRequested;
-            mLayoutRequested = false;
-            return oldValue;
         }
 
         public int getRowCount() {
