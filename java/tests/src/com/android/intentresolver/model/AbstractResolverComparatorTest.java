@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver;
+package com.android.intentresolver.model;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -26,6 +26,8 @@ import android.content.pm.ResolveInfo;
 import android.os.Message;
 
 import androidx.test.InstrumentationRegistry;
+
+import com.android.intentresolver.ResolverActivity;
 
 import org.junit.Test;
 
@@ -92,7 +94,7 @@ public class AbstractResolverComparatorTest {
                     void doCompute(List<ResolverActivity.ResolvedComponentInfo> targets) {}
 
                     @Override
-                    float getScore(ComponentName name) {
+                    public float getScore(ComponentName name) {
                         return 0;
                     }
 

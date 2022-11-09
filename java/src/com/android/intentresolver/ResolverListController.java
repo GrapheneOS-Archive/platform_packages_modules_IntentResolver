@@ -32,6 +32,8 @@ import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
+import com.android.intentresolver.model.AbstractResolverComparator;
+import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
@@ -264,19 +266,6 @@ public class ResolverListController {
         return listToReturn;
     }
 
-    private class ComputeCallback implements AbstractResolverComparator.AfterCompute {
-
-        private CountDownLatch mFinishComputeSignal;
-
-        public ComputeCallback(CountDownLatch finishComputeSignal) {
-            mFinishComputeSignal = finishComputeSignal;
-        }
-
-        public void afterCompute () {
-            mFinishComputeSignal.countDown();
-        }
-    }
-
     private void compute(List<ResolverActivity.ResolvedComponentInfo> inputList)
             throws InterruptedException {
         if (mResolverComparator == null) {
@@ -284,8 +273,7 @@ public class ResolverListController {
             return;
         }
         final CountDownLatch finishComputeSignal = new CountDownLatch(1);
-        ComputeCallback callback = new ComputeCallback(finishComputeSignal);
-        mResolverComparator.setCallBack(callback);
+        mResolverComparator.setCallBack(() -> finishComputeSignal.countDown());
         mResolverComparator.compute(inputList);
         finishComputeSignal.await();
         isComputed = true;
