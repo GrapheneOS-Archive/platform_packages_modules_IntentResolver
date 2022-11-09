@@ -48,6 +48,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
@@ -81,6 +82,7 @@ import android.net.Uri;
 import android.os.UserHandle;
 import android.provider.DeviceConfig;
 import android.service.chooser.ChooserTarget;
+import android.util.Pair;
 import android.view.View;
 
 import androidx.annotation.CallSuper;
@@ -91,6 +93,7 @@ import androidx.test.espresso.matcher.BoundedDiagnosingMatcher;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
+import com.android.intentresolver.ChooserActivity.ServiceResultInfo;
 import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
@@ -1929,7 +1932,7 @@ public class UnbundledChooserActivityTest {
         // TODO(b/211669337): Determine the expected SHARESHEET_DIRECT_LOAD_COMPLETE events.
     }
 
-    @Test @Ignore
+    @Test
     public void testDirectTargetLogging() {
         Intent sendIntent = createSendTextIntent();
         // We need app targets for direct targets to get displayed
@@ -1950,26 +1953,31 @@ public class UnbundledChooserActivityTest {
                 resolvedComponentInfos.get(0).getResolveInfoAt(0).activityInfo.packageName);
         ResolveInfo ri = ResolverDataProvider.createResolveInfo(3, 0);
 
+        ChooserActivityOverrideData
+                .getInstance()
+                .directShareTargets = (activity, adapter) -> {
+                    DisplayResolveInfo displayInfo = activity.createTestDisplayResolveInfo(
+                            sendIntent,
+                            ri,
+                             "testLabel",
+                             "testInfo",
+                            sendIntent,
+                            /* resolveInfoPresentationGetter */ null);
+                    ServiceResultInfo[] results = {
+                            new ServiceResultInfo(displayInfo, serviceTargets) };
+                    // TODO: consider covering the other type.
+                    //  Only 2 types are expected out of the shortcut loading logic:
+                    //  - TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER, if shortcuts were loaded from
+                    //    the ShortcutManager, and;
+                    //  - TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE, if shortcuts were loaded
+                    //    from AppPredictor.
+                    //  Ideally, our tests should cover all of them.
+                    return new Pair<>(TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER, results);
+                };
+
         // Start activity
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
-
-        // Insert the direct share target
-        Map<ChooserTarget, ShortcutInfo> directShareToShortcutInfos = new HashMap<>();
-        directShareToShortcutInfos.put(serviceTargets.get(0), null);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> activity.getAdapter().addServiceResults(
-                        activity.createTestDisplayResolveInfo(sendIntent,
-                                ri,
-                                "testLabel",
-                                "testInfo",
-                                sendIntent,
-                                /* resolveInfoPresentationGetter */ null),
-                        serviceTargets,
-                        TARGET_TYPE_CHOOSER_TARGET,
-                        directShareToShortcutInfos,
-                        /* directShareToAppTargets */ null)
-        );
 
         assertThat("Chooser should have 3 targets (2 apps, 1 direct)",
                 activity.getAdapter().getCount(), is(3));
@@ -1983,6 +1991,12 @@ public class UnbundledChooserActivityTest {
         onView(withText(name))
                 .perform(click());
         waitForIdle();
+
+        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        ArgumentCaptor<Integer> typeCaptor = ArgumentCaptor.forClass(Integer.class);
+        Mockito.verify(logger, times(1))
+                .logShareTargetSelected(typeCaptor.capture(), any(), anyInt(), anyBoolean());
+        assertThat(typeCaptor.getValue(), is(ChooserActivity.SELECTION_TYPE_SERVICE));
     }
 
     @Test @Ignore
