@@ -53,7 +53,6 @@ import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.NotSelectableTargetInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo;
-import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
@@ -85,7 +84,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
     public static final float SHORTCUT_TARGET_SCORE_BOOST = 90.f;
 
     private final ChooserListCommunicator mChooserListCommunicator;
-    private final SelectableTargetInfoCommunicator mSelectableTargetInfoCommunicator;
     private final ChooserActivityLogger mChooserActivityLogger;
 
     private final Map<TargetInfo, AsyncTask> mIconLoaders = new HashMap<>();
@@ -139,7 +137,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
             boolean filterLastUsed,
             ResolverListController resolverListController,
             ChooserListCommunicator chooserListCommunicator,
-            SelectableTargetInfoCommunicator selectableTargetInfoCommunicator,
             PackageManager packageManager,
             ChooserActivityLogger chooserActivityLogger) {
         // Don't send the initial intents through the shared ResolverActivity path,
@@ -150,7 +147,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
         mChooserListCommunicator = chooserListCommunicator;
         mPlaceHolderTargetInfo = NotSelectableTargetInfo.newPlaceHolderTargetInfo(context);
         createPlaceHolders();
-        mSelectableTargetInfoCommunicator = selectableTargetInfoCommunicator;
         mChooserActivityLogger = chooserActivityLogger;
         mShortcutSelectionLogic = new ShortcutSelectionLogic(
                 context.getResources().getInteger(R.integer.config_maxShortcutTargetsPerApp),
@@ -554,8 +550,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 directShareToShortcutInfos,
                 directShareToAppTargets,
                 mContext.createContextAsUser(getUserHandle(), 0),
-                mSelectableTargetInfoCommunicator.getTargetIntent(),
-                mSelectableTargetInfoCommunicator.getReferrerFillInIntent(),
+                mChooserListCommunicator.getTargetIntent(),
+                mChooserListCommunicator.getReferrerFillInIntent(),
                 mChooserListCommunicator.getMaxRankedTargets(),
                 mServiceTargets);
         if (isUpdated) {
@@ -645,6 +641,10 @@ public class ChooserListAdapter extends ResolverListAdapter {
         int getMaxRankedTargets();
 
         boolean isSendAction(Intent targetIntent);
+
+        Intent getTargetIntent();
+
+        Intent getReferrerFillInIntent();
     }
 
     /**

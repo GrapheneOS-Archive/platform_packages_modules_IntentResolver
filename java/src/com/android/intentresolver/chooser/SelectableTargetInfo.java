@@ -34,7 +34,6 @@ import android.text.SpannableStringBuilder;
 import android.util.HashedStringCache;
 import android.util.Log;
 
-import com.android.intentresolver.ChooserActivity;
 import com.android.intentresolver.ResolverActivity;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 
@@ -329,17 +328,5 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         SpannableStringBuilder sb = new SpannableStringBuilder(label);
         sb.clearSpans();
         return sb.toString();
-    }
-
-    // TODO: merge into ChooserListAdapter.ChooserListCommunicator and delete.
-    /**
-     * Necessary methods to communicate between {@link SelectableTargetInfo}
-     * and {@link ResolverActivity} or {@link ChooserActivity}.
-     */
-    public interface SelectableTargetInfoCommunicator {
-
-        Intent getTargetIntent();
-
-        Intent getReferrerFillInIntent();
     }
 }
