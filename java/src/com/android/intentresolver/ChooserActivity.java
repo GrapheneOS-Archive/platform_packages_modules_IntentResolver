@@ -58,11 +58,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Insets;
-import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 import android.metrics.LogMaker;
 import android.net.Uri;
@@ -85,7 +81,6 @@ import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.service.chooser.ChooserTarget;
 import android.text.TextUtils;
-import android.util.AttributeSet;
 import android.util.HashedStringCache;
 import android.util.Log;
 import android.util.PluralsMessageFormatter;
@@ -124,6 +119,7 @@ import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
+import com.android.intentresolver.widget.RoundedRectImageView;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.content.PackageMonitor;
@@ -3667,110 +3663,6 @@ public class ChooserActivity extends ResolverActivity implements
         public void destroy() {
             mChooserActivity = null;
             mSelectedTarget = null;
-        }
-    }
-
-    /**
-     * Used internally to round image corners while obeying view padding.
-     */
-    public static class RoundedRectImageView extends ImageView {
-        private int mRadius = 0;
-        private Path mPath = new Path();
-        private Paint mOverlayPaint = new Paint(0);
-        private Paint mRoundRectPaint = new Paint(0);
-        private Paint mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private String mExtraImageCount = null;
-
-        public RoundedRectImageView(Context context) {
-            super(context);
-        }
-
-        public RoundedRectImageView(Context context, AttributeSet attrs) {
-            this(context, attrs, 0);
-        }
-
-        public RoundedRectImageView(Context context, AttributeSet attrs, int defStyleAttr) {
-            this(context, attrs, defStyleAttr, 0);
-        }
-
-        public RoundedRectImageView(Context context, AttributeSet attrs, int defStyleAttr,
-                int defStyleRes) {
-            super(context, attrs, defStyleAttr, defStyleRes);
-            mRadius = context.getResources().getDimensionPixelSize(R.dimen.chooser_corner_radius);
-
-            mOverlayPaint.setColor(0x99000000);
-            mOverlayPaint.setStyle(Paint.Style.FILL);
-
-            mRoundRectPaint.setColor(context.getResources().getColor(R.color.chooser_row_divider));
-            mRoundRectPaint.setStyle(Paint.Style.STROKE);
-            mRoundRectPaint.setStrokeWidth(context.getResources()
-                    .getDimensionPixelSize(R.dimen.chooser_preview_image_border));
-
-            mTextPaint.setColor(Color.WHITE);
-            mTextPaint.setTextSize(context.getResources()
-                    .getDimensionPixelSize(R.dimen.chooser_preview_image_font_size));
-            mTextPaint.setTextAlign(Paint.Align.CENTER);
-        }
-
-        private void updatePath(int width, int height) {
-            mPath.reset();
-
-            int imageWidth = width - getPaddingRight() - getPaddingLeft();
-            int imageHeight = height - getPaddingBottom() - getPaddingTop();
-            mPath.addRoundRect(getPaddingLeft(), getPaddingTop(), imageWidth, imageHeight, mRadius,
-                    mRadius, Path.Direction.CW);
-        }
-
-        /**
-          * Sets the corner radius on all corners
-          *
-          * param radius 0 for no radius, &gt; 0 for a visible corner radius
-          */
-        public void setRadius(int radius) {
-            mRadius = radius;
-            updatePath(getWidth(), getHeight());
-        }
-
-        /**
-          * Display an overlay with extra image count on 3rd image
-          */
-        public void setExtraImageCount(int count) {
-            if (count > 0) {
-                this.mExtraImageCount = "+" + count;
-            } else {
-                this.mExtraImageCount = null;
-            }
-        }
-
-        @Override
-        protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
-            super.onSizeChanged(width, height, oldWidth, oldHeight);
-            updatePath(width, height);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            if (mRadius != 0) {
-                canvas.clipPath(mPath);
-            }
-
-            super.onDraw(canvas);
-
-            int x = getPaddingLeft();
-            int y = getPaddingRight();
-            int width = getWidth() - getPaddingRight() - getPaddingLeft();
-            int height = getHeight() - getPaddingBottom() - getPaddingTop();
-            if (mExtraImageCount != null) {
-                canvas.drawRect(x, y, width, height, mOverlayPaint);
-
-                int xPos = canvas.getWidth() / 2;
-                int yPos = (int) ((canvas.getHeight() / 2.0f)
-                        - ((mTextPaint.descent() + mTextPaint.ascent()) / 2.0f));
-
-                canvas.drawText(mExtraImageCount, xPos, yPos, mTextPaint);
-            }
-
-            canvas.drawRoundRect(x, y, width, height, mRadius, mRadius, mRoundRectPaint);
         }
     }
 

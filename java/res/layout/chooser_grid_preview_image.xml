@@ -32,7 +32,7 @@
       android:paddingBottom="@dimen/chooser_view_spacing"
       android:background="?android:attr/colorBackground">
 
-    <view class="com.android.intentresolver.ChooserActivity$RoundedRectImageView"
+    <com.android.intentresolver.widget.RoundedRectImageView
           android:id="@androidprv:id/content_preview_image_1_large"
           android:layout_width="120dp"
           android:layout_height="104dp"
@@ -41,7 +41,7 @@
           android:gravity="center"
           android:scaleType="centerCrop"/>
 
-    <view class="com.android.intentresolver.ChooserActivity$RoundedRectImageView"
+    <com.android.intentresolver.widget.RoundedRectImageView
           android:id="@androidprv:id/content_preview_image_2_large"
           android:visibility="gone"
           android:layout_width="120dp"
@@ -53,7 +53,7 @@
           android:gravity="center"
           android:scaleType="centerCrop"/>
 
-    <view class="com.android.intentresolver.ChooserActivity$RoundedRectImageView"
+    <com.android.intentresolver.widget.RoundedRectImageView
           android:id="@androidprv:id/content_preview_image_2_small"
           android:visibility="gone"
           android:layout_width="120dp"
@@ -65,7 +65,7 @@
           android:gravity="center"
           android:scaleType="centerCrop"/>
 
-    <view class="com.android.intentresolver.ChooserActivity$RoundedRectImageView"
+    <com.android.intentresolver.widget.RoundedRectImageView
           android:id="@androidprv:id/content_preview_image_3_small"
           android:visibility="gone"
           android:layout_width="120dp"
