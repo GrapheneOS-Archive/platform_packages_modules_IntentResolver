@@ -287,11 +287,11 @@ public class ChooserActivityLogger {
      */
     private static int typeFromPreviewInt(int previewType) {
         switch(previewType) {
-            case ChooserActivity.CONTENT_PREVIEW_IMAGE:
+            case ChooserContentPreviewUi.CONTENT_PREVIEW_IMAGE:
                 return FrameworkStatsLog.SHARESHEET_STARTED__PREVIEW_TYPE__CONTENT_PREVIEW_IMAGE;
-            case ChooserActivity.CONTENT_PREVIEW_FILE:
+            case ChooserContentPreviewUi.CONTENT_PREVIEW_FILE:
                 return FrameworkStatsLog.SHARESHEET_STARTED__PREVIEW_TYPE__CONTENT_PREVIEW_FILE;
-            case ChooserActivity.CONTENT_PREVIEW_TEXT:
+            case ChooserContentPreviewUi.CONTENT_PREVIEW_TEXT:
             default:
                 return FrameworkStatsLog
                         .SHARESHEET_STARTED__PREVIEW_TYPE__CONTENT_PREVIEW_TYPE_UNKNOWN;

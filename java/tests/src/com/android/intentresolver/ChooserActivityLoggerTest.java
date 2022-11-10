@@ -74,7 +74,7 @@ public final class ChooserActivityLoggerTest {
         final int appProvidedDirectTargets = 123;
         final int appProvidedAppTargets = 456;
         final boolean workProfile = true;
-        final int previewType = ChooserActivity.CONTENT_PREVIEW_FILE;
+        final int previewType = ChooserContentPreviewUi.CONTENT_PREVIEW_FILE;
         final String intentAction = Intent.ACTION_SENDTO;
 
         mChooserLogger.logShareStarted(
