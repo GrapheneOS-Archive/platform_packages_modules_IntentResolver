@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver;
+package com.android.intentresolver.model;
 
 import android.content.ComponentName;
 import android.content.pm.ResolveInfo;
 
 import java.util.Comparator;
-import java.util.List;
 
 /**
  * A ranking model for resolver targets, providing ordering and (optionally) numerical scoring.

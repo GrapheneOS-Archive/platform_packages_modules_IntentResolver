@@ -28,7 +28,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.intentresolver.ChooserListAdapter.LoadDirectShareIconTask
 import com.android.intentresolver.chooser.SelectableTargetInfo
-import com.android.intentresolver.chooser.SelectableTargetInfo.SelectableTargetInfoCommunicator
 import com.android.intentresolver.chooser.TargetInfo
 import com.android.internal.R
 import org.junit.Before
@@ -48,11 +47,8 @@ class ChooserListAdapterTest {
     private val resolverListController = mock<ResolverListController>()
     private val chooserListCommunicator = mock<ChooserListAdapter.ChooserListCommunicator> {
         whenever(maxRankedTargets).thenReturn(0)
+        whenever(targetIntent).thenReturn(mock())
     }
-    private val selectableTargetInfoCommunicator =
-        mock<SelectableTargetInfoCommunicator> {
-            whenever(targetIntent).thenReturn(mock())
-        }
     private val chooserActivityLogger = mock<ChooserActivityLogger>()
 
     private fun createChooserListAdapter(
@@ -65,7 +61,6 @@ class ChooserListAdapterTest {
             false,
             resolverListController,
             chooserListCommunicator,
-            selectableTargetInfoCommunicator,
             packageManager,
             chooserActivityLogger,
         ) {
