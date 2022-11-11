@@ -133,7 +133,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.net.URISyntaxException;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -154,13 +153,9 @@ import java.util.function.Supplier;
  *
  */
 public class ChooserActivity extends ResolverActivity implements
-        ChooserListAdapter.ChooserListCommunicator {
+        ResolverListAdapter.ResolverListCommunicator {
     private static final String TAG = "ChooserActivity";
 
-    private boolean mShouldDisplayLandscape;
-
-    public ChooserActivity() {
-    }
     /**
      * Boolean extra to change the following behavior: Normally, ChooserActivity finishes itself
      * in onStop when launched in a new task. If this extra is set to true, we do not finish
@@ -168,7 +163,6 @@ public class ChooserActivity extends ResolverActivity implements
      */
     public static final String EXTRA_PRIVATE_RETAIN_IN_ON_STOP
             = "com.android.internal.app.ChooserActivity.EXTRA_PRIVATE_RETAIN_IN_ON_STOP";
-
 
     /**
      * Transition name for the first image preview.
@@ -216,9 +210,6 @@ public class ChooserActivity extends ResolverActivity implements
     private static final int SCROLL_STATUS_SCROLLING_VERTICAL = 1;
     private static final int SCROLL_STATUS_SCROLLING_HORIZONTAL = 2;
 
-    // statsd logger wrapper
-    protected ChooserActivityLogger mChooserActivityLogger;
-
     @IntDef(flag = false, prefix = { "TARGET_TYPE_" }, value = {
             TARGET_TYPE_DEFAULT,
             TARGET_TYPE_CHOOSER_TARGET,
@@ -246,14 +237,26 @@ public class ChooserActivity extends ResolverActivity implements
             | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
             | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION;
 
-    private Bundle mReplacementExtras;
-    private IntentSender mChosenComponentSender;
-    private IntentSender mRefinementIntentSender;
-    private RefinementResultReceiver mRefinementResultReceiver;
-    private ChooserTarget[] mCallerChooserTargets;
-    private ArrayList<ComponentName> mFilteredComponentNames;
+    /* TODO: this is `nullable` *primarily* because we have to defer the assignment til onCreate().
+     * We make the only assignment there, and *expect* it to be ready by the time we ever use it --
+     * someday if we move all the usage to a component with a narrower lifecycle (something that
+     * matches our Activity's create/destroy lifecycle, not its Java object lifecycle) then we
+     * should be able to make this assignment as "final." Unfortunately, for now we also have
+     * a vestigial design where ChooserActivity.onCreate() can invalidate a request, but it still
+     * has to call up to ResolverActivity.onCreate() before closing, and the base method delegates
+     * back down to other methods in ChooserActivity that aren't really relevant if we're closing
+     * (and so they'd normally want to assume it was a valid "creation," with non-null parameters).
+     * Any client null checks are workarounds for this condition that can be removed once that
+     * design is cleaned up.  */
+    @Nullable
+    private ChooserRequestParameters mChooserRequest;
 
-    private Intent mReferrerFillInIntent;
+    private boolean mShouldDisplayLandscape;
+    // statsd logger wrapper
+    protected ChooserActivityLogger mChooserActivityLogger;
+
+    @Nullable
+    private RefinementResultReceiver mRefinementResultReceiver;
 
     private long mChooserShownTime;
     protected boolean mIsSuccessfullySelected;
@@ -265,6 +268,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     private static final int MAX_LOG_RANK_POSITION = 12;
 
+    // TODO: are these used anywhere? They should probably be migrated to ChooserRequestParameters.
     private static final int MAX_EXTRA_INITIAL_INTENTS = 2;
     private static final int MAX_EXTRA_CHOOSER_TARGETS = 2;
 
@@ -290,6 +294,8 @@ public class ChooserActivity extends ResolverActivity implements
     private View mContentView = null;
 
     private final SparseArray<ProfileRecord> mProfileRecords = new SparseArray<>();
+
+    public ChooserActivity() {}
 
     private void setupPreDrawForSharedElementTransition(View v) {
         v.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
@@ -319,134 +325,42 @@ public class ChooserActivity extends ResolverActivity implements
 
         getChooserActivityLogger().logSharesheetTriggered();
 
-        mIsSuccessfullySelected = false;
-        Intent intent = getIntent();
-        Parcelable targetParcelable = intent.getParcelableExtra(Intent.EXTRA_INTENT);
-        if (targetParcelable instanceof Uri) {
-            try {
-                targetParcelable = Intent.parseUri(targetParcelable.toString(),
-                        Intent.URI_INTENT_SCHEME);
-            } catch (URISyntaxException ex) {
-                // doesn't parse as an intent; let the next test fail and error out
-            }
-        }
-
-        if (!(targetParcelable instanceof Intent)) {
-            Log.w("ChooserActivity", "Target is not an intent: " + targetParcelable);
+        try {
+            mChooserRequest = new ChooserRequestParameters(
+                    getIntent(), getReferrer(), getNearbySharingComponent());
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Caller provided invalid Chooser request parameters", e);
             finish();
             super.onCreate(null);
             return;
         }
-        final Intent target = (Intent) targetParcelable;
-        modifyTargetIntent(target);
-        Parcelable[] targetsParcelable
-                = intent.getParcelableArrayExtra(Intent.EXTRA_ALTERNATE_INTENTS);
-        if (targetsParcelable != null) {
-            Intent[] additionalTargets = new Intent[targetsParcelable.length];
-            for (int i = 0; i < targetsParcelable.length; i++) {
-                if (!(targetsParcelable[i] instanceof Intent)) {
-                    Log.w(TAG, "EXTRA_ALTERNATE_INTENTS array entry #" + i
-                            + " is not an Intent: " + targetsParcelable[i]);
-                    finish();
-                    super.onCreate(null);
-                    return;
-                }
-                final Intent additionalTarget = (Intent) targetsParcelable[i];
-                additionalTargets[i] = additionalTarget;
-                modifyTargetIntent(additionalTarget);
-            }
-            setAdditionalTargets(additionalTargets);
-        }
 
-        mReplacementExtras = intent.getBundleExtra(Intent.EXTRA_REPLACEMENT_EXTRAS);
+        setAdditionalTargets(mChooserRequest.getAdditionalTargets());
 
-        // Do not allow the title to be changed when sharing content
-        CharSequence title = null;
-        if (!isSendAction(target)) {
-            title = intent.getCharSequenceExtra(Intent.EXTRA_TITLE);
-        } else {
-            Log.w(TAG, "Ignoring intent's EXTRA_TITLE, deprecated in P. You may wish to set a"
-                    + " preview title by using EXTRA_TITLE property of the wrapped"
-                    + " EXTRA_INTENT.");
-        }
-
-        int defaultTitleRes = 0;
-        if (title == null) {
-            defaultTitleRes = com.android.internal.R.string.chooseActivity;
-        }
-
-        Parcelable[] pa = intent.getParcelableArrayExtra(Intent.EXTRA_INITIAL_INTENTS);
-        Intent[] initialIntents = null;
-        if (pa != null) {
-            int count = Math.min(pa.length, MAX_EXTRA_INITIAL_INTENTS);
-            initialIntents = new Intent[count];
-            for (int i = 0; i < count; i++) {
-                if (!(pa[i] instanceof Intent)) {
-                    Log.w(TAG, "Initial intent #" + i + " not an Intent: " + pa[i]);
-                    finish();
-                    super.onCreate(null);
-                    return;
-                }
-                final Intent in = (Intent) pa[i];
-                modifyTargetIntent(in);
-                initialIntents[i] = in;
-            }
-        }
-
-        mReferrerFillInIntent = new Intent().putExtra(Intent.EXTRA_REFERRER, getReferrer());
-
-        mChosenComponentSender = intent.getParcelableExtra(
-                Intent.EXTRA_CHOSEN_COMPONENT_INTENT_SENDER);
-        mRefinementIntentSender = intent.getParcelableExtra(
-                Intent.EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER);
         setSafeForwardingMode(true);
 
         mPinnedSharedPrefs = getPinnedSharedPrefs(this);
 
-        mFilteredComponentNames = new ArrayList<>();
-        try {
-            ComponentName[] exclodedComponents = intent.getParcelableArrayExtra(
-                    Intent.EXTRA_EXCLUDE_COMPONENTS,
-                    ComponentName.class);
-            if (exclodedComponents != null) {
-                Collections.addAll(mFilteredComponentNames, exclodedComponents);
-            }
-        } catch (ClassCastException e) {
-            Log.e(TAG, "Excluded components must be of type ComponentName[]", e);
-        }
-
-        // Exclude Nearby from main list if chip is present, to avoid duplication
-        ComponentName nearby = getNearbySharingComponent();
-        if (nearby != null) {
-            mFilteredComponentNames.add(nearby);
-        }
-
-        pa = intent.getParcelableArrayExtra(Intent.EXTRA_CHOOSER_TARGETS);
-        if (pa != null) {
-            int count = Math.min(pa.length, MAX_EXTRA_CHOOSER_TARGETS);
-            ChooserTarget[] targets = new ChooserTarget[count];
-            for (int i = 0; i < count; i++) {
-                if (!(pa[i] instanceof ChooserTarget)) {
-                    Log.w(TAG, "Chooser target #" + i + " not a ChooserTarget: " + pa[i]);
-                    targets = null;
-                    break;
-                }
-                targets[i] = (ChooserTarget) pa[i];
-            }
-            mCallerChooserTargets = targets;
-        }
-
         mMaxTargetsPerRow = getResources().getInteger(R.integer.config_chooser_max_targets_per_row);
         mShouldDisplayLandscape =
                 shouldDisplayLandscape(getResources().getConfiguration().orientation);
-        setRetainInOnStop(intent.getBooleanExtra(EXTRA_PRIVATE_RETAIN_IN_ON_STOP, false));
-        IntentFilter targetIntentFilter = getTargetIntentFilter(target);
+        setRetainInOnStop(mChooserRequest.shouldRetainInOnStop());
+
         createProfileRecords(
                 new AppPredictorFactory(
                         getApplicationContext(),
-                        target.getStringExtra(Intent.EXTRA_TEXT),
-                        targetIntentFilter),
-                targetIntentFilter);
+                        mChooserRequest.getSharedText(),
+                        mChooserRequest.getTargetIntentFilter()),
+                mChooserRequest.getTargetIntentFilter());
+
+        super.onCreate(
+                savedInstanceState,
+                mChooserRequest.getTargetIntent(),
+                mChooserRequest.getTitle(),
+                mChooserRequest.getDefaultTitleResource(),
+                mChooserRequest.getInitialIntents(),
+                /* rList: List<ResolveInfo> = */ null,
+                /* supportsAlwaysUseOption = */ false);
 
         mPreviewCoordinator = new ChooserContentPreviewCoordinator(
                 mBackgroundThreadPoolExecutor,
@@ -454,23 +368,21 @@ public class ChooserActivity extends ResolverActivity implements
                 this::hideContentPreview,
                 this::setupPreDrawForSharedElementTransition);
 
-        super.onCreate(savedInstanceState, target, title, defaultTitleRes, initialIntents,
-                null, false);
-
         mChooserShownTime = System.currentTimeMillis();
         final long systemCost = mChooserShownTime - intentReceivedTime;
 
         getMetricsLogger().write(new LogMaker(MetricsEvent.ACTION_ACTIVITY_CHOOSER_SHOWN)
                 .setSubtype(isWorkProfile() ? MetricsEvent.MANAGED_PROFILE :
                         MetricsEvent.PARENT_PROFILE)
-                .addTaggedData(MetricsEvent.FIELD_SHARESHEET_MIMETYPE, target.getType())
+                .addTaggedData(
+                        MetricsEvent.FIELD_SHARESHEET_MIMETYPE, mChooserRequest.getTargetType())
                 .addTaggedData(MetricsEvent.FIELD_TIME_TO_APP_TARGETS, systemCost));
 
         if (mResolverDrawerLayout != null) {
             mResolverDrawerLayout.addOnLayoutChangeListener(this::handleLayoutChange);
 
             // expand/shrink direct share 4 -> 8 viewgroup
-            if (isSendAction(target)) {
+            if (mChooserRequest.isSendActionTarget()) {
                 mResolverDrawerLayout.setOnScrollChangeListener(this::handleScroll);
             }
 
@@ -499,13 +411,14 @@ public class ChooserActivity extends ResolverActivity implements
         getChooserActivityLogger().logShareStarted(
                 FrameworkStatsLog.SHARESHEET_STARTED,
                 getReferrerPackageName(),
-                target.getType(),
-                mCallerChooserTargets == null ? 0 : mCallerChooserTargets.length,
-                initialIntents == null ? 0 : initialIntents.length,
+                mChooserRequest.getTargetType(),
+                mChooserRequest.getCallerChooserTargets().size(),
+                (mChooserRequest.getInitialIntents() == null)
+                        ? 0 : mChooserRequest.getInitialIntents().length,
                 isWorkProfile(),
                 ChooserContentPreviewUi.findPreferredContentPreview(
                         getTargetIntent(), getContentResolver(), this::isImageType),
-                target.getAction()
+                mChooserRequest.getTargetAction()
         );
 
         setEnterSharedElementCallback(new SharedElementCallback() {
@@ -607,7 +520,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     @Override
     protected EmptyStateProvider createBlockerEmptyStateProvider() {
-        final boolean isSendAction = isSendAction(getTargetIntent());
+        final boolean isSendAction = mChooserRequest.isSendActionTarget();
 
         final EmptyState noWorkToPersonalEmptyState =
                 new DevicePolicyBlockerEmptyState(
@@ -1194,9 +1107,14 @@ public class ChooserActivity extends ResolverActivity implements
 
     @Override // ResolverListCommunicator
     public Intent getReplacementIntent(ActivityInfo aInfo, Intent defIntent) {
+        if (mChooserRequest == null) {
+            return defIntent;
+        }
+
         Intent result = defIntent;
-        if (mReplacementExtras != null) {
-            final Bundle replExtras = mReplacementExtras.getBundle(aInfo.packageName);
+        if (mChooserRequest.getReplacementExtras() != null) {
+            final Bundle replExtras =
+                    mChooserRequest.getReplacementExtras().getBundle(aInfo.packageName);
             if (replExtras != null) {
                 result = new Intent(defIntent);
                 result.putExtras(replExtras);
@@ -1217,12 +1135,13 @@ public class ChooserActivity extends ResolverActivity implements
 
     @Override
     public void onActivityStarted(TargetInfo cti) {
-        if (mChosenComponentSender != null) {
+        if (mChooserRequest.getChosenComponentSender() != null) {
             final ComponentName target = cti.getResolvedComponentName();
             if (target != null) {
                 final Intent fillIn = new Intent().putExtra(Intent.EXTRA_CHOSEN_COMPONENT, target);
                 try {
-                    mChosenComponentSender.sendIntent(this, Activity.RESULT_OK, fillIn, null, null);
+                    mChooserRequest.getChosenComponentSender().sendIntent(
+                            this, Activity.RESULT_OK, fillIn, null, null);
                 } catch (IntentSender.SendIntentException e) {
                     Slog.e(TAG, "Unable to launch supplied IntentSender to report "
                             + "the chosen component: " + e);
@@ -1233,10 +1152,14 @@ public class ChooserActivity extends ResolverActivity implements
 
     @Override
     public void addUseDifferentAppLabelIfNecessary(ResolverListAdapter adapter) {
-        if (mCallerChooserTargets != null && mCallerChooserTargets.length > 0) {
+        if (mChooserRequest == null) {
+            return;
+        }
+
+        if (mChooserRequest.getCallerChooserTargets().size() > 0) {
             mChooserMultiProfilePagerAdapter.getActiveListAdapter().addServiceResults(
                     /* origTarget */ null,
-                    Lists.newArrayList(mCallerChooserTargets),
+                    mChooserRequest.getCallerChooserTargets(),
                     TARGET_TYPE_DEFAULT,
                     /* directShareShortcutInfoCache */ Collections.emptyMap(),
                     /* directShareAppTargetCache */ Collections.emptyMap());
@@ -1277,8 +1200,8 @@ public class ChooserActivity extends ResolverActivity implements
         // TODO: implement these type-conditioned behaviors polymorphically, and consider moving
         // the logic into `ChooserTargetActionsDialogFragment.show()`.
         boolean isShortcutPinned = targetInfo.isSelectableTargetInfo() && targetInfo.isPinned();
-        IntentFilter intentFilter =
-                targetInfo.isSelectableTargetInfo() ? getTargetIntentFilter() : null;
+        IntentFilter intentFilter = targetInfo.isSelectableTargetInfo()
+                ? mChooserRequest.getTargetIntentFilter() : null;
         String shortcutTitle = targetInfo.isSelectableTargetInfo()
                 ? targetInfo.getDisplayLabel().toString() : null;
         String shortcutIdKey = targetInfo.getDirectShareShortcutId();
@@ -1293,16 +1216,9 @@ public class ChooserActivity extends ResolverActivity implements
                 intentFilter);
     }
 
-    private void modifyTargetIntent(Intent in) {
-        if (isSendAction(in)) {
-            in.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
-                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        }
-    }
-
     @Override
     protected boolean onTargetSelected(TargetInfo target, boolean alwaysCheck) {
-        if (mRefinementIntentSender != null) {
+        if (mChooserRequest.getRefinementIntentSender() != null) {
             final Intent fillIn = new Intent();
             final List<Intent> sourceIntents = target.getAllSourceIntents();
             if (!sourceIntents.isEmpty()) {
@@ -1321,7 +1237,8 @@ public class ChooserActivity extends ResolverActivity implements
                 fillIn.putExtra(Intent.EXTRA_RESULT_RECEIVER,
                         mRefinementResultReceiver);
                 try {
-                    mRefinementIntentSender.sendIntent(this, 0, fillIn, null, null);
+                    mChooserRequest.getRefinementIntentSender().sendIntent(
+                            this, 0, fillIn, null, null);
                     return false;
                 } catch (SendIntentException e) {
                     Log.e(TAG, "Refinement IntentSender failed to send", e);
@@ -1372,9 +1289,7 @@ public class ChooserActivity extends ResolverActivity implements
                     directTargetHashed = targetInfo.getHashedTargetIdForMetrics(this);
                     directTargetAlsoRanked = getRankedPosition(targetInfo);
 
-                    if (mCallerChooserTargets != null) {
-                        numCallerProvided = mCallerChooserTargets.length;
-                    }
+                    numCallerProvided = mChooserRequest.getCallerChooserTargets().size();
                     getChooserActivityLogger().logShareTargetSelected(
                             SELECTION_TYPE_SERVICE,
                             targetInfo.getResolveInfo().activityInfo.processName,
@@ -1686,7 +1601,7 @@ public class ChooserActivity extends ResolverActivity implements
 
         @Override
         boolean isComponentFiltered(ComponentName name) {
-            return mFilteredComponentNames != null && mFilteredComponentNames.contains(name);
+            return mChooserRequest.getFilteredComponentNames().contains(name);
         }
 
         @Override
@@ -1696,19 +1611,35 @@ public class ChooserActivity extends ResolverActivity implements
     }
 
     @VisibleForTesting
-    public ChooserGridAdapter createChooserGridAdapter(Context context,
-            List<Intent> payloadIntents, Intent[] initialIntents, List<ResolveInfo> rList,
-            boolean filterLastUsed, UserHandle userHandle) {
-        ChooserListAdapter chooserListAdapter = createChooserListAdapter(context, payloadIntents,
-                initialIntents, rList, filterLastUsed,
-                createListController(userHandle));
+    public ChooserGridAdapter createChooserGridAdapter(
+            Context context,
+            List<Intent> payloadIntents,
+            Intent[] initialIntents,
+            List<ResolveInfo> rList,
+            boolean filterLastUsed,
+            UserHandle userHandle) {
+        ChooserListAdapter chooserListAdapter = createChooserListAdapter(
+                context,
+                payloadIntents,
+                initialIntents,
+                rList,
+                filterLastUsed,
+                createListController(userHandle),
+                mChooserRequest,
+                mMaxTargetsPerRow);
         return new ChooserGridAdapter(chooserListAdapter);
     }
 
     @VisibleForTesting
-    public ChooserListAdapter createChooserListAdapter(Context context,
-            List<Intent> payloadIntents, Intent[] initialIntents, List<ResolveInfo> rList,
-            boolean filterLastUsed, ResolverListController resolverListController) {
+    public ChooserListAdapter createChooserListAdapter(
+            Context context,
+            List<Intent> payloadIntents,
+            Intent[] initialIntents,
+            List<ResolveInfo> rList,
+            boolean filterLastUsed,
+            ResolverListController resolverListController,
+            ChooserRequestParameters chooserRequest,
+            int maxTargetsPerRow) {
         return new ChooserListAdapter(
                 context,
                 payloadIntents,
@@ -1718,7 +1649,9 @@ public class ChooserActivity extends ResolverActivity implements
                 resolverListController,
                 this,
                 context.getPackageManager(),
-                getChooserActivityLogger());
+                getChooserActivityLogger(),
+                chooserRequest,
+                maxTargetsPerRow);
     }
 
     @VisibleForTesting
@@ -1949,16 +1882,6 @@ public class ChooserActivity extends ResolverActivity implements
         super.onHandlePackagesChanged(listAdapter);
     }
 
-    @Override // SelectableTargetInfoCommunicator
-    public Intent getReferrerFillInIntent() {
-        return mReferrerFillInIntent;
-    }
-
-    @Override // ChooserListCommunicator
-    public int getMaxRankedTargets() {
-        return mMaxTargetsPerRow;
-    }
-
     @Override
     public void onListRebuilt(ResolverListAdapter listAdapter, boolean rebuildComplete) {
         setupScrollListener();
@@ -2093,24 +2016,6 @@ public class ChooserActivity extends ResolverActivity implements
                 });
     }
 
-    @Override // ChooserListCommunicator
-    public boolean isSendAction(Intent targetIntent) {
-        if (targetIntent == null) {
-            return false;
-        }
-
-        String action = targetIntent.getAction();
-        if (action == null) {
-            return false;
-        }
-
-        if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
-            return true;
-        }
-
-        return false;
-    }
-
     /**
      * The sticky content preview is shown only when we have a tabbed view. It's shown above
      * the tabs so it is not part of the scrollable list. If we are not in tabbed view,
@@ -2132,7 +2037,7 @@ public class ChooserActivity extends ResolverActivity implements
      * @return true if we want to show the content preview area
      */
     protected boolean shouldShowContentPreview() {
-        return isSendAction(getTargetIntent());
+        return (mChooserRequest != null) && mChooserRequest.isSendActionTarget();
     }
 
     private void updateStickyContentPreview() {
@@ -2762,7 +2667,7 @@ public class ChooserActivity extends ResolverActivity implements
             position -= getSystemRowCount() + getProfileRowCount();
 
             final int serviceCount = mChooserListAdapter.getServiceTargetCount();
-            final int serviceRows = (int) Math.ceil((float) serviceCount / getMaxRankedTargets());
+            final int serviceRows = (int) Math.ceil((float) serviceCount / mMaxTargetsPerRow);
             if (position < serviceRows) {
                 return position * mMaxTargetsPerRow;
             }
