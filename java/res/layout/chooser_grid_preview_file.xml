@@ -37,7 +37,7 @@
       android:layout_marginBottom="@dimen/chooser_view_spacing"
       android:id="@androidprv:id/content_preview_file_layout">
 
-    <view class="com.android.intentresolver.ChooserActivity$RoundedRectImageView"
+    <com.android.intentresolver.widget.RoundedRectImageView
           android:id="@androidprv:id/content_preview_file_thumbnail"
           android:layout_width="75dp"
           android:layout_height="75dp"
