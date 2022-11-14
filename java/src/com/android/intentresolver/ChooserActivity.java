@@ -239,17 +239,12 @@ public class ChooserActivity extends ResolverActivity implements
             | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
             | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION;
 
-    /* TODO: this is `nullable` *primarily* because we have to defer the assignment til onCreate().
-     * We make the only assignment there, and *expect* it to be ready by the time we ever use it --
+    /* TODO: this is `nullable` because we have to defer the assignment til onCreate(). We make the
+     * only assignment there, and expect it to be ready by the time we ever use it --
      * someday if we move all the usage to a component with a narrower lifecycle (something that
      * matches our Activity's create/destroy lifecycle, not its Java object lifecycle) then we
-     * should be able to make this assignment as "final." Unfortunately, for now we also have
-     * a vestigial design where ChooserActivity.onCreate() can invalidate a request, but it still
-     * has to call up to ResolverActivity.onCreate() before closing, and the base method delegates
-     * back down to other methods in ChooserActivity that aren't really relevant if we're closing
-     * (and so they'd normally want to assume it was a valid "creation," with non-null parameters).
-     * Any client null checks are workarounds for this condition that can be removed once that
-     * design is cleaned up.  */
+     * should be able to make this assignment as "final."
+     */
     @Nullable
     private ChooserRequestParameters mChooserRequest;
 
@@ -333,7 +328,7 @@ public class ChooserActivity extends ResolverActivity implements
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "Caller provided invalid Chooser request parameters", e);
             finish();
-            super.onCreate(null);
+            super_onCreate(null);
             return;
         }
 
@@ -1154,10 +1149,6 @@ public class ChooserActivity extends ResolverActivity implements
 
     @Override
     public void addUseDifferentAppLabelIfNecessary(ResolverListAdapter adapter) {
-        if (mChooserRequest == null) {
-            return;
-        }
-
         if (mChooserRequest.getCallerChooserTargets().size() > 0) {
             mChooserMultiProfilePagerAdapter.getActiveListAdapter().addServiceResults(
                     /* origTarget */ null,
