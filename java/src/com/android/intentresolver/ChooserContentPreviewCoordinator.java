@@ -45,7 +45,8 @@ import java.util.function.Consumer;
  * Delegate to manage deferred resource loads for content preview assets, while
  * implementing Chooser's application logic for determining timeout/success/failure conditions.
  */
-public class ChooserContentPreviewCoordinator implements ChooserActivity.ContentPreviewCoordinator {
+public class ChooserContentPreviewCoordinator implements
+        ChooserContentPreviewUi.ContentPreviewCoordinator {
     public ChooserContentPreviewCoordinator(
             ExecutorService backgroundExecutor,
             ChooserActivity chooserActivity,
