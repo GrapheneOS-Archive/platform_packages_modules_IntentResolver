@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.ResolveInfo;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.UserHandle;
 
@@ -42,13 +41,13 @@ import java.util.List;
 public class DisplayResolveInfo implements TargetInfo {
     private final ResolveInfo mResolveInfo;
     private CharSequence mDisplayLabel;
-    private Drawable mDisplayIcon;
     private CharSequence mExtendedInfo;
     private final Intent mResolvedIntent;
     private final List<Intent> mSourceIntents = new ArrayList<>();
     private final boolean mIsSuspended;
     private ResolveInfoPresentationGetter mResolveInfoPresentationGetter;
     private boolean mPinned = false;
+    private final IconHolder mDisplayIconHolder = new SettableIconHolder();
 
     /** Create a new {@code DisplayResolveInfo} instance. */
     public static DisplayResolveInfo newDisplayResolveInfo(
@@ -103,7 +102,6 @@ public class DisplayResolveInfo implements TargetInfo {
                 | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
         intent.setComponent(new ComponentName(ai.applicationInfo.packageName, ai.name));
         mResolvedIntent = intent;
-
     }
 
     private DisplayResolveInfo(
@@ -115,11 +113,12 @@ public class DisplayResolveInfo implements TargetInfo {
         mResolveInfo = other.mResolveInfo;
         mIsSuspended = other.mIsSuspended;
         mDisplayLabel = other.mDisplayLabel;
-        mDisplayIcon = other.mDisplayIcon;
         mExtendedInfo = other.mExtendedInfo;
         mResolvedIntent = new Intent(other.mResolvedIntent);
         mResolvedIntent.fillIn(fillInIntent, flags);
         mResolveInfoPresentationGetter = resolveInfoPresentationGetter;
+
+        mDisplayIconHolder.setDisplayIcon(other.mDisplayIconHolder.getDisplayIcon());
     }
 
     protected DisplayResolveInfo(DisplayResolveInfo other) {
@@ -127,10 +126,11 @@ public class DisplayResolveInfo implements TargetInfo {
         mResolveInfo = other.mResolveInfo;
         mIsSuspended = other.mIsSuspended;
         mDisplayLabel = other.mDisplayLabel;
-        mDisplayIcon = other.mDisplayIcon;
         mExtendedInfo = other.mExtendedInfo;
         mResolvedIntent = other.mResolvedIntent;
         mResolveInfoPresentationGetter = other.mResolveInfoPresentationGetter;
+
+        mDisplayIconHolder.setDisplayIcon(other.mDisplayIconHolder.getDisplayIcon());
     }
 
     @Override
@@ -163,8 +163,8 @@ public class DisplayResolveInfo implements TargetInfo {
     }
 
     @Override
-    public Drawable getDisplayIcon() {
-        return mDisplayIcon;
+    public IconHolder getDisplayIconHolder() {
+        return mDisplayIconHolder;
     }
 
     @Override
@@ -184,10 +184,6 @@ public class DisplayResolveInfo implements TargetInfo {
 
     public void addAlternateSourceIntent(Intent alt) {
         mSourceIntents.add(alt);
-    }
-
-    public void setDisplayIcon(Drawable icon) {
-        mDisplayIcon = icon;
     }
 
     public CharSequence getExtendedInfo() {

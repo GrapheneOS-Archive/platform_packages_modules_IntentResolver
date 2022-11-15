@@ -920,7 +920,7 @@ public class ResolverListAdapter extends BaseAdapter {
         }
 
         public void bindIcon(TargetInfo info) {
-            icon.setImageDrawable(info.getDisplayIcon());
+            icon.setImageDrawable(info.getDisplayIconHolder().getDisplayIcon());
             if (info.isSuspended()) {
                 icon.setColorFilter(getSuspendedColorMatrix());
             } else {
@@ -999,7 +999,7 @@ public class ResolverListAdapter extends BaseAdapter {
             if (getOtherProfile() == mDisplayResolveInfo) {
                 mResolverListCommunicator.updateProfileViewButton();
             } else if (!mDisplayResolveInfo.hasDisplayIcon()) {
-                mDisplayResolveInfo.setDisplayIcon(d);
+                mDisplayResolveInfo.getDisplayIconHolder().setDisplayIcon(d);
                 notifyDataSetChanged();
             }
         }

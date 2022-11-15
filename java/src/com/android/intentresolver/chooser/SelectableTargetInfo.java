@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -47,6 +46,16 @@ import java.util.List;
 public final class SelectableTargetInfo extends ChooserTargetInfo {
     private static final String TAG = "SelectableTargetInfo";
 
+    private interface TargetHashProvider {
+        HashedStringCache.HashResult getHashedTargetIdForMetrics(Context context);
+    }
+
+    private interface TargetActivityStarter {
+        boolean start(Activity activity, Bundle options);
+        boolean startAsCaller(Activity activity, Bundle options, int userId);
+        boolean startAsUser(Activity activity, Bundle options, UserHandle user);
+    }
+
     private static final String HASHED_STRING_CACHE_TAG = "ChooserActivity";  // For legacy reasons.
     private static final int DEFAULT_SALT_EXPIRATION_DAYS = 7;
 
@@ -67,9 +76,20 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     private final ShortcutInfo mShortcutInfo;
 
     private final ComponentName mChooserTargetComponentName;
-    private final String mChooserTargetUnsanitizedTitle;
+    private final CharSequence mChooserTargetUnsanitizedTitle;
     private final Icon mChooserTargetIcon;
     private final Bundle mChooserTargetIntentExtras;
+    private final int mFillInFlags;
+    private final boolean mIsPinned;
+    private final float mModifiedScore;
+    private final boolean mIsSuspended;
+    private final ComponentName mResolvedComponentName;
+    private final Intent mBaseIntentToSend;
+    private final ResolveInfo mResolveInfo;
+    private final List<Intent> mAllSourceIntents;
+    private final IconHolder mDisplayIconHolder = new SettableIconHolder();
+    private final TargetHashProvider mHashProvider;
+    private final TargetActivityStarter mActivityStarter;
 
     /**
      * A refinement intent from the caller, if any (see
@@ -82,13 +102,14 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
      * in its extended data under the key {@link Intent#EXTRA_REFERRER}.
      */
     private final Intent mReferrerFillInIntent;
-    private final int mFillInFlags;
-    private final boolean mIsPinned;
-    private final float mModifiedScore;
 
-    private Drawable mDisplayIcon;
-
-    /** Create a new {@link TargetInfo} instance representing a selectable target. */
+    /**
+     * Create a new {@link TargetInfo} instance representing a selectable target. Some target
+     * parameters are copied over from the (deprecated) legacy {@link ChooserTarget} structure.
+     *
+     * @deprecated Use the overload that doesn't call for a {@link ChooserTarget}.
+     */
+    @Deprecated
     public static TargetInfo newSelectableTargetInfo(
             @Nullable DisplayResolveInfo sourceInfo,
             @Nullable ResolveInfo backupResolveInfo,
@@ -98,65 +119,175 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
             @Nullable ShortcutInfo shortcutInfo,
             @Nullable AppTarget appTarget,
             Intent referrerFillInIntent) {
-        return new SelectableTargetInfo(
+        return newSelectableTargetInfo(
                 sourceInfo,
                 backupResolveInfo,
                 resolvedIntent,
-                chooserTarget,
+                chooserTarget.getComponentName(),
+                chooserTarget.getTitle(),
+                chooserTarget.getIcon(),
+                chooserTarget.getIntentExtras(),
                 modifiedScore,
                 shortcutInfo,
                 appTarget,
                 referrerFillInIntent);
     }
 
-    private SelectableTargetInfo(
+    /**
+     * Create a new {@link TargetInfo} instance representing a selectable target. `chooserTarget*`
+     * parameters were historically retrieved from (now-deprecated) {@link ChooserTarget} structures
+     * even when the {@link TargetInfo} was a system (internal) synthesized target that never needed
+     * to be represented as a {@link ChooserTarget}. The values passed here are copied in directly
+     * as if they had been provided in the legacy representation.
+     *
+     * TODO: clarify semantics of how clients use the `getChooserTarget*()` methods; refactor/rename
+     * to avoid making reference to the legacy type; and reflect the improved semantics in the
+     * signature (and documentation) of this method.
+     */
+    public static TargetInfo newSelectableTargetInfo(
             @Nullable DisplayResolveInfo sourceInfo,
             @Nullable ResolveInfo backupResolveInfo,
             Intent resolvedIntent,
-            ChooserTarget chooserTarget,
+            ComponentName chooserTargetComponentName,
+            CharSequence chooserTargetUnsanitizedTitle,
+            Icon chooserTargetIcon,
+            @Nullable Bundle chooserTargetIntentExtras,
             float modifiedScore,
             @Nullable ShortcutInfo shortcutInfo,
             @Nullable AppTarget appTarget,
             Intent referrerFillInIntent) {
+        return new SelectableTargetInfo(
+                sourceInfo,
+                backupResolveInfo,
+                resolvedIntent,
+                chooserTargetComponentName,
+                chooserTargetUnsanitizedTitle,
+                chooserTargetIcon,
+                chooserTargetIntentExtras,
+                modifiedScore,
+                shortcutInfo,
+                appTarget,
+                referrerFillInIntent,
+                /* fillInIntent = */ null,
+                /* fillInFlags = */ 0);
+    }
+
+    private SelectableTargetInfo(
+            @Nullable DisplayResolveInfo sourceInfo,
+            @Nullable ResolveInfo backupResolveInfo,
+            Intent resolvedIntent,
+            ComponentName chooserTargetComponentName,
+            CharSequence chooserTargetUnsanitizedTitle,
+            Icon chooserTargetIcon,
+            Bundle chooserTargetIntentExtras,
+            float modifiedScore,
+            @Nullable ShortcutInfo shortcutInfo,
+            @Nullable AppTarget appTarget,
+            Intent referrerFillInIntent,
+            @Nullable Intent fillInIntent,
+            int fillInFlags) {
         mSourceInfo = sourceInfo;
+        mBackupResolveInfo = backupResolveInfo;
+        mResolvedIntent = resolvedIntent;
         mModifiedScore = modifiedScore;
         mShortcutInfo = shortcutInfo;
         mAppTarget = appTarget;
-        mIsPinned = shortcutInfo != null && shortcutInfo.isPinned();
-        mBackupResolveInfo = backupResolveInfo;
-        mResolvedIntent = resolvedIntent;
         mReferrerFillInIntent = referrerFillInIntent;
+        mFillInIntent = fillInIntent;
+        mFillInFlags = fillInFlags;
+        mChooserTargetComponentName = chooserTargetComponentName;
+        mChooserTargetUnsanitizedTitle = chooserTargetUnsanitizedTitle;
+        mChooserTargetIcon = chooserTargetIcon;
+        mChooserTargetIntentExtras = chooserTargetIntentExtras;
 
-        mFillInIntent = null;
-        mFillInFlags = 0;
-
-        mChooserTargetComponentName = chooserTarget.getComponentName();
-        mChooserTargetUnsanitizedTitle = chooserTarget.getTitle().toString();
-        mChooserTargetIcon = chooserTarget.getIcon();
-        mChooserTargetIntentExtras = chooserTarget.getIntentExtras();
-
+        mIsPinned = (shortcutInfo != null) && shortcutInfo.isPinned();
         mDisplayLabel = sanitizeDisplayLabel(mChooserTargetUnsanitizedTitle);
+        mIsSuspended = (mSourceInfo != null) && mSourceInfo.isSuspended();
+        mResolveInfo = (mSourceInfo != null) ? mSourceInfo.getResolveInfo() : mBackupResolveInfo;
+
+        mResolvedComponentName = getResolvedComponentName(mSourceInfo, mBackupResolveInfo);
+
+        mAllSourceIntents = getAllSourceIntents(sourceInfo);
+
+        mBaseIntentToSend = getBaseIntentToSend(
+                mResolvedIntent,
+                mFillInIntent,
+                mFillInFlags,
+                mReferrerFillInIntent);
+
+        mHashProvider = context -> {
+            final String plaintext =
+                    getChooserTargetComponentName().getPackageName()
+                    + mChooserTargetUnsanitizedTitle;
+            return HashedStringCache.getInstance().hashString(
+                    context,
+                    HASHED_STRING_CACHE_TAG,
+                    plaintext,
+                    mMaxHashSaltDays);
+        };
+
+        mActivityStarter = new TargetActivityStarter() {
+            @Override
+            public boolean start(Activity activity, Bundle options) {
+                throw new RuntimeException("ChooserTargets should be started as caller.");
+            }
+
+            @Override
+            public boolean startAsCaller(Activity activity, Bundle options, int userId) {
+                final Intent intent = mBaseIntentToSend;
+                if (intent == null) {
+                    return false;
+                }
+                intent.setComponent(getChooserTargetComponentName());
+                intent.putExtras(mChooserTargetIntentExtras);
+                TargetInfo.prepareIntentForCrossProfileLaunch(intent, userId);
+
+                // Important: we will ignore the target security checks in ActivityManager if and
+                // only if the ChooserTarget's target package is the same package where we got the
+                // ChooserTargetService that provided it. This lets a ChooserTargetService provide
+                // a non-exported or permission-guarded target for the user to pick.
+                //
+                // If mSourceInfo is null, we got this ChooserTarget from the caller or elsewhere
+                // so we'll obey the caller's normal security checks.
+                final boolean ignoreTargetSecurity = (mSourceInfo != null)
+                        && mSourceInfo.getResolvedComponentName().getPackageName()
+                                .equals(getChooserTargetComponentName().getPackageName());
+                activity.startActivityAsCaller(intent, options, ignoreTargetSecurity, userId);
+                return true;
+            }
+
+            @Override
+            public boolean startAsUser(Activity activity, Bundle options, UserHandle user) {
+                throw new RuntimeException("ChooserTargets should be started as caller.");
+            }
+        };
     }
 
     private SelectableTargetInfo(SelectableTargetInfo other, Intent fillInIntent, int flags) {
-        mSourceInfo = other.mSourceInfo;
-        mBackupResolveInfo = other.mBackupResolveInfo;
-        mResolvedIntent = other.mResolvedIntent;
-        mShortcutInfo = other.mShortcutInfo;
-        mAppTarget = other.mAppTarget;
-        mDisplayIcon = other.mDisplayIcon;
-        mFillInIntent = fillInIntent;
-        mFillInFlags = flags;
-        mModifiedScore = other.mModifiedScore;
-        mIsPinned = other.mIsPinned;
-        mReferrerFillInIntent = other.mReferrerFillInIntent;
+        this(
+                other.mSourceInfo,
+                other.mBackupResolveInfo,
+                other.mResolvedIntent,
+                other.mChooserTargetComponentName,
+                other.mChooserTargetUnsanitizedTitle,
+                other.mChooserTargetIcon,
+                other.mChooserTargetIntentExtras,
+                other.mModifiedScore,
+                other.mShortcutInfo,
+                other.mAppTarget,
+                other.mReferrerFillInIntent,
+                fillInIntent,
+                flags);
+    }
 
-        mChooserTargetComponentName = other.mChooserTargetComponentName;
-        mChooserTargetUnsanitizedTitle = other.mChooserTargetUnsanitizedTitle;
-        mChooserTargetIcon = other.mChooserTargetIcon;
-        mChooserTargetIntentExtras = other.mChooserTargetIntentExtras;
+    @Override
+    public TargetInfo cloneFilledIn(Intent fillInIntent, int flags) {
+        return new SelectableTargetInfo(this, fillInIntent, flags);
+    }
 
-        mDisplayLabel = sanitizeDisplayLabel(mChooserTargetUnsanitizedTitle);
+    @Override
+    public HashedStringCache.HashResult getHashedTargetIdForMetrics(Context context) {
+        return mHashProvider.getHashedTargetIdForMetrics(context);
     }
 
     @Override
@@ -166,7 +297,7 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
 
     @Override
     public boolean isSuspended() {
-        return (mSourceInfo != null) && mSourceInfo.isSuspended();
+        return mIsSuspended;
     }
 
     @Override
@@ -187,13 +318,7 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
 
     @Override
     public ComponentName getResolvedComponentName() {
-        if (mSourceInfo != null) {
-            return mSourceInfo.getResolvedComponentName();
-        } else if (mBackupResolveInfo != null) {
-            return new ComponentName(mBackupResolveInfo.activityInfo.packageName,
-                    mBackupResolveInfo.activityInfo.name);
-        }
-        return null;
+        return mResolvedComponentName;
     }
 
     @Override
@@ -206,58 +331,24 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         return mChooserTargetIcon;
     }
 
-    private Intent getBaseIntentToSend() {
-        Intent result = getResolvedIntent();
-        if (result == null) {
-            Log.e(TAG, "ChooserTargetInfo: no base intent available to send");
-        } else {
-            result = new Intent(result);
-            if (mFillInIntent != null) {
-                result.fillIn(mFillInIntent, mFillInFlags);
-            }
-            result.fillIn(mReferrerFillInIntent, 0);
-        }
-        return result;
-    }
-
     @Override
     public boolean start(Activity activity, Bundle options) {
-        throw new RuntimeException("ChooserTargets should be started as caller.");
+        return mActivityStarter.start(activity, options);
     }
 
     @Override
     public boolean startAsCaller(ResolverActivity activity, Bundle options, int userId) {
-        final Intent intent = getBaseIntentToSend();
-        if (intent == null) {
-            return false;
-        }
-        intent.setComponent(getChooserTargetComponentName());
-        intent.putExtras(mChooserTargetIntentExtras);
-        TargetInfo.prepareIntentForCrossProfileLaunch(intent, userId);
-
-        // Important: we will ignore the target security checks in ActivityManager
-        // if and only if the ChooserTarget's target package is the same package
-        // where we got the ChooserTargetService that provided it. This lets a
-        // ChooserTargetService provide a non-exported or permission-guarded target
-        // to the chooser for the user to pick.
-        //
-        // If mSourceInfo is null, we got this ChooserTarget from the caller or elsewhere
-        // so we'll obey the caller's normal security checks.
-        final boolean ignoreTargetSecurity = mSourceInfo != null
-                && mSourceInfo.getResolvedComponentName().getPackageName()
-                .equals(getChooserTargetComponentName().getPackageName());
-        activity.startActivityAsCaller(intent, options, ignoreTargetSecurity, userId);
-        return true;
+        return mActivityStarter.startAsCaller(activity, options, userId);
     }
 
     @Override
     public boolean startAsUser(Activity activity, Bundle options, UserHandle user) {
-        throw new RuntimeException("ChooserTargets should be started as caller.");
+        return mActivityStarter.startAsUser(activity, options, user);
     }
 
     @Override
     public ResolveInfo getResolveInfo() {
-        return mSourceInfo != null ? mSourceInfo.getResolveInfo() : mBackupResolveInfo;
+        return mResolveInfo;
     }
 
     @Override
@@ -272,12 +363,8 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     }
 
     @Override
-    public Drawable getDisplayIcon() {
-        return mDisplayIcon;
-    }
-
-    public void setDisplayIcon(Drawable icon) {
-        mDisplayIcon = icon;
+    public IconHolder getDisplayIconHolder() {
+        return mDisplayIconHolder;
     }
 
     @Override
@@ -293,18 +380,8 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     }
 
     @Override
-    public TargetInfo cloneFilledIn(Intent fillInIntent, int flags) {
-        return new SelectableTargetInfo(this, fillInIntent, flags);
-    }
-
-    @Override
     public List<Intent> getAllSourceIntents() {
-        final List<Intent> results = new ArrayList<>();
-        if (mSourceInfo != null) {
-            // We only queried the service for the first one in our sourceinfo.
-            results.add(mSourceInfo.getAllSourceIntents().get(0));
-        }
-        return results;
+        return mAllSourceIntents;
     }
 
     @Override
@@ -312,21 +389,49 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         return mIsPinned;
     }
 
-    @Override
-    public HashedStringCache.HashResult getHashedTargetIdForMetrics(Context context) {
-        final String plaintext =
-                getChooserTargetComponentName().getPackageName()
-                + mChooserTargetUnsanitizedTitle;
-        return HashedStringCache.getInstance().hashString(
-                context,
-                HASHED_STRING_CACHE_TAG,
-                plaintext,
-                mMaxHashSaltDays);
-    }
-
     private static String sanitizeDisplayLabel(CharSequence label) {
         SpannableStringBuilder sb = new SpannableStringBuilder(label);
         sb.clearSpans();
         return sb.toString();
+    }
+
+    private static List<Intent> getAllSourceIntents(@Nullable DisplayResolveInfo sourceInfo) {
+        final List<Intent> results = new ArrayList<>();
+        if (sourceInfo != null) {
+            // We only queried the service for the first one in our sourceinfo.
+            results.add(sourceInfo.getAllSourceIntents().get(0));
+        }
+        return results;
+    }
+
+    private static ComponentName getResolvedComponentName(
+            @Nullable DisplayResolveInfo sourceInfo, ResolveInfo backupResolveInfo) {
+        if (sourceInfo != null) {
+            return sourceInfo.getResolvedComponentName();
+        } else if (backupResolveInfo != null) {
+            return new ComponentName(
+                    backupResolveInfo.activityInfo.packageName,
+                    backupResolveInfo.activityInfo.name);
+        }
+        return null;
+    }
+
+    @Nullable
+    private static Intent getBaseIntentToSend(
+            @Nullable Intent resolvedIntent,
+            Intent fillInIntent,
+            int fillInFlags,
+            Intent referrerFillInIntent) {
+        Intent result = resolvedIntent;
+        if (result == null) {
+            Log.e(TAG, "ChooserTargetInfo: no base intent available to send");
+        } else {
+            result = new Intent(result);
+            if (fillInIntent != null) {
+                result.fillIn(fillInIntent, fillInFlags);
+            }
+            result.fillIn(referrerFillInIntent, 0);
+        }
+        return result;
     }
 }

@@ -20,6 +20,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.ShortcutInfo
 import android.service.chooser.ChooserTarget
+import com.android.intentresolver.chooser.DisplayResolveInfo
 import com.android.intentresolver.chooser.TargetInfo
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
@@ -59,9 +60,11 @@ class ShortcutSelectionLogicTest {
             /* maxShortcutTargetsPerApp = */ 1,
             /* applySharingAppLimits = */ false
         )
+        val displayInfo: DisplayResolveInfo = mock()
+        whenever(displayInfo.getAllSourceIntents()).thenReturn(listOf(mock()))
 
         val isUpdated = testSubject.addServiceResults(
-            /* origTarget = */ mock(),
+            /* origTarget = */ displayInfo,
             /* origTargetScore = */ 0.1f,
             /* targets = */ listOf(sc1, sc2),
             /* isShortcutResult = */ true,
@@ -91,9 +94,11 @@ class ShortcutSelectionLogicTest {
             /* maxShortcutTargetsPerApp = */ 1,
             /* applySharingAppLimits = */ true
         )
+        val displayInfo: DisplayResolveInfo = mock()
+        whenever(displayInfo.getAllSourceIntents()).thenReturn(listOf(mock()))
 
         val isUpdated = testSubject.addServiceResults(
-            /* origTarget = */ mock(),
+            /* origTarget = */ displayInfo,
             /* origTargetScore = */ 0.1f,
             /* targets = */ listOf(sc1, sc2),
             /* isShortcutResult = */ true,
@@ -123,9 +128,11 @@ class ShortcutSelectionLogicTest {
             /* maxShortcutTargetsPerApp = */ 1,
             /* applySharingAppLimits = */ false
         )
+        val displayInfo: DisplayResolveInfo = mock()
+        whenever(displayInfo.getAllSourceIntents()).thenReturn(listOf(mock()))
 
         val isUpdated = testSubject.addServiceResults(
-            /* origTarget = */ mock(),
+            /* origTarget = */ displayInfo,
             /* origTargetScore = */ 0.1f,
             /* targets = */ listOf(sc1, sc2),
             /* isShortcutResult = */ true,
@@ -157,9 +164,13 @@ class ShortcutSelectionLogicTest {
             /* maxShortcutTargetsPerApp = */ 1,
             /* applySharingAppLimits = */ true
         )
+        val displayInfo: DisplayResolveInfo = mock()
+        whenever(displayInfo.getAllSourceIntents()).thenReturn(listOf(mock()))
+        val displayInfo2: DisplayResolveInfo = mock()
+        whenever(displayInfo2.getAllSourceIntents()).thenReturn(listOf(mock()))
 
-        testSubject.addServiceResults(
-            /* origTarget = */ mock(),
+        val isUpdated = testSubject.addServiceResults(
+            /* origTarget = */ displayInfo,
             /* origTargetScore = */ 0.1f,
             /* targets = */ listOf(pkgAsc1, pkgAsc2),
             /* isShortcutResult = */ true,
@@ -172,7 +183,7 @@ class ShortcutSelectionLogicTest {
             /* serviceTargets = */ serviceResults
         )
         testSubject.addServiceResults(
-            /* origTarget = */ mock(),
+            /* origTarget = */ displayInfo2,
             /* origTargetScore = */ 0.2f,
             /* targets = */ listOf(pkgBsc1, pkgBsc2),
             /* isShortcutResult = */ true,
@@ -201,9 +212,11 @@ class ShortcutSelectionLogicTest {
             /* maxShortcutTargetsPerApp = */ 1,
             /* applySharingAppLimits = */ false
         )
+        val displayInfo: DisplayResolveInfo = mock()
+        whenever(displayInfo.getAllSourceIntents()).thenReturn(listOf(mock()))
 
         val isUpdated = testSubject.addServiceResults(
-            /* origTarget = */ mock(),
+            /* origTarget = */ displayInfo,
             /* origTargetScore = */ 0.1f,
             /* targets = */ listOf(sc1, sc2),
             /* isShortcutResult = */ true,
