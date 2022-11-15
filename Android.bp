@@ -46,10 +46,12 @@ android_library {
 
     static_libs: [
         "androidx.annotation_annotation",
+        "androidx.concurrent_concurrent-futures",
         "androidx.recyclerview_recyclerview",
         "androidx.viewpager_viewpager",
         "androidx.lifecycle_lifecycle-common-java8",
         "androidx.lifecycle_lifecycle-extensions",
+        "guava",
     ],
 
     plugins: ["java_api_finder"],

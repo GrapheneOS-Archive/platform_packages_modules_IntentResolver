@@ -66,7 +66,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Message;
 import android.os.Parcelable;
 import android.os.PatternMatcher;
 import android.os.ResultReceiver;
@@ -143,7 +142,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 /**
@@ -281,7 +282,11 @@ public class ChooserActivity extends ResolverActivity implements
     protected static final int CONTENT_PREVIEW_TEXT = 3;
     protected MetricsLogger mMetricsLogger;
 
-    private ContentPreviewCoordinator mPreviewCoord;
+    private final ExecutorService mBackgroundThreadPoolExecutor = Executors.newFixedThreadPool(5);
+
+    @Nullable
+    private ChooserContentPreviewCoordinator mPreviewCoord;
+
     private int mScrollStatus = SCROLL_STATUS_IDLE;
 
     @VisibleForTesting
@@ -297,118 +302,28 @@ public class ChooserActivity extends ResolverActivity implements
             new ShortcutToChooserTargetConverter();
     private final SparseArray<ProfileRecord> mProfileRecords = new SparseArray<>();
 
-    private static class ContentPreviewCoordinator {
-
-        /* public */ ContentPreviewCoordinator(
-                ChooserActivity chooserActivity,
-                View parentView,
-                Runnable onFailCallback,
-                Consumer<View> onSingleImageSuccessCallback) {
-            this.mChooserActivity = chooserActivity;
-            this.mParentView = parentView;
-            this.mOnFailCallback = onFailCallback;
-            this.mOnSingleImageSuccessCallback = onSingleImageSuccessCallback;
-
-            this.mImageLoadTimeoutMillis =
-                    chooserActivity.getResources().getInteger(R.integer.config_shortAnimTime);
-        }
-
-        public void cancelLoads() {
-            mHandler.removeMessages(IMAGE_LOAD_INTO_VIEW);
-            mHandler.removeMessages(IMAGE_LOAD_TIMEOUT);
-        }
-
-        private static final int IMAGE_FADE_IN_MILLIS = 150;
-        private static final int IMAGE_LOAD_TIMEOUT = 1;
-        private static final int IMAGE_LOAD_INTO_VIEW = 2;
-
-        private final ChooserActivity mChooserActivity;
-        private final View mParentView;
-        private final Runnable mOnFailCallback;
-        private final Consumer<View> mOnSingleImageSuccessCallback;
-        private final int mImageLoadTimeoutMillis;
-
-        private boolean mAtLeastOneLoaded = false;
-
-        private final Handler mHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                if (mChooserActivity.isFinishing()) {
-                    return;
-                }
-
-                if (msg.what == IMAGE_LOAD_TIMEOUT) {
-                    // If at least one image loads within the timeout period, allow other loads to
-                    // continue. (I.e., only fail if no images have loaded by the timeout event.)
-                    if (!mAtLeastOneLoaded) {
-                        mOnFailCallback.run();
-                    }
-                    return;
-                }
-
-                // TODO: switch off using `Handler`. For now the following conditions implicitly
-                // rely on the knowledge that we only have two message types (and so after the guard
-                // clause above, we know this is an `IMAGE_LOAD_INTO_VIEW` message).
-
-                RoundedRectImageView imageView = mParentView.findViewById(msg.arg1);
-                if (msg.obj != null) {
-                    onImageLoaded((Bitmap) msg.obj, imageView, msg.arg2);
-                } else {
-                    imageView.setVisibility(View.GONE);
-                    if (!mAtLeastOneLoaded) {
-                        // TODO: this looks like a race condition. We know that this specific image
-                        // failed (i.e. it got a null Bitmap), but we'll only report that to the
-                        // client (thereby failing out our pending loads) if we haven't yet
-                        // succeeded in loading some other non-null Bitmap. But there could be other
-                        // pending loads that would've returned non-null within the timeout window,
-                        // except they end up (effectively) cancelled because this one single-image
-                        // load "finished" (failed) faster. The outcome of that race may be fairly
-                        // predictable (since we *might* imagine that the nulls would usually "load"
-                        // faster?), but it's not guaranteed since the loads are queued in
-                        // `AsyncTask.THREAD_POOL_EXECUTOR` (i.e., in parallel). One option we might
-                        // prefer for more deterministic behavior: don't signal the failure callback
-                        // on a single-image load unless there are no other loads currently pending.
-                        mOnFailCallback.run();
-                    }
-                }
-            }
-        };
-
-        private void onImageLoaded(
-                @NonNull Bitmap image,
-                RoundedRectImageView imageView,
-                int extraImageCount) {
-            mAtLeastOneLoaded = true;
-
-            imageView.setVisibility(View.VISIBLE);
-            imageView.setAlpha(0.0f);
-            imageView.setImageBitmap(image);
-
-            ValueAnimator fadeAnim = ObjectAnimator.ofFloat(imageView, "alpha", 0.0f, 1.0f);
-            fadeAnim.setInterpolator(new DecelerateInterpolator(1.0f));
-            fadeAnim.setDuration(IMAGE_FADE_IN_MILLIS);
-            fadeAnim.start();
-
-            if (extraImageCount > 0) {
-                imageView.setExtraImageCount(extraImageCount);
-            }
-
-            mOnSingleImageSuccessCallback.accept(imageView);
-        }
-
-        private void loadUriIntoView(
-                final int imageViewResourceId, final Uri uri, final int extraImages) {
-            mHandler.sendEmptyMessageDelayed(IMAGE_LOAD_TIMEOUT, mImageLoadTimeoutMillis);
-
-            AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
-                int size = mChooserActivity.getResources().getDimensionPixelSize(
-                        R.dimen.chooser_preview_image_max_dimen);
-                final Bitmap bmp = mChooserActivity.loadThumbnail(uri, new Size(size, size));
-                final Message msg = mHandler.obtainMessage(
-                        IMAGE_LOAD_INTO_VIEW, imageViewResourceId, extraImages, bmp);
-                mHandler.sendMessage(msg);
-            });
-        }
+    /**
+     * Delegate to handle background resource loads that are dependencies of content previews.
+     *
+     * TODO: move to an inner class of the (to-be-created) new component for content previews.
+     */
+    public interface ContentPreviewCoordinator {
+        /**
+         * Request that an image be loaded in the background and set into a view.
+         *
+         * @param viewProvider A delegate that will be called exactly once upon completion of the
+         * load, from the UI thread, to provide the {@link RoundedRectImageView} that should be
+         * populated with the result (if the load was successful) or hidden (if the load failed). If
+         * this returns null, the load is discarded as a failure.
+         * @param imageUri The {@link Uri} of the image to load.
+         * @param extraImages The "extra image count" to set on the {@link RoundedRectImageView}
+         * if the image loads successfully.
+         *
+         * TODO: it looks like clients are probably capable of passing the view directly, but the
+         * deferred computation here is a closer match to the legacy model for now.
+         */
+        void loadUriIntoView(
+                Callable<RoundedRectImageView> viewProvider, Uri imageUri, int extraImages);
     }
 
     private void setupPreDrawForSharedElementTransition(View v) {
@@ -565,6 +480,13 @@ public class ChooserActivity extends ResolverActivity implements
                         this,
                         target.getStringExtra(Intent.EXTRA_TEXT),
                         getTargetIntentFilter(target)));
+
+        mPreviewCoord = new ChooserContentPreviewCoordinator(
+                mBackgroundThreadPoolExecutor,
+                this,
+                this::hideContentPreview,
+                this::setupPreDrawForSharedElementTransition);
+
         super.onCreate(savedInstanceState, target, title, defaultTitleRes, initialIntents,
                 null, false);
 
@@ -973,10 +895,12 @@ public class ChooserActivity extends ResolverActivity implements
      * @param parent reference to the parent container where the view should be attached to
      * @return content preview view
      */
-    protected ViewGroup createContentPreviewView(ViewGroup parent) {
+    protected ViewGroup createContentPreviewView(
+            ViewGroup parent, ContentPreviewCoordinator previewCoord) {
         Intent targetIntent = getTargetIntent();
         int previewType = findPreferredContentPreview(targetIntent, getContentResolver());
-        return displayContentPreview(previewType, targetIntent, getLayoutInflater(), parent);
+        return displayContentPreview(
+                previewType, targetIntent, getLayoutInflater(), parent, previewCoord);
     }
 
     @VisibleForTesting
@@ -1182,19 +1106,26 @@ public class ChooserActivity extends ResolverActivity implements
         parent.addView(b, lp);
     }
 
-    private ViewGroup displayContentPreview(@ContentPreviewType int previewType,
-            Intent targetIntent, LayoutInflater layoutInflater, ViewGroup parent) {
+    private ViewGroup displayContentPreview(
+            @ContentPreviewType int previewType,
+            Intent targetIntent,
+            LayoutInflater layoutInflater,
+            ViewGroup parent,
+            ContentPreviewCoordinator previewCoord) {
         ViewGroup layout = null;
 
         switch (previewType) {
             case CONTENT_PREVIEW_TEXT:
-                layout = displayTextContentPreview(targetIntent, layoutInflater, parent);
+                layout = displayTextContentPreview(
+                        targetIntent, layoutInflater, parent, previewCoord);
                 break;
             case CONTENT_PREVIEW_IMAGE:
-                layout = displayImageContentPreview(targetIntent, layoutInflater, parent);
+                layout = displayImageContentPreview(
+                        targetIntent, layoutInflater, parent, previewCoord);
                 break;
             case CONTENT_PREVIEW_FILE:
-                layout = displayFileContentPreview(targetIntent, layoutInflater, parent);
+                layout = displayFileContentPreview(
+                        targetIntent, layoutInflater, parent, previewCoord);
                 break;
             default:
                 Log.e(TAG, "Unexpected content preview type: " + previewType);
@@ -1210,8 +1141,11 @@ public class ChooserActivity extends ResolverActivity implements
         return layout;
     }
 
-    private ViewGroup displayTextContentPreview(Intent targetIntent, LayoutInflater layoutInflater,
-            ViewGroup parent) {
+    private ViewGroup displayTextContentPreview(
+            Intent targetIntent,
+            LayoutInflater layoutInflater,
+            ViewGroup parent,
+            ContentPreviewCoordinator previewCoord) {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_text, parent, false);
 
@@ -1252,20 +1186,22 @@ public class ChooserActivity extends ResolverActivity implements
             if (previewThumbnail == null) {
                 previewThumbnailView.setVisibility(View.GONE);
             } else {
-                mPreviewCoord = new ContentPreviewCoordinator(
-                        this,
-                        contentPreviewLayout,
-                        this::hideContentPreview,
-                        this::setupPreDrawForSharedElementTransition);
-                mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_thumbnail, previewThumbnail, 0);
+                previewCoord.loadUriIntoView(
+                        () -> contentPreviewLayout.findViewById(
+                                com.android.internal.R.id.content_preview_thumbnail),
+                        previewThumbnail,
+                        0);
             }
         }
 
         return contentPreviewLayout;
     }
 
-    private ViewGroup displayImageContentPreview(Intent targetIntent, LayoutInflater layoutInflater,
-            ViewGroup parent) {
+    private ViewGroup displayImageContentPreview(
+            Intent targetIntent,
+            LayoutInflater layoutInflater,
+            ViewGroup parent,
+            ContentPreviewCoordinator previewCoord) {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_image, parent, false);
         ViewGroup imagePreview = contentPreviewLayout.findViewById(com.android.internal.R.id.content_preview_image_area);
@@ -1276,18 +1212,16 @@ public class ChooserActivity extends ResolverActivity implements
         addActionButton(actionRow, createNearbyButton(targetIntent));
         addActionButton(actionRow, createEditButton(targetIntent));
 
-        mPreviewCoord = new ContentPreviewCoordinator(
-                this,
-                contentPreviewLayout,
-                this::hideContentPreview,
-                this::setupPreDrawForSharedElementTransition);
-
         String action = targetIntent.getAction();
         if (Intent.ACTION_SEND.equals(action)) {
             Uri uri = targetIntent.getParcelableExtra(Intent.EXTRA_STREAM);
             imagePreview.findViewById(com.android.internal.R.id.content_preview_image_1_large)
                     .setTransitionName(ChooserActivity.FIRST_IMAGE_PREVIEW_TRANSITION_NAME);
-            mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_image_1_large, uri, 0);
+            previewCoord.loadUriIntoView(
+                    () -> contentPreviewLayout.findViewById(
+                            com.android.internal.R.id.content_preview_image_1_large),
+                    uri,
+                    0);
         } else {
             ContentResolver resolver = getContentResolver();
 
@@ -1308,16 +1242,29 @@ public class ChooserActivity extends ResolverActivity implements
 
             imagePreview.findViewById(com.android.internal.R.id.content_preview_image_1_large)
                     .setTransitionName(ChooserActivity.FIRST_IMAGE_PREVIEW_TRANSITION_NAME);
-            mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_image_1_large, imageUris.get(0), 0);
+            previewCoord.loadUriIntoView(
+                    () -> contentPreviewLayout.findViewById(
+                            com.android.internal.R.id.content_preview_image_1_large),
+                    imageUris.get(0),
+                    0);
 
             if (imageUris.size() == 2) {
-                mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_image_2_large,
-                        imageUris.get(1), 0);
+                previewCoord.loadUriIntoView(
+                        () -> contentPreviewLayout.findViewById(
+                                com.android.internal.R.id.content_preview_image_2_large),
+                        imageUris.get(1),
+                        0);
             } else if (imageUris.size() > 2) {
-                mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_image_2_small,
-                        imageUris.get(1), 0);
-                mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_image_3_small,
-                        imageUris.get(2), imageUris.size() - 3);
+                previewCoord.loadUriIntoView(
+                        () -> contentPreviewLayout.findViewById(
+                                com.android.internal.R.id.content_preview_image_2_small),
+                        imageUris.get(1),
+                        0);
+                previewCoord.loadUriIntoView(
+                        () -> contentPreviewLayout.findViewById(
+                                com.android.internal.R.id.content_preview_image_3_small),
+                        imageUris.get(2),
+                        imageUris.size() - 3);
             }
         }
 
@@ -1388,9 +1335,11 @@ public class ChooserActivity extends ResolverActivity implements
                 + "documentation");
     }
 
-    private ViewGroup displayFileContentPreview(Intent targetIntent, LayoutInflater layoutInflater,
-            ViewGroup parent) {
-
+    private ViewGroup displayFileContentPreview(
+            Intent targetIntent,
+            LayoutInflater layoutInflater,
+            ViewGroup parent,
+            ContentPreviewCoordinator previewCoord) {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_file, parent, false);
 
@@ -1402,7 +1351,7 @@ public class ChooserActivity extends ResolverActivity implements
         String action = targetIntent.getAction();
         if (Intent.ACTION_SEND.equals(action)) {
             Uri uri = targetIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-            loadFileUriIntoView(uri, contentPreviewLayout);
+            loadFileUriIntoView(uri, contentPreviewLayout, previewCoord);
         } else {
             List<Uri> uris = targetIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             int uriCount = uris.size();
@@ -1414,7 +1363,7 @@ public class ChooserActivity extends ResolverActivity implements
                                 + "preview area");
                 return contentPreviewLayout;
             } else if (uriCount == 1) {
-                loadFileUriIntoView(uris.get(0), contentPreviewLayout);
+                loadFileUriIntoView(uris.get(0), contentPreviewLayout, previewCoord);
             } else {
                 FileInfo fileInfo = extractFileInfo(uris.get(0), getContentResolver());
                 int remUriCount = uriCount - 1;
@@ -1444,19 +1393,19 @@ public class ChooserActivity extends ResolverActivity implements
         return contentPreviewLayout;
     }
 
-    private void loadFileUriIntoView(final Uri uri, final View parent) {
+    private void loadFileUriIntoView(
+            final Uri uri, final View parent, final ContentPreviewCoordinator previewCoord) {
         FileInfo fileInfo = extractFileInfo(uri, getContentResolver());
 
         TextView fileNameView = parent.findViewById(com.android.internal.R.id.content_preview_filename);
         fileNameView.setText(fileInfo.name);
 
         if (fileInfo.hasThumbnail) {
-            mPreviewCoord = new ContentPreviewCoordinator(
-                    this,
-                    parent,
-                    this::hideContentPreview,
-                    this::setupPreDrawForSharedElementTransition);
-            mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_file_thumbnail, uri, 0);
+            previewCoord.loadUriIntoView(
+                    () -> parent.findViewById(
+                            com.android.internal.R.id.content_preview_file_thumbnail),
+                    uri,
+                    0);
         } else {
             View thumbnailView = parent.findViewById(com.android.internal.R.id.content_preview_file_thumbnail);
             thumbnailView.setVisibility(View.GONE);
@@ -1544,7 +1493,7 @@ public class ChooserActivity extends ResolverActivity implements
             mRefinementResultReceiver = null;
         }
 
-        if (mPreviewCoord != null) mPreviewCoord.cancelLoads();
+        mBackgroundThreadPoolExecutor.shutdownNow();
 
         destroyProfileRecords();
     }
@@ -2675,7 +2624,8 @@ public class ChooserActivity extends ResolverActivity implements
             // then always preload it to avoid subsequent resizing of the share sheet.
             ViewGroup contentPreviewContainer = findViewById(com.android.internal.R.id.content_preview_container);
             if (contentPreviewContainer.getChildCount() == 0) {
-                ViewGroup contentPreviewView = createContentPreviewView(contentPreviewContainer);
+                ViewGroup contentPreviewView =
+                        createContentPreviewView(contentPreviewContainer, mPreviewCoord);
                 contentPreviewContainer.addView(contentPreviewView);
             }
         }
@@ -3031,7 +2981,10 @@ public class ChooserActivity extends ResolverActivity implements
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             switch (viewType) {
                 case VIEW_TYPE_CONTENT_PREVIEW:
-                    return new ItemViewHolder(createContentPreviewView(parent), false, viewType);
+                    return new ItemViewHolder(
+                            createContentPreviewView(parent, mPreviewCoord),
+                            false,
+                            viewType);
                 case VIEW_TYPE_PROFILE:
                     return new ItemViewHolder(createProfileView(parent), false, viewType);
                 case VIEW_TYPE_AZ_LABEL:
