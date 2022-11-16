@@ -47,10 +47,12 @@ import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -60,6 +62,7 @@ import android.graphics.Insets;
 import android.graphics.drawable.Drawable;
 import android.metrics.LogMaker;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -114,7 +117,6 @@ import com.android.intentresolver.model.AbstractResolverComparator;
 import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
-import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.intentresolver.widget.RoundedRectImageView;
 import com.android.internal.annotations.VisibleForTesting;
@@ -143,7 +145,6 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -195,8 +196,8 @@ public class ChooserActivity extends ResolverActivity implements
     // `ShortcutSelectionLogic` which packs the appropriate elements into the final `TargetInfo`.
     // That flow should be refactored so that `ChooserActivity` isn't responsible for holding their
     // intermediate data, and then these members can be removed.
-    private final Map<ChooserTarget, AppTarget> mDirectShareAppTargetCache = new HashMap<>();
-    private final Map<ChooserTarget, ShortcutInfo> mDirectShareShortcutInfoCache = new HashMap<>();
+    private Map<ChooserTarget, AppTarget> mDirectShareAppTargetCache;
+    private Map<ChooserTarget, ShortcutInfo> mDirectShareShortcutInfoCache;
 
     public static final int TARGET_TYPE_DEFAULT = 0;
     public static final int TARGET_TYPE_CHOOSER_TARGET = 1;
@@ -297,6 +298,8 @@ public class ChooserActivity extends ResolverActivity implements
 
     private View mContentView = null;
 
+    private final ShortcutToChooserTargetConverter mShortcutToChooserTargetConverter =
+            new ShortcutToChooserTargetConverter();
     private final SparseArray<ProfileRecord> mProfileRecords = new SparseArray<>();
 
     /**
@@ -472,13 +475,11 @@ public class ChooserActivity extends ResolverActivity implements
         mShouldDisplayLandscape =
                 shouldDisplayLandscape(getResources().getConfiguration().orientation);
         setRetainInOnStop(intent.getBooleanExtra(EXTRA_PRIVATE_RETAIN_IN_ON_STOP, false));
-        IntentFilter targetIntentFilter = getTargetIntentFilter(target);
         createProfileRecords(
                 new AppPredictorFactory(
-                        getApplicationContext(),
+                        this,
                         target.getStringExtra(Intent.EXTRA_TEXT),
-                        targetIntentFilter),
-                targetIntentFilter);
+                        getTargetIntentFilter(target)));
 
         mPreviewCoord = new ChooserContentPreviewCoordinator(
                 mBackgroundThreadPoolExecutor,
@@ -538,6 +539,7 @@ public class ChooserActivity extends ResolverActivity implements
                 findPreferredContentPreview(getTargetIntent(), getContentResolver()),
                 target.getAction()
         );
+        mDirectShareShortcutInfoCache = new HashMap<>();
 
         setEnterSharedElementCallback(new SharedElementCallback() {
             @Override
@@ -558,31 +560,20 @@ public class ChooserActivity extends ResolverActivity implements
         return R.style.Theme_DeviceDefault_Chooser;
     }
 
-    private void createProfileRecords(
-            AppPredictorFactory factory, IntentFilter targetIntentFilter) {
+    private void createProfileRecords(AppPredictorFactory factory) {
         UserHandle mainUserHandle = getPersonalProfileUserHandle();
-        createProfileRecord(mainUserHandle, targetIntentFilter, factory);
+        createProfileRecord(mainUserHandle, factory);
 
         UserHandle workUserHandle = getWorkProfileUserHandle();
         if (workUserHandle != null) {
-            createProfileRecord(workUserHandle, targetIntentFilter, factory);
+            createProfileRecord(workUserHandle, factory);
         }
     }
 
-    private void createProfileRecord(
-            UserHandle userHandle, IntentFilter targetIntentFilter, AppPredictorFactory factory) {
+    private void createProfileRecord(UserHandle userHandle, AppPredictorFactory factory) {
         AppPredictor appPredictor = factory.create(userHandle);
-        ShortcutLoader shortcutLoader = ActivityManager.isLowRamDeviceStatic()
-                    ? null
-                    : createShortcutLoader(
-                            getApplicationContext(),
-                            appPredictor,
-                            userHandle,
-                            targetIntentFilter,
-                            shortcutsResult -> onShortcutsLoaded(userHandle, shortcutsResult));
         mProfileRecords.put(
-                userHandle.getIdentifier(),
-                new ProfileRecord(appPredictor, shortcutLoader));
+                userHandle.getIdentifier(), new ProfileRecord(appPredictor));
     }
 
     @Nullable
@@ -590,19 +581,50 @@ public class ChooserActivity extends ResolverActivity implements
         return mProfileRecords.get(userHandle.getIdentifier(), null);
     }
 
-    @VisibleForTesting
-    protected ShortcutLoader createShortcutLoader(
-            Context context,
-            AppPredictor appPredictor,
-            UserHandle userHandle,
-            IntentFilter targetIntentFilter,
-            Consumer<ShortcutLoader.Result> callback) {
-        return new ShortcutLoader(
-                context,
-                appPredictor,
-                userHandle,
-                targetIntentFilter,
-                callback);
+    private void setupAppPredictorForUser(
+            UserHandle userHandle, AppPredictor.Callback appPredictorCallback) {
+        AppPredictor appPredictor = getAppPredictor(userHandle);
+        if (appPredictor == null) {
+            return;
+        }
+        mDirectShareAppTargetCache = new HashMap<>();
+        appPredictor.registerPredictionUpdates(this.getMainExecutor(), appPredictorCallback);
+    }
+
+    private AppPredictor.Callback createAppPredictorCallback(
+            ChooserListAdapter chooserListAdapter) {
+        return resultList -> {
+            if (isFinishing() || isDestroyed()) {
+                return;
+            }
+            if (chooserListAdapter.getCount() == 0) {
+                return;
+            }
+            if (resultList.isEmpty()
+                    && shouldQueryShortcutManager(chooserListAdapter.getUserHandle())) {
+                // APS may be disabled, so try querying targets ourselves.
+                queryDirectShareTargets(chooserListAdapter, true);
+                return;
+            }
+            final List<ShortcutManager.ShareShortcutInfo> shareShortcutInfos =
+                    new ArrayList<>();
+
+            List<AppTarget> shortcutResults = new ArrayList<>();
+            for (AppTarget appTarget : resultList) {
+                if (appTarget.getShortcutInfo() == null) {
+                    continue;
+                }
+                shortcutResults.add(appTarget);
+            }
+            resultList = shortcutResults;
+            for (AppTarget appTarget : resultList) {
+                shareShortcutInfos.add(new ShortcutManager.ShareShortcutInfo(
+                        appTarget.getShortcutInfo(),
+                        new ComponentName(
+                                appTarget.getPackageName(), appTarget.getClassName())));
+            }
+            sendShareShortcutInfoList(shareShortcutInfos, chooserListAdapter, resultList);
+        };
     }
 
     static SharedPreferences getPinnedSharedPrefs(Context context) {
@@ -1799,6 +1821,147 @@ public class ChooserActivity extends ResolverActivity implements
         }
     }
 
+    @VisibleForTesting
+    protected void queryDirectShareTargets(
+                ChooserListAdapter adapter, boolean skipAppPredictionService) {
+        ProfileRecord record = getProfileRecord(adapter.getUserHandle());
+        if (record == null) {
+            return;
+        }
+
+        record.loadingStartTime = SystemClock.elapsedRealtime();
+
+        UserHandle userHandle = adapter.getUserHandle();
+        if (!skipAppPredictionService) {
+            if (record.appPredictor != null) {
+                record.appPredictor.requestPredictionUpdate();
+                return;
+            }
+        }
+        // Default to just querying ShortcutManager if AppPredictor not present.
+        final IntentFilter filter = getTargetIntentFilter();
+        if (filter == null) {
+            return;
+        }
+
+        AsyncTask.execute(() -> {
+            Context selectedProfileContext = createContextAsUser(userHandle, 0 /* flags */);
+            ShortcutManager sm = (ShortcutManager) selectedProfileContext
+                    .getSystemService(Context.SHORTCUT_SERVICE);
+            List<ShortcutManager.ShareShortcutInfo> resultList = sm.getShareTargets(filter);
+            sendShareShortcutInfoList(resultList, adapter, null);
+        });
+    }
+
+    /**
+     * Returns {@code false} if {@code userHandle} is the work profile and it's either
+     * in quiet mode or not running.
+     */
+    private boolean shouldQueryShortcutManager(UserHandle userHandle) {
+        if (!shouldShowTabs()) {
+            return true;
+        }
+        if (!getWorkProfileUserHandle().equals(userHandle)) {
+            return true;
+        }
+        if (!isUserRunning(userHandle)) {
+            return false;
+        }
+        if (!isUserUnlocked(userHandle)) {
+            return false;
+        }
+        if (isQuietModeEnabled(userHandle)) {
+            return false;
+        }
+        return true;
+    }
+
+    private void sendShareShortcutInfoList(
+                List<ShortcutManager.ShareShortcutInfo> resultList,
+                ChooserListAdapter chooserListAdapter,
+                @Nullable List<AppTarget> appTargets) {
+        if (appTargets != null && appTargets.size() != resultList.size()) {
+            throw new RuntimeException("resultList and appTargets must have the same size."
+                    + " resultList.size()=" + resultList.size()
+                    + " appTargets.size()=" + appTargets.size());
+        }
+        UserHandle userHandle = chooserListAdapter.getUserHandle();
+        Context selectedProfileContext = createContextAsUser(userHandle, 0 /* flags */);
+        for (int i = resultList.size() - 1; i >= 0; i--) {
+            final String packageName = resultList.get(i).getTargetComponent().getPackageName();
+            if (!isPackageEnabled(selectedProfileContext, packageName)) {
+                resultList.remove(i);
+                if (appTargets != null) {
+                    appTargets.remove(i);
+                }
+            }
+        }
+
+        // If |appTargets| is not null, results are from AppPredictionService and already sorted.
+        final int shortcutType = (appTargets == null ? TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER :
+                TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE);
+
+        // Match ShareShortcutInfos with DisplayResolveInfos to be able to use the old code path
+        // for direct share targets. After ShareSheet is refactored we should use the
+        // ShareShortcutInfos directly.
+        List<ServiceResultInfo> resultRecords = new ArrayList<>();
+        for (DisplayResolveInfo displayResolveInfo : chooserListAdapter.getDisplayResolveInfos()) {
+            List<ShortcutManager.ShareShortcutInfo> matchingShortcuts =
+                    filterShortcutsByTargetComponentName(
+                            resultList, displayResolveInfo.getResolvedComponentName());
+            if (matchingShortcuts.isEmpty()) {
+                continue;
+            }
+
+            List<ChooserTarget> chooserTargets = mShortcutToChooserTargetConverter
+                    .convertToChooserTarget(
+                        matchingShortcuts,
+                        resultList,
+                        appTargets,
+                        mDirectShareAppTargetCache,
+                        mDirectShareShortcutInfoCache);
+
+            ServiceResultInfo resultRecord = new ServiceResultInfo(
+                    displayResolveInfo, chooserTargets);
+            resultRecords.add(resultRecord);
+        }
+
+        runOnUiThread(() -> {
+            if (!isDestroyed()) {
+                onShortcutsLoaded(chooserListAdapter, shortcutType, resultRecords);
+            }
+        });
+    }
+
+    private List<ShortcutManager.ShareShortcutInfo> filterShortcutsByTargetComponentName(
+            List<ShortcutManager.ShareShortcutInfo> allShortcuts, ComponentName requiredTarget) {
+        List<ShortcutManager.ShareShortcutInfo> matchingShortcuts = new ArrayList<>();
+        for (ShortcutManager.ShareShortcutInfo shortcut : allShortcuts) {
+            if (requiredTarget.equals(shortcut.getTargetComponent())) {
+                matchingShortcuts.add(shortcut);
+            }
+        }
+        return matchingShortcuts;
+    }
+
+    private boolean isPackageEnabled(Context context, String packageName) {
+        if (TextUtils.isEmpty(packageName)) {
+            return false;
+        }
+        ApplicationInfo appInfo;
+        try {
+            appInfo = context.getPackageManager().getApplicationInfo(packageName, 0);
+        } catch (NameNotFoundException e) {
+            return false;
+        }
+
+        if (appInfo != null && appInfo.enabled
+                && (appInfo.flags & ApplicationInfo.FLAG_SUSPENDED) == 0) {
+            return true;
+        }
+        return false;
+    }
+
     private void logDirectShareTargetReceived(int logCategory, UserHandle forUser) {
         ProfileRecord profileRecord = getProfileRecord(forUser);
         if (profileRecord == null) {
@@ -1832,7 +1995,7 @@ public class ChooserActivity extends ResolverActivity implements
                     Log.d(TAG, "Action to be updated is " + targetIntent.getAction());
                 }
             } else if (DEBUG) {
-                Log.d(TAG, "Can not log Chooser Counts of null ResolveInfo");
+                Log.d(TAG, "Can not log Chooser Counts of null ResovleInfo");
             }
         }
         mIsSuccessfullySelected = true;
@@ -1875,6 +2038,9 @@ public class ChooserActivity extends ResolverActivity implements
         AppPredictor directShareAppPredictor = getAppPredictor(
                 mChooserMultiProfilePagerAdapter.getCurrentUserHandle());
         if (directShareAppPredictor == null) {
+            return;
+        }
+        if (!targetInfo.isChooserTargetInfo()) {
             return;
         }
         AppTarget appTarget = targetInfo.getDirectShareAppTarget();
@@ -1993,6 +2159,11 @@ public class ChooserActivity extends ResolverActivity implements
         ChooserListAdapter chooserListAdapter = createChooserListAdapter(context, payloadIntents,
                 initialIntents, rList, filterLastUsed,
                 createListController(userHandle));
+        if (!ActivityManager.isLowRamDeviceStatic()) {
+            AppPredictor.Callback appPredictorCallback =
+                    createAppPredictorCallback(chooserListAdapter);
+            setupAppPredictorForUser(userHandle, appPredictorCallback);
+        }
         return new ChooserGridAdapter(chooserListAdapter);
     }
 
@@ -2279,41 +2450,42 @@ public class ChooserActivity extends ResolverActivity implements
     }
 
     private void maybeQueryAdditionalPostProcessingTargets(ChooserListAdapter chooserListAdapter) {
-        UserHandle userHandle = chooserListAdapter.getUserHandle();
-        ProfileRecord record = getProfileRecord(userHandle);
-        if (record == null) {
+        // don't support direct share on low ram devices
+        if (ActivityManager.isLowRamDeviceStatic()) {
             return;
         }
-        if (record.shortcutLoader == null) {
+
+        // no need to query direct share for work profile when its locked or disabled
+        if (!shouldQueryShortcutManager(chooserListAdapter.getUserHandle())) {
             return;
         }
-        record.loadingStartTime = SystemClock.elapsedRealtime();
-        record.shortcutLoader.queryShortcuts(chooserListAdapter.getDisplayResolveInfos());
+
+        if (DEBUG) {
+            Log.d(TAG, "querying direct share targets from ShortcutManager");
+        }
+
+        queryDirectShareTargets(chooserListAdapter, false);
     }
 
+    @VisibleForTesting
     @MainThread
-    private void onShortcutsLoaded(
-            UserHandle userHandle, ShortcutLoader.Result shortcutsResult) {
+    protected void onShortcutsLoaded(
+            ChooserListAdapter adapter, int targetType, List<ServiceResultInfo> resultInfos) {
+        UserHandle userHandle = adapter.getUserHandle();
         if (DEBUG) {
             Log.d(TAG, "onShortcutsLoaded for user: " + userHandle);
         }
-        mDirectShareShortcutInfoCache.putAll(shortcutsResult.directShareShortcutInfoCache);
-        mDirectShareAppTargetCache.putAll(shortcutsResult.directShareAppTargetCache);
-        ChooserListAdapter adapter =
-                mChooserMultiProfilePagerAdapter.getListAdapterForUserHandle(userHandle);
-        if (adapter != null) {
-            for (ShortcutLoader.ShortcutResultInfo resultInfo : shortcutsResult.shortcutsByApp) {
+        for (ServiceResultInfo resultInfo : resultInfos) {
+            if (resultInfo.resultTargets != null) {
                 adapter.addServiceResults(
-                        resultInfo.appTarget,
-                        resultInfo.shortcuts,
-                        shortcutsResult.isFromAppPredictor
-                                ? TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE
-                                : TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER,
-                        mDirectShareShortcutInfoCache,
-                        mDirectShareAppTargetCache);
+                        resultInfo.originalTarget,
+                        resultInfo.resultTargets,
+                        targetType,
+                        emptyIfNull(mDirectShareShortcutInfoCache),
+                        emptyIfNull(mDirectShareAppTargetCache));
             }
-            adapter.completeServiceTargetLoading();
         }
+        adapter.completeServiceTargetLoading();
 
         logDirectShareTargetReceived(
                 MetricsEvent.ACTION_DIRECT_SHARE_TARGETS_LOADED_SHORTCUT_MANAGER,
@@ -2321,6 +2493,24 @@ public class ChooserActivity extends ResolverActivity implements
 
         sendVoiceChoicesIfNeeded();
         getChooserActivityLogger().logSharesheetDirectLoadComplete();
+    }
+
+    @VisibleForTesting
+    protected boolean isUserRunning(UserHandle userHandle) {
+        UserManager userManager = getSystemService(UserManager.class);
+        return userManager.isUserRunning(userHandle);
+    }
+
+    @VisibleForTesting
+    protected boolean isUserUnlocked(UserHandle userHandle) {
+        UserManager userManager = getSystemService(UserManager.class);
+        return userManager.isUserUnlocked(userHandle);
+    }
+
+    @VisibleForTesting
+    protected boolean isQuietModeEnabled(UserHandle userHandle) {
+        UserManager userManager = getSystemService(UserManager.class);
+        return userManager.isQuietModeEnabled(userHandle);
     }
 
     private void setupScrollListener() {
@@ -3359,6 +3549,16 @@ public class ChooserActivity extends ResolverActivity implements
         }
     }
 
+    static class ServiceResultInfo {
+        public final DisplayResolveInfo originalTarget;
+        public final List<ChooserTarget> resultTargets;
+
+        ServiceResultInfo(DisplayResolveInfo ot, List<ChooserTarget> rt) {
+            originalTarget = ot;
+            resultTargets = rt;
+        }
+    }
+
     static class ChooserTargetRankingInfo {
         public final List<AppTarget> scores;
         public final UserHandle userHandle;
@@ -3534,28 +3734,22 @@ public class ChooserActivity extends ResolverActivity implements
         getChooserActivityLogger().logSharesheetProfileChanged();
     }
 
+    private static <K, V> Map<K, V> emptyIfNull(@Nullable Map<K, V> map) {
+        return map == null ? Collections.emptyMap() : map;
+    }
+
     private static class ProfileRecord {
         /** The {@link AppPredictor} for this profile, if any. */
         @Nullable
         public final AppPredictor appPredictor;
-        /**
-         * null if we should not load shortcuts.
-         */
-        @Nullable
-        public final ShortcutLoader shortcutLoader;
+
         public long loadingStartTime;
 
-        private ProfileRecord(
-                @Nullable AppPredictor appPredictor,
-                @Nullable ShortcutLoader shortcutLoader) {
+        ProfileRecord(@Nullable AppPredictor appPredictor) {
             this.appPredictor = appPredictor;
-            this.shortcutLoader = shortcutLoader;
         }
 
         public void destroy() {
-            if (shortcutLoader != null) {
-                shortcutLoader.destroy();
-            }
             if (appPredictor != null) {
                 appPredictor.destroy();
             }

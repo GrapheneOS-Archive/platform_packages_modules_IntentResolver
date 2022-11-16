@@ -25,8 +25,6 @@ import android.os.UserHandle;
 import com.android.intentresolver.ResolverListAdapter.ResolveInfoPresentationGetter;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 
-import java.util.concurrent.Executor;
-
 /**
  * Test-only extended API capabilities that an instrumented ChooserActivity subclass provides in
  * order to expose the internals for override/inspection. Implementations should apply the overrides
@@ -43,5 +41,4 @@ public interface IChooserWrapper {
             @Nullable ResolveInfoPresentationGetter resolveInfoPresentationGetter);
     UserHandle getCurrentUserHandle();
     ChooserActivityLogger getChooserActivityLogger();
-    Executor getMainExecutor();
 }
