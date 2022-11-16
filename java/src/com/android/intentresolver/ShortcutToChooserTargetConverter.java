@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver.shortcuts;
+package com.android.intentresolver;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
