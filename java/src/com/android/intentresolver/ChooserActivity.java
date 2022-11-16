@@ -18,8 +18,6 @@ package com.android.intentresolver;
 
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
@@ -47,12 +45,10 @@ import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
-import android.content.pm.ShortcutManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -62,11 +58,9 @@ import android.graphics.Insets;
 import android.graphics.drawable.Drawable;
 import android.metrics.LogMaker;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Message;
 import android.os.Parcelable;
 import android.os.PatternMatcher;
 import android.os.ResultReceiver;
@@ -75,15 +69,11 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.storage.StorageManager;
 import android.provider.DeviceConfig;
-import android.provider.DocumentsContract;
-import android.provider.Downloads;
-import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.service.chooser.ChooserTarget;
 import android.text.TextUtils;
 import android.util.HashedStringCache;
 import android.util.Log;
-import android.util.PluralsMessageFormatter;
 import android.util.Size;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -101,7 +91,6 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Space;
 import android.widget.TextView;
 
@@ -118,8 +107,8 @@ import com.android.intentresolver.model.AbstractResolverComparator;
 import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
+import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
-import com.android.intentresolver.widget.RoundedRectImageView;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.content.PackageMonitor;
@@ -143,6 +132,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -195,8 +186,8 @@ public class ChooserActivity extends ResolverActivity implements
     // `ShortcutSelectionLogic` which packs the appropriate elements into the final `TargetInfo`.
     // That flow should be refactored so that `ChooserActivity` isn't responsible for holding their
     // intermediate data, and then these members can be removed.
-    private Map<ChooserTarget, AppTarget> mDirectShareAppTargetCache;
-    private Map<ChooserTarget, ShortcutInfo> mDirectShareShortcutInfoCache;
+    private final Map<ChooserTarget, AppTarget> mDirectShareAppTargetCache = new HashMap<>();
+    private final Map<ChooserTarget, ShortcutInfo> mDirectShareShortcutInfoCache = new HashMap<>();
 
     public static final int TARGET_TYPE_DEFAULT = 0;
     public static final int TARGET_TYPE_CHOOSER_TARGET = 1;
@@ -269,19 +260,13 @@ public class ChooserActivity extends ResolverActivity implements
     private SharedPreferences mPinnedSharedPrefs;
     private static final String PINNED_SHARED_PREFS_NAME = "chooser_pin_settings";
 
-    @Retention(SOURCE)
-    @IntDef({CONTENT_PREVIEW_FILE, CONTENT_PREVIEW_IMAGE, CONTENT_PREVIEW_TEXT})
-    private @interface ContentPreviewType {
-    }
-
-    // Starting at 1 since 0 is considered "undefined" for some of the database transformations
-    // of tron logs.
-    protected static final int CONTENT_PREVIEW_IMAGE = 1;
-    protected static final int CONTENT_PREVIEW_FILE = 2;
-    protected static final int CONTENT_PREVIEW_TEXT = 3;
     protected MetricsLogger mMetricsLogger;
 
-    private ContentPreviewCoordinator mPreviewCoord;
+    private final ExecutorService mBackgroundThreadPoolExecutor = Executors.newFixedThreadPool(5);
+
+    @Nullable
+    private ChooserContentPreviewCoordinator mPreviewCoordinator;
+
     private int mScrollStatus = SCROLL_STATUS_IDLE;
 
     @VisibleForTesting
@@ -293,123 +278,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     private View mContentView = null;
 
-    private final ShortcutToChooserTargetConverter mShortcutToChooserTargetConverter =
-            new ShortcutToChooserTargetConverter();
     private final SparseArray<ProfileRecord> mProfileRecords = new SparseArray<>();
-
-    private static class ContentPreviewCoordinator {
-
-        /* public */ ContentPreviewCoordinator(
-                ChooserActivity chooserActivity,
-                View parentView,
-                Runnable onFailCallback,
-                Consumer<View> onSingleImageSuccessCallback) {
-            this.mChooserActivity = chooserActivity;
-            this.mParentView = parentView;
-            this.mOnFailCallback = onFailCallback;
-            this.mOnSingleImageSuccessCallback = onSingleImageSuccessCallback;
-
-            this.mImageLoadTimeoutMillis =
-                    chooserActivity.getResources().getInteger(R.integer.config_shortAnimTime);
-        }
-
-        public void cancelLoads() {
-            mHandler.removeMessages(IMAGE_LOAD_INTO_VIEW);
-            mHandler.removeMessages(IMAGE_LOAD_TIMEOUT);
-        }
-
-        private static final int IMAGE_FADE_IN_MILLIS = 150;
-        private static final int IMAGE_LOAD_TIMEOUT = 1;
-        private static final int IMAGE_LOAD_INTO_VIEW = 2;
-
-        private final ChooserActivity mChooserActivity;
-        private final View mParentView;
-        private final Runnable mOnFailCallback;
-        private final Consumer<View> mOnSingleImageSuccessCallback;
-        private final int mImageLoadTimeoutMillis;
-
-        private boolean mAtLeastOneLoaded = false;
-
-        private final Handler mHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                if (mChooserActivity.isFinishing()) {
-                    return;
-                }
-
-                if (msg.what == IMAGE_LOAD_TIMEOUT) {
-                    // If at least one image loads within the timeout period, allow other loads to
-                    // continue. (I.e., only fail if no images have loaded by the timeout event.)
-                    if (!mAtLeastOneLoaded) {
-                        mOnFailCallback.run();
-                    }
-                    return;
-                }
-
-                // TODO: switch off using `Handler`. For now the following conditions implicitly
-                // rely on the knowledge that we only have two message types (and so after the guard
-                // clause above, we know this is an `IMAGE_LOAD_INTO_VIEW` message).
-
-                RoundedRectImageView imageView = mParentView.findViewById(msg.arg1);
-                if (msg.obj != null) {
-                    onImageLoaded((Bitmap) msg.obj, imageView, msg.arg2);
-                } else {
-                    imageView.setVisibility(View.GONE);
-                    if (!mAtLeastOneLoaded) {
-                        // TODO: this looks like a race condition. We know that this specific image
-                        // failed (i.e. it got a null Bitmap), but we'll only report that to the
-                        // client (thereby failing out our pending loads) if we haven't yet
-                        // succeeded in loading some other non-null Bitmap. But there could be other
-                        // pending loads that would've returned non-null within the timeout window,
-                        // except they end up (effectively) cancelled because this one single-image
-                        // load "finished" (failed) faster. The outcome of that race may be fairly
-                        // predictable (since we *might* imagine that the nulls would usually "load"
-                        // faster?), but it's not guaranteed since the loads are queued in
-                        // `AsyncTask.THREAD_POOL_EXECUTOR` (i.e., in parallel). One option we might
-                        // prefer for more deterministic behavior: don't signal the failure callback
-                        // on a single-image load unless there are no other loads currently pending.
-                        mOnFailCallback.run();
-                    }
-                }
-            }
-        };
-
-        private void onImageLoaded(
-                @NonNull Bitmap image,
-                RoundedRectImageView imageView,
-                int extraImageCount) {
-            mAtLeastOneLoaded = true;
-
-            imageView.setVisibility(View.VISIBLE);
-            imageView.setAlpha(0.0f);
-            imageView.setImageBitmap(image);
-
-            ValueAnimator fadeAnim = ObjectAnimator.ofFloat(imageView, "alpha", 0.0f, 1.0f);
-            fadeAnim.setInterpolator(new DecelerateInterpolator(1.0f));
-            fadeAnim.setDuration(IMAGE_FADE_IN_MILLIS);
-            fadeAnim.start();
-
-            if (extraImageCount > 0) {
-                imageView.setExtraImageCount(extraImageCount);
-            }
-
-            mOnSingleImageSuccessCallback.accept(imageView);
-        }
-
-        private void loadUriIntoView(
-                final int imageViewResourceId, final Uri uri, final int extraImages) {
-            mHandler.sendEmptyMessageDelayed(IMAGE_LOAD_TIMEOUT, mImageLoadTimeoutMillis);
-
-            AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
-                int size = mChooserActivity.getResources().getDimensionPixelSize(
-                        R.dimen.chooser_preview_image_max_dimen);
-                final Bitmap bmp = mChooserActivity.loadThumbnail(uri, new Size(size, size));
-                final Message msg = mHandler.obtainMessage(
-                        IMAGE_LOAD_INTO_VIEW, imageViewResourceId, extraImages, bmp);
-                mHandler.sendMessage(msg);
-            });
-        }
-    }
 
     private void setupPreDrawForSharedElementTransition(View v) {
         v.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
@@ -560,11 +429,20 @@ public class ChooserActivity extends ResolverActivity implements
         mShouldDisplayLandscape =
                 shouldDisplayLandscape(getResources().getConfiguration().orientation);
         setRetainInOnStop(intent.getBooleanExtra(EXTRA_PRIVATE_RETAIN_IN_ON_STOP, false));
+        IntentFilter targetIntentFilter = getTargetIntentFilter(target);
         createProfileRecords(
                 new AppPredictorFactory(
-                        this,
+                        getApplicationContext(),
                         target.getStringExtra(Intent.EXTRA_TEXT),
-                        getTargetIntentFilter(target)));
+                        targetIntentFilter),
+                targetIntentFilter);
+
+        mPreviewCoordinator = new ChooserContentPreviewCoordinator(
+                mBackgroundThreadPoolExecutor,
+                this,
+                this::hideContentPreview,
+                this::setupPreDrawForSharedElementTransition);
+
         super.onCreate(savedInstanceState, target, title, defaultTitleRes, initialIntents,
                 null, false);
 
@@ -614,10 +492,10 @@ public class ChooserActivity extends ResolverActivity implements
                 mCallerChooserTargets == null ? 0 : mCallerChooserTargets.length,
                 initialIntents == null ? 0 : initialIntents.length,
                 isWorkProfile(),
-                findPreferredContentPreview(getTargetIntent(), getContentResolver()),
+                ChooserContentPreviewUi.findPreferredContentPreview(
+                        getTargetIntent(), getContentResolver(), this::isImageType),
                 target.getAction()
         );
-        mDirectShareShortcutInfoCache = new HashMap<>();
 
         setEnterSharedElementCallback(new SharedElementCallback() {
             @Override
@@ -638,20 +516,31 @@ public class ChooserActivity extends ResolverActivity implements
         return R.style.Theme_DeviceDefault_Chooser;
     }
 
-    private void createProfileRecords(AppPredictorFactory factory) {
+    private void createProfileRecords(
+            AppPredictorFactory factory, IntentFilter targetIntentFilter) {
         UserHandle mainUserHandle = getPersonalProfileUserHandle();
-        createProfileRecord(mainUserHandle, factory);
+        createProfileRecord(mainUserHandle, targetIntentFilter, factory);
 
         UserHandle workUserHandle = getWorkProfileUserHandle();
         if (workUserHandle != null) {
-            createProfileRecord(workUserHandle, factory);
+            createProfileRecord(workUserHandle, targetIntentFilter, factory);
         }
     }
 
-    private void createProfileRecord(UserHandle userHandle, AppPredictorFactory factory) {
+    private void createProfileRecord(
+            UserHandle userHandle, IntentFilter targetIntentFilter, AppPredictorFactory factory) {
         AppPredictor appPredictor = factory.create(userHandle);
+        ShortcutLoader shortcutLoader = ActivityManager.isLowRamDeviceStatic()
+                    ? null
+                    : createShortcutLoader(
+                            getApplicationContext(),
+                            appPredictor,
+                            userHandle,
+                            targetIntentFilter,
+                            shortcutsResult -> onShortcutsLoaded(userHandle, shortcutsResult));
         mProfileRecords.put(
-                userHandle.getIdentifier(), new ProfileRecord(appPredictor));
+                userHandle.getIdentifier(),
+                new ProfileRecord(appPredictor, shortcutLoader));
     }
 
     @Nullable
@@ -659,50 +548,19 @@ public class ChooserActivity extends ResolverActivity implements
         return mProfileRecords.get(userHandle.getIdentifier(), null);
     }
 
-    private void setupAppPredictorForUser(
-            UserHandle userHandle, AppPredictor.Callback appPredictorCallback) {
-        AppPredictor appPredictor = getAppPredictor(userHandle);
-        if (appPredictor == null) {
-            return;
-        }
-        mDirectShareAppTargetCache = new HashMap<>();
-        appPredictor.registerPredictionUpdates(this.getMainExecutor(), appPredictorCallback);
-    }
-
-    private AppPredictor.Callback createAppPredictorCallback(
-            ChooserListAdapter chooserListAdapter) {
-        return resultList -> {
-            if (isFinishing() || isDestroyed()) {
-                return;
-            }
-            if (chooserListAdapter.getCount() == 0) {
-                return;
-            }
-            if (resultList.isEmpty()
-                    && shouldQueryShortcutManager(chooserListAdapter.getUserHandle())) {
-                // APS may be disabled, so try querying targets ourselves.
-                queryDirectShareTargets(chooserListAdapter, true);
-                return;
-            }
-            final List<ShortcutManager.ShareShortcutInfo> shareShortcutInfos =
-                    new ArrayList<>();
-
-            List<AppTarget> shortcutResults = new ArrayList<>();
-            for (AppTarget appTarget : resultList) {
-                if (appTarget.getShortcutInfo() == null) {
-                    continue;
-                }
-                shortcutResults.add(appTarget);
-            }
-            resultList = shortcutResults;
-            for (AppTarget appTarget : resultList) {
-                shareShortcutInfos.add(new ShortcutManager.ShareShortcutInfo(
-                        appTarget.getShortcutInfo(),
-                        new ComponentName(
-                                appTarget.getPackageName(), appTarget.getClassName())));
-            }
-            sendShareShortcutInfoList(shareShortcutInfos, chooserListAdapter, resultList);
-        };
+    @VisibleForTesting
+    protected ShortcutLoader createShortcutLoader(
+            Context context,
+            AppPredictor appPredictor,
+            UserHandle userHandle,
+            IntentFilter targetIntentFilter,
+            Consumer<ShortcutLoader.Result> callback) {
+        return new ShortcutLoader(
+                context,
+                appPredictor,
+                userHandle,
+                targetIntentFilter,
+                callback);
     }
 
     static SharedPreferences getPinnedSharedPrefs(Context context) {
@@ -973,10 +831,50 @@ public class ChooserActivity extends ResolverActivity implements
      * @param parent reference to the parent container where the view should be attached to
      * @return content preview view
      */
-    protected ViewGroup createContentPreviewView(ViewGroup parent) {
+    protected ViewGroup createContentPreviewView(
+            ViewGroup parent,
+            ChooserContentPreviewUi.ContentPreviewCoordinator previewCoordinator) {
         Intent targetIntent = getTargetIntent();
-        int previewType = findPreferredContentPreview(targetIntent, getContentResolver());
-        return displayContentPreview(previewType, targetIntent, getLayoutInflater(), parent);
+        int previewType = ChooserContentPreviewUi.findPreferredContentPreview(
+                targetIntent, getContentResolver(), this::isImageType);
+
+        ChooserContentPreviewUi.ActionButtonFactory buttonFactory =
+                new ChooserContentPreviewUi.ActionButtonFactory() {
+                    @Override
+                    public Button createCopyButton() {
+                        return ChooserActivity.this.createCopyButton();
+                    }
+
+                    @Override
+                    public Button createEditButton() {
+                        return ChooserActivity.this.createEditButton(targetIntent);
+                    }
+
+                    @Override
+                    public Button createNearbyButton() {
+                        return ChooserActivity.this.createNearbyButton(targetIntent);
+                    }
+                };
+
+        ViewGroup layout = ChooserContentPreviewUi.displayContentPreview(
+                previewType,
+                targetIntent,
+                getResources(),
+                getLayoutInflater(),
+                buttonFactory,
+                parent,
+                previewCoordinator,
+                getContentResolver(),
+                this::isImageType);
+
+        if (layout != null) {
+            adjustPreviewWidth(getResources().getConfiguration().orientation, layout);
+        }
+        if (previewType != ChooserContentPreviewUi.CONTENT_PREVIEW_IMAGE) {
+            mEnterTransitionAnimationDelegate.markImagePreviewReady();
+        }
+
+        return layout;
     }
 
     @VisibleForTesting
@@ -1182,158 +1080,6 @@ public class ChooserActivity extends ResolverActivity implements
         parent.addView(b, lp);
     }
 
-    private ViewGroup displayContentPreview(@ContentPreviewType int previewType,
-            Intent targetIntent, LayoutInflater layoutInflater, ViewGroup parent) {
-        ViewGroup layout = null;
-
-        switch (previewType) {
-            case CONTENT_PREVIEW_TEXT:
-                layout = displayTextContentPreview(targetIntent, layoutInflater, parent);
-                break;
-            case CONTENT_PREVIEW_IMAGE:
-                layout = displayImageContentPreview(targetIntent, layoutInflater, parent);
-                break;
-            case CONTENT_PREVIEW_FILE:
-                layout = displayFileContentPreview(targetIntent, layoutInflater, parent);
-                break;
-            default:
-                Log.e(TAG, "Unexpected content preview type: " + previewType);
-        }
-
-        if (layout != null) {
-            adjustPreviewWidth(getResources().getConfiguration().orientation, layout);
-        }
-        if (previewType != CONTENT_PREVIEW_IMAGE) {
-            mEnterTransitionAnimationDelegate.markImagePreviewReady();
-        }
-
-        return layout;
-    }
-
-    private ViewGroup displayTextContentPreview(Intent targetIntent, LayoutInflater layoutInflater,
-            ViewGroup parent) {
-        ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
-                R.layout.chooser_grid_preview_text, parent, false);
-
-        final ViewGroup actionRow =
-                (ViewGroup) contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
-        addActionButton(actionRow, createCopyButton());
-        addActionButton(actionRow, createNearbyButton(targetIntent));
-
-        CharSequence sharingText = targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
-        if (sharingText == null) {
-            contentPreviewLayout.findViewById(com.android.internal.R.id.content_preview_text_layout).setVisibility(
-                    View.GONE);
-        } else {
-            TextView textView = contentPreviewLayout.findViewById(com.android.internal.R.id.content_preview_text);
-            textView.setText(sharingText);
-        }
-
-        String previewTitle = targetIntent.getStringExtra(Intent.EXTRA_TITLE);
-        if (TextUtils.isEmpty(previewTitle)) {
-            contentPreviewLayout.findViewById(com.android.internal.R.id.content_preview_title_layout).setVisibility(
-                    View.GONE);
-        } else {
-            TextView previewTitleView = contentPreviewLayout.findViewById(
-                    com.android.internal.R.id.content_preview_title);
-            previewTitleView.setText(previewTitle);
-
-            ClipData previewData = targetIntent.getClipData();
-            Uri previewThumbnail = null;
-            if (previewData != null) {
-                if (previewData.getItemCount() > 0) {
-                    ClipData.Item previewDataItem = previewData.getItemAt(0);
-                    previewThumbnail = previewDataItem.getUri();
-                }
-            }
-
-            ImageView previewThumbnailView = contentPreviewLayout.findViewById(
-                    com.android.internal.R.id.content_preview_thumbnail);
-            if (previewThumbnail == null) {
-                previewThumbnailView.setVisibility(View.GONE);
-            } else {
-                mPreviewCoord = new ContentPreviewCoordinator(
-                        this,
-                        contentPreviewLayout,
-                        this::hideContentPreview,
-                        this::setupPreDrawForSharedElementTransition);
-                mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_thumbnail, previewThumbnail, 0);
-            }
-        }
-
-        return contentPreviewLayout;
-    }
-
-    private ViewGroup displayImageContentPreview(Intent targetIntent, LayoutInflater layoutInflater,
-            ViewGroup parent) {
-        ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
-                R.layout.chooser_grid_preview_image, parent, false);
-        ViewGroup imagePreview = contentPreviewLayout.findViewById(com.android.internal.R.id.content_preview_image_area);
-
-        final ViewGroup actionRow =
-                (ViewGroup) contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
-        //TODO: addActionButton(actionRow, createCopyButton());
-        addActionButton(actionRow, createNearbyButton(targetIntent));
-        addActionButton(actionRow, createEditButton(targetIntent));
-
-        mPreviewCoord = new ContentPreviewCoordinator(
-                this,
-                contentPreviewLayout,
-                this::hideContentPreview,
-                this::setupPreDrawForSharedElementTransition);
-
-        String action = targetIntent.getAction();
-        if (Intent.ACTION_SEND.equals(action)) {
-            Uri uri = targetIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-            imagePreview.findViewById(com.android.internal.R.id.content_preview_image_1_large)
-                    .setTransitionName(ChooserActivity.FIRST_IMAGE_PREVIEW_TRANSITION_NAME);
-            mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_image_1_large, uri, 0);
-        } else {
-            ContentResolver resolver = getContentResolver();
-
-            List<Uri> uris = targetIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            List<Uri> imageUris = new ArrayList<>();
-            for (Uri uri : uris) {
-                if (isImageType(resolver.getType(uri))) {
-                    imageUris.add(uri);
-                }
-            }
-
-            if (imageUris.size() == 0) {
-                Log.i(TAG, "Attempted to display image preview area with zero"
-                        + " available images detected in EXTRA_STREAM list");
-                imagePreview.setVisibility(View.GONE);
-                return contentPreviewLayout;
-            }
-
-            imagePreview.findViewById(com.android.internal.R.id.content_preview_image_1_large)
-                    .setTransitionName(ChooserActivity.FIRST_IMAGE_PREVIEW_TRANSITION_NAME);
-            mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_image_1_large, imageUris.get(0), 0);
-
-            if (imageUris.size() == 2) {
-                mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_image_2_large,
-                        imageUris.get(1), 0);
-            } else if (imageUris.size() > 2) {
-                mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_image_2_small,
-                        imageUris.get(1), 0);
-                mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_image_3_small,
-                        imageUris.get(2), imageUris.size() - 3);
-            }
-        }
-
-        return contentPreviewLayout;
-    }
-
-    private static class FileInfo {
-        public final String name;
-        public final boolean hasThumbnail;
-
-        FileInfo(String name, boolean hasThumbnail) {
-            this.name = name;
-            this.hasThumbnail = hasThumbnail;
-        }
-    }
-
     /**
      * Wrapping the ContentResolver call to expose for easier mocking,
      * and to avoid mocking Android core classes.
@@ -1343,41 +1089,9 @@ public class ChooserActivity extends ResolverActivity implements
         return resolver.query(uri, null, null, null, null);
     }
 
-    private FileInfo extractFileInfo(Uri uri, ContentResolver resolver) {
-        String fileName = null;
-        boolean hasThumbnail = false;
-
-        try (Cursor cursor = queryResolver(resolver, uri)) {
-            if (cursor != null && cursor.getCount() > 0) {
-                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                int titleIndex = cursor.getColumnIndex(Downloads.Impl.COLUMN_TITLE);
-                int flagsIndex = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_FLAGS);
-
-                cursor.moveToFirst();
-                if (nameIndex != -1) {
-                    fileName = cursor.getString(nameIndex);
-                } else if (titleIndex != -1) {
-                    fileName = cursor.getString(titleIndex);
-                }
-
-                if (flagsIndex != -1) {
-                    hasThumbnail = (cursor.getInt(flagsIndex)
-                            & DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL) != 0;
-                }
-            }
-        } catch (SecurityException | NullPointerException e) {
-            logContentPreviewWarning(uri);
-        }
-
-        if (TextUtils.isEmpty(fileName)) {
-            fileName = uri.getPath();
-            int index = fileName.lastIndexOf('/');
-            if (index != -1) {
-                fileName = fileName.substring(index + 1);
-            }
-        }
-
-        return new FileInfo(fileName, hasThumbnail);
+    @VisibleForTesting
+    protected boolean isImageType(String mimeType) {
+        return mimeType != null && mimeType.startsWith("image/");
     }
 
     private void logContentPreviewWarning(Uri uri) {
@@ -1386,132 +1100,6 @@ public class ChooserActivity extends ResolverActivity implements
                 + "desired, consider using Intent#createChooser to launch the ChooserActivity, "
                 + "and set your Intent's clipData and flags in accordance with that method's "
                 + "documentation");
-    }
-
-    private ViewGroup displayFileContentPreview(Intent targetIntent, LayoutInflater layoutInflater,
-            ViewGroup parent) {
-
-        ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
-                R.layout.chooser_grid_preview_file, parent, false);
-
-        final ViewGroup actionRow =
-                (ViewGroup) contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
-        //TODO(b/120417119): addActionButton(actionRow, createCopyButton());
-        addActionButton(actionRow, createNearbyButton(targetIntent));
-
-        String action = targetIntent.getAction();
-        if (Intent.ACTION_SEND.equals(action)) {
-            Uri uri = targetIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-            loadFileUriIntoView(uri, contentPreviewLayout);
-        } else {
-            List<Uri> uris = targetIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            int uriCount = uris.size();
-
-            if (uriCount == 0) {
-                contentPreviewLayout.setVisibility(View.GONE);
-                Log.i(TAG,
-                        "Appears to be no uris available in EXTRA_STREAM, removing "
-                                + "preview area");
-                return contentPreviewLayout;
-            } else if (uriCount == 1) {
-                loadFileUriIntoView(uris.get(0), contentPreviewLayout);
-            } else {
-                FileInfo fileInfo = extractFileInfo(uris.get(0), getContentResolver());
-                int remUriCount = uriCount - 1;
-                Map<String, Object> arguments = new HashMap<>();
-                arguments.put(PLURALS_COUNT, remUriCount);
-                arguments.put(PLURALS_FILE_NAME, fileInfo.name);
-                String fileName = PluralsMessageFormatter.format(
-                        getResources(),
-                        arguments,
-                        R.string.file_count);
-
-                TextView fileNameView = contentPreviewLayout.findViewById(
-                        com.android.internal.R.id.content_preview_filename);
-                fileNameView.setText(fileName);
-
-                View thumbnailView = contentPreviewLayout.findViewById(
-                        com.android.internal.R.id.content_preview_file_thumbnail);
-                thumbnailView.setVisibility(View.GONE);
-
-                ImageView fileIconView = contentPreviewLayout.findViewById(
-                        com.android.internal.R.id.content_preview_file_icon);
-                fileIconView.setVisibility(View.VISIBLE);
-                fileIconView.setImageResource(R.drawable.ic_file_copy);
-            }
-        }
-
-        return contentPreviewLayout;
-    }
-
-    private void loadFileUriIntoView(final Uri uri, final View parent) {
-        FileInfo fileInfo = extractFileInfo(uri, getContentResolver());
-
-        TextView fileNameView = parent.findViewById(com.android.internal.R.id.content_preview_filename);
-        fileNameView.setText(fileInfo.name);
-
-        if (fileInfo.hasThumbnail) {
-            mPreviewCoord = new ContentPreviewCoordinator(
-                    this,
-                    parent,
-                    this::hideContentPreview,
-                    this::setupPreDrawForSharedElementTransition);
-            mPreviewCoord.loadUriIntoView(com.android.internal.R.id.content_preview_file_thumbnail, uri, 0);
-        } else {
-            View thumbnailView = parent.findViewById(com.android.internal.R.id.content_preview_file_thumbnail);
-            thumbnailView.setVisibility(View.GONE);
-
-            ImageView fileIconView = parent.findViewById(com.android.internal.R.id.content_preview_file_icon);
-            fileIconView.setVisibility(View.VISIBLE);
-            fileIconView.setImageResource(R.drawable.chooser_file_generic);
-        }
-    }
-
-    @VisibleForTesting
-    protected boolean isImageType(String mimeType) {
-        return mimeType != null && mimeType.startsWith("image/");
-    }
-
-    @ContentPreviewType
-    private int findPreferredContentPreview(Uri uri, ContentResolver resolver) {
-        if (uri == null) {
-            return CONTENT_PREVIEW_TEXT;
-        }
-
-        String mimeType = resolver.getType(uri);
-        return isImageType(mimeType) ? CONTENT_PREVIEW_IMAGE : CONTENT_PREVIEW_FILE;
-    }
-
-    /**
-     * In {@link android.content.Intent#getType}, the app may specify a very general
-     * mime-type that broadly covers all data being shared, such as {@literal *}/*
-     * when sending an image and text. We therefore should inspect each item for the
-     * the preferred type, in order of IMAGE, FILE, TEXT.
-     */
-    @ContentPreviewType
-    private int findPreferredContentPreview(Intent targetIntent, ContentResolver resolver) {
-        String action = targetIntent.getAction();
-        if (Intent.ACTION_SEND.equals(action)) {
-            Uri uri = targetIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-            return findPreferredContentPreview(uri, resolver);
-        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
-            List<Uri> uris = targetIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            if (uris == null || uris.isEmpty()) {
-                return CONTENT_PREVIEW_TEXT;
-            }
-
-            for (Uri uri : uris) {
-                // Defaulting to file preview when there are mixed image/file types is
-                // preferable, as it shows the user the correct number of items being shared
-                if (findPreferredContentPreview(uri, resolver) == CONTENT_PREVIEW_FILE) {
-                    return CONTENT_PREVIEW_FILE;
-                }
-            }
-
-            return CONTENT_PREVIEW_IMAGE;
-        }
-
-        return CONTENT_PREVIEW_TEXT;
     }
 
     private int getNumSheetExpansions() {
@@ -1544,7 +1132,7 @@ public class ChooserActivity extends ResolverActivity implements
             mRefinementResultReceiver = null;
         }
 
-        if (mPreviewCoord != null) mPreviewCoord.cancelLoads();
+        mBackgroundThreadPoolExecutor.shutdownNow();
 
         destroyProfileRecords();
     }
@@ -1872,147 +1460,6 @@ public class ChooserActivity extends ResolverActivity implements
         }
     }
 
-    @VisibleForTesting
-    protected void queryDirectShareTargets(
-                ChooserListAdapter adapter, boolean skipAppPredictionService) {
-        ProfileRecord record = getProfileRecord(adapter.getUserHandle());
-        if (record == null) {
-            return;
-        }
-
-        record.loadingStartTime = SystemClock.elapsedRealtime();
-
-        UserHandle userHandle = adapter.getUserHandle();
-        if (!skipAppPredictionService) {
-            if (record.appPredictor != null) {
-                record.appPredictor.requestPredictionUpdate();
-                return;
-            }
-        }
-        // Default to just querying ShortcutManager if AppPredictor not present.
-        final IntentFilter filter = getTargetIntentFilter();
-        if (filter == null) {
-            return;
-        }
-
-        AsyncTask.execute(() -> {
-            Context selectedProfileContext = createContextAsUser(userHandle, 0 /* flags */);
-            ShortcutManager sm = (ShortcutManager) selectedProfileContext
-                    .getSystemService(Context.SHORTCUT_SERVICE);
-            List<ShortcutManager.ShareShortcutInfo> resultList = sm.getShareTargets(filter);
-            sendShareShortcutInfoList(resultList, adapter, null);
-        });
-    }
-
-    /**
-     * Returns {@code false} if {@code userHandle} is the work profile and it's either
-     * in quiet mode or not running.
-     */
-    private boolean shouldQueryShortcutManager(UserHandle userHandle) {
-        if (!shouldShowTabs()) {
-            return true;
-        }
-        if (!getWorkProfileUserHandle().equals(userHandle)) {
-            return true;
-        }
-        if (!isUserRunning(userHandle)) {
-            return false;
-        }
-        if (!isUserUnlocked(userHandle)) {
-            return false;
-        }
-        if (isQuietModeEnabled(userHandle)) {
-            return false;
-        }
-        return true;
-    }
-
-    private void sendShareShortcutInfoList(
-                List<ShortcutManager.ShareShortcutInfo> resultList,
-                ChooserListAdapter chooserListAdapter,
-                @Nullable List<AppTarget> appTargets) {
-        if (appTargets != null && appTargets.size() != resultList.size()) {
-            throw new RuntimeException("resultList and appTargets must have the same size."
-                    + " resultList.size()=" + resultList.size()
-                    + " appTargets.size()=" + appTargets.size());
-        }
-        UserHandle userHandle = chooserListAdapter.getUserHandle();
-        Context selectedProfileContext = createContextAsUser(userHandle, 0 /* flags */);
-        for (int i = resultList.size() - 1; i >= 0; i--) {
-            final String packageName = resultList.get(i).getTargetComponent().getPackageName();
-            if (!isPackageEnabled(selectedProfileContext, packageName)) {
-                resultList.remove(i);
-                if (appTargets != null) {
-                    appTargets.remove(i);
-                }
-            }
-        }
-
-        // If |appTargets| is not null, results are from AppPredictionService and already sorted.
-        final int shortcutType = (appTargets == null ? TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER :
-                TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE);
-
-        // Match ShareShortcutInfos with DisplayResolveInfos to be able to use the old code path
-        // for direct share targets. After ShareSheet is refactored we should use the
-        // ShareShortcutInfos directly.
-        List<ServiceResultInfo> resultRecords = new ArrayList<>();
-        for (DisplayResolveInfo displayResolveInfo : chooserListAdapter.getDisplayResolveInfos()) {
-            List<ShortcutManager.ShareShortcutInfo> matchingShortcuts =
-                    filterShortcutsByTargetComponentName(
-                            resultList, displayResolveInfo.getResolvedComponentName());
-            if (matchingShortcuts.isEmpty()) {
-                continue;
-            }
-
-            List<ChooserTarget> chooserTargets = mShortcutToChooserTargetConverter
-                    .convertToChooserTarget(
-                        matchingShortcuts,
-                        resultList,
-                        appTargets,
-                        mDirectShareAppTargetCache,
-                        mDirectShareShortcutInfoCache);
-
-            ServiceResultInfo resultRecord = new ServiceResultInfo(
-                    displayResolveInfo, chooserTargets);
-            resultRecords.add(resultRecord);
-        }
-
-        runOnUiThread(() -> {
-            if (!isDestroyed()) {
-                onShortcutsLoaded(chooserListAdapter, shortcutType, resultRecords);
-            }
-        });
-    }
-
-    private List<ShortcutManager.ShareShortcutInfo> filterShortcutsByTargetComponentName(
-            List<ShortcutManager.ShareShortcutInfo> allShortcuts, ComponentName requiredTarget) {
-        List<ShortcutManager.ShareShortcutInfo> matchingShortcuts = new ArrayList<>();
-        for (ShortcutManager.ShareShortcutInfo shortcut : allShortcuts) {
-            if (requiredTarget.equals(shortcut.getTargetComponent())) {
-                matchingShortcuts.add(shortcut);
-            }
-        }
-        return matchingShortcuts;
-    }
-
-    private boolean isPackageEnabled(Context context, String packageName) {
-        if (TextUtils.isEmpty(packageName)) {
-            return false;
-        }
-        ApplicationInfo appInfo;
-        try {
-            appInfo = context.getPackageManager().getApplicationInfo(packageName, 0);
-        } catch (NameNotFoundException e) {
-            return false;
-        }
-
-        if (appInfo != null && appInfo.enabled
-                && (appInfo.flags & ApplicationInfo.FLAG_SUSPENDED) == 0) {
-            return true;
-        }
-        return false;
-    }
-
     private void logDirectShareTargetReceived(int logCategory, UserHandle forUser) {
         ProfileRecord profileRecord = getProfileRecord(forUser);
         if (profileRecord == null) {
@@ -2046,7 +1493,7 @@ public class ChooserActivity extends ResolverActivity implements
                     Log.d(TAG, "Action to be updated is " + targetIntent.getAction());
                 }
             } else if (DEBUG) {
-                Log.d(TAG, "Can not log Chooser Counts of null ResovleInfo");
+                Log.d(TAG, "Can not log Chooser Counts of null ResolveInfo");
             }
         }
         mIsSuccessfullySelected = true;
@@ -2089,9 +1536,6 @@ public class ChooserActivity extends ResolverActivity implements
         AppPredictor directShareAppPredictor = getAppPredictor(
                 mChooserMultiProfilePagerAdapter.getCurrentUserHandle());
         if (directShareAppPredictor == null) {
-            return;
-        }
-        if (!targetInfo.isChooserTargetInfo()) {
             return;
         }
         AppTarget appTarget = targetInfo.getDirectShareAppTarget();
@@ -2210,11 +1654,6 @@ public class ChooserActivity extends ResolverActivity implements
         ChooserListAdapter chooserListAdapter = createChooserListAdapter(context, payloadIntents,
                 initialIntents, rList, filterLastUsed,
                 createListController(userHandle));
-        if (!ActivityManager.isLowRamDeviceStatic()) {
-            AppPredictor.Callback appPredictorCallback =
-                    createAppPredictorCallback(chooserListAdapter);
-            setupAppPredictorForUser(userHandle, appPredictorCallback);
-        }
         return new ChooserGridAdapter(chooserListAdapter);
     }
 
@@ -2501,42 +1940,41 @@ public class ChooserActivity extends ResolverActivity implements
     }
 
     private void maybeQueryAdditionalPostProcessingTargets(ChooserListAdapter chooserListAdapter) {
-        // don't support direct share on low ram devices
-        if (ActivityManager.isLowRamDeviceStatic()) {
+        UserHandle userHandle = chooserListAdapter.getUserHandle();
+        ProfileRecord record = getProfileRecord(userHandle);
+        if (record == null) {
             return;
         }
-
-        // no need to query direct share for work profile when its locked or disabled
-        if (!shouldQueryShortcutManager(chooserListAdapter.getUserHandle())) {
+        if (record.shortcutLoader == null) {
             return;
         }
-
-        if (DEBUG) {
-            Log.d(TAG, "querying direct share targets from ShortcutManager");
-        }
-
-        queryDirectShareTargets(chooserListAdapter, false);
+        record.loadingStartTime = SystemClock.elapsedRealtime();
+        record.shortcutLoader.queryShortcuts(chooserListAdapter.getDisplayResolveInfos());
     }
 
-    @VisibleForTesting
     @MainThread
-    protected void onShortcutsLoaded(
-            ChooserListAdapter adapter, int targetType, List<ServiceResultInfo> resultInfos) {
-        UserHandle userHandle = adapter.getUserHandle();
+    private void onShortcutsLoaded(
+            UserHandle userHandle, ShortcutLoader.Result shortcutsResult) {
         if (DEBUG) {
             Log.d(TAG, "onShortcutsLoaded for user: " + userHandle);
         }
-        for (ServiceResultInfo resultInfo : resultInfos) {
-            if (resultInfo.resultTargets != null) {
+        mDirectShareShortcutInfoCache.putAll(shortcutsResult.directShareShortcutInfoCache);
+        mDirectShareAppTargetCache.putAll(shortcutsResult.directShareAppTargetCache);
+        ChooserListAdapter adapter =
+                mChooserMultiProfilePagerAdapter.getListAdapterForUserHandle(userHandle);
+        if (adapter != null) {
+            for (ShortcutLoader.ShortcutResultInfo resultInfo : shortcutsResult.shortcutsByApp) {
                 adapter.addServiceResults(
-                        resultInfo.originalTarget,
-                        resultInfo.resultTargets,
-                        targetType,
-                        emptyIfNull(mDirectShareShortcutInfoCache),
-                        emptyIfNull(mDirectShareAppTargetCache));
+                        resultInfo.appTarget,
+                        resultInfo.shortcuts,
+                        shortcutsResult.isFromAppPredictor
+                                ? TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE
+                                : TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER,
+                        mDirectShareShortcutInfoCache,
+                        mDirectShareAppTargetCache);
             }
+            adapter.completeServiceTargetLoading();
         }
-        adapter.completeServiceTargetLoading();
 
         logDirectShareTargetReceived(
                 MetricsEvent.ACTION_DIRECT_SHARE_TARGETS_LOADED_SHORTCUT_MANAGER,
@@ -2544,24 +1982,6 @@ public class ChooserActivity extends ResolverActivity implements
 
         sendVoiceChoicesIfNeeded();
         getChooserActivityLogger().logSharesheetDirectLoadComplete();
-    }
-
-    @VisibleForTesting
-    protected boolean isUserRunning(UserHandle userHandle) {
-        UserManager userManager = getSystemService(UserManager.class);
-        return userManager.isUserRunning(userHandle);
-    }
-
-    @VisibleForTesting
-    protected boolean isUserUnlocked(UserHandle userHandle) {
-        UserManager userManager = getSystemService(UserManager.class);
-        return userManager.isUserUnlocked(userHandle);
-    }
-
-    @VisibleForTesting
-    protected boolean isQuietModeEnabled(UserHandle userHandle) {
-        UserManager userManager = getSystemService(UserManager.class);
-        return userManager.isQuietModeEnabled(userHandle);
     }
 
     private void setupScrollListener() {
@@ -2675,7 +2095,8 @@ public class ChooserActivity extends ResolverActivity implements
             // then always preload it to avoid subsequent resizing of the share sheet.
             ViewGroup contentPreviewContainer = findViewById(com.android.internal.R.id.content_preview_container);
             if (contentPreviewContainer.getChildCount() == 0) {
-                ViewGroup contentPreviewView = createContentPreviewView(contentPreviewContainer);
+                ViewGroup contentPreviewView =
+                        createContentPreviewView(contentPreviewContainer, mPreviewCoordinator);
                 contentPreviewContainer.addView(contentPreviewView);
             }
         }
@@ -2709,7 +2130,8 @@ public class ChooserActivity extends ResolverActivity implements
 
     private void logActionShareWithPreview() {
         Intent targetIntent = getTargetIntent();
-        int previewType = findPreferredContentPreview(targetIntent, getContentResolver());
+        int previewType = ChooserContentPreviewUi.findPreferredContentPreview(
+                targetIntent, getContentResolver(), this::isImageType);
         getMetricsLogger().write(new LogMaker(MetricsEvent.ACTION_SHARE_WITH_PREVIEW)
                 .setSubtype(previewType));
     }
@@ -3031,7 +2453,10 @@ public class ChooserActivity extends ResolverActivity implements
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             switch (viewType) {
                 case VIEW_TYPE_CONTENT_PREVIEW:
-                    return new ItemViewHolder(createContentPreviewView(parent), false, viewType);
+                    return new ItemViewHolder(
+                            createContentPreviewView(parent, mPreviewCoordinator),
+                            false,
+                            viewType);
                 case VIEW_TYPE_PROFILE:
                     return new ItemViewHolder(createProfileView(parent), false, viewType);
                 case VIEW_TYPE_AZ_LABEL:
@@ -3596,16 +3021,6 @@ public class ChooserActivity extends ResolverActivity implements
         }
     }
 
-    static class ServiceResultInfo {
-        public final DisplayResolveInfo originalTarget;
-        public final List<ChooserTarget> resultTargets;
-
-        ServiceResultInfo(DisplayResolveInfo ot, List<ChooserTarget> rt) {
-            originalTarget = ot;
-            resultTargets = rt;
-        }
-    }
-
     static class ChooserTargetRankingInfo {
         public final List<AppTarget> scores;
         public final UserHandle userHandle;
@@ -3781,22 +3196,28 @@ public class ChooserActivity extends ResolverActivity implements
         getChooserActivityLogger().logSharesheetProfileChanged();
     }
 
-    private static <K, V> Map<K, V> emptyIfNull(@Nullable Map<K, V> map) {
-        return map == null ? Collections.emptyMap() : map;
-    }
-
     private static class ProfileRecord {
         /** The {@link AppPredictor} for this profile, if any. */
         @Nullable
         public final AppPredictor appPredictor;
-
+        /**
+         * null if we should not load shortcuts.
+         */
+        @Nullable
+        public final ShortcutLoader shortcutLoader;
         public long loadingStartTime;
 
-        ProfileRecord(@Nullable AppPredictor appPredictor) {
+        private ProfileRecord(
+                @Nullable AppPredictor appPredictor,
+                @Nullable ShortcutLoader shortcutLoader) {
             this.appPredictor = appPredictor;
+            this.shortcutLoader = shortcutLoader;
         }
 
         public void destroy() {
+            if (shortcutLoader != null) {
+                shortcutLoader.destroy();
+            }
             if (appPredictor != null) {
                 appPredictor.destroy();
             }
