@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver.shortcuts
+package com.android.intentresolver
 
 import android.app.prediction.AppTarget
 import android.content.ComponentName
@@ -22,8 +22,6 @@ import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager.ShareShortcutInfo
 import android.service.chooser.ChooserTarget
-import com.android.intentresolver.createAppTarget
-import com.android.intentresolver.createShareShortcutInfo
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
