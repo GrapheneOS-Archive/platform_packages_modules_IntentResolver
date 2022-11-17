@@ -38,6 +38,7 @@ import static com.android.intentresolver.MatcherUtils.first;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
 
 import static org.hamcrest.CoreMatchers.allOf;
@@ -82,7 +83,6 @@ import android.os.UserHandle;
 import android.provider.DeviceConfig;
 import android.service.chooser.ChooserTarget;
 import android.util.Pair;
-import android.util.SparseArray;
 import android.view.View;
 
 import androidx.annotation.CallSuper;
@@ -93,9 +93,9 @@ import androidx.test.espresso.matcher.BoundedDiagnosingMatcher;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
+import com.android.intentresolver.ChooserActivity.ServiceResultInfo;
 import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
-import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
@@ -118,7 +118,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -1280,7 +1279,7 @@ public class UnbundledChooserActivityTest {
     }
 
     // This test is too long and too slow and should not be taken as an example for future tests.
-    @Test
+    @Test @Ignore
     public void testDirectTargetSelectionLogging() {
         Intent sendIntent = createSendTextIntent();
         // We need app targets for direct targets to get displayed
@@ -1299,55 +1298,37 @@ public class UnbundledChooserActivityTest {
         // Set up resources
         MetricsLogger mockLogger = ChooserActivityOverrideData.getInstance().metricsLogger;
         ArgumentCaptor<LogMaker> logMakerCaptor = ArgumentCaptor.forClass(LogMaker.class);
-
-        // create test shortcut loader factory, remember loaders and their callbacks
-        SparseArray<Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>>> shortcutLoaders =
-                createShortcutLoaderFactory();
+        // Create direct share target
+        List<ChooserTarget> serviceTargets = createDirectShareTargets(1, "");
+        ResolveInfo ri = ResolverDataProvider.createResolveInfo(3, 0);
 
         // Start activity
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
-        waitForIdle();
 
-        // verify that ShortcutLoader was queried
-        ArgumentCaptor<DisplayResolveInfo[]> appTargets =
-                ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
-
-        // send shortcuts
-        assertThat(
-                "Wrong number of app targets",
-                appTargets.getValue().length,
-                is(resolvedComponentInfos.size()));
-        List<ChooserTarget> serviceTargets = createDirectShareTargets(1, "");
-        ShortcutLoader.Result result = new ShortcutLoader.Result(
-                true,
-                appTargets.getValue(),
-                new ShortcutLoader.ShortcutResultInfo[] {
-                        new ShortcutLoader.ShortcutResultInfo(
-                                appTargets.getValue()[0],
-                                serviceTargets
-                        )
-                },
-                new HashMap<>(),
-                new HashMap<>()
+        // Insert the direct share target
+        Map<ChooserTarget, ShortcutInfo> directShareToShortcutInfos = new HashMap<>();
+        directShareToShortcutInfos.put(serviceTargets.get(0), null);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> activity.getAdapter().addServiceResults(
+                        activity.createTestDisplayResolveInfo(sendIntent,
+                                ri,
+                                "testLabel",
+                                "testInfo",
+                                sendIntent,
+                                /* resolveInfoPresentationGetter */ null),
+                        serviceTargets,
+                        TARGET_TYPE_CHOOSER_TARGET,
+                        directShareToShortcutInfos,
+                        /* directShareToAppTargets */ null)
         );
-        activity.getMainExecutor().execute(() -> shortcutLoaders.get(0).second.accept(result));
-        waitForIdle();
 
-        final ChooserListAdapter activeAdapter = activity.getAdapter();
-        assertThat(
-                "Chooser should have 3 targets (2 apps, 1 direct)",
-                activeAdapter.getCount(),
-                is(3));
-        assertThat(
-                "Chooser should have exactly one selectable direct target",
-                activeAdapter.getSelectableServiceTargetCount(),
-                is(1));
-        assertThat(
-                "The resolver info must match the resolver info used to create the target",
-                activeAdapter.getItem(0).getResolveInfo(),
-                is(resolvedComponentInfos.get(0).getResolveInfoAt(0)));
+        assertThat("Chooser should have 3 targets (2 apps, 1 direct)",
+                activity.getAdapter().getCount(), is(3));
+        assertThat("Chooser should have exactly one selectable direct target",
+                activity.getAdapter().getSelectableServiceTargetCount(), is(1));
+        assertThat("The resolver info must match the resolver info used to create the target",
+                activity.getAdapter().getItem(0).getResolveInfo(), is(ri));
 
         // Click on the direct target
         String name = serviceTargets.get(0).getTitle().toString();
@@ -1355,29 +1336,23 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        // Currently we're seeing 4 invocations
-        //      1. ChooserActivity.logActionShareWithPreview()
-        //      2. ChooserActivity.onCreate()
-        //      3. ChooserActivity.logDirectShareTargetReceived()
-        //      4. ChooserActivity.startSelected -- which is the one we're after
-        verify(mockLogger, Mockito.times(4)).write(logMakerCaptor.capture());
-        LogMaker selectionLog = logMakerCaptor.getAllValues().get(3);
-        assertThat(
-                selectionLog.getCategory(),
+        // Currently we're seeing 3 invocations
+        //      1. ChooserActivity.onCreate()
+        //      2. ChooserActivity$ChooserRowAdapter.createContentPreviewView()
+        //      3. ChooserActivity.startSelected -- which is the one we're after
+        verify(mockLogger, Mockito.times(3)).write(logMakerCaptor.capture());
+        assertThat(logMakerCaptor.getAllValues().get(2).getCategory(),
                 is(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET));
-        String hashedName = (String) selectionLog.getTaggedData(
-                MetricsEvent.FIELD_HASHED_TARGET_NAME);
-        assertThat(
-                "Hash is not predictable but must be obfuscated",
+        String hashedName = (String) logMakerCaptor
+                .getAllValues().get(2).getTaggedData(MetricsEvent.FIELD_HASHED_TARGET_NAME);
+        assertThat("Hash is not predictable but must be obfuscated",
                 hashedName, is(not(name)));
-        assertThat(
-                "The packages shouldn't match for app target and direct target",
-                selectionLog.getTaggedData(MetricsEvent.FIELD_RANKED_POSITION),
-                is(-1));
+        assertThat("The packages shouldn't match for app target and direct target", logMakerCaptor
+                .getAllValues().get(2).getTaggedData(MetricsEvent.FIELD_RANKED_POSITION), is(-1));
     }
 
     // This test is too long and too slow and should not be taken as an example for future tests.
-    @Test
+    @Test @Ignore
     public void testDirectTargetLoggingWithRankedAppTarget() {
         Intent sendIntent = createSendTextIntent();
         // We need app targets for direct targets to get displayed
@@ -1396,57 +1371,38 @@ public class UnbundledChooserActivityTest {
         // Set up resources
         MetricsLogger mockLogger = ChooserActivityOverrideData.getInstance().metricsLogger;
         ArgumentCaptor<LogMaker> logMakerCaptor = ArgumentCaptor.forClass(LogMaker.class);
-
-        // create test shortcut loader factory, remember loaders and their callbacks
-        SparseArray<Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>>> shortcutLoaders =
-                createShortcutLoaderFactory();
+        // Create direct share target
+        List<ChooserTarget> serviceTargets = createDirectShareTargets(1,
+                resolvedComponentInfos.get(0).getResolveInfoAt(0).activityInfo.packageName);
+        ResolveInfo ri = ResolverDataProvider.createResolveInfo(3, 0);
 
         // Start activity
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
-        waitForIdle();
 
-        // verify that ShortcutLoader was queried
-        ArgumentCaptor<DisplayResolveInfo[]> appTargets =
-                ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
-
-        // send shortcuts
-        assertThat(
-                "Wrong number of app targets",
-                appTargets.getValue().length,
-                is(resolvedComponentInfos.size()));
-        List<ChooserTarget> serviceTargets = createDirectShareTargets(
-                1,
-                resolvedComponentInfos.get(0).getResolveInfoAt(0).activityInfo.packageName);
-        ShortcutLoader.Result result = new ShortcutLoader.Result(
-                true,
-                appTargets.getValue(),
-                new ShortcutLoader.ShortcutResultInfo[] {
-                        new ShortcutLoader.ShortcutResultInfo(
-                                appTargets.getValue()[0],
-                                serviceTargets
-                        )
-                },
-                new HashMap<>(),
-                new HashMap<>()
+        // Insert the direct share target
+        Map<ChooserTarget, ShortcutInfo> directShareToShortcutInfos = new HashMap<>();
+        directShareToShortcutInfos.put(serviceTargets.get(0), null);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> activity.getAdapter().addServiceResults(
+                        activity.createTestDisplayResolveInfo(sendIntent,
+                                ri,
+                                "testLabel",
+                                "testInfo",
+                                sendIntent,
+                                /* resolveInfoPresentationGetter */ null),
+                        serviceTargets,
+                        TARGET_TYPE_CHOOSER_TARGET,
+                        directShareToShortcutInfos,
+                        /* directShareToAppTargets */ null)
         );
-        activity.getMainExecutor().execute(() -> shortcutLoaders.get(0).second.accept(result));
-        waitForIdle();
 
-        final ChooserListAdapter activeAdapter = activity.getAdapter();
-        assertThat(
-                "Chooser should have 3 targets (2 apps, 1 direct)",
-                activeAdapter.getCount(),
-                is(3));
-        assertThat(
-                "Chooser should have exactly one selectable direct target",
-                activeAdapter.getSelectableServiceTargetCount(),
-                is(1));
-        assertThat(
-                "The resolver info must match the resolver info used to create the target",
-                activeAdapter.getItem(0).getResolveInfo(),
-                is(resolvedComponentInfos.get(0).getResolveInfoAt(0)));
+        assertThat("Chooser should have 3 targets (2 apps, 1 direct)",
+                activity.getAdapter().getCount(), is(3));
+        assertThat("Chooser should have exactly one selectable direct target",
+                activity.getAdapter().getSelectableServiceTargetCount(), is(1));
+        assertThat("The resolver info must match the resolver info used to create the target",
+                activity.getAdapter().getItem(0).getResolveInfo(), is(ri));
 
         // Click on the direct target
         String name = serviceTargets.get(0).getTitle().toString();
@@ -1454,19 +1410,18 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        // Currently we're seeing 4 invocations
-        //      1. ChooserActivity.logActionShareWithPreview()
-        //      2. ChooserActivity.onCreate()
-        //      3. ChooserActivity.logDirectShareTargetReceived()
-        //      4. ChooserActivity.startSelected -- which is the one we're after
-        verify(mockLogger, Mockito.times(4)).write(logMakerCaptor.capture());
-        assertThat(logMakerCaptor.getAllValues().get(3).getCategory(),
+        // Currently we're seeing 3 invocations
+        //      1. ChooserActivity.onCreate()
+        //      2. ChooserActivity$ChooserRowAdapter.createContentPreviewView()
+        //      3. ChooserActivity.startSelected -- which is the one we're after
+        verify(mockLogger, Mockito.times(3)).write(logMakerCaptor.capture());
+        assertThat(logMakerCaptor.getAllValues().get(2).getCategory(),
                 is(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET));
         assertThat("The packages should match for app target and direct target", logMakerCaptor
-                .getAllValues().get(3).getTaggedData(MetricsEvent.FIELD_RANKED_POSITION), is(0));
+                .getAllValues().get(2).getTaggedData(MetricsEvent.FIELD_RANKED_POSITION), is(0));
     }
 
-    @Test
+    @Test @Ignore
     public void testShortcutTargetWithApplyAppLimits() {
         // Set up resources
         ChooserActivityOverrideData.getInstance().resources = Mockito.spy(
@@ -1490,64 +1445,48 @@ public class UnbundledChooserActivityTest {
                                 Mockito.anyBoolean(),
                                 Mockito.isA(List.class)))
                 .thenReturn(resolvedComponentInfos);
-
-        // create test shortcut loader factory, remember loaders and their callbacks
-        SparseArray<Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>>> shortcutLoaders =
-                createShortcutLoaderFactory();
+        // Create direct share target
+        List<ChooserTarget> serviceTargets = createDirectShareTargets(2,
+                resolvedComponentInfos.get(0).getResolveInfoAt(0).activityInfo.packageName);
+        ResolveInfo ri = ResolverDataProvider.createResolveInfo(3, 0);
 
         // Start activity
-        final IChooserWrapper activity = (IChooserWrapper) mActivityRule
-                .launchActivity(Intent.createChooser(sendIntent, null));
-        waitForIdle();
+        final ChooserActivity activity =
+                mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
+        final IChooserWrapper wrapper = (IChooserWrapper) activity;
 
-        // verify that ShortcutLoader was queried
-        ArgumentCaptor<DisplayResolveInfo[]> appTargets =
-                ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
-
-        // send shortcuts
-        assertThat(
-                "Wrong number of app targets",
-                appTargets.getValue().length,
-                is(resolvedComponentInfos.size()));
-        List<ChooserTarget> serviceTargets = createDirectShareTargets(
-                2,
-                resolvedComponentInfos.get(0).getResolveInfoAt(0).activityInfo.packageName);
-        ShortcutLoader.Result result = new ShortcutLoader.Result(
-                true,
-                appTargets.getValue(),
-                new ShortcutLoader.ShortcutResultInfo[] {
-                        new ShortcutLoader.ShortcutResultInfo(
-                                appTargets.getValue()[0],
-                                serviceTargets
-                        )
-                },
-                new HashMap<>(),
-                new HashMap<>()
+        // Insert the direct share target
+        Map<ChooserTarget, ShortcutInfo> directShareToShortcutInfos = new HashMap<>();
+        List<ShareShortcutInfo> shortcutInfos = createShortcuts(activity);
+        directShareToShortcutInfos.put(serviceTargets.get(0),
+                shortcutInfos.get(0).getShortcutInfo());
+        directShareToShortcutInfos.put(serviceTargets.get(1),
+                shortcutInfos.get(1).getShortcutInfo());
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> wrapper.getAdapter().addServiceResults(
+                        wrapper.createTestDisplayResolveInfo(sendIntent,
+                                ri,
+                                "testLabel",
+                                "testInfo",
+                                sendIntent,
+                                /* resolveInfoPresentationGetter */ null),
+                        serviceTargets,
+                        TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE,
+                        directShareToShortcutInfos,
+                        /* directShareToAppTargets */ null)
         );
-        activity.getMainExecutor().execute(() -> shortcutLoaders.get(0).second.accept(result));
-        waitForIdle();
 
-        final ChooserListAdapter activeAdapter = activity.getAdapter();
-        assertThat(
-                "Chooser should have 3 targets (2 apps, 1 direct)",
-                activeAdapter.getCount(),
-                is(3));
-        assertThat(
-                "Chooser should have exactly one selectable direct target",
-                activeAdapter.getSelectableServiceTargetCount(),
-                is(1));
-        assertThat(
-                "The resolver info must match the resolver info used to create the target",
-                activeAdapter.getItem(0).getResolveInfo(),
-                is(resolvedComponentInfos.get(0).getResolveInfoAt(0)));
-        assertThat(
-                "The display label must match",
-                activeAdapter.getItem(0).getDisplayLabel(),
-                is("testTitle0"));
+        assertThat("Chooser should have 3 targets (2 apps, 1 direct)",
+                wrapper.getAdapter().getCount(), is(3));
+        assertThat("Chooser should have exactly one selectable direct target",
+                wrapper.getAdapter().getSelectableServiceTargetCount(), is(1));
+        assertThat("The resolver info must match the resolver info used to create the target",
+                wrapper.getAdapter().getItem(0).getResolveInfo(), is(ri));
+        assertThat("The display label must match",
+                wrapper.getAdapter().getItem(0).getDisplayLabel(), is("testTitle0"));
     }
 
-    @Test
+    @Test @Ignore
     public void testShortcutTargetWithoutApplyAppLimits() {
         setDeviceConfigProperty(
                 SystemUiDeviceConfigFlags.APPLY_SHARING_APP_LIMITS_IN_SYSUI,
@@ -1574,65 +1513,47 @@ public class UnbundledChooserActivityTest {
                                 Mockito.anyBoolean(),
                                 Mockito.isA(List.class)))
                 .thenReturn(resolvedComponentInfos);
-
-        // create test shortcut loader factory, remember loaders and their callbacks
-        SparseArray<Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>>> shortcutLoaders =
-                createShortcutLoaderFactory();
+        // Create direct share target
+        List<ChooserTarget> serviceTargets = createDirectShareTargets(2,
+                resolvedComponentInfos.get(0).getResolveInfoAt(0).activityInfo.packageName);
+        ResolveInfo ri = ResolverDataProvider.createResolveInfo(3, 0);
 
         // Start activity
-        final IChooserWrapper activity = (IChooserWrapper)
+        final ChooserActivity activity =
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
-        waitForIdle();
+        final IChooserWrapper wrapper = (IChooserWrapper) activity;
 
-        // verify that ShortcutLoader was queried
-        ArgumentCaptor<DisplayResolveInfo[]> appTargets =
-                ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
-
-        // send shortcuts
-        assertThat(
-                "Wrong number of app targets",
-                appTargets.getValue().length,
-                is(resolvedComponentInfos.size()));
-        List<ChooserTarget> serviceTargets = createDirectShareTargets(
-                2,
-                resolvedComponentInfos.get(0).getResolveInfoAt(0).activityInfo.packageName);
-        ShortcutLoader.Result result = new ShortcutLoader.Result(
-                true,
-                appTargets.getValue(),
-                new ShortcutLoader.ShortcutResultInfo[] {
-                        new ShortcutLoader.ShortcutResultInfo(
-                                appTargets.getValue()[0],
-                                serviceTargets
-                        )
-                },
-                new HashMap<>(),
-                new HashMap<>()
+        // Insert the direct share target
+        Map<ChooserTarget, ShortcutInfo> directShareToShortcutInfos = new HashMap<>();
+        List<ShareShortcutInfo> shortcutInfos = createShortcuts(activity);
+        directShareToShortcutInfos.put(serviceTargets.get(0),
+                shortcutInfos.get(0).getShortcutInfo());
+        directShareToShortcutInfos.put(serviceTargets.get(1),
+                shortcutInfos.get(1).getShortcutInfo());
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> wrapper.getAdapter().addServiceResults(
+                        wrapper.createTestDisplayResolveInfo(sendIntent,
+                                ri,
+                                "testLabel",
+                                "testInfo",
+                                sendIntent,
+                                /* resolveInfoPresentationGetter */ null),
+                        serviceTargets,
+                        TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE,
+                        directShareToShortcutInfos,
+                        /* directShareToAppTargets */ null)
         );
-        activity.getMainExecutor().execute(() -> shortcutLoaders.get(0).second.accept(result));
-        waitForIdle();
 
-        final ChooserListAdapter activeAdapter = activity.getAdapter();
-        assertThat(
-                "Chooser should have 4 targets (2 apps, 2 direct)",
-                activeAdapter.getCount(),
-                is(4));
-        assertThat(
-                "Chooser should have exactly two selectable direct target",
-                activeAdapter.getSelectableServiceTargetCount(),
-                is(2));
-        assertThat(
-                "The resolver info must match the resolver info used to create the target",
-                activeAdapter.getItem(0).getResolveInfo(),
-                is(resolvedComponentInfos.get(0).getResolveInfoAt(0)));
-        assertThat(
-                "The display label must match",
-                activeAdapter.getItem(0).getDisplayLabel(),
-                is("testTitle0"));
-        assertThat(
-                "The display label must match",
-                activeAdapter.getItem(1).getDisplayLabel(),
-                is("testTitle1"));
+        assertThat("Chooser should have 4 targets (2 apps, 2 direct)",
+                wrapper.getAdapter().getCount(), is(4));
+        assertThat("Chooser should have exactly two selectable direct target",
+                wrapper.getAdapter().getSelectableServiceTargetCount(), is(2));
+        assertThat("The resolver info must match the resolver info used to create the target",
+                wrapper.getAdapter().getItem(0).getResolveInfo(), is(ri));
+        assertThat("The display label must match",
+                wrapper.getAdapter().getItem(0).getDisplayLabel(), is("testTitle0"));
+        assertThat("The display label must match",
+                wrapper.getAdapter().getItem(1).getDisplayLabel(), is("testTitle1"));
     }
 
     @Test
@@ -2027,59 +1948,43 @@ public class UnbundledChooserActivityTest {
                                 Mockito.isA(List.class)))
                 .thenReturn(resolvedComponentInfos);
 
-        // create test shortcut loader factory, remember loaders and their callbacks
-        SparseArray<Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>>> shortcutLoaders =
-                new SparseArray<>();
-        ChooserActivityOverrideData.getInstance().shortcutLoaderFactory =
-                (userHandle, callback) -> {
-                    Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>> pair =
-                            new Pair<>(mock(ShortcutLoader.class), callback);
-                    shortcutLoaders.put(userHandle.getIdentifier(), pair);
-                    return pair.first;
+        // Create direct share target
+        List<ChooserTarget> serviceTargets = createDirectShareTargets(1,
+                resolvedComponentInfos.get(0).getResolveInfoAt(0).activityInfo.packageName);
+        ResolveInfo ri = ResolverDataProvider.createResolveInfo(3, 0);
+
+        ChooserActivityOverrideData
+                .getInstance()
+                .directShareTargets = (activity, adapter) -> {
+                    DisplayResolveInfo displayInfo = activity.createTestDisplayResolveInfo(
+                            sendIntent,
+                            ri,
+                             "testLabel",
+                             "testInfo",
+                            sendIntent,
+                            /* resolveInfoPresentationGetter */ null);
+                    ServiceResultInfo[] results = {
+                            new ServiceResultInfo(displayInfo, serviceTargets) };
+                    // TODO: consider covering the other type.
+                    //  Only 2 types are expected out of the shortcut loading logic:
+                    //  - TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER, if shortcuts were loaded from
+                    //    the ShortcutManager, and;
+                    //  - TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE, if shortcuts were loaded
+                    //    from AppPredictor.
+                    //  Ideally, our tests should cover all of them.
+                    return new Pair<>(TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER, results);
                 };
 
         // Start activity
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
-        waitForIdle();
-
-        // verify that ShortcutLoader was queried
-        ArgumentCaptor<DisplayResolveInfo[]> appTargets =
-                ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1))
-                .queryShortcuts(appTargets.capture());
-
-        // send shortcuts
-        assertThat(
-                "Wrong number of app targets",
-                appTargets.getValue().length,
-                is(resolvedComponentInfos.size()));
-        List<ChooserTarget> serviceTargets = createDirectShareTargets(1,
-                resolvedComponentInfos.get(0).getResolveInfoAt(0).activityInfo.packageName);
-        ShortcutLoader.Result result = new ShortcutLoader.Result(
-                // TODO: test another value as well
-                false,
-                appTargets.getValue(),
-                new ShortcutLoader.ShortcutResultInfo[] {
-                        new ShortcutLoader.ShortcutResultInfo(
-                                appTargets.getValue()[0],
-                                serviceTargets
-                        )
-                },
-                new HashMap<>(),
-                new HashMap<>()
-        );
-        activity.getMainExecutor().execute(() -> shortcutLoaders.get(0).second.accept(result));
-        waitForIdle();
 
         assertThat("Chooser should have 3 targets (2 apps, 1 direct)",
                 activity.getAdapter().getCount(), is(3));
         assertThat("Chooser should have exactly one selectable direct target",
                 activity.getAdapter().getSelectableServiceTargetCount(), is(1));
-        assertThat(
-                "The resolver info must match the resolver info used to create the target",
-                activity.getAdapter().getItem(0).getResolveInfo(),
-                is(resolvedComponentInfos.get(0).getResolveInfoAt(0)));
+        assertThat("The resolver info must match the resolver info used to create the target",
+                activity.getAdapter().getItem(0).getResolveInfo(), is(ri));
 
         // Click on the direct target
         String name = serviceTargets.get(0).getTitle().toString();
@@ -2193,7 +2098,7 @@ public class UnbundledChooserActivityTest {
             return true;
         };
 
-        mActivityRule.launchActivity(Intent.createChooser(sendIntent, "Test"));
+        mActivityRule.launchActivity(sendIntent);
         waitForIdle();
 
         assertThat(chosen[0], is(personalResolvedComponentInfos.get(1).getResolveInfoAt(0)));
@@ -2368,20 +2273,21 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    public void test_query_shortcut_loader_for_the_selected_tab() {
+    public void testWorkTab_selectingWorkTabWithPausedWorkProfile_directShareTargetsNotQueried() {
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
                 createResolvedComponentsForTest(3);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
-        ShortcutLoader personalProfileShortcutLoader = mock(ShortcutLoader.class);
-        ShortcutLoader workProfileShortcutLoader = mock(ShortcutLoader.class);
-        final SparseArray<ShortcutLoader> shortcutLoaders = new SparseArray<>();
-        shortcutLoaders.put(0, personalProfileShortcutLoader);
-        shortcutLoaders.put(10, workProfileShortcutLoader);
-        ChooserActivityOverrideData.getInstance().shortcutLoaderFactory =
-                (userHandle, callback) -> shortcutLoaders.get(userHandle.getIdentifier(), null);
+        ChooserActivityOverrideData.getInstance().isQuietModeEnabled = true;
+        boolean[] isQueryDirectShareCalledOnWorkProfile = new boolean[] { false };
+        ChooserActivityOverrideData.getInstance().onQueryDirectShareTargets =
+                chooserListAdapter -> {
+                    isQueryDirectShareCalledOnWorkProfile[0] =
+                            (chooserListAdapter.getUserHandle().getIdentifier() == 10);
+                    return null;
+                };
         Intent sendIntent = createSendTextIntent();
         sendIntent.setType(TEST_MIME_TYPE);
 
@@ -2389,14 +2295,118 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
         onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
-        waitForIdle();
-
-        verify(personalProfileShortcutLoader, times(1)).queryShortcuts(any());
-
         onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
-        verify(workProfileShortcutLoader, times(1)).queryShortcuts(any());
+        assertFalse("Direct share targets were queried on a paused work profile",
+                isQueryDirectShareCalledOnWorkProfile[0]);
+    }
+
+    @Test
+    public void testWorkTab_selectingWorkTabWithNotRunningWorkUser_directShareTargetsNotQueried() {
+        markWorkProfileUserAvailable();
+        List<ResolvedComponentInfo> personalResolvedComponentInfos =
+                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
+        List<ResolvedComponentInfo> workResolvedComponentInfos =
+                createResolvedComponentsForTest(3);
+        setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
+        ChooserActivityOverrideData.getInstance().isWorkProfileUserRunning = false;
+        boolean[] isQueryDirectShareCalledOnWorkProfile = new boolean[] { false };
+        ChooserActivityOverrideData.getInstance().onQueryDirectShareTargets =
+                chooserListAdapter -> {
+                    isQueryDirectShareCalledOnWorkProfile[0] =
+                            (chooserListAdapter.getUserHandle().getIdentifier() == 10);
+                    return null;
+                };
+        Intent sendIntent = createSendTextIntent();
+        sendIntent.setType(TEST_MIME_TYPE);
+
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
+        waitForIdle();
+        onView(withId(com.android.internal.R.id.contentPanel))
+                .perform(swipeUp());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
+        waitForIdle();
+
+        assertFalse("Direct share targets were queried on a locked work profile user",
+                isQueryDirectShareCalledOnWorkProfile[0]);
+    }
+
+    @Test
+    public void testWorkTab_workUserNotRunning_workTargetsShown() {
+        markWorkProfileUserAvailable();
+        List<ResolvedComponentInfo> personalResolvedComponentInfos =
+                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
+        List<ResolvedComponentInfo> workResolvedComponentInfos =
+                createResolvedComponentsForTest(3);
+        setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
+        Intent sendIntent = createSendTextIntent();
+        sendIntent.setType(TEST_MIME_TYPE);
+        ChooserActivityOverrideData.getInstance().isWorkProfileUserRunning = false;
+
+        final ChooserActivity activity =
+                mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
+        final IChooserWrapper wrapper = (IChooserWrapper) activity;
+        waitForIdle();
+        onView(withId(com.android.internal.R.id.contentPanel)).perform(swipeUp());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
+        waitForIdle();
+
+        assertEquals(3, wrapper.getWorkListAdapter().getCount());
+    }
+
+    @Test
+    public void testWorkTab_selectingWorkTabWithLockedWorkUser_directShareTargetsNotQueried() {
+        markWorkProfileUserAvailable();
+        List<ResolvedComponentInfo> personalResolvedComponentInfos =
+                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
+        List<ResolvedComponentInfo> workResolvedComponentInfos =
+                createResolvedComponentsForTest(3);
+        setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
+        ChooserActivityOverrideData.getInstance().isWorkProfileUserUnlocked = false;
+        boolean[] isQueryDirectShareCalledOnWorkProfile = new boolean[] { false };
+        ChooserActivityOverrideData.getInstance().onQueryDirectShareTargets =
+                chooserListAdapter -> {
+                    isQueryDirectShareCalledOnWorkProfile[0] =
+                            (chooserListAdapter.getUserHandle().getIdentifier() == 10);
+                    return null;
+                };
+        Intent sendIntent = createSendTextIntent();
+        sendIntent.setType(TEST_MIME_TYPE);
+
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
+        waitForIdle();
+        onView(withId(com.android.internal.R.id.contentPanel))
+                .perform(swipeUp());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
+        waitForIdle();
+
+        assertFalse("Direct share targets were queried on a locked work profile user",
+                isQueryDirectShareCalledOnWorkProfile[0]);
+    }
+
+    @Test
+    public void testWorkTab_workUserLocked_workTargetsShown() {
+        markWorkProfileUserAvailable();
+        List<ResolvedComponentInfo> personalResolvedComponentInfos =
+                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
+        List<ResolvedComponentInfo> workResolvedComponentInfos =
+                createResolvedComponentsForTest(3);
+        setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
+        Intent sendIntent = createSendTextIntent();
+        sendIntent.setType(TEST_MIME_TYPE);
+        ChooserActivityOverrideData.getInstance().isWorkProfileUserUnlocked = false;
+
+        final ChooserActivity activity =
+                mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
+        final IChooserWrapper wrapper = (IChooserWrapper) activity;
+        waitForIdle();
+        onView(withId(com.android.internal.R.id.contentPanel))
+                .perform(swipeUp());
+        onView(withText(R.string.resolver_work_tab)).perform(click());
+        waitForIdle();
+
+        assertEquals(3, wrapper.getWorkListAdapter().getCount());
     }
 
     private Intent createChooserIntent(Intent intent, Intent[] initialIntents) {
@@ -2702,19 +2712,5 @@ public class UnbundledChooserActivityTest {
                         .resources
                         .getInteger(R.integer.config_chooser_max_targets_per_row))
                 .thenReturn(targetsPerRow);
-    }
-
-    private SparseArray<Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>>>
-            createShortcutLoaderFactory() {
-        SparseArray<Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>>> shortcutLoaders =
-                new SparseArray<>();
-        ChooserActivityOverrideData.getInstance().shortcutLoaderFactory =
-                (userHandle, callback) -> {
-                    Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>> pair =
-                            new Pair<>(mock(ShortcutLoader.class), callback);
-                    shortcutLoaders.put(userHandle.getIdentifier(), pair);
-                    return pair.first;
-                };
-        return shortcutLoaders;
     }
 }
