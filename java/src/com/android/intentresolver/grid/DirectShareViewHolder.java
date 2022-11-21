@@ -113,7 +113,7 @@ public class DirectShareViewHolder extends ItemGroupViewHolder {
             mCellVisibility[i] = false;
 
             ValueAnimator fadeAnim = ObjectAnimator.ofFloat(v, "alpha", 1.0f, 0f);
-            fadeAnim.setDuration(ChooserActivity.NO_DIRECT_SHARE_ANIM_IN_MILLIS);
+            fadeAnim.setDuration(ChooserGridAdapter.NO_DIRECT_SHARE_ANIM_IN_MILLIS);
             fadeAnim.setInterpolator(new AccelerateInterpolator(1.0f));
             fadeAnim.addListener(new AnimatorListenerAdapter() {
                 public void onAnimationEnd(Animator animation) {
