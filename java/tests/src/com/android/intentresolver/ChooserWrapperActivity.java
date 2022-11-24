@@ -35,13 +35,10 @@ import android.net.Uri;
 import android.os.UserHandle;
 import android.util.Size;
 
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter;
-import com.android.intentresolver.ChooserActivityLogger;
-import com.android.intentresolver.ChooserActivityOverrideData;
-import com.android.intentresolver.ChooserListAdapter;
-import com.android.intentresolver.IChooserWrapper;
+import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
+import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
+import com.android.intentresolver.AbstractMultiProfilePagerAdapter.QuietModeManager;
 import com.android.intentresolver.ResolverListAdapter.ResolveInfoPresentationGetter;
-import com.android.intentresolver.ResolverListController;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.NotSelectableTargetInfo;
 import com.android.intentresolver.chooser.TargetInfo;
@@ -66,15 +63,6 @@ public class ChooserWrapperActivity
     @Override
     public int getLaunchedFromUid() {
         return 1234;
-    }
-
-    @Override
-    protected AbstractMultiProfilePagerAdapter createMultiProfilePagerAdapter(
-            Intent[] initialIntents, List<ResolveInfo> rList, boolean filterLastUsed) {
-        AbstractMultiProfilePagerAdapter multiProfilePagerAdapter =
-                super.createMultiProfilePagerAdapter(initialIntents, rList, filterLastUsed);
-        multiProfilePagerAdapter.setInjector(sOverrides.multiPagerAdapterInjector);
-        return multiProfilePagerAdapter;
     }
 
     @Override
@@ -147,6 +135,30 @@ public class ChooserWrapperActivity
             return sOverrides.isVoiceInteraction;
         }
         return super.isVoiceInteraction();
+    }
+
+    @Override
+    protected MyUserIdProvider createMyUserIdProvider() {
+        if (sOverrides.mMyUserIdProvider != null) {
+            return sOverrides.mMyUserIdProvider;
+        }
+        return super.createMyUserIdProvider();
+    }
+
+    @Override
+    protected CrossProfileIntentsChecker createCrossProfileIntentsChecker() {
+        if (sOverrides.mCrossProfileIntentsChecker != null) {
+            return sOverrides.mCrossProfileIntentsChecker;
+        }
+        return super.createCrossProfileIntentsChecker();
+    }
+
+    @Override
+    protected QuietModeManager createQuietModeManager() {
+        if (sOverrides.mQuietModeManager != null) {
+            return sOverrides.mQuietModeManager;
+        }
+        return super.createQuietModeManager();
     }
 
     @Override
