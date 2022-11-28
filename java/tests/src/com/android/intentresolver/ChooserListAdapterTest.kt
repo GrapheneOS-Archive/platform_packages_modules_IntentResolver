@@ -56,6 +56,8 @@ class ChooserListAdapterTest {
             emptyList(),
             false,
             resolverListController,
+            null,
+            Intent(),
             mock(),
             packageManager,
             chooserActivityLogger,
