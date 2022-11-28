@@ -26,8 +26,6 @@ import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_S
 
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
@@ -93,7 +91,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
 import android.view.WindowInsets;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
@@ -114,6 +111,12 @@ import com.android.intentresolver.ResolverListAdapter.ViewHolder;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.grid.DirectShareViewHolder;
+import com.android.intentresolver.grid.FooterViewHolder;
+import com.android.intentresolver.grid.ItemGroupViewHolder;
+import com.android.intentresolver.grid.ItemViewHolder;
+import com.android.intentresolver.grid.SingleRowViewHolder;
+import com.android.intentresolver.grid.ViewHolderBase;
 import com.android.intentresolver.model.AbstractResolverComparator;
 import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
@@ -136,7 +139,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.net.URISyntaxException;
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -232,9 +234,9 @@ public class ChooserActivity extends ResolverActivity implements
      * The transition time between placeholders for direct share to a message
      * indicating that non are available.
      */
-    private static final int NO_DIRECT_SHARE_ANIM_IN_MILLIS = 200;
+    public static final int NO_DIRECT_SHARE_ANIM_IN_MILLIS = 200;
 
-    private static final float DIRECT_SHARE_EXPANSION_RATE = 0.78f;
+    public static final float DIRECT_SHARE_EXPANSION_RATE = 0.78f;
 
     private static final int DEFAULT_SALT_EXPIRATION_DAYS = 7;
     private final int mMaxHashSaltDays = DeviceConfig.getInt(DeviceConfig.NAMESPACE_SYSTEMUI,
@@ -2210,60 +2212,6 @@ public class ChooserActivity extends ResolverActivity implements
         return mContentView;
     }
 
-    abstract static class ViewHolderBase extends RecyclerView.ViewHolder {
-        private int mViewType;
-
-        ViewHolderBase(View itemView, int viewType) {
-            super(itemView);
-            this.mViewType = viewType;
-        }
-
-        int getViewType() {
-            return mViewType;
-        }
-    }
-
-    /**
-     * Used to bind types of individual item including
-     * {@link ChooserGridAdapter#VIEW_TYPE_NORMAL},
-     * {@link ChooserGridAdapter#VIEW_TYPE_CONTENT_PREVIEW},
-     * {@link ChooserGridAdapter#VIEW_TYPE_PROFILE},
-     * and {@link ChooserGridAdapter#VIEW_TYPE_AZ_LABEL}.
-     */
-    final class ItemViewHolder extends ViewHolderBase {
-        ResolverListAdapter.ViewHolder mWrappedViewHolder;
-        int mListPosition = ChooserListAdapter.NO_POSITION;
-
-        ItemViewHolder(View itemView, boolean isClickable, int viewType) {
-            super(itemView, viewType);
-            mWrappedViewHolder = new ResolverListAdapter.ViewHolder(itemView);
-            if (isClickable) {
-                itemView.setOnClickListener(v -> startSelected(mListPosition,
-                        false/* always */, true/* filterd */));
-
-                itemView.setOnLongClickListener(v -> {
-                    final TargetInfo ti = mChooserMultiProfilePagerAdapter.getActiveListAdapter()
-                            .targetInfoForPosition(mListPosition, /* filtered */ true);
-
-                    // This should always be the case for ItemViewHolder, check for validity
-                    if (ti.isDisplayResolveInfo()) {
-                        showTargetDetails(ti);
-                    }
-                    return true;
-                });
-            }
-        }
-    }
-
-    /**
-     * Add a footer to the list, to support scrolling behavior below the navbar.
-     */
-    static final class FooterViewHolder extends ViewHolderBase {
-        FooterViewHolder(View itemView, int viewType) {
-            super(itemView, viewType);
-        }
-    }
-
     /**
      * Intentionally override the {@link ResolverActivity} implementation as we only need that
      * implementation for the intent resolver case.
@@ -2503,15 +2451,41 @@ public class ChooserActivity extends ResolverActivity implements
                 case VIEW_TYPE_CONTENT_PREVIEW:
                     return new ItemViewHolder(
                             createContentPreviewView(parent, mPreviewCoordinator),
-                            false,
-                            viewType);
+                            viewType,
+                            null,
+                            null);
                 case VIEW_TYPE_PROFILE:
-                    return new ItemViewHolder(createProfileView(parent), false, viewType);
+                    return new ItemViewHolder(
+                            createProfileView(parent),
+                            viewType,
+                            null,
+                            null);
                 case VIEW_TYPE_AZ_LABEL:
-                    return new ItemViewHolder(createAzLabelView(parent), false, viewType);
+                    return new ItemViewHolder(
+                            createAzLabelView(parent),
+                            viewType,
+                            null,
+                            null);
                 case VIEW_TYPE_NORMAL:
                     return new ItemViewHolder(
-                            mChooserListAdapter.createView(parent), true, viewType);
+                            mChooserListAdapter.createView(parent),
+                            viewType,
+                            selectedPosition -> startSelected(
+                                    selectedPosition,
+                                    /* always= */ false,
+                                    /* filtered= */ true),
+                            selectedPosition -> {
+                                final TargetInfo longPressedTargetInfo =
+                                        mChooserMultiProfilePagerAdapter
+                                        .getActiveListAdapter()
+                                        .targetInfoForPosition(
+                                                selectedPosition, /* filtered= */ true);
+                                // ItemViewHolder contents should always be "display resolve info"
+                                // targets, but check just to make sure.
+                                if (longPressedTargetInfo.isDisplayResolveInfo()) {
+                                    showTargetDetails(longPressedTargetInfo);
+                                }
+                            });
                 case VIEW_TYPE_DIRECT_SHARE:
                 case VIEW_TYPE_CALLER_AND_RANK:
                     return createItemGroupViewHolder(viewType, parent);
@@ -2704,7 +2678,7 @@ public class ChooserActivity extends ResolverActivity implements
         void bindItemViewHolder(int position, ItemViewHolder holder) {
             View v = holder.itemView;
             int listPosition = getListPosition(position);
-            holder.mListPosition = listPosition;
+            holder.setListPosition(listPosition);
             mChooserListAdapter.bindView(listPosition, v);
         }
 
@@ -2817,254 +2791,6 @@ public class ChooserActivity extends ResolverActivity implements
                 mDirectShareViewHolder.collapse(activeAdapterView);
             } else {
                 mDirectShareViewHolder.expand(activeAdapterView);
-            }
-        }
-    }
-
-    /**
-     * Used to bind types for group of items including:
-     * {@link ChooserGridAdapter#VIEW_TYPE_DIRECT_SHARE},
-     * and {@link ChooserGridAdapter#VIEW_TYPE_CALLER_AND_RANK}.
-     */
-    abstract static class ItemGroupViewHolder extends ViewHolderBase {
-        protected int mMeasuredRowHeight;
-        private int[] mItemIndices;
-        protected final View[] mCells;
-        private final int mColumnCount;
-
-        ItemGroupViewHolder(int cellCount, View itemView, int viewType) {
-            super(itemView, viewType);
-            this.mCells = new View[cellCount];
-            this.mItemIndices = new int[cellCount];
-            this.mColumnCount = cellCount;
-        }
-
-        abstract ViewGroup addView(int index, View v);
-
-        abstract ViewGroup getViewGroup();
-
-        abstract ViewGroup getRowByIndex(int index);
-
-        abstract ViewGroup getRow(int rowNumber);
-
-        abstract void setViewVisibility(int i, int visibility);
-
-        public int getColumnCount() {
-            return mColumnCount;
-        }
-
-        public void measure() {
-            final int spec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
-            getViewGroup().measure(spec, spec);
-            mMeasuredRowHeight = getViewGroup().getMeasuredHeight();
-        }
-
-        public int getMeasuredRowHeight() {
-            return mMeasuredRowHeight;
-        }
-
-        public void setItemIndex(int itemIndex, int listIndex) {
-            mItemIndices[itemIndex] = listIndex;
-        }
-
-        public int getItemIndex(int itemIndex) {
-            return mItemIndices[itemIndex];
-        }
-
-        public View getView(int index) {
-            return mCells[index];
-        }
-    }
-
-    static class SingleRowViewHolder extends ItemGroupViewHolder {
-        private final ViewGroup mRow;
-
-        SingleRowViewHolder(ViewGroup row, int cellCount, int viewType) {
-            super(cellCount, row, viewType);
-
-            this.mRow = row;
-        }
-
-        public ViewGroup getViewGroup() {
-            return mRow;
-        }
-
-        public ViewGroup getRowByIndex(int index) {
-            return mRow;
-        }
-
-        public ViewGroup getRow(int rowNumber) {
-            if (rowNumber == 0) return mRow;
-            return null;
-        }
-
-        public ViewGroup addView(int index, View v) {
-            mRow.addView(v);
-            mCells[index] = v;
-
-            return mRow;
-        }
-
-        public void setViewVisibility(int i, int visibility) {
-            getView(i).setVisibility(visibility);
-        }
-    }
-
-    static class DirectShareViewHolder extends ItemGroupViewHolder {
-        private final ViewGroup mParent;
-        private final List<ViewGroup> mRows;
-        private int mCellCountPerRow;
-
-        private boolean mHideDirectShareExpansion = false;
-        private int mDirectShareMinHeight = 0;
-        private int mDirectShareCurrHeight = 0;
-        private int mDirectShareMaxHeight = 0;
-
-        private final boolean[] mCellVisibility;
-
-        private final Supplier<ChooserListAdapter> mListAdapterSupplier;
-
-        DirectShareViewHolder(ViewGroup parent, List<ViewGroup> rows, int cellCountPerRow,
-                int viewType, Supplier<ChooserListAdapter> listAdapterSupplier) {
-            super(rows.size() * cellCountPerRow, parent, viewType);
-
-            this.mParent = parent;
-            this.mRows = rows;
-            this.mCellCountPerRow = cellCountPerRow;
-            this.mCellVisibility = new boolean[rows.size() * cellCountPerRow];
-            Arrays.fill(mCellVisibility, true);
-            this.mListAdapterSupplier = listAdapterSupplier;
-        }
-
-        public ViewGroup addView(int index, View v) {
-            ViewGroup row = getRowByIndex(index);
-            row.addView(v);
-            mCells[index] = v;
-
-            return row;
-        }
-
-        public ViewGroup getViewGroup() {
-            return mParent;
-        }
-
-        public ViewGroup getRowByIndex(int index) {
-            return mRows.get(index / mCellCountPerRow);
-        }
-
-        public ViewGroup getRow(int rowNumber) {
-            return mRows.get(rowNumber);
-        }
-
-        public void measure() {
-            final int spec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
-            getRow(0).measure(spec, spec);
-            getRow(1).measure(spec, spec);
-
-            mDirectShareMinHeight = getRow(0).getMeasuredHeight();
-            mDirectShareCurrHeight = mDirectShareCurrHeight > 0
-                    ? mDirectShareCurrHeight : mDirectShareMinHeight;
-            mDirectShareMaxHeight = 2 * mDirectShareMinHeight;
-        }
-
-        public int getMeasuredRowHeight() {
-            return mDirectShareCurrHeight;
-        }
-
-        public int getMinRowHeight() {
-            return mDirectShareMinHeight;
-        }
-
-        public void setViewVisibility(int i, int visibility) {
-            final View v = getView(i);
-            if (visibility == View.VISIBLE) {
-                mCellVisibility[i] = true;
-                v.setVisibility(visibility);
-                v.setAlpha(1.0f);
-            } else if (visibility == View.INVISIBLE && mCellVisibility[i]) {
-                mCellVisibility[i] = false;
-
-                ValueAnimator fadeAnim = ObjectAnimator.ofFloat(v, "alpha", 1.0f, 0f);
-                fadeAnim.setDuration(NO_DIRECT_SHARE_ANIM_IN_MILLIS);
-                fadeAnim.setInterpolator(new AccelerateInterpolator(1.0f));
-                fadeAnim.addListener(new AnimatorListenerAdapter() {
-                    public void onAnimationEnd(Animator animation) {
-                        v.setVisibility(View.INVISIBLE);
-                    }
-                });
-                fadeAnim.start();
-            }
-        }
-
-        public void handleScroll(RecyclerView view, int y, int oldy, int maxTargetsPerRow) {
-            // only exit early if fully collapsed, otherwise onListRebuilt() with shifting
-            // targets can lock us into an expanded mode
-            boolean notExpanded = mDirectShareCurrHeight == mDirectShareMinHeight;
-            if (notExpanded) {
-                if (mHideDirectShareExpansion) {
-                    return;
-                }
-
-                // only expand if we have more than maxTargetsPerRow, and delay that decision
-                // until they start to scroll
-                ChooserListAdapter adapter = mListAdapterSupplier.get();
-                int validTargets = adapter.getSelectableServiceTargetCount();
-                if (validTargets <= maxTargetsPerRow) {
-                    mHideDirectShareExpansion = true;
-                    return;
-                }
-            }
-
-            int yDiff = (int) ((oldy - y) * DIRECT_SHARE_EXPANSION_RATE);
-
-            int prevHeight = mDirectShareCurrHeight;
-            int newHeight = Math.min(prevHeight + yDiff, mDirectShareMaxHeight);
-            newHeight = Math.max(newHeight, mDirectShareMinHeight);
-            yDiff = newHeight - prevHeight;
-
-            updateDirectShareRowHeight(view, yDiff, newHeight);
-        }
-
-        void expand(RecyclerView view) {
-            updateDirectShareRowHeight(view, mDirectShareMaxHeight - mDirectShareCurrHeight,
-                    mDirectShareMaxHeight);
-        }
-
-        void collapse(RecyclerView view) {
-            updateDirectShareRowHeight(view, mDirectShareMinHeight - mDirectShareCurrHeight,
-                    mDirectShareMinHeight);
-        }
-
-        private void updateDirectShareRowHeight(RecyclerView view, int yDiff, int newHeight) {
-            if (view == null || view.getChildCount() == 0 || yDiff == 0) {
-                return;
-            }
-
-            // locate the item to expand, and offset the rows below that one
-            boolean foundExpansion = false;
-            for (int i = 0; i < view.getChildCount(); i++) {
-                View child = view.getChildAt(i);
-
-                if (foundExpansion) {
-                    child.offsetTopAndBottom(yDiff);
-                } else {
-                    if (child.getTag() != null && child.getTag() instanceof DirectShareViewHolder) {
-                        int widthSpec = MeasureSpec.makeMeasureSpec(child.getWidth(),
-                                MeasureSpec.EXACTLY);
-                        int heightSpec = MeasureSpec.makeMeasureSpec(newHeight,
-                                MeasureSpec.EXACTLY);
-                        child.measure(widthSpec, heightSpec);
-                        child.getLayoutParams().height = child.getMeasuredHeight();
-                        child.layout(child.getLeft(), child.getTop(), child.getRight(),
-                                child.getTop() + child.getMeasuredHeight());
-
-                        foundExpansion = true;
-                    }
-                }
-            }
-
-            if (foundExpansion) {
-                mDirectShareCurrHeight = newHeight;
             }
         }
     }
