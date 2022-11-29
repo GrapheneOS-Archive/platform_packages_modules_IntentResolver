@@ -45,10 +45,6 @@ class ChooserListAdapterTest {
     }
     private val context = InstrumentationRegistry.getInstrumentation().getContext()
     private val resolverListController = mock<ResolverListController>()
-    private val chooserListCommunicator = mock<ChooserListAdapter.ChooserListCommunicator> {
-        whenever(maxRankedTargets).thenReturn(0)
-        whenever(targetIntent).thenReturn(mock())
-    }
     private val chooserActivityLogger = mock<ChooserActivityLogger>()
 
     private fun createChooserListAdapter(
@@ -60,9 +56,11 @@ class ChooserListAdapterTest {
             emptyList(),
             false,
             resolverListController,
-            chooserListCommunicator,
+            mock(),
             packageManager,
             chooserActivityLogger,
+            mock(),
+            0
         ) {
             override fun createLoadDirectShareIconTask(
                 info: SelectableTargetInfo
