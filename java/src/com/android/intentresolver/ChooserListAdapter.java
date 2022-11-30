@@ -83,7 +83,9 @@ public class ChooserListAdapter extends ResolverListAdapter {
     /** {@link #getBaseScore} */
     public static final float SHORTCUT_TARGET_SCORE_BOOST = 90.f;
 
-    private final ChooserListCommunicator mChooserListCommunicator;
+    private final ChooserRequestParameters mChooserRequest;
+    private final int mMaxRankedTargets;
+
     private final ChooserActivityLogger mChooserActivityLogger;
 
     private final Map<TargetInfo, AsyncTask> mIconLoaders = new HashMap<>();
@@ -136,15 +138,19 @@ public class ChooserListAdapter extends ResolverListAdapter {
             List<ResolveInfo> rList,
             boolean filterLastUsed,
             ResolverListController resolverListController,
-            ChooserListCommunicator chooserListCommunicator,
+            ResolverListCommunicator resolverListCommunicator,
             PackageManager packageManager,
-            ChooserActivityLogger chooserActivityLogger) {
+            ChooserActivityLogger chooserActivityLogger,
+            ChooserRequestParameters chooserRequest,
+            int maxRankedTargets) {
         // Don't send the initial intents through the shared ResolverActivity path,
         // we want to separate them into a different section.
         super(context, payloadIntents, null, rList, filterLastUsed,
-                resolverListController, chooserListCommunicator, false);
+                resolverListController, resolverListCommunicator, false);
 
-        mChooserListCommunicator = chooserListCommunicator;
+        mChooserRequest = chooserRequest;
+        mMaxRankedTargets = maxRankedTargets;
+
         mPlaceHolderTargetInfo = NotSelectableTargetInfo.newPlaceHolderTargetInfo(context);
         createPlaceHolders();
         mChooserActivityLogger = chooserActivityLogger;
@@ -221,13 +227,13 @@ public class ChooserListAdapter extends ResolverListAdapter {
             Log.d(TAG, "clearing queryTargets on package change");
         }
         createPlaceHolders();
-        mChooserListCommunicator.onHandlePackagesChanged(this);
+        mResolverListCommunicator.onHandlePackagesChanged(this);
 
     }
 
     private void createPlaceHolders() {
         mServiceTargets.clear();
-        for (int i = 0; i < mChooserListCommunicator.getMaxRankedTargets(); i++) {
+        for (int i = 0; i < mMaxRankedTargets; ++i) {
             mServiceTargets.add(mPlaceHolderTargetInfo);
         }
     }
@@ -367,8 +373,9 @@ public class ChooserListAdapter extends ResolverListAdapter {
     @Override
     public int getUnfilteredCount() {
         int appTargets = super.getUnfilteredCount();
-        if (appTargets > mChooserListCommunicator.getMaxRankedTargets()) {
-            appTargets = appTargets + mChooserListCommunicator.getMaxRankedTargets();
+        if (appTargets > mMaxRankedTargets) {
+            // TODO: what does this condition mean?
+            appTargets = appTargets + mMaxRankedTargets;
         }
         return appTargets + getSelectableServiceTargetCount() + getCallerTargetCount();
     }
@@ -392,9 +399,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
     }
 
     public int getServiceTargetCount() {
-        if (mChooserListCommunicator.isSendAction(mChooserListCommunicator.getTargetIntent())
-                && !ActivityManager.isLowRamDeviceStatic()) {
-            return Math.min(mServiceTargets.size(), mChooserListCommunicator.getMaxRankedTargets());
+        if (mChooserRequest.isSendActionTarget() && !ActivityManager.isLowRamDeviceStatic()) {
+            return Math.min(mServiceTargets.size(), mMaxRankedTargets);
         }
 
         return 0;
@@ -403,15 +409,14 @@ public class ChooserListAdapter extends ResolverListAdapter {
     int getAlphaTargetCount() {
         int groupedCount = mSortedList.size();
         int ungroupedCount = mCallerTargets.size() + mDisplayList.size();
-        return ungroupedCount > mChooserListCommunicator.getMaxRankedTargets() ? groupedCount : 0;
+        return (ungroupedCount > mMaxRankedTargets) ? groupedCount : 0;
     }
 
     /**
      * Fetch ranked app target count
      */
     public int getRankedTargetCount() {
-        int spacesAvailable =
-                mChooserListCommunicator.getMaxRankedTargets() - getCallerTargetCount();
+        int spacesAvailable = mMaxRankedTargets - getCallerTargetCount();
         return Math.min(spacesAvailable, super.getCount());
     }
 
@@ -508,8 +513,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
     protected boolean shouldAddResolveInfo(DisplayResolveInfo dri) {
         // Checks if this info is already listed in callerTargets.
         for (TargetInfo existingInfo : mCallerTargets) {
-            if (mResolverListCommunicator
-                    .resolveInfoMatch(dri.getResolveInfo(), existingInfo.getResolveInfo())) {
+            if (mResolverListCommunicator.resolveInfoMatch(
+                    dri.getResolveInfo(), existingInfo.getResolveInfo())) {
                 return false;
             }
         }
@@ -520,9 +525,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
      * Fetch surfaced direct share target info
      */
     public List<TargetInfo> getSurfacedTargetInfo() {
-        int maxSurfacedTargets = mChooserListCommunicator.getMaxRankedTargets();
         return mServiceTargets.subList(0,
-                Math.min(maxSurfacedTargets, getSelectableServiceTargetCount()));
+                Math.min(mMaxRankedTargets, getSelectableServiceTargetCount()));
     }
 
 
@@ -550,9 +554,9 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 directShareToShortcutInfos,
                 directShareToAppTargets,
                 mContext.createContextAsUser(getUserHandle(), 0),
-                mChooserListCommunicator.getTargetIntent(),
-                mChooserListCommunicator.getReferrerFillInIntent(),
-                mChooserListCommunicator.getMaxRankedTargets(),
+                mChooserRequest.getTargetIntent(),
+                mChooserRequest.getReferrerFillInIntent(),
+                mMaxRankedTargets,
                 mServiceTargets);
         if (isUpdated) {
             notifyDataSetChanged();
@@ -616,8 +620,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
             protected List<ResolvedComponentInfo> doInBackground(
                     List<ResolvedComponentInfo>... params) {
                 Trace.beginSection("ChooserListAdapter#SortingTask");
-                mResolverListController.topK(params[0],
-                        mChooserListCommunicator.getMaxRankedTargets());
+                mResolverListController.topK(params[0], mMaxRankedTargets);
                 Trace.endSection();
                 return params[0];
             }
@@ -625,26 +628,11 @@ public class ChooserListAdapter extends ResolverListAdapter {
             protected void onPostExecute(List<ResolvedComponentInfo> sortedComponents) {
                 processSortedList(sortedComponents, doPostProcessing);
                 if (doPostProcessing) {
-                    mChooserListCommunicator.updateProfileViewButton();
+                    mResolverListCommunicator.updateProfileViewButton();
                     notifyDataSetChanged();
                 }
             }
         };
-    }
-
-    /**
-     * Necessary methods to communicate between {@link ChooserListAdapter}
-     * and {@link ChooserActivity}.
-     */
-    interface ChooserListCommunicator extends ResolverListCommunicator {
-
-        int getMaxRankedTargets();
-
-        boolean isSendAction(Intent targetIntent);
-
-        Intent getTargetIntent();
-
-        Intent getReferrerFillInIntent();
     }
 
     /**

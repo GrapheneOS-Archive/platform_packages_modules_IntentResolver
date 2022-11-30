@@ -66,9 +66,15 @@ public class ChooserWrapperActivity
     }
 
     @Override
-    public ChooserListAdapter createChooserListAdapter(Context context, List<Intent> payloadIntents,
-            Intent[] initialIntents, List<ResolveInfo> rList, boolean filterLastUsed,
-            ResolverListController resolverListController) {
+    public ChooserListAdapter createChooserListAdapter(
+            Context context,
+            List<Intent> payloadIntents,
+            Intent[] initialIntents,
+            List<ResolveInfo> rList,
+            boolean filterLastUsed,
+            ResolverListController resolverListController,
+            ChooserRequestParameters chooserRequest,
+            int maxTargetsPerRow) {
         PackageManager packageManager =
                 sOverrides.packageManager == null ? context.getPackageManager()
                         : sOverrides.packageManager;
@@ -81,7 +87,9 @@ public class ChooserWrapperActivity
                 resolverListController,
                 this,
                 packageManager,
-                getChooserActivityLogger());
+                getChooserActivityLogger(),
+                chooserRequest,
+                maxTargetsPerRow);
     }
 
     @Override
