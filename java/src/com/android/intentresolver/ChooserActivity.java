@@ -1359,11 +1359,11 @@ public class ChooserActivity extends ResolverActivity implements
                 targetInfo.getChooserTargetComponentName().getPackageName();
         ChooserListAdapter currentListAdapter =
                 mChooserMultiProfilePagerAdapter.getActiveListAdapter();
-        int maxRankedResults = Math.min(currentListAdapter.mDisplayList.size(),
-                MAX_LOG_RANK_POSITION);
+        int maxRankedResults = Math.min(
+                currentListAdapter.getDisplayResolveInfoCount(), MAX_LOG_RANK_POSITION);
 
         for (int i = 0; i < maxRankedResults; i++) {
-            if (currentListAdapter.mDisplayList.get(i)
+            if (currentListAdapter.getDisplayResolveInfo(i)
                     .getResolveInfo().activityInfo.packageName.equals(targetPackageName)) {
                 return i;
             }
@@ -1627,6 +1627,8 @@ public class ChooserActivity extends ResolverActivity implements
                 rList,
                 filterLastUsed,
                 createListController(userHandle),
+                userHandle,
+                getTargetIntent(),
                 mChooserRequest,
                 mMaxTargetsPerRow);
         return new ChooserGridAdapter(chooserListAdapter);
@@ -1640,6 +1642,8 @@ public class ChooserActivity extends ResolverActivity implements
             List<ResolveInfo> rList,
             boolean filterLastUsed,
             ResolverListController resolverListController,
+            UserHandle userHandle,
+            Intent targetIntent,
             ChooserRequestParameters chooserRequest,
             int maxTargetsPerRow) {
         return new ChooserListAdapter(
@@ -1649,6 +1653,8 @@ public class ChooserActivity extends ResolverActivity implements
                 rList,
                 filterLastUsed,
                 resolverListController,
+                userHandle,
+                targetIntent,
                 this,
                 context.getPackageManager(),
                 getChooserActivityLogger(),
@@ -1898,8 +1904,7 @@ public class ChooserActivity extends ResolverActivity implements
                     .setupListAdapter(mChooserMultiProfilePagerAdapter.getCurrentPage());
         }
 
-        if (chooserListAdapter.mDisplayList == null
-                || chooserListAdapter.mDisplayList.isEmpty()) {
+        if (chooserListAdapter.getDisplayResolveInfoCount() == 0) {
             chooserListAdapter.notifyDataSetChanged();
         } else {
             chooserListAdapter.updateAlphabeticalList();

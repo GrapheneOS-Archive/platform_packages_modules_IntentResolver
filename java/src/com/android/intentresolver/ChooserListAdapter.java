@@ -37,6 +37,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.AsyncTask;
 import android.os.Trace;
+import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.DeviceConfig;
 import android.service.chooser.ChooserTarget;
@@ -67,8 +68,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
     private static final String TAG = "ChooserListAdapter";
     private static final boolean DEBUG = false;
 
-    private boolean mEnableStackedApps = true;
-
     public static final int NO_POSITION = -1;
     public static final int TARGET_BAD = -1;
     public static final int TARGET_CALLER = 0;
@@ -95,10 +94,10 @@ public class ChooserListAdapter extends ResolverListAdapter {
     private final List<TargetInfo> mServiceTargets = new ArrayList<>();
     private final List<DisplayResolveInfo> mCallerTargets = new ArrayList<>();
 
+    private final ShortcutSelectionLogic mShortcutSelectionLogic;
+
     // Sorted list of DisplayResolveInfos for the alphabetical app section.
     private List<DisplayResolveInfo> mSortedList = new ArrayList<>();
-
-    private final ShortcutSelectionLogic mShortcutSelectionLogic;
 
     // For pinned direct share labels, if the text spans multiple lines, the TextView will consume
     // the full width, even if the characters actually take up less than that. Measure the actual
@@ -138,6 +137,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
             List<ResolveInfo> rList,
             boolean filterLastUsed,
             ResolverListController resolverListController,
+            UserHandle userHandle,
+            Intent targetIntent,
             ResolverListCommunicator resolverListCommunicator,
             PackageManager packageManager,
             ChooserActivityLogger chooserActivityLogger,
@@ -145,8 +146,17 @@ public class ChooserListAdapter extends ResolverListAdapter {
             int maxRankedTargets) {
         // Don't send the initial intents through the shared ResolverActivity path,
         // we want to separate them into a different section.
-        super(context, payloadIntents, null, rList, filterLastUsed,
-                resolverListController, resolverListCommunicator, false);
+        super(
+                context,
+                payloadIntents,
+                null,
+                rList,
+                filterLastUsed,
+                resolverListController,
+                userHandle,
+                targetIntent,
+                resolverListCommunicator,
+                false);
 
         mChooserRequest = chooserRequest;
         mMaxRankedTargets = maxRankedTargets;
@@ -334,11 +344,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
             @Override
             protected List<DisplayResolveInfo> doInBackground(Void... voids) {
                 List<DisplayResolveInfo> allTargets = new ArrayList<>();
-                allTargets.addAll(mDisplayList);
+                allTargets.addAll(getTargetsInCurrentDisplayList());
                 allTargets.addAll(mCallerTargets);
-                if (!mEnableStackedApps) {
-                    return allTargets;
-                }
 
                 // Consolidate multiple targets from same app.
                 return allTargets
@@ -408,7 +415,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
 
     int getAlphaTargetCount() {
         int groupedCount = mSortedList.size();
-        int ungroupedCount = mCallerTargets.size() + mDisplayList.size();
+        int ungroupedCount = mCallerTargets.size() + getDisplayResolveInfoCount();
         return (ungroupedCount > mMaxRankedTargets) ? groupedCount : 0;
     }
 

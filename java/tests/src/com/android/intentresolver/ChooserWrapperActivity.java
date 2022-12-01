@@ -73,6 +73,8 @@ public class ChooserWrapperActivity
             List<ResolveInfo> rList,
             boolean filterLastUsed,
             ResolverListController resolverListController,
+            UserHandle userHandle,
+            Intent targetIntent,
             ChooserRequestParameters chooserRequest,
             int maxTargetsPerRow) {
         PackageManager packageManager =
@@ -85,6 +87,8 @@ public class ChooserWrapperActivity
                 rList,
                 filterLastUsed,
                 resolverListController,
+                userHandle,
+                targetIntent,
                 this,
                 packageManager,
                 getChooserActivityLogger(),
