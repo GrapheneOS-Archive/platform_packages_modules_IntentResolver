@@ -147,7 +147,6 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * The Chooser Activity handles intent resolution specifically for sharing intents -
@@ -355,6 +354,12 @@ public class ChooserActivity extends ResolverActivity implements
                         mChooserRequest.getTargetIntentFilter()),
                 mChooserRequest.getTargetIntentFilter());
 
+        mPreviewCoordinator = new ChooserContentPreviewCoordinator(
+                mBackgroundThreadPoolExecutor,
+                this,
+                this::hideContentPreview,
+                this::setupPreDrawForSharedElementTransition);
+
         super.onCreate(
                 savedInstanceState,
                 mChooserRequest.getTargetIntent(),
@@ -363,12 +368,6 @@ public class ChooserActivity extends ResolverActivity implements
                 mChooserRequest.getInitialIntents(),
                 /* rList: List<ResolveInfo> = */ null,
                 /* supportsAlwaysUseOption = */ false);
-
-        mPreviewCoordinator = new ChooserContentPreviewCoordinator(
-                mBackgroundThreadPoolExecutor,
-                this,
-                this::hideContentPreview,
-                this::setupPreDrawForSharedElementTransition);
 
         mChooserShownTime = System.currentTimeMillis();
         final long systemCost = mChooserShownTime - intentReceivedTime;
