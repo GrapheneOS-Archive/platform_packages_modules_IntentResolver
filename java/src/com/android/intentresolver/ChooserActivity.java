@@ -1871,21 +1871,20 @@ public class ChooserActivity extends ResolverActivity implements
     }
 
     @MainThread
-    private void onShortcutsLoaded(
-            UserHandle userHandle, ShortcutLoader.Result shortcutsResult) {
+    private void onShortcutsLoaded(UserHandle userHandle, ShortcutLoader.Result result) {
         if (DEBUG) {
             Log.d(TAG, "onShortcutsLoaded for user: " + userHandle);
         }
-        mDirectShareShortcutInfoCache.putAll(shortcutsResult.directShareShortcutInfoCache);
-        mDirectShareAppTargetCache.putAll(shortcutsResult.directShareAppTargetCache);
+        mDirectShareShortcutInfoCache.putAll(result.getDirectShareShortcutInfoCache());
+        mDirectShareAppTargetCache.putAll(result.getDirectShareAppTargetCache());
         ChooserListAdapter adapter =
                 mChooserMultiProfilePagerAdapter.getListAdapterForUserHandle(userHandle);
         if (adapter != null) {
-            for (ShortcutLoader.ShortcutResultInfo resultInfo : shortcutsResult.shortcutsByApp) {
+            for (ShortcutLoader.ShortcutResultInfo resultInfo : result.getShortcutsByApp()) {
                 adapter.addServiceResults(
-                        resultInfo.appTarget,
-                        resultInfo.shortcuts,
-                        shortcutsResult.isFromAppPredictor
+                        resultInfo.getAppTarget(),
+                        resultInfo.getShortcuts(),
+                        result.isFromAppPredictor()
                                 ? TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE
                                 : TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER,
                         mDirectShareShortcutInfoCache,

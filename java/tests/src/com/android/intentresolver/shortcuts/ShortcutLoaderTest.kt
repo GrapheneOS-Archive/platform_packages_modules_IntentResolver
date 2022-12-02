@@ -28,6 +28,8 @@ import android.os.UserHandle
 import android.os.UserManager
 import androidx.test.filters.SmallTest
 import com.android.intentresolver.any
+import com.android.intentresolver.argumentCaptor
+import com.android.intentresolver.capture
 import com.android.intentresolver.chooser.DisplayResolveInfo
 import com.android.intentresolver.createAppTarget
 import com.android.intentresolver.createShareShortcutInfo
@@ -39,8 +41,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.anyInt
+import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.never
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -56,9 +58,15 @@ class ShortcutLoaderTest {
     private val pm = mock<PackageManager> {
         whenever(getApplicationInfo(any(), any<ApplicationInfoFlags>())).thenReturn(appInfo)
     }
+    val userManager = mock<UserManager> {
+        whenever(isUserRunning(any<UserHandle>())).thenReturn(true)
+        whenever(isUserUnlocked(any<UserHandle>())).thenReturn(true)
+        whenever(isQuietModeEnabled(any<UserHandle>())).thenReturn(false)
+    }
     private val context = mock<Context> {
         whenever(packageManager).thenReturn(pm)
         whenever(createContextAsUser(any(), anyInt())).thenReturn(this)
+        whenever(getSystemService(Context.USER_SERVICE)).thenReturn(userManager)
     }
     private val executor = ImmediateExecutor()
     private val intentFilter = mock<IntentFilter>()
@@ -66,7 +74,7 @@ class ShortcutLoaderTest {
     private val callback = mock<Consumer<ShortcutLoader.Result>>()
 
     @Test
-    fun test_app_predictor_result() {
+    fun test_queryShortcuts_result_consistency_with_AppPredictor() {
         val componentName = ComponentName("pkg", "Class")
         val appTarget = mock<DisplayResolveInfo> {
             whenever(resolvedComponentName).thenReturn(componentName)
@@ -85,24 +93,22 @@ class ShortcutLoaderTest {
 
         testSubject.queryShortcuts(appTargets)
 
-        verify(appPredictor, times(1)).requestPredictionUpdate()
-        val appPredictorCallbackCaptor = ArgumentCaptor.forClass(AppPredictor.Callback::class.java)
-        verify(appPredictor, times(1))
-            .registerPredictionUpdates(any(), appPredictorCallbackCaptor.capture())
-
         val matchingShortcutInfo = createShortcutInfo("id-0", componentName, 1)
         val matchingAppTarget = createAppTarget(matchingShortcutInfo)
         val shortcuts = listOf(
             matchingAppTarget,
-            // mismatching shortcut
+            // an AppTarget that does not belong to any resolved application; should be ignored
             createAppTarget(
                 createShortcutInfo("id-1", ComponentName("mismatching.pkg", "Class"), 1)
             )
         )
+        val appPredictorCallbackCaptor = argumentCaptor<AppPredictor.Callback>()
+        verify(appPredictor, atLeastOnce())
+            .registerPredictionUpdates(any(), capture(appPredictorCallbackCaptor))
         appPredictorCallbackCaptor.value.onTargetsAvailable(shortcuts)
 
-        val resultCaptor = ArgumentCaptor.forClass(ShortcutLoader.Result::class.java)
-        verify(callback, times(1)).accept(resultCaptor.capture())
+        val resultCaptor = argumentCaptor<ShortcutLoader.Result>()
+        verify(callback, times(1)).accept(capture(resultCaptor))
 
         val result = resultCaptor.value
         assertTrue("An app predictor result is expected", result.isFromAppPredictor)
@@ -124,7 +130,7 @@ class ShortcutLoaderTest {
     }
 
     @Test
-    fun test_shortcut_manager_result() {
+    fun test_queryShortcuts_result_consistency_with_ShortcutManager() {
         val componentName = ComponentName("pkg", "Class")
         val appTarget = mock<DisplayResolveInfo> {
             whenever(resolvedComponentName).thenReturn(componentName)
@@ -153,8 +159,8 @@ class ShortcutLoaderTest {
 
         testSubject.queryShortcuts(appTargets)
 
-        val resultCaptor = ArgumentCaptor.forClass(ShortcutLoader.Result::class.java)
-        verify(callback, times(1)).accept(resultCaptor.capture())
+        val resultCaptor = argumentCaptor<ShortcutLoader.Result>()
+        verify(callback, times(1)).accept(capture(resultCaptor))
 
         val result = resultCaptor.value
         assertFalse("An ShortcutManager result is expected", result.isFromAppPredictor)
@@ -175,7 +181,7 @@ class ShortcutLoaderTest {
     }
 
     @Test
-    fun test_fallback_to_shortcut_manager() {
+    fun test_queryShortcuts_falls_back_to_ShortcutManager_on_empty_reply() {
         val componentName = ComponentName("pkg", "Class")
         val appTarget = mock<DisplayResolveInfo> {
             whenever(resolvedComponentName).thenReturn(componentName)
@@ -205,13 +211,13 @@ class ShortcutLoaderTest {
         testSubject.queryShortcuts(appTargets)
 
         verify(appPredictor, times(1)).requestPredictionUpdate()
-        val appPredictorCallbackCaptor = ArgumentCaptor.forClass(AppPredictor.Callback::class.java)
+        val appPredictorCallbackCaptor = argumentCaptor<AppPredictor.Callback>()
         verify(appPredictor, times(1))
-            .registerPredictionUpdates(any(), appPredictorCallbackCaptor.capture())
+            .registerPredictionUpdates(any(), capture(appPredictorCallbackCaptor))
         appPredictorCallbackCaptor.value.onTargetsAvailable(emptyList())
 
-        val resultCaptor = ArgumentCaptor.forClass(ShortcutLoader.Result::class.java)
-        verify(callback, times(1)).accept(resultCaptor.capture())
+        val resultCaptor = argumentCaptor<ShortcutLoader.Result>()
+        verify(callback, times(1)).accept(capture(resultCaptor))
 
         val result = resultCaptor.value
         assertFalse("An ShortcutManager result is expected", result.isFromAppPredictor)
@@ -232,32 +238,32 @@ class ShortcutLoaderTest {
     }
 
     @Test
-    fun test_do_not_call_services_for_not_running_work_profile() {
+    fun test_queryShortcuts_do_not_call_services_for_not_running_work_profile() {
         testDisabledWorkProfileDoNotCallSystem(isUserRunning = false)
     }
 
     @Test
-    fun test_do_not_call_services_for_locked_work_profile() {
+    fun test_queryShortcuts_do_not_call_services_for_locked_work_profile() {
         testDisabledWorkProfileDoNotCallSystem(isUserUnlocked = false)
     }
 
     @Test
-    fun test_do_not_call_services_if_quite_mode_is_enabled_for_work_profile() {
+    fun test_queryShortcuts_do_not_call_services_if_quite_mode_is_enabled_for_work_profile() {
         testDisabledWorkProfileDoNotCallSystem(isQuietModeEnabled = true)
     }
 
     @Test
-    fun test_call_services_for_not_running_main_profile() {
+    fun test_queryShortcuts_call_services_for_not_running_main_profile() {
         testAlwaysCallSystemForMainProfile(isUserRunning = false)
     }
 
     @Test
-    fun test_call_services_for_locked_main_profile() {
+    fun test_queryShortcuts_call_services_for_locked_main_profile() {
         testAlwaysCallSystemForMainProfile(isUserUnlocked = false)
     }
 
     @Test
-    fun test_call_services_if_quite_mode_is_enabled_for_main_profile() {
+    fun test_queryShortcuts_call_services_if_quite_mode_is_enabled_for_main_profile() {
         testAlwaysCallSystemForMainProfile(isQuietModeEnabled = true)
     }
 
@@ -267,7 +273,7 @@ class ShortcutLoaderTest {
         isQuietModeEnabled: Boolean = false
     ) {
         val userHandle = UserHandle.of(10)
-        val userManager = mock<UserManager> {
+        with(userManager) {
             whenever(isUserRunning(userHandle)).thenReturn(isUserRunning)
             whenever(isUserUnlocked(userHandle)).thenReturn(isUserUnlocked)
             whenever(isQuietModeEnabled(userHandle)).thenReturn(isQuietModeEnabled)
@@ -297,7 +303,7 @@ class ShortcutLoaderTest {
         isQuietModeEnabled: Boolean = false
     ) {
         val userHandle = UserHandle.of(10)
-        val userManager = mock<UserManager> {
+        with(userManager) {
             whenever(isUserRunning(userHandle)).thenReturn(isUserRunning)
             whenever(isUserUnlocked(userHandle)).thenReturn(isUserUnlocked)
             whenever(isQuietModeEnabled(userHandle)).thenReturn(isQuietModeEnabled)
