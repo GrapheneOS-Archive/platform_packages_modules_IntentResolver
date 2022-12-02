@@ -46,6 +46,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -774,7 +775,7 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    public void copyTextToClipboardLogging() throws Exception {
+    public void copyTextToClipboardLogging() {
         Intent sendIntent = createSendTextIntent();
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
 
@@ -796,11 +797,15 @@ public class UnbundledChooserActivityTest {
         verify(mockLogger, atLeastOnce()).write(logMakerCaptor.capture());
 
         // The last captured event is the selection of the target.
-        assertThat(logMakerCaptor.getValue().getCategory(),
-                is(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SYSTEM_TARGET));
+        boolean containsTargetEvent = logMakerCaptor.getAllValues()
+                .stream()
+                .anyMatch(item ->
+                        item.getCategory()
+                                == MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SYSTEM_TARGET);
+        assertTrue(
+                "ACTION_ACTIVITY_CHOOSER_PICKED_SYSTEM_TARGET is expected", containsTargetEvent);
         assertThat(logMakerCaptor.getValue().getSubtype(), is(1));
     }
-
 
     @Test
     @Ignore
