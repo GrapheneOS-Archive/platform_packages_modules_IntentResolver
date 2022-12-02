@@ -48,7 +48,6 @@ android_library {
         "unsupportedappusage",
     ],
 
-    plugins: ["java_api_finder"],
     lint: {
         strict_updatability_linting: true,
     },
