@@ -56,6 +56,8 @@ import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.internal.annotations.VisibleForTesting;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -65,37 +67,48 @@ import java.util.Map;
 public class ResolverListAdapter extends BaseAdapter {
     private static final String TAG = "ResolverListAdapter";
 
+    @Nullable  // TODO: other model for lazy computation? Or just precompute?
+    private static ColorMatrixColorFilter sSuspendedMatrixColorFilter;
+
+    protected final Context mContext;
+    protected final LayoutInflater mInflater;
+    protected final ResolverListCommunicator mResolverListCommunicator;
+    protected final ResolverListController mResolverListController;
+
     private final List<Intent> mIntents;
     private final Intent[] mInitialIntents;
     private final List<ResolveInfo> mBaseResolveList;
     private final PackageManager mPm;
-    protected final Context mContext;
-    private static ColorMatrixColorFilter sSuspendedMatrixColorFilter;
     private final int mIconDpi;
-    protected ResolveInfo mLastChosen;
+    private final boolean mIsAudioCaptureDevice;
+    private final UserHandle mUserHandle;
+    private final Intent mTargetIntent;
+
+    private final Map<DisplayResolveInfo, LoadIconTask> mIconLoaders = new HashMap<>();
+    private final Map<DisplayResolveInfo, LoadLabelTask> mLabelLoaders = new HashMap<>();
+
+    private ResolveInfo mLastChosen;
     private DisplayResolveInfo mOtherProfile;
-    ResolverListController mResolverListController;
     private int mPlaceholderCount;
 
-    protected final LayoutInflater mInflater;
-
     // This one is the list that the Adapter will actually present.
-    List<DisplayResolveInfo> mDisplayList;
+    private List<DisplayResolveInfo> mDisplayList;
     private List<ResolvedComponentInfo> mUnfilteredResolveList;
 
     private int mLastChosenPosition = -1;
     private boolean mFilterLastUsed;
-    final ResolverListCommunicator mResolverListCommunicator;
     private Runnable mPostListReadyRunnable;
-    private final boolean mIsAudioCaptureDevice;
     private boolean mIsTabLoaded;
-    private final Map<DisplayResolveInfo, LoadIconTask> mIconLoaders = new HashMap<>();
-    private final Map<DisplayResolveInfo, LoadLabelTask> mLabelLoaders = new HashMap<>();
 
-    public ResolverListAdapter(Context context, List<Intent> payloadIntents,
-            Intent[] initialIntents, List<ResolveInfo> rList,
+    public ResolverListAdapter(
+            Context context,
+            List<Intent> payloadIntents,
+            Intent[] initialIntents,
+            List<ResolveInfo> rList,
             boolean filterLastUsed,
             ResolverListController resolverListController,
+            UserHandle userHandle,
+            Intent targetIntent,
             ResolverListCommunicator resolverListCommunicator,
             boolean isAudioCaptureDevice) {
         mContext = context;
@@ -107,10 +120,20 @@ public class ResolverListAdapter extends BaseAdapter {
         mDisplayList = new ArrayList<>();
         mFilterLastUsed = filterLastUsed;
         mResolverListController = resolverListController;
+        mUserHandle = userHandle;
+        mTargetIntent = targetIntent;
         mResolverListCommunicator = resolverListCommunicator;
         mIsAudioCaptureDevice = isAudioCaptureDevice;
         final ActivityManager am = (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
         mIconDpi = am.getLauncherLargeIconDensity();
+    }
+
+    public final DisplayResolveInfo getFirstDisplayResolveInfo() {
+        return mDisplayList.get(0);
+    }
+
+    public final ImmutableList<DisplayResolveInfo> getTargetsInCurrentDisplayList() {
+        return ImmutableList.copyOf(mDisplayList);
     }
 
     public void handlePackagesChanged() {
@@ -262,7 +285,7 @@ public class ResolverListAdapter extends BaseAdapter {
         if (mBaseResolveList != null) {
             List<ResolvedComponentInfo> currentResolveList = new ArrayList<>();
             mResolverListController.addResolveListDedupe(currentResolveList,
-                    mResolverListCommunicator.getTargetIntent(),
+                    mTargetIntent,
                     mBaseResolveList);
             return currentResolveList;
         } else {
@@ -338,7 +361,12 @@ public class ResolverListAdapter extends BaseAdapter {
 
         if (otherProfileInfo != null) {
             mOtherProfile = makeOtherProfileDisplayResolveInfo(
-                    mContext, otherProfileInfo, mPm, mResolverListCommunicator, mIconDpi);
+                    mContext,
+                    otherProfileInfo,
+                    mPm,
+                    mTargetIntent,
+                    mResolverListCommunicator,
+                    mIconDpi);
         } else {
             mOtherProfile = null;
             try {
@@ -499,7 +527,7 @@ public class ResolverListAdapter extends BaseAdapter {
         final Intent replaceIntent =
                 mResolverListCommunicator.getReplacementIntent(add.activityInfo, intent);
         final Intent defaultIntent = mResolverListCommunicator.getReplacementIntent(
-                add.activityInfo, mResolverListCommunicator.getTargetIntent());
+                add.activityInfo, mTargetIntent);
         final DisplayResolveInfo dri = DisplayResolveInfo.newDisplayResolveInfo(
                 intent,
                 add,
@@ -608,11 +636,15 @@ public class ResolverListAdapter extends BaseAdapter {
         return position;
     }
 
-    public int getDisplayResolveInfoCount() {
+    public final int getDisplayResolveInfoCount() {
         return mDisplayList.size();
     }
 
-    public DisplayResolveInfo getDisplayResolveInfo(int index) {
+    public final boolean allResolveInfosHandleAllWebDataUri() {
+        return mDisplayList.stream().allMatch(t -> t.getResolveInfo().handleAllWebDataURI);
+    }
+
+    public final DisplayResolveInfo getDisplayResolveInfo(int index) {
         // Used to query services. We only query services for primary targets, not alternates.
         return mDisplayList.get(index);
     }
@@ -765,7 +797,7 @@ public class ResolverListAdapter extends BaseAdapter {
     }
 
     public UserHandle getUserHandle() {
-        return mResolverListController.getUserHandle();
+        return mUserHandle;
     }
 
     protected List<ResolvedComponentInfo> getResolversForUser(UserHandle userHandle) {
@@ -821,6 +853,7 @@ public class ResolverListAdapter extends BaseAdapter {
             Context context,
             ResolvedComponentInfo resolvedComponentInfo,
             PackageManager pm,
+            Intent targetIntent,
             ResolverListCommunicator resolverListCommunicator,
             int iconDpi) {
         ResolveInfo resolveInfo = resolvedComponentInfo.getResolveInfoAt(0);
@@ -829,8 +862,7 @@ public class ResolverListAdapter extends BaseAdapter {
                 resolveInfo.activityInfo,
                 resolvedComponentInfo.getIntentAt(0));
         Intent replacementIntent = resolverListCommunicator.getReplacementIntent(
-                resolveInfo.activityInfo,
-                resolverListCommunicator.getTargetIntent());
+                resolveInfo.activityInfo, targetIntent);
 
         ResolveInfoPresentationGetter presentationGetter =
                 new ResolveInfoPresentationGetter(context, iconDpi, resolveInfo);
@@ -870,8 +902,6 @@ public class ResolverListAdapter extends BaseAdapter {
          *     {@link android.content.Intent#CATEGORY_DEFAULT} intents
          */
         default boolean shouldGetOnlyDefaultActivities() { return true; };
-
-        Intent getTargetIntent();
 
         void onHandlePackagesChanged(ResolverListAdapter listAdapter);
     }
