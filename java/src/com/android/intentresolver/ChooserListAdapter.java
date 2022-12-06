@@ -259,8 +259,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
         final ViewHolder holder = (ViewHolder) view.getTag();
 
         if (info == null) {
-            holder.icon.setImageDrawable(
-                    mContext.getDrawable(R.drawable.resolver_icon_placeholder));
+            holder.icon.setImageDrawable(loadIconPlaceholder());
             return;
         }
 
@@ -657,11 +656,21 @@ public class ChooserListAdapter extends ResolverListAdapter {
 
         @Override
         protected Drawable doInBackground(Void... voids) {
-            return getChooserTargetIconDrawable(
-                    mContext,
-                    mTargetInfo.getChooserTargetIcon(),
-                    mTargetInfo.getChooserTargetComponentName(),
-                    mTargetInfo.getDirectShareShortcutInfo());
+            Drawable drawable;
+            try {
+                drawable = getChooserTargetIconDrawable(
+                        mContext,
+                        mTargetInfo.getChooserTargetIcon(),
+                        mTargetInfo.getChooserTargetComponentName(),
+                        mTargetInfo.getDirectShareShortcutInfo());
+            } catch (Exception e) {
+                Log.e(TAG,
+                        "Failed to load shortcut icon for "
+                                + mTargetInfo.getChooserTargetComponentName(),
+                        e);
+                drawable = loadIconPlaceholder();
+            }
+            return drawable;
         }
 
         @Override
