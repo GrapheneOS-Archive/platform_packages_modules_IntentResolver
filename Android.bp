@@ -54,7 +54,6 @@ android_library {
         "guava",
     ],
 
-    plugins: ["java_api_finder"],
     lint: {
         strict_updatability_linting: true,
     },
