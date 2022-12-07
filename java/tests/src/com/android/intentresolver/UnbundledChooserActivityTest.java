@@ -78,6 +78,7 @@ import android.graphics.Paint;
 import android.graphics.drawable.Icon;
 import android.metrics.LogMaker;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.UserHandle;
 import android.provider.DeviceConfig;
 import android.service.chooser.ChooserTarget;
@@ -1633,6 +1634,90 @@ public class UnbundledChooserActivityTest {
                 "The display label must match",
                 activeAdapter.getItem(1).getDisplayLabel(),
                 is("testTitle1"));
+    }
+
+    @Test
+    public void testLaunchWithCallerProvidedTarget() {
+        setDeviceConfigProperty(
+                SystemUiDeviceConfigFlags.APPLY_SHARING_APP_LIMITS_IN_SYSUI,
+                Boolean.toString(false));
+        // Set up resources
+        ChooserActivityOverrideData.getInstance().resources = Mockito.spy(
+                InstrumentationRegistry.getInstrumentation().getContext().getResources());
+        when(
+                ChooserActivityOverrideData
+                        .getInstance()
+                        .resources
+                        .getInteger(R.integer.config_maxShortcutTargetsPerApp))
+                .thenReturn(1);
+
+        // We need app targets for direct targets to get displayed
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+        when(
+                ChooserActivityOverrideData
+                        .getInstance()
+                        .resolverListController
+                        .getResolversForIntent(
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.isA(List.class)))
+                .thenReturn(resolvedComponentInfos);
+
+        // set caller-provided target
+        Intent chooserIntent = Intent.createChooser(createSendTextIntent(), null);
+        String callerTargetLabel = "Caller Target";
+        ChooserTarget[] targets = new ChooserTarget[] {
+                new ChooserTarget(
+                        callerTargetLabel,
+                        Icon.createWithBitmap(createBitmap()),
+                        0.1f,
+                        resolvedComponentInfos.get(0).name,
+                        new Bundle())
+        };
+        chooserIntent.putExtra(Intent.EXTRA_CHOOSER_TARGETS, targets);
+
+        // create test shortcut loader factory, remember loaders and their callbacks
+        SparseArray<Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>>> shortcutLoaders =
+                createShortcutLoaderFactory();
+
+        // Start activity
+        final IChooserWrapper activity = (IChooserWrapper)
+                mActivityRule.launchActivity(chooserIntent);
+        waitForIdle();
+
+        // verify that ShortcutLoader was queried
+        ArgumentCaptor<DisplayResolveInfo[]> appTargets =
+                ArgumentCaptor.forClass(DisplayResolveInfo[].class);
+        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
+
+        // send shortcuts
+        assertThat(
+                "Wrong number of app targets",
+                appTargets.getValue().length,
+                is(resolvedComponentInfos.size()));
+        ShortcutLoader.Result result = new ShortcutLoader.Result(
+                true,
+                appTargets.getValue(),
+                new ShortcutLoader.ShortcutResultInfo[0],
+                new HashMap<>(),
+                new HashMap<>());
+        activity.getMainExecutor().execute(() -> shortcutLoaders.get(0).second.accept(result));
+        waitForIdle();
+
+        final ChooserListAdapter activeAdapter = activity.getAdapter();
+        assertThat(
+                "Chooser should have 3 targets (2 apps, 1 direct)",
+                activeAdapter.getCount(),
+                is(3));
+        assertThat(
+                "Chooser should have exactly two selectable direct target",
+                activeAdapter.getSelectableServiceTargetCount(),
+                is(1));
+        assertThat(
+                "The display label must match",
+                activeAdapter.getItem(0).getDisplayLabel(),
+                is(callerTargetLabel));
     }
 
     @Test

@@ -107,7 +107,6 @@ import com.android.intentresolver.AbstractMultiProfilePagerAdapter.OnSwitchOnWor
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.Profile;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.QuietModeManager;
 import com.android.intentresolver.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
-import com.android.intentresolver.chooser.ChooserTargetInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
@@ -123,6 +122,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * This activity is displayed when the system attempts to start an Intent for
@@ -223,7 +223,11 @@ public class ResolverActivity extends FragmentActivity implements
     private BroadcastReceiver mWorkProfileStateReceiver;
     private UserHandle mHeaderCreatorUser;
 
-    private UserHandle mWorkProfileUserHandle;
+    private Supplier<UserHandle> mLazyWorkProfileUserHandle = () -> {
+        final UserHandle result = fetchWorkProfileUserProfile();
+        mLazyWorkProfileUserHandle = () -> result;
+        return result;
+    };
 
     @Nullable
     private OnSwitchOnWorkSelectedListener mOnSwitchOnWorkSelectedListener;
@@ -408,7 +412,6 @@ public class ResolverActivity extends FragmentActivity implements
         mDefaultTitleResId = defaultTitleRes;
 
         mSupportsAlwaysUseOption = supportsAlwaysUseOption;
-        mWorkProfileUserHandle = fetchWorkProfileUserProfile();
 
         // The last argument of createResolverListAdapter is whether to do special handling
         // of the last used choice to highlight it in the list.  We need to always
@@ -699,19 +702,25 @@ public class ResolverActivity extends FragmentActivity implements
     protected UserHandle getPersonalProfileUserHandle() {
         return UserHandle.of(ActivityManager.getCurrentUser());
     }
-    protected @Nullable UserHandle getWorkProfileUserHandle() {
-        return mWorkProfileUserHandle;
+
+    @Nullable
+    protected UserHandle getWorkProfileUserHandle() {
+        return mLazyWorkProfileUserHandle.get();
     }
 
-    protected @Nullable UserHandle fetchWorkProfileUserProfile() {
-        mWorkProfileUserHandle = null;
+    @Nullable
+    private UserHandle fetchWorkProfileUserProfile() {
         UserManager userManager = getSystemService(UserManager.class);
+        if (userManager == null) {
+            return null;
+        }
+        UserHandle result = null;
         for (final UserInfo userInfo : userManager.getProfiles(ActivityManager.getCurrentUser())) {
             if (userInfo.isManagedProfile()) {
-                mWorkProfileUserHandle = userInfo.getUserHandle();
+                result = userInfo.getUserHandle();
             }
         }
-        return mWorkProfileUserHandle;
+        return result;
     }
 
     private boolean hasWorkProfile() {

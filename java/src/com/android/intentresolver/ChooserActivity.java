@@ -1160,7 +1160,7 @@ public class ChooserActivity extends ResolverActivity implements
         if (mChooserRequest.getCallerChooserTargets().size() > 0) {
             mChooserMultiProfilePagerAdapter.getActiveListAdapter().addServiceResults(
                     /* origTarget */ null,
-                    mChooserRequest.getCallerChooserTargets(),
+                    new ArrayList<>(mChooserRequest.getCallerChooserTargets()),
                     TARGET_TYPE_DEFAULT,
                     /* directShareShortcutInfoCache */ Collections.emptyMap(),
                     /* directShareAppTargetCache */ Collections.emptyMap());
