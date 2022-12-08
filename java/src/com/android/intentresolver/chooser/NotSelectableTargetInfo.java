@@ -43,11 +43,6 @@ public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
                 public boolean isEmptyTargetInfo() {
                     return true;
                 }
-
-                @Override
-                public Drawable getDisplayIcon() {
-                    return null;
-                }
             };
     }
 
@@ -63,11 +58,20 @@ public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
                 }
 
                 @Override
-                public Drawable getDisplayIcon() {
-                    AnimatedVectorDrawable avd = (AnimatedVectorDrawable)
-                            context.getDrawable(R.drawable.chooser_direct_share_icon_placeholder);
-                    avd.start();  // Start animation after generation.
-                    return avd;
+                public IconHolder getDisplayIconHolder() {
+                    return new IconHolder() {
+                        @Override
+                        public Drawable getDisplayIcon() {
+                            AnimatedVectorDrawable avd = (AnimatedVectorDrawable)
+                                    context.getDrawable(
+                                            R.drawable.chooser_direct_share_icon_placeholder);
+                            avd.start();  // Start animation after generation.
+                            return avd;
+                        }
+
+                        @Override
+                        public void setDisplayIcon(Drawable icon) {}
+                    };
                 }
 
                 @Override
@@ -131,5 +135,18 @@ public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
 
     public boolean isPinned() {
         return false;
+    }
+
+    @Override
+    public IconHolder getDisplayIconHolder() {
+        return new IconHolder() {
+            @Override
+            public Drawable getDisplayIcon() {
+                return null;
+            }
+
+            @Override
+            public void setDisplayIcon(Drawable icon) {}
+        };
     }
 }
