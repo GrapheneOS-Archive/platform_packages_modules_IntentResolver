@@ -667,7 +667,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
         @Override
         protected void onPostExecute(@Nullable Drawable icon) {
             if (icon != null && !mTargetInfo.hasDisplayIcon()) {
-                mTargetInfo.setDisplayIcon(icon);
+                mTargetInfo.getDisplayIconHolder().setDisplayIcon(icon);
                 notifyDataSetChanged();
             }
         }

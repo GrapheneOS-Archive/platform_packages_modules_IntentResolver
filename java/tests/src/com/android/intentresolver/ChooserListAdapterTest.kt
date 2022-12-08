@@ -27,6 +27,7 @@ import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.intentresolver.ChooserListAdapter.LoadDirectShareIconTask
+import com.android.intentresolver.chooser.DisplayResolveInfo
 import com.android.intentresolver.chooser.SelectableTargetInfo
 import com.android.intentresolver.chooser.TargetInfo
 import com.android.internal.R
@@ -114,9 +115,11 @@ class ChooserListAdapterTest {
         verify(testTaskProvider, times(1)).invoke()
     }
 
-    private fun createSelectableTargetInfo(): TargetInfo =
-        SelectableTargetInfo.newSelectableTargetInfo(
-            /* sourceInfo = */ mock(),
+    private fun createSelectableTargetInfo(): TargetInfo {
+        val displayInfo: DisplayResolveInfo = mock()
+        whenever(displayInfo.getAllSourceIntents()).thenReturn(listOf(mock()))
+        return SelectableTargetInfo.newSelectableTargetInfo(
+            /* sourceInfo = */ displayInfo,
             /* backupResolveInfo = */ mock(),
             /* resolvedIntent = */ Intent(),
             /* chooserTarget = */ createChooserTarget(
@@ -127,6 +130,7 @@ class ChooserListAdapterTest {
             /* appTarget */ null,
             /* referrerFillInIntent = */ Intent()
         )
+    }
 
     private fun createView(): View {
         val view = FrameLayout(context)
