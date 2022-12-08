@@ -677,8 +677,7 @@ public class ResolverListAdapter extends BaseAdapter {
     protected void onBindView(View view, TargetInfo info, int position) {
         final ViewHolder holder = (ViewHolder) view.getTag();
         if (info == null) {
-            holder.icon.setImageDrawable(
-                    mContext.getDrawable(R.drawable.resolver_icon_placeholder));
+            holder.icon.setImageDrawable(loadIconPlaceholder());
             holder.bindLabel("", "", false);
             return;
         }
@@ -704,7 +703,7 @@ public class ResolverListAdapter extends BaseAdapter {
     protected final void loadIcon(DisplayResolveInfo info) {
         LoadIconTask task = mIconLoaders.get(info);
         if (task == null) {
-            task = new LoadIconTask((DisplayResolveInfo) info);
+            task = new LoadIconTask(info);
             mIconLoaders.put(info, task);
             task.execute();
         }
@@ -779,13 +778,25 @@ public class ResolverListAdapter extends BaseAdapter {
         return makePresentationGetter(ri).getIcon(getUserHandle());
     }
 
+    protected final Drawable loadIconPlaceholder() {
+        return mContext.getDrawable(R.drawable.resolver_icon_placeholder);
+    }
+
     void loadFilteredItemIconTaskAsync(@NonNull ImageView iconView) {
         final DisplayResolveInfo iconInfo = getFilteredItem();
         if (iconView != null && iconInfo != null) {
             new AsyncTask<Void, Void, Drawable>() {
                 @Override
                 protected Drawable doInBackground(Void... params) {
-                    return loadIconForResolveInfo(iconInfo.getResolveInfo());
+                    Drawable drawable;
+                    try {
+                        drawable = loadIconForResolveInfo(iconInfo.getResolveInfo());
+                    } catch (Exception e) {
+                        ComponentName componentName = iconInfo.getResolvedComponentName();
+                        Log.e(TAG, "Failed to load app icon for " + componentName, e);
+                        drawable = loadIconPlaceholder();
+                    }
+                    return drawable;
                 }
 
                 @Override
@@ -1021,7 +1032,13 @@ public class ResolverListAdapter extends BaseAdapter {
 
         @Override
         protected Drawable doInBackground(Void... params) {
-            return loadIconForResolveInfo(mResolveInfo);
+            try {
+                return loadIconForResolveInfo(mResolveInfo);
+            } catch (Exception e) {
+                ComponentName componentName = mDisplayResolveInfo.getResolvedComponentName();
+                Log.e(TAG, "Failed to load app icon for " + componentName, e);
+                return loadIconPlaceholder();
+            }
         }
 
         @Override
