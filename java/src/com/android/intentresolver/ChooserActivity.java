@@ -1923,7 +1923,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     private ViewGroup getActiveEmptyStateView() {
         int currentPage = mChooserMultiProfilePagerAdapter.getCurrentPage();
-        return mChooserMultiProfilePagerAdapter.getItem(currentPage).getEmptyStateView();
+        return mChooserMultiProfilePagerAdapter.getEmptyStateView(currentPage);
     }
 
     @Override // ResolverListCommunicator

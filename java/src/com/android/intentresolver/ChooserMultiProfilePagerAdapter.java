@@ -16,11 +16,9 @@
 
 package com.android.intentresolver;
 
-import android.annotation.Nullable;
 import android.content.Context;
 import android.os.UserHandle;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -30,16 +28,21 @@ import androidx.viewpager.widget.PagerAdapter;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.internal.annotations.VisibleForTesting;
 
+import com.google.common.collect.ImmutableList;
+
+import java.util.Optional;
+import java.util.function.Supplier;
+
 /**
  * A {@link PagerAdapter} which describes the work and personal profile share sheet screens.
  */
 @VisibleForTesting
-public class ChooserMultiProfilePagerAdapter extends AbstractMultiProfilePagerAdapter {
+public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAdapter<
+        RecyclerView, ChooserGridAdapter, ChooserListAdapter> {
     private static final int SINGLE_CELL_SPAN_SIZE = 1;
 
-    private final ChooserProfileDescriptor[] mItems;
-    private int mBottomOffset;
-    private int mMaxTargetsPerRow;
+    private final ChooserProfileAdapterBinder mAdapterBinder;
+    private final BottomPaddingOverrideSupplier mBottomPaddingOverrideSupplier;
 
     ChooserMultiProfilePagerAdapter(
             Context context,
@@ -48,12 +51,15 @@ public class ChooserMultiProfilePagerAdapter extends AbstractMultiProfilePagerAd
             QuietModeManager quietModeManager,
             UserHandle workProfileUserHandle,
             int maxTargetsPerRow) {
-        super(context, /* currentPage */ 0, emptyStateProvider, quietModeManager,
-                workProfileUserHandle);
-        mItems = new ChooserProfileDescriptor[] {
-                createProfileDescriptor(adapter)
-        };
-        mMaxTargetsPerRow = maxTargetsPerRow;
+        this(
+                context,
+                new ChooserProfileAdapterBinder(maxTargetsPerRow),
+                ImmutableList.of(adapter),
+                emptyStateProvider,
+                quietModeManager,
+                /* defaultProfile= */ 0,
+                workProfileUserHandle,
+                new BottomPaddingOverrideSupplier(context));
     }
 
     ChooserMultiProfilePagerAdapter(
@@ -65,143 +71,104 @@ public class ChooserMultiProfilePagerAdapter extends AbstractMultiProfilePagerAd
             @Profile int defaultProfile,
             UserHandle workProfileUserHandle,
             int maxTargetsPerRow) {
-        super(context, /* currentPage */ defaultProfile, emptyStateProvider,
-                quietModeManager, workProfileUserHandle);
-        mItems = new ChooserProfileDescriptor[] {
-                createProfileDescriptor(personalAdapter),
-                createProfileDescriptor(workAdapter)
-        };
-        mMaxTargetsPerRow = maxTargetsPerRow;
+        this(
+                context,
+                new ChooserProfileAdapterBinder(maxTargetsPerRow),
+                ImmutableList.of(personalAdapter, workAdapter),
+                emptyStateProvider,
+                quietModeManager,
+                defaultProfile,
+                workProfileUserHandle,
+                new BottomPaddingOverrideSupplier(context));
     }
 
-    private ChooserProfileDescriptor createProfileDescriptor(ChooserGridAdapter adapter) {
-        final LayoutInflater inflater = LayoutInflater.from(getContext());
-        final ViewGroup rootView =
-                (ViewGroup) inflater.inflate(R.layout.chooser_list_per_profile, null, false);
-        ChooserProfileDescriptor profileDescriptor =
-                new ChooserProfileDescriptor(rootView, adapter);
-        profileDescriptor.recyclerView.setAccessibilityDelegateCompat(
-                new ChooserRecyclerViewAccessibilityDelegate(profileDescriptor.recyclerView));
-        return profileDescriptor;
+    private ChooserMultiProfilePagerAdapter(
+            Context context,
+            ChooserProfileAdapterBinder adapterBinder,
+            ImmutableList<ChooserGridAdapter> gridAdapters,
+            EmptyStateProvider emptyStateProvider,
+            QuietModeManager quietModeManager,
+            @Profile int defaultProfile,
+            UserHandle workProfileUserHandle,
+            BottomPaddingOverrideSupplier bottomPaddingOverrideSupplier) {
+        super(
+                context,
+                        gridAdapter -> gridAdapter.getListAdapter(),
+                adapterBinder,
+                gridAdapters,
+                emptyStateProvider,
+                quietModeManager,
+                defaultProfile,
+                workProfileUserHandle,
+                        () -> makeProfileView(context),
+                bottomPaddingOverrideSupplier);
+        mAdapterBinder = adapterBinder;
+        mBottomPaddingOverrideSupplier = bottomPaddingOverrideSupplier;
     }
 
     public void setMaxTargetsPerRow(int maxTargetsPerRow) {
-        mMaxTargetsPerRow = maxTargetsPerRow;
+        mAdapterBinder.setMaxTargetsPerRow(maxTargetsPerRow);
     }
 
-    RecyclerView getListViewForIndex(int index) {
-        return getItem(index).recyclerView;
+    public void setEmptyStateBottomOffset(int bottomOffset) {
+        mBottomPaddingOverrideSupplier.setEmptyStateBottomOffset(bottomOffset);
     }
 
-    @Override
-    ChooserProfileDescriptor getItem(int pageIndex) {
-        return mItems[pageIndex];
+    private static ViewGroup makeProfileView(Context context) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(
+                R.layout.chooser_list_per_profile, null, false);
+        RecyclerView recyclerView = rootView.findViewById(com.android.internal.R.id.resolver_list);
+        recyclerView.setAccessibilityDelegateCompat(
+                new ChooserRecyclerViewAccessibilityDelegate(recyclerView));
+        return rootView;
     }
 
-    @Override
-    int getItemCount() {
-        return mItems.length;
-    }
+    private static class BottomPaddingOverrideSupplier implements Supplier<Optional<Integer>> {
+        private final Context mContext;
+        private int mBottomOffset;
 
-    @Override
-    @VisibleForTesting
-    public ChooserGridAdapter getAdapterForIndex(int pageIndex) {
-        return mItems[pageIndex].chooserGridAdapter;
-    }
-
-    @Override
-    @Nullable
-    ChooserListAdapter getListAdapterForUserHandle(UserHandle userHandle) {
-        if (getActiveListAdapter().getUserHandle().equals(userHandle)) {
-            return getActiveListAdapter();
-        } else if (getInactiveListAdapter() != null
-                && getInactiveListAdapter().getUserHandle().equals(userHandle)) {
-            return getInactiveListAdapter();
+        BottomPaddingOverrideSupplier(Context context) {
+            mContext = context;
         }
-        return null;
-    }
 
-    @Override
-    void setupListAdapter(int pageIndex) {
-        final RecyclerView recyclerView = getItem(pageIndex).recyclerView;
-        ChooserGridAdapter chooserGridAdapter = getItem(pageIndex).chooserGridAdapter;
-        GridLayoutManager glm = (GridLayoutManager) recyclerView.getLayoutManager();
-        glm.setSpanCount(mMaxTargetsPerRow);
-        glm.setSpanSizeLookup(
-                new GridLayoutManager.SpanSizeLookup() {
-                    @Override
-                    public int getSpanSize(int position) {
-                        return chooserGridAdapter.shouldCellSpan(position)
-                                ? SINGLE_CELL_SPAN_SIZE
-                                : glm.getSpanCount();
-                    }
-                });
-    }
-
-    @Override
-    @VisibleForTesting
-    public ChooserListAdapter getActiveListAdapter() {
-        return getAdapterForIndex(getCurrentPage()).getListAdapter();
-    }
-
-    @Override
-    @VisibleForTesting
-    public ChooserListAdapter getInactiveListAdapter() {
-        if (getCount() == 1) {
-            return null;
+        public void setEmptyStateBottomOffset(int bottomOffset) {
+            mBottomOffset = bottomOffset;
         }
-        return getAdapterForIndex(1 - getCurrentPage()).getListAdapter();
-    }
 
-    @Override
-    public ResolverListAdapter getPersonalListAdapter() {
-        return getAdapterForIndex(PROFILE_PERSONAL).getListAdapter();
-    }
-
-    @Override
-    @Nullable
-    public ResolverListAdapter getWorkListAdapter() {
-        return getAdapterForIndex(PROFILE_WORK).getListAdapter();
-    }
-
-    @Override
-    ChooserGridAdapter getCurrentRootAdapter() {
-        return getAdapterForIndex(getCurrentPage());
-    }
-
-    @Override
-    RecyclerView getActiveAdapterView() {
-        return getListViewForIndex(getCurrentPage());
-    }
-
-    @Override
-    @Nullable
-    RecyclerView getInactiveAdapterView() {
-        if (getCount() == 1) {
-            return null;
+        public Optional<Integer> get() {
+            int initialBottomPadding = mContext.getResources().getDimensionPixelSize(
+                    R.dimen.resolver_empty_state_container_padding_bottom);
+            return Optional.of(initialBottomPadding + mBottomOffset);
         }
-        return getListViewForIndex(1 - getCurrentPage());
     }
 
-    void setEmptyStateBottomOffset(int bottomOffset) {
-        mBottomOffset = bottomOffset;
-    }
+    private static class ChooserProfileAdapterBinder implements
+            AdapterBinder<RecyclerView, ChooserGridAdapter> {
+        private int mMaxTargetsPerRow;
 
-    @Override
-    protected void setupContainerPadding(View container) {
-        int initialBottomPadding = getContext().getResources().getDimensionPixelSize(
-                R.dimen.resolver_empty_state_container_padding_bottom);
-        container.setPadding(container.getPaddingLeft(), container.getPaddingTop(),
-                container.getPaddingRight(), initialBottomPadding + mBottomOffset);
-    }
+        ChooserProfileAdapterBinder(int maxTargetsPerRow) {
+            mMaxTargetsPerRow = maxTargetsPerRow;
+        }
 
-    class ChooserProfileDescriptor extends ProfileDescriptor {
-        private ChooserGridAdapter chooserGridAdapter;
-        private RecyclerView recyclerView;
-        ChooserProfileDescriptor(ViewGroup rootView, ChooserGridAdapter adapter) {
-            super(rootView);
-            chooserGridAdapter = adapter;
-            recyclerView = rootView.findViewById(com.android.internal.R.id.resolver_list);
+        public void setMaxTargetsPerRow(int maxTargetsPerRow) {
+            mMaxTargetsPerRow = maxTargetsPerRow;
+        }
+
+        @Override
+        public void bind(
+                RecyclerView recyclerView, ChooserGridAdapter chooserGridAdapter) {
+            GridLayoutManager glm = (GridLayoutManager) recyclerView.getLayoutManager();
+            glm.setSpanCount(mMaxTargetsPerRow);
+            glm.setSpanSizeLookup(
+                    new GridLayoutManager.SpanSizeLookup() {
+                        @Override
+                        public int getSpanSize(int position) {
+                            return chooserGridAdapter.shouldCellSpan(position)
+                                    ? SINGLE_CELL_SPAN_SIZE
+                                    : glm.getSpanCount();
+                        }
+                    });
         }
     }
 }
