@@ -896,7 +896,8 @@ public class ChooserActivity extends ResolverActivity implements
                 "",
                 resolveIntent,
                 null);
-        dri.setDisplayIcon(getDrawable(com.android.internal.R.drawable.ic_screenshot_edit));
+        dri.getDisplayIconHolder().setDisplayIcon(
+                getDrawable(com.android.internal.R.drawable.ic_screenshot_edit));
         return dri;
     }
 
@@ -940,7 +941,7 @@ public class ChooserActivity extends ResolverActivity implements
 
         final DisplayResolveInfo dri = DisplayResolveInfo.newDisplayResolveInfo(
                 originalIntent, ri, name, "", resolveIntent, null);
-        dri.setDisplayIcon(icon);
+        dri.getDisplayIconHolder().setDisplayIcon(icon);
         return dri;
     }
 
@@ -970,7 +971,7 @@ public class ChooserActivity extends ResolverActivity implements
         if (ti == null) return null;
 
         final Button b = createActionButton(
-                ti.getDisplayIcon(),
+                ti.getDisplayIconHolder().getDisplayIcon(),
                 ti.getDisplayLabel(),
                 (View unused) -> {
                     // Log share completion via nearby
@@ -993,7 +994,7 @@ public class ChooserActivity extends ResolverActivity implements
         if (ti == null) return null;
 
         final Button b = createActionButton(
-                ti.getDisplayIcon(),
+                ti.getDisplayIconHolder().getDisplayIcon(),
                 ti.getDisplayLabel(),
                 (View unused) -> {
                     // Log share completion via edit
