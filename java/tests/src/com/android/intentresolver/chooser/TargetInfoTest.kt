@@ -28,6 +28,7 @@ import com.android.intentresolver.createChooserTarget
 import com.android.intentresolver.createShortcutInfo
 import com.android.intentresolver.mock
 import com.android.intentresolver.ResolverDataProvider
+import com.android.intentresolver.whenever
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -40,7 +41,7 @@ class TargetInfoTest {
         assertThat(info.isEmptyTargetInfo()).isTrue()
         assertThat(info.isChooserTargetInfo()).isTrue()  // From legacy inheritance model.
         assertThat(info.hasDisplayIcon()).isFalse()
-        assertThat(info.getDisplayIcon()).isNull()
+        assertThat(info.getDisplayIconHolder().getDisplayIcon()).isNull()
     }
 
     @Test
@@ -55,6 +56,7 @@ class TargetInfoTest {
     @Test
     fun testNewSelectableTargetInfo() {
         val displayInfo: DisplayResolveInfo = mock()
+        whenever(displayInfo.getAllSourceIntents()).thenReturn(listOf(mock()))
         val chooserTarget = createChooserTarget(
             "title", 0.3f, ResolverDataProvider.createComponentName(1), "test_shortcut_id")
         val shortcutInfo = createShortcutInfo("id", ResolverDataProvider.createComponentName(2), 3)

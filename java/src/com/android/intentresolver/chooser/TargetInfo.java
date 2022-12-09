@@ -42,6 +42,42 @@ import java.util.Objects;
  * A single target as represented in the chooser.
  */
 public interface TargetInfo {
+
+    /**
+     * Container for a {@link TargetInfo}'s (potentially) mutable icon state. This is provided to
+     * encapsulate the state so that the {@link TargetInfo} itself can be "immutable" (in some
+     * sense) as long as it always returns the same {@link IconHolder} instance.
+     *
+     * TODO: move "stateful" responsibilities out to clients; for more info see the Javadoc comment
+     * on {@link #getDisplayIconHolder()}.
+     */
+    interface IconHolder {
+        /** @return the icon (if it's already loaded, or statically available), or null. */
+        @Nullable
+        Drawable getDisplayIcon();
+
+        /**
+         * @param icon the icon to return on subsequent calls to {@link #getDisplayIcon()}.
+         * Implementations may discard this request as a no-op if they don't support setting.
+         */
+        void setDisplayIcon(Drawable icon);
+    }
+
+    /** A simple mutable-container implementation of {@link IconHolder}. */
+    final class SettableIconHolder implements IconHolder {
+        @Nullable
+        private Drawable mDisplayIcon;
+
+        @Nullable
+        public Drawable getDisplayIcon() {
+            return mDisplayIcon;
+        }
+
+        public void setDisplayIcon(Drawable icon) {
+            mDisplayIcon = icon;
+        }
+    }
+
     /**
      * Get the resolved intent that represents this target. Note that this may not be the
      * intent that will be launched by calling one of the <code>start</code> methods provided;
@@ -135,16 +171,21 @@ public interface TargetInfo {
     CharSequence getExtendedInfo();
 
     /**
-     * @return The drawable that should be used to represent this target including badge
+     * @return the {@link IconHolder} for the icon used to represent this target, including badge.
+     *
+     * TODO: while the {@link TargetInfo} may be immutable in always returning the same instance of
+     * {@link IconHolder} here, the holder itself is mutable state, and could become a problem if we
+     * ever rely on {@link TargetInfo} immutability elsewhere. Ideally, the {@link TargetInfo}
+     * should provide an immutable "spec" that tells clients <em>how</em> to load the appropriate
+     * icon, while leaving the load itself to some external component.
      */
-    @Nullable
-    Drawable getDisplayIcon();
+    IconHolder getDisplayIconHolder();
 
     /**
      * @return true if display icon is available.
      */
     default boolean hasDisplayIcon() {
-        return getDisplayIcon() != null;
+        return getDisplayIconHolder().getDisplayIcon() != null;
     }
     /**
      * Clone this target with the given fill-in information.

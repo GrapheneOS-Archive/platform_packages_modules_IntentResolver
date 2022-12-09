@@ -1627,7 +1627,7 @@ public class ResolverActivity extends FragmentActivity implements
             @Override
             protected void onPostExecute(Drawable drawable) {
                 if (!isDestroyed()) {
-                    otherProfileResolveInfo.setDisplayIcon(drawable);
+                    otherProfileResolveInfo.getDisplayIconHolder().setDisplayIcon(drawable);
                     new ResolverListAdapter.ViewHolder(icon).bindIcon(otherProfileResolveInfo);
                 }
             }
