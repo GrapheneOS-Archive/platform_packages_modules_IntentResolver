@@ -102,6 +102,9 @@ public final class ChooserContentPreviewUi {
         /** Create an "Share to Nearby" action. */
         @Nullable
         ActionRow.Action createNearbyButton();
+
+        /** Create custom actions */
+        List<ActionRow.Action> createCustomActions();
     }
 
     /**
@@ -187,12 +190,15 @@ public final class ChooserContentPreviewUi {
             ImageMimeTypeClassifier imageClassifier) {
         ViewGroup layout = null;
 
+        List<ActionRow.Action> customActions = actionFactory.createCustomActions();
         switch (previewType) {
             case CONTENT_PREVIEW_TEXT:
                 layout = displayTextContentPreview(
                         targetIntent,
                         layoutInflater,
-                        createTextPreviewActions(actionFactory),
+                        createActions(
+                                createTextPreviewActions(actionFactory),
+                                customActions),
                         parent,
                         previewCoord,
                         actionRowLayout);
@@ -201,7 +207,9 @@ public final class ChooserContentPreviewUi {
                 layout = displayImageContentPreview(
                         targetIntent,
                         layoutInflater,
-                        createImagePreviewActions(actionFactory),
+                        createActions(
+                                createImagePreviewActions(actionFactory),
+                                customActions),
                         parent,
                         previewCoord,
                         onTransitionTargetReady,
@@ -214,7 +222,9 @@ public final class ChooserContentPreviewUi {
                         targetIntent,
                         resources,
                         layoutInflater,
-                        createFilePreviewActions(actionFactory),
+                        createActions(
+                                createFilePreviewActions(actionFactory),
+                                customActions),
                         parent,
                         previewCoord,
                         contentResolver,
@@ -225,6 +235,17 @@ public final class ChooserContentPreviewUi {
         }
 
         return layout;
+    }
+
+    private static List<ActionRow.Action> createActions(
+            List<ActionRow.Action> systemActions, List<ActionRow.Action> customActions) {
+        ArrayList<ActionRow.Action> actions =
+                new ArrayList<>(systemActions.size() + customActions.size());
+        actions.addAll(systemActions);
+        if (ChooserActivity.ENABLE_CUSTOM_ACTIONS) {
+            actions.addAll(customActions);
+        }
+        return actions;
     }
 
     private static Cursor queryResolver(ContentResolver resolver, Uri uri) {

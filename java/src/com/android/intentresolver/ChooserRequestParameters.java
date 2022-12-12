@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.PatternMatcher;
+import android.service.chooser.ChooserAction;
 import android.service.chooser.ChooserTarget;
 import android.text.TextUtils;
 import android.util.Log;
@@ -70,6 +71,7 @@ public class ChooserRequestParameters {
     private final Intent mReferrerFillInIntent;
     private final ImmutableList<ComponentName> mFilteredComponentNames;
     private final ImmutableList<ChooserTarget> mCallerChooserTargets;
+    private final ImmutableList<ChooserAction> mChooserActions;
     private final boolean mRetainInOnStop;
 
     @Nullable
@@ -96,7 +98,8 @@ public class ChooserRequestParameters {
     public ChooserRequestParameters(
             final Intent clientIntent,
             final Uri referrer,
-            @Nullable final ComponentName nearbySharingComponent) {
+            @Nullable final ComponentName nearbySharingComponent,
+            boolean extractCustomActions) {
         final Intent requestedTarget = parseTargetIntentExtra(
                 clientIntent.getParcelableExtra(Intent.EXTRA_INTENT));
         mTarget = intentWithModifiedLaunchFlags(requestedTarget);
@@ -130,6 +133,10 @@ public class ChooserRequestParameters {
         mSharedText = mTarget.getStringExtra(Intent.EXTRA_TEXT);
 
         mTargetIntentFilter = getTargetIntentFilter(mTarget);
+
+        mChooserActions = extractCustomActions
+                ? getChooserActions(clientIntent)
+                : ImmutableList.of();
     }
 
     public Intent getTargetIntent() {
@@ -169,6 +176,10 @@ public class ChooserRequestParameters {
 
     public ImmutableList<ChooserTarget> getCallerChooserTargets() {
         return mCallerChooserTargets;
+    }
+
+    public ImmutableList<ChooserAction> getChooserActions() {
+        return mChooserActions;
     }
 
     /**
@@ -298,6 +309,16 @@ public class ChooserRequestParameters {
                 streamParcelableArrayExtra(
                         clientIntent, Intent.EXTRA_CHOOSER_TARGETS, ChooserTarget.class, true, true)
                 .collect(toImmutableList());
+    }
+
+    private static ImmutableList<ChooserAction> getChooserActions(Intent intent) {
+        return streamParcelableArrayExtra(
+                intent,
+                Intent.EXTRA_CHOOSER_CUSTOM_ACTIONS,
+                ChooserAction.class,
+                true,
+                true)
+            .collect(toImmutableList());
     }
 
     private static <T> Collector<T, ?, ImmutableList<T>> toImmutableList() {
