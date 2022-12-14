@@ -115,11 +115,16 @@ class ChooserListAdapterTest {
         verify(testTaskProvider, times(1)).invoke()
     }
 
-    private fun createSelectableTargetInfo(): TargetInfo {
-        val displayInfo: DisplayResolveInfo = mock()
-        whenever(displayInfo.getAllSourceIntents()).thenReturn(listOf(mock()))
-        return SelectableTargetInfo.newSelectableTargetInfo(
-            /* sourceInfo = */ displayInfo,
+    private fun createSelectableTargetInfo(): TargetInfo =
+        SelectableTargetInfo.newSelectableTargetInfo(
+            /* sourceInfo = */ DisplayResolveInfo.newDisplayResolveInfo(
+                Intent(),
+                ResolverDataProvider.createResolveInfo(2, 0),
+                "label",
+                "extended info",
+                Intent(),
+                /* resolveInfoPresentationGetter= */ null
+            ),
             /* backupResolveInfo = */ mock(),
             /* resolvedIntent = */ Intent(),
             /* chooserTarget = */ createChooserTarget(
@@ -130,7 +135,6 @@ class ChooserListAdapterTest {
             /* appTarget */ null,
             /* referrerFillInIntent = */ Intent()
         )
-    }
 
     private fun createView(): View {
         val view = FrameLayout(context)
