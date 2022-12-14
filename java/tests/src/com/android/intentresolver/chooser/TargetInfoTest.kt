@@ -28,7 +28,6 @@ import com.android.intentresolver.createChooserTarget
 import com.android.intentresolver.createShortcutInfo
 import com.android.intentresolver.mock
 import com.android.intentresolver.ResolverDataProvider
-import com.android.intentresolver.whenever
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -55,20 +54,25 @@ class TargetInfoTest {
 
     @Test
     fun testNewSelectableTargetInfo() {
-        val displayInfo: DisplayResolveInfo = mock()
-        whenever(displayInfo.getAllSourceIntents()).thenReturn(listOf(mock()))
+        val resolvedIntent = Intent()
+        val baseDisplayInfo = DisplayResolveInfo.newDisplayResolveInfo(
+            resolvedIntent,
+            ResolverDataProvider.createResolveInfo(1, 0),
+            "label",
+            "extended info",
+            resolvedIntent,
+            /* resolveInfoPresentationGetter= */ null)
         val chooserTarget = createChooserTarget(
-            "title", 0.3f, ResolverDataProvider.createComponentName(1), "test_shortcut_id")
-        val shortcutInfo = createShortcutInfo("id", ResolverDataProvider.createComponentName(2), 3)
+            "title", 0.3f, ResolverDataProvider.createComponentName(2), "test_shortcut_id")
+        val shortcutInfo = createShortcutInfo("id", ResolverDataProvider.createComponentName(3), 3)
         val appTarget = AppTarget(
             AppTargetId("id"),
             chooserTarget.componentName.packageName,
             chooserTarget.componentName.className,
             UserHandle.CURRENT)
-        val resolvedIntent = mock<Intent>()
 
         val targetInfo = SelectableTargetInfo.newSelectableTargetInfo(
-            displayInfo,
+            baseDisplayInfo,
             mock(),
             resolvedIntent,
             chooserTarget,
@@ -79,7 +83,7 @@ class TargetInfoTest {
         )
         assertThat(targetInfo.isSelectableTargetInfo).isTrue()
         assertThat(targetInfo.isChooserTargetInfo).isTrue()  // From legacy inheritance model.
-        assertThat(targetInfo.displayResolveInfo).isSameInstanceAs(displayInfo)
+        assertThat(targetInfo.displayResolveInfo).isSameInstanceAs(baseDisplayInfo)
         assertThat(targetInfo.chooserTargetComponentName).isEqualTo(chooserTarget.componentName)
         assertThat(targetInfo.directShareShortcutId).isEqualTo(shortcutInfo.id)
         assertThat(targetInfo.directShareShortcutInfo).isSameInstanceAs(shortcutInfo)
