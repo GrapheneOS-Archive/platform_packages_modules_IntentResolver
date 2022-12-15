@@ -43,15 +43,13 @@ import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -77,12 +75,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Icon;
-import android.metrics.LogMaker;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.provider.DeviceConfig;
 import android.service.chooser.ChooserTarget;
+import android.util.HashedStringCache;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.View;
@@ -99,7 +97,6 @@ import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
-import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
 import org.hamcrest.Description;
@@ -786,26 +783,15 @@ public class UnbundledChooserActivityTest {
             Mockito.anyBoolean(),
             Mockito.isA(List.class))).thenReturn(resolvedComponentInfos);
 
-        MetricsLogger mockLogger = ChooserActivityOverrideData.getInstance().metricsLogger;
-        ArgumentCaptor<LogMaker> logMakerCaptor = ArgumentCaptor.forClass(LogMaker.class);
-
-        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
+        final IChooserWrapper activity = (IChooserWrapper)
+                mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
         onView(withId(com.android.internal.R.id.chooser_copy_button)).check(matches(isDisplayed()));
         onView(withId(com.android.internal.R.id.chooser_copy_button)).perform(click());
 
-        verify(mockLogger, atLeastOnce()).write(logMakerCaptor.capture());
-
-        // The last captured event is the selection of the target.
-        boolean containsTargetEvent = logMakerCaptor.getAllValues()
-                .stream()
-                .anyMatch(item ->
-                        item.getCategory()
-                                == MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SYSTEM_TARGET);
-        assertTrue(
-                "ACTION_ACTIVITY_CHOOSER_PICKED_SYSTEM_TARGET is expected", containsTargetEvent);
-        assertThat(logMakerCaptor.getValue().getSubtype(), is(1));
+        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        verify(logger, times(1)).logActionSelected(eq(ChooserActivityLogger.SELECTION_TYPE_COPY));
     }
 
     @Test
@@ -979,25 +965,12 @@ public class UnbundledChooserActivityTest {
         Intent sendIntent = createSendTextIntent();
         sendIntent.setType(TEST_MIME_TYPE);
 
-        MetricsLogger mockLogger = ChooserActivityOverrideData.getInstance().metricsLogger;
-        ArgumentCaptor<LogMaker> logMakerCaptor = ArgumentCaptor.forClass(LogMaker.class);
-        mActivityRule.launchActivity(Intent.createChooser(sendIntent, "logger test"));
+        final IChooserWrapper activity = (IChooserWrapper)
+                mActivityRule.launchActivity(Intent.createChooser(sendIntent, "logger test"));
+        ChooserActivityLogger logger = activity.getChooserActivityLogger();
         waitForIdle();
-        verify(mockLogger, atLeastOnce()).write(logMakerCaptor.capture());
-        assertThat(logMakerCaptor.getAllValues().get(0).getCategory(),
-                is(MetricsEvent.ACTION_ACTIVITY_CHOOSER_SHOWN));
-        assertThat(logMakerCaptor
-                .getAllValues().get(0)
-                .getTaggedData(MetricsEvent.FIELD_TIME_TO_APP_TARGETS),
-                is(notNullValue()));
-        assertThat(logMakerCaptor
-                .getAllValues().get(0)
-                .getTaggedData(MetricsEvent.FIELD_SHARESHEET_MIMETYPE),
-                is(TEST_MIME_TYPE));
-        assertThat(logMakerCaptor
-                        .getAllValues().get(0)
-                        .getSubtype(),
-                is(MetricsEvent.PARENT_PROFILE));
+
+        verify(logger).logChooserActivityShown(eq(false), eq(TEST_MIME_TYPE), anyLong());
     }
 
     @Test
@@ -1006,48 +979,31 @@ public class UnbundledChooserActivityTest {
         sendIntent.setType(TEST_MIME_TYPE);
         ChooserActivityOverrideData.getInstance().alternateProfileSetting =
                 MetricsEvent.MANAGED_PROFILE;
-        MetricsLogger mockLogger = ChooserActivityOverrideData.getInstance().metricsLogger;
-        ArgumentCaptor<LogMaker> logMakerCaptor = ArgumentCaptor.forClass(LogMaker.class);
-        mActivityRule.launchActivity(Intent.createChooser(sendIntent, "logger test"));
+
+        final IChooserWrapper activity = (IChooserWrapper)
+                mActivityRule.launchActivity(Intent.createChooser(sendIntent, "logger test"));
+        ChooserActivityLogger logger = activity.getChooserActivityLogger();
         waitForIdle();
-        verify(mockLogger, atLeastOnce()).write(logMakerCaptor.capture());
-        assertThat(logMakerCaptor.getAllValues().get(0).getCategory(),
-                is(MetricsEvent.ACTION_ACTIVITY_CHOOSER_SHOWN));
-        assertThat(logMakerCaptor
-                        .getAllValues().get(0)
-                        .getTaggedData(MetricsEvent.FIELD_TIME_TO_APP_TARGETS),
-                is(notNullValue()));
-        assertThat(logMakerCaptor
-                        .getAllValues().get(0)
-                        .getTaggedData(MetricsEvent.FIELD_SHARESHEET_MIMETYPE),
-                is(TEST_MIME_TYPE));
-        assertThat(logMakerCaptor
-                        .getAllValues().get(0)
-                        .getSubtype(),
-                is(MetricsEvent.MANAGED_PROFILE));
+
+        verify(logger).logChooserActivityShown(eq(true), eq(TEST_MIME_TYPE), anyLong());
     }
 
     @Test
     public void testEmptyPreviewLogging() {
         Intent sendIntent = createSendTextIntentWithPreview(null, null);
 
-        MetricsLogger mockLogger = ChooserActivityOverrideData.getInstance().metricsLogger;
-        ArgumentCaptor<LogMaker> logMakerCaptor = ArgumentCaptor.forClass(LogMaker.class);
-        mActivityRule.launchActivity(Intent.createChooser(sendIntent, "empty preview logger test"));
+        final IChooserWrapper activity = (IChooserWrapper)
+                mActivityRule.launchActivity(
+                        Intent.createChooser(sendIntent, "empty preview logger test"));
+        ChooserActivityLogger logger = activity.getChooserActivityLogger();
         waitForIdle();
 
-        verify(mockLogger, Mockito.times(1)).write(logMakerCaptor.capture());
-        // First invocation is from onCreate
-        assertThat(logMakerCaptor.getAllValues().get(0).getCategory(),
-                is(MetricsEvent.ACTION_ACTIVITY_CHOOSER_SHOWN));
+        verify(logger).logChooserActivityShown(eq(false), eq(null), anyLong());
     }
 
     @Test
     public void testTitlePreviewLogging() {
         Intent sendIntent = createSendTextIntentWithPreview("TestTitle", null);
-
-        MetricsLogger mockLogger = ChooserActivityOverrideData.getInstance().metricsLogger;
-        ArgumentCaptor<LogMaker> logMakerCaptor = ArgumentCaptor.forClass(LogMaker.class);
 
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
 
@@ -1057,14 +1013,13 @@ public class UnbundledChooserActivityTest {
             Mockito.anyBoolean(),
             Mockito.isA(List.class))).thenReturn(resolvedComponentInfos);
 
-        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
+        final IChooserWrapper activity = (IChooserWrapper)
+                mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
+
         // Second invocation is from onCreate
-        verify(mockLogger, Mockito.times(2)).write(logMakerCaptor.capture());
-        assertThat(logMakerCaptor.getAllValues().get(0).getSubtype(),
-                is(CONTENT_PREVIEW_TEXT));
-        assertThat(logMakerCaptor.getAllValues().get(0).getCategory(),
-                is(MetricsEvent.ACTION_SHARE_WITH_PREVIEW));
+        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        Mockito.verify(logger, times(1)).logActionShareWithPreview(eq(CONTENT_PREVIEW_TEXT));
     }
 
     @Test
@@ -1092,16 +1047,11 @@ public class UnbundledChooserActivityTest {
                                 Mockito.isA(List.class)))
                 .thenReturn(resolvedComponentInfos);
 
-        MetricsLogger mockLogger = ChooserActivityOverrideData.getInstance().metricsLogger;
-        ArgumentCaptor<LogMaker> logMakerCaptor = ArgumentCaptor.forClass(LogMaker.class);
-        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
+        final IChooserWrapper activity = (IChooserWrapper)
+                mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        verify(mockLogger, Mockito.times(2)).write(logMakerCaptor.capture());
-        // First invocation is from onCreate
-        assertThat(logMakerCaptor.getAllValues().get(0).getSubtype(),
-                is(CONTENT_PREVIEW_IMAGE));
-        assertThat(logMakerCaptor.getAllValues().get(0).getCategory(),
-                is(MetricsEvent.ACTION_SHARE_WITH_PREVIEW));
+        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        Mockito.verify(logger, times(1)).logActionShareWithPreview(eq(CONTENT_PREVIEW_IMAGE));
     }
 
     @Test
@@ -1302,10 +1252,6 @@ public class UnbundledChooserActivityTest {
                                 Mockito.isA(List.class)))
                 .thenReturn(resolvedComponentInfos);
 
-        // Set up resources
-        MetricsLogger mockLogger = ChooserActivityOverrideData.getInstance().metricsLogger;
-        ArgumentCaptor<LogMaker> logMakerCaptor = ArgumentCaptor.forClass(LogMaker.class);
-
         // create test shortcut loader factory, remember loaders and their callbacks
         SparseArray<Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>>> shortcutLoaders =
                 createShortcutLoaderFactory();
@@ -1361,25 +1307,22 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        // Currently we're seeing 4 invocations
-        //      1. ChooserActivity.logActionShareWithPreview()
-        //      2. ChooserActivity.onCreate()
-        //      3. ChooserActivity.logDirectShareTargetReceived()
-        //      4. ChooserActivity.startSelected -- which is the one we're after
-        verify(mockLogger, Mockito.times(4)).write(logMakerCaptor.capture());
-        LogMaker selectionLog = logMakerCaptor.getAllValues().get(3);
-        assertThat(
-                selectionLog.getCategory(),
-                is(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET));
-        String hashedName = (String) selectionLog.getTaggedData(
-                MetricsEvent.FIELD_HASHED_TARGET_NAME);
+        ArgumentCaptor<HashedStringCache.HashResult> hashCaptor =
+                ArgumentCaptor.forClass(HashedStringCache.HashResult.class);
+        verify(activity.getChooserActivityLogger(), times(1)).logShareTargetSelected(
+                eq(ChooserActivityLogger.SELECTION_TYPE_SERVICE),
+                /* packageName= */ any(),
+                /* positionPicked= */ anyInt(),
+                /* directTargetAlsoRanked= */ eq(-1),
+                /* numCallerProvided= */ anyInt(),
+                /* directTargetHashed= */ hashCaptor.capture(),
+                /* isPinned= */ anyBoolean(),
+                /* successfullySelected= */ anyBoolean(),
+                /* selectionCost= */ anyLong());
+        String hashedName = hashCaptor.getValue().hashedString;
         assertThat(
                 "Hash is not predictable but must be obfuscated",
                 hashedName, is(not(name)));
-        assertThat(
-                "The packages shouldn't match for app target and direct target",
-                selectionLog.getTaggedData(MetricsEvent.FIELD_RANKED_POSITION),
-                is(-1));
     }
 
     // This test is too long and too slow and should not be taken as an example for future tests.
@@ -1398,10 +1341,6 @@ public class UnbundledChooserActivityTest {
                                 Mockito.anyBoolean(),
                                 Mockito.isA(List.class)))
                 .thenReturn(resolvedComponentInfos);
-
-        // Set up resources
-        MetricsLogger mockLogger = ChooserActivityOverrideData.getInstance().metricsLogger;
-        ArgumentCaptor<LogMaker> logMakerCaptor = ArgumentCaptor.forClass(LogMaker.class);
 
         // create test shortcut loader factory, remember loaders and their callbacks
         SparseArray<Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>>> shortcutLoaders =
@@ -1460,16 +1399,16 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        // Currently we're seeing 4 invocations
-        //      1. ChooserActivity.logActionShareWithPreview()
-        //      2. ChooserActivity.onCreate()
-        //      3. ChooserActivity.logDirectShareTargetReceived()
-        //      4. ChooserActivity.startSelected -- which is the one we're after
-        verify(mockLogger, Mockito.times(4)).write(logMakerCaptor.capture());
-        assertThat(logMakerCaptor.getAllValues().get(3).getCategory(),
-                is(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET));
-        assertThat("The packages should match for app target and direct target", logMakerCaptor
-                .getAllValues().get(3).getTaggedData(MetricsEvent.FIELD_RANKED_POSITION), is(0));
+        verify(activity.getChooserActivityLogger(), times(1)).logShareTargetSelected(
+                eq(ChooserActivityLogger.SELECTION_TYPE_SERVICE),
+                /* packageName= */ any(),
+                /* positionPicked= */ anyInt(),
+                /* directTargetAlsoRanked= */ eq(0),
+                /* numCallerProvided= */ anyInt(),
+                /* directTargetHashed= */ any(),
+                /* isPinned= */ anyBoolean(),
+                /* successfullySelected= */ anyBoolean(),
+                /* selectionCost= */ anyLong());
     }
 
     @Test
@@ -1787,9 +1726,6 @@ public class UnbundledChooserActivityTest {
                                 Mockito.isA(List.class)))
                 .thenReturn(resolvedComponentInfos);
 
-        // Set up resources
-        MetricsLogger mockLogger = ChooserActivityOverrideData.getInstance().metricsLogger;
-        ArgumentCaptor<LogMaker> logMakerCaptor = ArgumentCaptor.forClass(LogMaker.class);
         // Create direct share target
         List<ChooserTarget> serviceTargets = createDirectShareTargets(1,
                 resolvedComponentInfos.get(14).getResolveInfoAt(0).activityInfo.packageName);
@@ -1830,15 +1766,18 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        // Currently we're seeing 3 invocations
-        //      1. ChooserActivity.onCreate()
-        //      2. ChooserActivity$ChooserRowAdapter.createContentPreviewView()
-        //      3. ChooserActivity.startSelected -- which is the one we're after
-        verify(mockLogger, Mockito.times(3)).write(logMakerCaptor.capture());
-        assertThat(logMakerCaptor.getAllValues().get(2).getCategory(),
-                is(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET));
-        assertThat("The packages shouldn't match for app target and direct target", logMakerCaptor
-                .getAllValues().get(2).getTaggedData(MetricsEvent.FIELD_RANKED_POSITION), is(-1));
+        ChooserActivityLogger logger = wrapper.getChooserActivityLogger();
+        verify(logger, times(1)).logShareTargetSelected(
+                eq(ChooserActivityLogger.SELECTION_TYPE_SERVICE),
+                /* packageName= */ any(),
+                /* positionPicked= */ anyInt(),
+                // The packages sholdn't match for app target and direct target:
+                /* directTargetAlsoRanked= */ eq(-1),
+                /* numCallerProvided= */ anyInt(),
+                /* directTargetHashed= */ any(),
+                /* isPinned= */ anyBoolean(),
+                /* successfullySelected= */ anyBoolean(),
+                /* selectionCost= */ anyLong());
     }
 
     @Test
@@ -2179,9 +2118,16 @@ public class UnbundledChooserActivityTest {
 
         ChooserActivityLogger logger = activity.getChooserActivityLogger();
         ArgumentCaptor<Integer> typeCaptor = ArgumentCaptor.forClass(Integer.class);
-        Mockito.verify(logger, times(1))
-                .logShareTargetSelected(typeCaptor.capture(), any(), anyInt(), anyBoolean());
-        assertThat(typeCaptor.getValue(), is(ChooserActivity.SELECTION_TYPE_SERVICE));
+        verify(logger, times(1)).logShareTargetSelected(
+                eq(ChooserActivityLogger.SELECTION_TYPE_SERVICE),
+                /* packageName= */ any(),
+                /* positionPicked= */ anyInt(),
+                /* directTargetAlsoRanked= */ anyInt(),
+                /* numCallerProvided= */ anyInt(),
+                /* directTargetHashed= */ any(),
+                /* isPinned= */ anyBoolean(),
+                /* successfullySelected= */ anyBoolean(),
+                /* selectionCost= */ anyLong());
     }
 
     @Test @Ignore

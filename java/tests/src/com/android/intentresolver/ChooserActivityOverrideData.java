@@ -32,7 +32,6 @@ import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvi
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.QuietModeManager;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
-import com.android.internal.logging.MetricsLogger;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -66,7 +65,6 @@ public class ChooserActivityOverrideData {
     public Cursor resolverCursor;
     public boolean resolverForceException;
     public Bitmap previewThumbnail;
-    public MetricsLogger metricsLogger;
     public ChooserActivityLogger chooserActivityLogger;
     public int alternateProfileSetting;
     public Resources resources;
@@ -89,7 +87,6 @@ public class ChooserActivityOverrideData {
         resolverForceException = false;
         resolverListController = mock(ResolverListController.class);
         workResolverListController = mock(ResolverListController.class);
-        metricsLogger = mock(MetricsLogger.class);
         chooserActivityLogger = mock(ChooserActivityLogger.class);
         alternateProfileSetting = 0;
         resources = null;
