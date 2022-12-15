@@ -30,14 +30,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.content.Intent;
+import android.metrics.LogMaker;
 
 import com.android.intentresolver.ChooserActivityLogger.FrameworkStatsLogger;
 import com.android.intentresolver.ChooserActivityLogger.SharesheetStandardEvent;
 import com.android.intentresolver.ChooserActivityLogger.SharesheetStartedEvent;
 import com.android.intentresolver.ChooserActivityLogger.SharesheetTargetSelectedEvent;
 import com.android.internal.logging.InstanceId;
+import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.UiEventLogger;
 import com.android.internal.logging.UiEventLogger.UiEventEnum;
+import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.util.FrameworkStatsLog;
 
 import org.junit.After;
@@ -52,18 +55,59 @@ import org.mockito.junit.MockitoJUnitRunner;
 public final class ChooserActivityLoggerTest {
     @Mock private UiEventLogger mUiEventLog;
     @Mock private FrameworkStatsLogger mFrameworkLog;
+    @Mock private MetricsLogger mMetricsLogger;
 
     private ChooserActivityLogger mChooserLogger;
 
     @Before
     public void setUp() {
-        mChooserLogger = new ChooserActivityLogger(mUiEventLog, mFrameworkLog);
+        //Mockito.reset(mUiEventLog, mFrameworkLog, mMetricsLogger);
+        mChooserLogger = new ChooserActivityLogger(mUiEventLog, mFrameworkLog, mMetricsLogger);
     }
 
     @After
     public void tearDown() {
         verifyNoMoreInteractions(mUiEventLog);
         verifyNoMoreInteractions(mFrameworkLog);
+        verifyNoMoreInteractions(mMetricsLogger);
+    }
+
+    @Test
+    public void testLogChooserActivityShown_personalProfile() {
+        final boolean isWorkProfile = false;
+        final String mimeType = "application/TestType";
+        final long systemCost = 456;
+
+        mChooserLogger.logChooserActivityShown(isWorkProfile, mimeType, systemCost);
+
+        ArgumentCaptor<LogMaker> eventCaptor = ArgumentCaptor.forClass(LogMaker.class);
+        verify(mMetricsLogger).write(eventCaptor.capture());
+        LogMaker event = eventCaptor.getValue();
+
+        assertThat(event.getCategory()).isEqualTo(MetricsEvent.ACTION_ACTIVITY_CHOOSER_SHOWN);
+        assertThat(event.getSubtype()).isEqualTo(MetricsEvent.PARENT_PROFILE);
+        assertThat(event.getTaggedData(MetricsEvent.FIELD_SHARESHEET_MIMETYPE)).isEqualTo(mimeType);
+        assertThat(event.getTaggedData(MetricsEvent.FIELD_TIME_TO_APP_TARGETS))
+                .isEqualTo(systemCost);
+    }
+
+    @Test
+    public void testLogChooserActivityShown_workProfile() {
+        final boolean isWorkProfile = true;
+        final String mimeType = "application/TestType";
+        final long systemCost = 456;
+
+        mChooserLogger.logChooserActivityShown(isWorkProfile, mimeType, systemCost);
+
+        ArgumentCaptor<LogMaker> eventCaptor = ArgumentCaptor.forClass(LogMaker.class);
+        verify(mMetricsLogger).write(eventCaptor.capture());
+        LogMaker event = eventCaptor.getValue();
+
+        assertThat(event.getCategory()).isEqualTo(MetricsEvent.ACTION_ACTIVITY_CHOOSER_SHOWN);
+        assertThat(event.getSubtype()).isEqualTo(MetricsEvent.MANAGED_PROFILE);
+        assertThat(event.getTaggedData(MetricsEvent.FIELD_SHARESHEET_MIMETYPE)).isEqualTo(mimeType);
+        assertThat(event.getTaggedData(MetricsEvent.FIELD_TIME_TO_APP_TARGETS))
+                .isEqualTo(systemCost);
     }
 
     @Test
@@ -102,20 +146,87 @@ public final class ChooserActivityLoggerTest {
 
     @Test
     public void testLogShareTargetSelected() {
-        final int targetType = ChooserActivity.SELECTION_TYPE_COPY;
+        final int targetType = ChooserActivityLogger.SELECTION_TYPE_SERVICE;
         final String packageName = "com.test.foo";
         final int positionPicked = 123;
-        final boolean pinned = true;
+        final int directTargetAlsoRanked = -1;
+        final int callerTargetCount = 0;
+        final boolean isPinned = true;
+        final boolean isSuccessfullySelected = true;
+        final long selectionCost = 456;
 
-        mChooserLogger.logShareTargetSelected(targetType, packageName, positionPicked, pinned);
+        mChooserLogger.logShareTargetSelected(
+                targetType,
+                packageName,
+                positionPicked,
+                directTargetAlsoRanked,
+                callerTargetCount,
+                /* directTargetHashed= */ null,
+                isPinned,
+                isSuccessfullySelected,
+                selectionCost);
+
+        verify(mFrameworkLog).write(
+                eq(FrameworkStatsLog.RANKING_SELECTED),
+                eq(SharesheetTargetSelectedEvent.SHARESHEET_SERVICE_TARGET_SELECTED.getId()),
+                eq(packageName),
+                /* instanceId=*/ gt(0),
+                eq(positionPicked),
+                eq(isPinned));
+
+        ArgumentCaptor<LogMaker> eventCaptor = ArgumentCaptor.forClass(LogMaker.class);
+        verify(mMetricsLogger).write(eventCaptor.capture());
+        LogMaker event = eventCaptor.getValue();
+        assertThat(event.getCategory()).isEqualTo(
+                MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET);
+        assertThat(event.getSubtype()).isEqualTo(positionPicked);
+    }
+
+    @Test
+    public void testLogActionSelected() {
+        mChooserLogger.logActionSelected(ChooserActivityLogger.SELECTION_TYPE_COPY);
 
         verify(mFrameworkLog).write(
                 eq(FrameworkStatsLog.RANKING_SELECTED),
                 eq(SharesheetTargetSelectedEvent.SHARESHEET_COPY_TARGET_SELECTED.getId()),
-                eq(packageName),
+                eq(""),
                 /* instanceId=*/ gt(0),
-                eq(positionPicked),
-                eq(pinned));
+                eq(-1),
+                eq(false));
+
+        ArgumentCaptor<LogMaker> eventCaptor = ArgumentCaptor.forClass(LogMaker.class);
+        verify(mMetricsLogger).write(eventCaptor.capture());
+        LogMaker event = eventCaptor.getValue();
+        assertThat(event.getCategory()).isEqualTo(
+                MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SYSTEM_TARGET);
+        assertThat(event.getSubtype()).isEqualTo(1);
+    }
+
+    @Test
+    public void testLogDirectShareTargetReceived() {
+        final int category = MetricsEvent.ACTION_DIRECT_SHARE_TARGETS_LOADED_SHORTCUT_MANAGER;
+        final int latency = 123;
+
+        mChooserLogger.logDirectShareTargetReceived(category, latency);
+
+        ArgumentCaptor<LogMaker> eventCaptor = ArgumentCaptor.forClass(LogMaker.class);
+        verify(mMetricsLogger).write(eventCaptor.capture());
+        LogMaker event = eventCaptor.getValue();
+        assertThat(event.getCategory()).isEqualTo(category);
+        assertThat(event.getSubtype()).isEqualTo(latency);
+    }
+
+    @Test
+    public void testLogActionShareWithPreview() {
+        final int previewType = ChooserContentPreviewUi.CONTENT_PREVIEW_TEXT;
+
+        mChooserLogger.logActionShareWithPreview(previewType);
+
+        ArgumentCaptor<LogMaker> eventCaptor = ArgumentCaptor.forClass(LogMaker.class);
+        verify(mMetricsLogger).write(eventCaptor.capture());
+        LogMaker event = eventCaptor.getValue();
+        assertThat(event.getCategory()).isEqualTo(MetricsEvent.ACTION_SHARE_WITH_PREVIEW);
+        assertThat(event.getSubtype()).isEqualTo(previewType);
     }
 
     @Test
@@ -194,15 +305,38 @@ public final class ChooserActivityLoggerTest {
     public void testDifferentLoggerInstancesUseDifferentInstanceIds() {
         ArgumentCaptor<Integer> idIntCaptor = ArgumentCaptor.forClass(Integer.class);
         ChooserActivityLogger chooserLogger2 =
-                new ChooserActivityLogger(mUiEventLog, mFrameworkLog);
+                new ChooserActivityLogger(mUiEventLog, mFrameworkLog, mMetricsLogger);
 
-        final int targetType = ChooserActivity.SELECTION_TYPE_COPY;
+        final int targetType = ChooserActivityLogger.SELECTION_TYPE_COPY;
         final String packageName = "com.test.foo";
         final int positionPicked = 123;
-        final boolean pinned = true;
+        final int directTargetAlsoRanked = -1;
+        final int callerTargetCount = 0;
+        final boolean isPinned = true;
+        final boolean isSuccessfullySelected = true;
+        final long selectionCost = 456;
 
-        mChooserLogger.logShareTargetSelected(targetType, packageName, positionPicked, pinned);
-        chooserLogger2.logShareTargetSelected(targetType, packageName, positionPicked, pinned);
+        mChooserLogger.logShareTargetSelected(
+                targetType,
+                packageName,
+                positionPicked,
+                directTargetAlsoRanked,
+                callerTargetCount,
+                /* directTargetHashed= */ null,
+                isPinned,
+                isSuccessfullySelected,
+                selectionCost);
+
+        chooserLogger2.logShareTargetSelected(
+                targetType,
+                packageName,
+                positionPicked,
+                directTargetAlsoRanked,
+                callerTargetCount,
+                /* directTargetHashed= */ null,
+                isPinned,
+                isSuccessfullySelected,
+                selectionCost);
 
         verify(mFrameworkLog, times(2)).write(
                 anyInt(), anyInt(), anyString(), idIntCaptor.capture(), anyInt(), anyBoolean());
@@ -220,12 +354,26 @@ public final class ChooserActivityLoggerTest {
         ArgumentCaptor<Integer> idIntCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<InstanceId> idObjectCaptor = ArgumentCaptor.forClass(InstanceId.class);
 
-        final int targetType = ChooserActivity.SELECTION_TYPE_COPY;
+        final int targetType = ChooserActivityLogger.SELECTION_TYPE_COPY;
         final String packageName = "com.test.foo";
         final int positionPicked = 123;
-        final boolean pinned = true;
+        final int directTargetAlsoRanked = -1;
+        final int callerTargetCount = 0;
+        final boolean isPinned = true;
+        final boolean isSuccessfullySelected = true;
+        final long selectionCost = 456;
 
-        mChooserLogger.logShareTargetSelected(targetType, packageName, positionPicked, pinned);
+        mChooserLogger.logShareTargetSelected(
+                targetType,
+                packageName,
+                positionPicked,
+                directTargetAlsoRanked,
+                callerTargetCount,
+                /* directTargetHashed= */ null,
+                isPinned,
+                isSuccessfullySelected,
+                selectionCost);
+
         verify(mFrameworkLog).write(
                 anyInt(), anyInt(), anyString(), idIntCaptor.capture(), anyInt(), anyBoolean());
 
@@ -235,5 +383,24 @@ public final class ChooserActivityLoggerTest {
 
         assertThat(idIntCaptor.getValue()).isGreaterThan(0);
         assertThat(idObjectCaptor.getValue().getId()).isEqualTo(idIntCaptor.getValue());
+    }
+
+    @Test
+    public void testTargetSelectionCategories() {
+        assertThat(ChooserActivityLogger.getTargetSelectionCategory(
+                ChooserActivityLogger.SELECTION_TYPE_SERVICE))
+                        .isEqualTo(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET);
+        assertThat(ChooserActivityLogger.getTargetSelectionCategory(
+                ChooserActivityLogger.SELECTION_TYPE_APP))
+                        .isEqualTo(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_APP_TARGET);
+        assertThat(ChooserActivityLogger.getTargetSelectionCategory(
+                ChooserActivityLogger.SELECTION_TYPE_STANDARD))
+                        .isEqualTo(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_STANDARD_TARGET);
+        assertThat(ChooserActivityLogger.getTargetSelectionCategory(
+                ChooserActivityLogger.SELECTION_TYPE_COPY)).isEqualTo(0);
+        assertThat(ChooserActivityLogger.getTargetSelectionCategory(
+                ChooserActivityLogger.SELECTION_TYPE_NEARBY)).isEqualTo(0);
+        assertThat(ChooserActivityLogger.getTargetSelectionCategory(
+                ChooserActivityLogger.SELECTION_TYPE_EDIT)).isEqualTo(0);
     }
 }

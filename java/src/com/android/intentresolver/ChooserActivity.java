@@ -58,7 +58,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Insets;
 import android.graphics.drawable.Drawable;
-import android.metrics.LogMaker;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -74,7 +73,6 @@ import android.provider.DeviceConfig;
 import android.provider.Settings;
 import android.service.chooser.ChooserTarget;
 import android.text.TextUtils;
-import android.util.HashedStringCache;
 import android.util.Log;
 import android.util.Size;
 import android.util.Slog;
@@ -114,7 +112,6 @@ import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.content.PackageMonitor;
-import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.util.FrameworkStatsLog;
 
@@ -186,13 +183,6 @@ public class ChooserActivity extends ResolverActivity implements
     public static final int TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER = 2;
     public static final int TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE = 3;
 
-    public static final int SELECTION_TYPE_SERVICE = 1;
-    public static final int SELECTION_TYPE_APP = 2;
-    public static final int SELECTION_TYPE_STANDARD = 3;
-    public static final int SELECTION_TYPE_COPY = 4;
-    public static final int SELECTION_TYPE_NEARBY = 5;
-    public static final int SELECTION_TYPE_EDIT = 6;
-
     private static final int SCROLL_STATUS_IDLE = 0;
     private static final int SCROLL_STATUS_SCROLLING_VERTICAL = 1;
     private static final int SCROLL_STATUS_SCROLLING_HORIZONTAL = 2;
@@ -250,8 +240,6 @@ public class ChooserActivity extends ResolverActivity implements
 
     private SharedPreferences mPinnedSharedPrefs;
     private static final String PINNED_SHARED_PREFS_NAME = "chooser_pin_settings";
-
-    protected MetricsLogger mMetricsLogger;
 
     private final ExecutorService mBackgroundThreadPoolExecutor = Executors.newFixedThreadPool(5);
 
@@ -346,13 +334,8 @@ public class ChooserActivity extends ResolverActivity implements
 
         mChooserShownTime = System.currentTimeMillis();
         final long systemCost = mChooserShownTime - intentReceivedTime;
-
-        getMetricsLogger().write(new LogMaker(MetricsEvent.ACTION_ACTIVITY_CHOOSER_SHOWN)
-                .setSubtype(isWorkProfile() ? MetricsEvent.MANAGED_PROFILE :
-                        MetricsEvent.PARENT_PROFILE)
-                .addTaggedData(
-                        MetricsEvent.FIELD_SHARESHEET_MIMETYPE, mChooserRequest.getTargetType())
-                .addTaggedData(MetricsEvent.FIELD_TIME_TO_APP_TARGETS, systemCost));
+        getChooserActivityLogger().logChooserActivityShown(
+                isWorkProfile(), mChooserRequest.getTargetType(), systemCost);
 
         if (mResolverDrawerLayout != null) {
             mResolverDrawerLayout.addOnLayoutChangeListener(this::handleLayoutChange);
@@ -593,7 +576,9 @@ public class ChooserActivity extends ResolverActivity implements
         if (shouldShowStickyContentPreview()
                 || mChooserMultiProfilePagerAdapter
                         .getCurrentRootAdapter().getSystemRowCount() != 0) {
-            logActionShareWithPreview();
+            getChooserActivityLogger().logActionShareWithPreview(
+                    ChooserContentPreviewUi.findPreferredContentPreview(
+                            getTargetIntent(), getContentResolver(), this::isImageType));
         }
         return postRebuildListInternal(rebuildCompleted);
     }
@@ -682,15 +667,7 @@ public class ChooserActivity extends ResolverActivity implements
                     Context.CLIPBOARD_SERVICE);
             clipboardManager.setPrimaryClipAsPackage(clipData, getReferrerPackageName());
 
-            // Log share completion via copy
-            LogMaker targetLogMaker = new LogMaker(
-                    MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SYSTEM_TARGET).setSubtype(1);
-            getMetricsLogger().write(targetLogMaker);
-            getChooserActivityLogger().logShareTargetSelected(
-                    SELECTION_TYPE_COPY,
-                    "",
-                    -1,
-                    false);
+            getChooserActivityLogger().logActionSelected(ChooserActivityLogger.SELECTION_TYPE_COPY);
 
             setResult(RESULT_OK);
             finish();
@@ -954,12 +931,8 @@ public class ChooserActivity extends ResolverActivity implements
                 ti.getDisplayIconHolder().getDisplayIcon(),
                 ti.getDisplayLabel(),
                 (View unused) -> {
-                    // Log share completion via nearby
-                    getChooserActivityLogger().logShareTargetSelected(
-                            SELECTION_TYPE_NEARBY,
-                            "",
-                            -1,
-                            false);
+                    getChooserActivityLogger().logActionSelected(
+                            ChooserActivityLogger.SELECTION_TYPE_NEARBY);
                     // Action bar is user-independent, always start as primary
                     safelyStartActivityAsUser(ti, getPersonalProfileUserHandle());
                     finish();
@@ -978,11 +951,8 @@ public class ChooserActivity extends ResolverActivity implements
                 ti.getDisplayLabel(),
                 (View unused) -> {
                     // Log share completion via edit
-                    getChooserActivityLogger().logShareTargetSelected(
-                            SELECTION_TYPE_EDIT,
-                            "",
-                            -1,
-                            false);
+                    getChooserActivityLogger().logActionSelected(
+                            ChooserActivityLogger.SELECTION_TYPE_EDIT);
                     View firstImgView = getFirstVisibleImgPreviewView();
                     // Action bar is user-independent, always start as primary
                     if (firstImgView == null) {
@@ -1030,14 +1000,6 @@ public class ChooserActivity extends ResolverActivity implements
     @VisibleForTesting
     protected boolean isImageType(String mimeType) {
         return mimeType != null && mimeType.startsWith("image/");
-    }
-
-    private void logContentPreviewWarning(Uri uri) {
-        // The ContentResolver already logs the exception. Log something more informative.
-        Log.w(TAG, "Could not load (" + uri.toString() + ") thumbnail/name for preview. If "
-                + "desired, consider using Intent#createChooser to launch the ChooserActivity, "
-                + "and set your Intent's clipData and flags in accordance with that method's "
-                + "documentation");
     }
 
     private int getNumSheetExpansions() {
@@ -1249,78 +1211,51 @@ public class ChooserActivity extends ResolverActivity implements
         super.startSelected(which, always, filtered);
 
         if (currentListAdapter.getCount() > 0) {
-            // Log the index of which type of target the user picked.
-            // Lower values mean the ranking was better.
-            int cat = 0;
-            int value = which;
-            int directTargetAlsoRanked = -1;
-            int numCallerProvided = 0;
-            HashedStringCache.HashResult directTargetHashed = null;
             switch (currentListAdapter.getPositionTargetType(which)) {
                 case ChooserListAdapter.TARGET_SERVICE:
-                    cat = MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET;
-                    directTargetHashed = targetInfo.getHashedTargetIdForMetrics(this);
-                    directTargetAlsoRanked = getRankedPosition(targetInfo);
-
-                    numCallerProvided = mChooserRequest.getCallerChooserTargets().size();
                     getChooserActivityLogger().logShareTargetSelected(
-                            SELECTION_TYPE_SERVICE,
+                            ChooserActivityLogger.SELECTION_TYPE_SERVICE,
                             targetInfo.getResolveInfo().activityInfo.processName,
-                            value,
-                            targetInfo.isPinned()
+                            which,
+                            /* directTargetAlsoRanked= */ getRankedPosition(targetInfo),
+                            mChooserRequest.getCallerChooserTargets().size(),
+                            targetInfo.getHashedTargetIdForMetrics(this),
+                            targetInfo.isPinned(),
+                            mIsSuccessfullySelected,
+                            selectionCost
                     );
-                    break;
+                    return;
                 case ChooserListAdapter.TARGET_CALLER:
                 case ChooserListAdapter.TARGET_STANDARD:
-                    cat = MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_APP_TARGET;
-                    value -= currentListAdapter.getSurfacedTargetInfo().size();
-                    numCallerProvided = currentListAdapter.getCallerTargetCount();
                     getChooserActivityLogger().logShareTargetSelected(
-                            SELECTION_TYPE_APP,
+                            ChooserActivityLogger.SELECTION_TYPE_APP,
                             targetInfo.getResolveInfo().activityInfo.processName,
-                            value,
-                            targetInfo.isPinned()
+                            (which - currentListAdapter.getSurfacedTargetInfo().size()),
+                            /* directTargetAlsoRanked= */ -1,
+                            currentListAdapter.getCallerTargetCount(),
+                            /* directTargetHashed= */ null,
+                            targetInfo.isPinned(),
+                            mIsSuccessfullySelected,
+                            selectionCost
                     );
-                    break;
+                    return;
                 case ChooserListAdapter.TARGET_STANDARD_AZ:
-                    // A-Z targets are unranked standard targets; we use -1 to mark that they
-                    // are from the alphabetical pool.
-                    value = -1;
-                    cat = MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_STANDARD_TARGET;
+                    // A-Z targets are unranked standard targets; we use a value of -1 to mark that
+                    // they are from the alphabetical pool.
+                    // TODO: why do we log a different selection type if the -1 value already
+                    // designates the same condition?
                     getChooserActivityLogger().logShareTargetSelected(
-                            SELECTION_TYPE_STANDARD,
+                            ChooserActivityLogger.SELECTION_TYPE_STANDARD,
                             targetInfo.getResolveInfo().activityInfo.processName,
-                            value,
-                            false
+                            /* value= */ -1,
+                            /* directTargetAlsoRanked= */ -1,
+                            /* numCallerProvided= */ 0,
+                            /* directTargetHashed= */ null,
+                            /* isPinned= */ false,
+                            mIsSuccessfullySelected,
+                            selectionCost
                     );
-                    break;
-            }
-
-            if (cat != 0) {
-                LogMaker targetLogMaker = new LogMaker(cat).setSubtype(value);
-                if (directTargetHashed != null) {
-                    targetLogMaker.addTaggedData(
-                            MetricsEvent.FIELD_HASHED_TARGET_NAME, directTargetHashed.hashedString);
-                    targetLogMaker.addTaggedData(
-                                    MetricsEvent.FIELD_HASHED_TARGET_SALT_GEN,
-                                    directTargetHashed.saltGeneration);
-                    targetLogMaker.addTaggedData(MetricsEvent.FIELD_RANKED_POSITION,
-                                    directTargetAlsoRanked);
-                }
-                targetLogMaker.addTaggedData(MetricsEvent.FIELD_IS_CATEGORY_USED,
-                        numCallerProvided);
-                getMetricsLogger().write(targetLogMaker);
-            }
-
-            if (mIsSuccessfullySelected) {
-                if (DEBUG) {
-                    Log.d(TAG, "User Selection Time Cost is " + selectionCost);
-                    Log.d(TAG, "position of selected app/service/caller is " +
-                            Integer.toString(value));
-                }
-                MetricsLogger.histogram(null, "user_selection_cost_for_smart_sharing",
-                        (int) selectionCost);
-                MetricsLogger.histogram(null, "app_position_for_smart_sharing", value);
+                    return;
             }
         }
     }
@@ -1396,15 +1331,14 @@ public class ChooserActivity extends ResolverActivity implements
         }
     }
 
-    private void logDirectShareTargetReceived(int logCategory, UserHandle forUser) {
+    private void logDirectShareTargetReceived(UserHandle forUser) {
         ProfileRecord profileRecord = getProfileRecord(forUser);
         if (profileRecord == null) {
             return;
         }
-
-        final int apiLatency =
-                (int) (SystemClock.elapsedRealtime() - profileRecord.loadingStartTime);
-        getMetricsLogger().write(new LogMaker(logCategory).setSubtype(apiLatency));
+        getChooserActivityLogger().logDirectShareTargetReceived(
+                MetricsEvent.ACTION_DIRECT_SHARE_TARGETS_LOADED_SHORTCUT_MANAGER,
+                (int) (SystemClock.elapsedRealtime() - profileRecord.loadingStartTime));
     }
 
     void updateModelAndChooserCounts(TargetInfo info) {
@@ -1544,13 +1478,6 @@ public class ChooserActivity extends ResolverActivity implements
                 DisplayResolveInfo lhsp, DisplayResolveInfo rhsp) {
             return mCollator.compare(lhsp.getDisplayLabel(), rhsp.getDisplayLabel());
         }
-    }
-
-    protected MetricsLogger getMetricsLogger() {
-        if (mMetricsLogger == null) {
-            mMetricsLogger = new MetricsLogger();
-        }
-        return mMetricsLogger;
     }
 
     protected ChooserActivityLogger getChooserActivityLogger() {
@@ -1736,7 +1663,7 @@ public class ChooserActivity extends ResolverActivity implements
         try {
             return getContentResolver().loadThumbnail(uri, size, null);
         } catch (IOException | NullPointerException | SecurityException ex) {
-            logContentPreviewWarning(uri);
+            getChooserActivityLogger().logContentPreviewWarning(uri);
         }
         return null;
     }
@@ -1996,10 +1923,7 @@ public class ChooserActivity extends ResolverActivity implements
             adapter.completeServiceTargetLoading();
         }
 
-        logDirectShareTargetReceived(
-                MetricsEvent.ACTION_DIRECT_SHARE_TARGETS_LOADED_SHORTCUT_MANAGER,
-                userHandle);
-
+        logDirectShareTargetReceived(userHandle);
         sendVoiceChoicesIfNeeded();
         getChooserActivityLogger().logSharesheetDirectLoadComplete();
     }
@@ -2128,14 +2052,6 @@ public class ChooserActivity extends ResolverActivity implements
         }
         ViewGroup contentPreviewContainer = findViewById(com.android.internal.R.id.content_preview_container);
         contentPreviewContainer.setVisibility(View.GONE);
-    }
-
-    private void logActionShareWithPreview() {
-        Intent targetIntent = getTargetIntent();
-        int previewType = ChooserContentPreviewUi.findPreferredContentPreview(
-                targetIntent, getContentResolver(), this::isImageType);
-        getMetricsLogger().write(new LogMaker(MetricsEvent.ACTION_SHARE_WITH_PREVIEW)
-                .setSubtype(previewType));
     }
 
     private void startFinishAnimation() {

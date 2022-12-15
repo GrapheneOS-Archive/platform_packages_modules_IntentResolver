@@ -16,15 +16,22 @@
 
 package com.android.intentresolver;
 
+import android.annotation.Nullable;
 import android.content.Intent;
+import android.metrics.LogMaker;
+import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.HashedStringCache;
+import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.logging.InstanceId;
 import com.android.internal.logging.InstanceIdSequence;
+import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.UiEvent;
 import com.android.internal.logging.UiEventLogger;
 import com.android.internal.logging.UiEventLoggerImpl;
+import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.util.FrameworkStatsLog;
 
 /**
@@ -32,6 +39,16 @@ import com.android.internal.util.FrameworkStatsLog;
  * @hide
  */
 public class ChooserActivityLogger {
+    private static final String TAG = "ChooserActivity";
+    private static final boolean DEBUG = true;
+
+    public static final int SELECTION_TYPE_SERVICE = 1;
+    public static final int SELECTION_TYPE_APP = 2;
+    public static final int SELECTION_TYPE_STANDARD = 3;
+    public static final int SELECTION_TYPE_COPY = 4;
+    public static final int SELECTION_TYPE_NEARBY = 5;
+    public static final int SELECTION_TYPE_EDIT = 6;
+
     /**
      * This shim is provided only for testing. In production, clients will only ever use a
      * {@link DefaultFrameworkStatsLogger}.
@@ -70,15 +87,30 @@ public class ChooserActivityLogger {
 
     private final UiEventLogger mUiEventLogger;
     private final FrameworkStatsLogger mFrameworkStatsLogger;
+    private final MetricsLogger mMetricsLogger;
 
     public ChooserActivityLogger() {
-        this(new UiEventLoggerImpl(), new DefaultFrameworkStatsLogger());
+        this(new UiEventLoggerImpl(), new DefaultFrameworkStatsLogger(), new MetricsLogger());
     }
 
     @VisibleForTesting
-    ChooserActivityLogger(UiEventLogger uiEventLogger, FrameworkStatsLogger frameworkLogger) {
+    ChooserActivityLogger(
+            UiEventLogger uiEventLogger,
+            FrameworkStatsLogger frameworkLogger,
+            MetricsLogger metricsLogger) {
         mUiEventLogger = uiEventLogger;
         mFrameworkStatsLogger = frameworkLogger;
+        mMetricsLogger = metricsLogger;
+    }
+
+    /** Records metrics for the start time of the {@link ChooserActivity}. */
+    public void logChooserActivityShown(
+            boolean isWorkProfile, String targetMimeType, long systemCost) {
+        mMetricsLogger.write(new LogMaker(MetricsEvent.ACTION_ACTIVITY_CHOOSER_SHOWN)
+                .setSubtype(
+                        isWorkProfile ? MetricsEvent.MANAGED_PROFILE : MetricsEvent.PARENT_PROFILE)
+                .addTaggedData(MetricsEvent.FIELD_SHARESHEET_MIMETYPE, targetMimeType)
+                .addTaggedData(MetricsEvent.FIELD_TIME_TO_APP_TARGETS, systemCost));
     }
 
     /** Logs a UiEventReported event for the system sharesheet completing initial start-up. */
@@ -97,15 +129,92 @@ public class ChooserActivityLogger {
                 /* intentType = 9 */ typeFromIntentString(intent));
     }
 
-    /** Logs a UiEventReported event for the system sharesheet when the user selects a target. */
-    public void logShareTargetSelected(int targetType, String packageName, int positionPicked,
-            boolean isPinned) {
+    /**
+     * Logs a UiEventReported event for the system sharesheet when the user selects a target.
+     * TODO: document parameters and/or consider breaking up by targetType so we don't have to
+     * support an overly-generic signature.
+     */
+    public void logShareTargetSelected(
+            int targetType,
+            String packageName,
+            int positionPicked,
+            int directTargetAlsoRanked,
+            int numCallerProvided,
+            @Nullable HashedStringCache.HashResult directTargetHashed,
+            boolean isPinned,
+            boolean successfullySelected,
+            long selectionCost) {
         mFrameworkStatsLogger.write(FrameworkStatsLog.RANKING_SELECTED,
                 /* event_id = 1 */ SharesheetTargetSelectedEvent.fromTargetType(targetType).getId(),
                 /* package_name = 2 */ packageName,
                 /* instance_id = 3 */ getInstanceId().getId(),
                 /* position_picked = 4 */ positionPicked,
                 /* is_pinned = 5 */ isPinned);
+
+        int category = getTargetSelectionCategory(targetType);
+        if (category != 0) {
+            LogMaker targetLogMaker = new LogMaker(category).setSubtype(positionPicked);
+            if (directTargetHashed != null) {
+                targetLogMaker.addTaggedData(
+                        MetricsEvent.FIELD_HASHED_TARGET_NAME, directTargetHashed.hashedString);
+                targetLogMaker.addTaggedData(
+                                MetricsEvent.FIELD_HASHED_TARGET_SALT_GEN,
+                                directTargetHashed.saltGeneration);
+                targetLogMaker.addTaggedData(MetricsEvent.FIELD_RANKED_POSITION,
+                                directTargetAlsoRanked);
+            }
+            targetLogMaker.addTaggedData(MetricsEvent.FIELD_IS_CATEGORY_USED, numCallerProvided);
+            mMetricsLogger.write(targetLogMaker);
+        }
+
+        if (successfullySelected) {
+            if (DEBUG) {
+                Log.d(TAG, "User Selection Time Cost is " + selectionCost);
+                Log.d(TAG, "position of selected app/service/caller is " + positionPicked);
+            }
+            MetricsLogger.histogram(
+                    null, "user_selection_cost_for_smart_sharing", (int) selectionCost);
+            MetricsLogger.histogram(null, "app_position_for_smart_sharing", positionPicked);
+        }
+    }
+
+    /** Log when direct share targets were received. */
+    public void logDirectShareTargetReceived(int category, int latency) {
+        mMetricsLogger.write(new LogMaker(category).setSubtype(latency));
+    }
+
+    /**
+     * Log when we display a preview UI of the specified {@code previewType} as part of our
+     * Sharesheet session.
+     */
+    public void logActionShareWithPreview(int previewType) {
+        mMetricsLogger.write(
+                new LogMaker(MetricsEvent.ACTION_SHARE_WITH_PREVIEW).setSubtype(previewType));
+    }
+
+    /** Log when the user selects an action button with the specified {@code targetType}. */
+    public void logActionSelected(int targetType) {
+        if (targetType == SELECTION_TYPE_COPY) {
+            LogMaker targetLogMaker = new LogMaker(
+                    MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SYSTEM_TARGET).setSubtype(1);
+            mMetricsLogger.write(targetLogMaker);
+        }
+        mFrameworkStatsLogger.write(FrameworkStatsLog.RANKING_SELECTED,
+                /* event_id = 1 */ SharesheetTargetSelectedEvent.fromTargetType(targetType).getId(),
+                /* package_name = 2 */ "",
+                /* instance_id = 3 */ getInstanceId().getId(),
+                /* position_picked = 4 */ -1,
+                /* is_pinned = 5 */ false);
+    }
+
+    /** Log a warning that we couldn't display the content preview from the supplied {@code uri}. */
+    public void logContentPreviewWarning(Uri uri) {
+        // The ContentResolver already logs the exception. Log something more informative.
+        Log.w(TAG, "Could not load (" + uri.toString() + ") thumbnail/name for preview. If "
+                + "desired, consider using Intent#createChooser to launch the ChooserActivity, "
+                + "and set your Intent's clipData and flags in accordance with that method's "
+                + "documentation");
+
     }
 
     /** Logs a UiEventReported event for the system sharesheet being triggered by the user. */
@@ -231,17 +340,17 @@ public class ChooserActivityLogger {
 
         public static SharesheetTargetSelectedEvent fromTargetType(int targetType) {
             switch(targetType) {
-                case ChooserActivity.SELECTION_TYPE_SERVICE:
+                case SELECTION_TYPE_SERVICE:
                     return SHARESHEET_SERVICE_TARGET_SELECTED;
-                case ChooserActivity.SELECTION_TYPE_APP:
+                case SELECTION_TYPE_APP:
                     return SHARESHEET_APP_TARGET_SELECTED;
-                case ChooserActivity.SELECTION_TYPE_STANDARD:
+                case SELECTION_TYPE_STANDARD:
                     return SHARESHEET_STANDARD_TARGET_SELECTED;
-                case ChooserActivity.SELECTION_TYPE_COPY:
+                case SELECTION_TYPE_COPY:
                     return SHARESHEET_COPY_TARGET_SELECTED;
-                case ChooserActivity.SELECTION_TYPE_NEARBY:
+                case SELECTION_TYPE_NEARBY:
                     return SHARESHEET_NEARBY_TARGET_SELECTED;
-                case ChooserActivity.SELECTION_TYPE_EDIT:
+                case SELECTION_TYPE_EDIT:
                     return SHARESHEET_EDIT_TARGET_SELECTED;
                 default:
                     return INVALID;
@@ -325,6 +434,20 @@ public class ChooserActivityLogger {
                 return FrameworkStatsLog.SHARESHEET_STARTED__INTENT_TYPE__INTENT_ACTION_MAIN;
             default:
                 return FrameworkStatsLog.SHARESHEET_STARTED__INTENT_TYPE__INTENT_DEFAULT;
+        }
+    }
+
+    @VisibleForTesting
+    static int getTargetSelectionCategory(int targetType) {
+        switch (targetType) {
+            case SELECTION_TYPE_SERVICE:
+                return MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET;
+            case SELECTION_TYPE_APP:
+                return MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_APP_TARGET;
+            case SELECTION_TYPE_STANDARD:
+                return MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_STANDARD_TARGET;
+            default:
+                return 0;
         }
     }
 
