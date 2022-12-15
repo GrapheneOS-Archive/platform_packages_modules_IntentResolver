@@ -412,7 +412,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
         return 0;
     }
 
-    int getAlphaTargetCount() {
+    public int getAlphaTargetCount() {
         int groupedCount = mSortedList.size();
         int ungroupedCount = mCallerTargets.size() + getDisplayResolveInfoCount();
         return (ungroupedCount > mMaxRankedTargets) ? groupedCount : 0;
