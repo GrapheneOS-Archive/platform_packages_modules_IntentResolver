@@ -16,71 +16,11 @@
 
 package com.android.intentresolver.widget
 
-import android.annotation.LayoutRes
-import android.content.Context
 import android.content.res.Resources.ID_NULL
 import android.graphics.drawable.Drawable
-import android.os.Parcelable
-import android.util.AttributeSet
-import android.view.LayoutInflater
-import android.widget.Button
-import android.widget.LinearLayout
-import com.android.intentresolver.R
 
-// TODO: extract an interface out of the class, use it in layout hierarchy an have a layout inflater
-//  to instantiate the right view based on a flag value.
-class ActionRow : LinearLayout {
-    constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(
-        context: Context, attrs: AttributeSet?, defStyleAttr: Int
-    ) : this(context, attrs, defStyleAttr, 0)
-
-    constructor(
-        context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int
-    ) : super(context, attrs, defStyleAttr, defStyleRes) {
-        orientation = HORIZONTAL
-    }
-
-    @LayoutRes
-    private val itemLayout = R.layout.chooser_action_button
-    private val itemMargin =
-        context.resources.getDimensionPixelSize(R.dimen.resolver_icon_margin) / 2
-    private var actions: List<Action> = emptyList()
-
-    override fun onRestoreInstanceState(state: Parcelable?) {
-        super.onRestoreInstanceState(state)
-        setActions(actions)
-    }
-
-    fun setActions(actions: List<Action>) {
-        removeAllViews()
-        this.actions = ArrayList(actions)
-        for (action in actions) {
-            addAction(action)
-        }
-    }
-
-    private fun addAction(action: Action) {
-        val b = LayoutInflater.from(context).inflate(itemLayout, null) as Button
-        if (action.icon != null) {
-            val size = resources
-                .getDimensionPixelSize(R.dimen.chooser_action_button_icon_size)
-            action.icon.setBounds(0, 0, size, size)
-            b.setCompoundDrawablesRelative(action.icon, null, null, null)
-        }
-        b.text = action.label ?: ""
-        b.setOnClickListener {
-            action.onClicked.run()
-        }
-        b.id = action.id
-        addView(b)
-    }
-
-    override fun generateDefaultLayoutParams(): LayoutParams =
-        super.generateDefaultLayoutParams().apply {
-            setMarginsRelative(itemMargin, 0, itemMargin, 0)
-        }
+interface ActionRow {
+    fun setActions(actions: List<Action>)
 
     class Action @JvmOverloads constructor(
         // TODO: apparently, IDs set to this field are used in unit tests only; evaluate whether we
