@@ -93,11 +93,17 @@ public class ResolverDataProvider {
         public String setResolveInfoLabel;
     }
 
+    /** Create a {@link PackageManagerMockedInfo} with all distinct labels. */
     static PackageManagerMockedInfo createPackageManagerMockedInfo(boolean hasOverridePermission) {
-        final String appLabel = "app_label";
-        final String activityLabel = "activity_label";
-        final String resolveInfoLabel = "resolve_info_label";
+        return createPackageManagerMockedInfo(
+                hasOverridePermission, "app_label", "activity_label", "resolve_info_label");
+    }
 
+    static PackageManagerMockedInfo createPackageManagerMockedInfo(
+            boolean hasOverridePermission,
+            String appLabel,
+            String activityLabel,
+            String resolveInfoLabel) {
         MockContext ctx = new MockContext() {
             @Override
             public PackageManager getPackageManager() {

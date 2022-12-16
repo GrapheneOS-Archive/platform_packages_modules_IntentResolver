@@ -26,15 +26,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.PermissionChecker;
 import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.LabeledIntent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.RemoteException;
@@ -74,6 +70,7 @@ public class ResolverListAdapter extends BaseAdapter {
     protected final LayoutInflater mInflater;
     protected final ResolverListCommunicator mResolverListCommunicator;
     protected final ResolverListController mResolverListController;
+    protected final TargetPresentationGetter.Factory mPresentationFactory;
 
     private final List<Intent> mIntents;
     private final Intent[] mInitialIntents;
@@ -126,6 +123,7 @@ public class ResolverListAdapter extends BaseAdapter {
         mIsAudioCaptureDevice = isAudioCaptureDevice;
         final ActivityManager am = (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
         mIconDpi = am.getLauncherLargeIconDensity();
+        mPresentationFactory = new TargetPresentationGetter.Factory(mContext, mIconDpi);
     }
 
     public final DisplayResolveInfo getFirstDisplayResolveInfo() {
@@ -479,7 +477,7 @@ public class ResolverListAdapter extends BaseAdapter {
                             ri.loadLabel(mPm),
                             null,
                             ii,
-                            makePresentationGetter(ri)));
+                            mPresentationFactory.makePresentationGetter(ri)));
                 }
             }
 
@@ -532,7 +530,7 @@ public class ResolverListAdapter extends BaseAdapter {
                 intent,
                 add,
                 (replaceIntent != null) ? replaceIntent : defaultIntent,
-                makePresentationGetter(add));
+                mPresentationFactory.makePresentationGetter(add));
         dri.setPinned(rci.isPinned());
         if (rci.isPinned()) {
             Log.i(TAG, "Pinned item: " + rci.name);
@@ -765,17 +763,9 @@ public class ResolverListAdapter extends BaseAdapter {
         return sSuspendedMatrixColorFilter;
     }
 
-    ActivityInfoPresentationGetter makePresentationGetter(ActivityInfo ai) {
-        return new ActivityInfoPresentationGetter(mContext, mIconDpi, ai);
-    }
-
-    ResolveInfoPresentationGetter makePresentationGetter(ResolveInfo ri) {
-        return new ResolveInfoPresentationGetter(mContext, mIconDpi, ri);
-    }
-
     Drawable loadIconForResolveInfo(ResolveInfo ri) {
         // Load icons based on the current process. If in work profile icons should be badged.
-        return makePresentationGetter(ri).getIcon(getUserHandle());
+        return mPresentationFactory.makePresentationGetter(ri).getIcon(getUserHandle());
     }
 
     protected final Drawable loadIconPlaceholder() {
@@ -875,8 +865,9 @@ public class ResolverListAdapter extends BaseAdapter {
         Intent replacementIntent = resolverListCommunicator.getReplacementIntent(
                 resolveInfo.activityInfo, targetIntent);
 
-        ResolveInfoPresentationGetter presentationGetter =
-                new ResolveInfoPresentationGetter(context, iconDpi, resolveInfo);
+        TargetPresentationGetter presentationGetter =
+                new TargetPresentationGetter.Factory(context, iconDpi)
+                .makePresentationGetter(resolveInfo);
 
         return DisplayResolveInfo.newDisplayResolveInfo(
                 resolvedComponentInfo.getIntentAt(0),
@@ -979,8 +970,8 @@ public class ResolverListAdapter extends BaseAdapter {
 
         @Override
         protected CharSequence[] doInBackground(Void... voids) {
-            ResolveInfoPresentationGetter pg =
-                    makePresentationGetter(mDisplayResolveInfo.getResolveInfo());
+            TargetPresentationGetter pg = mPresentationFactory.makePresentationGetter(
+                    mDisplayResolveInfo.getResolveInfo());
 
             if (mIsAudioCaptureDevice) {
                 // This is an audio capture device, so check record permissions
@@ -1050,195 +1041,5 @@ public class ResolverListAdapter extends BaseAdapter {
                 notifyDataSetChanged();
             }
         }
-    }
-
-    /**
-     * Loads the icon and label for the provided ResolveInfo.
-     */
-    @VisibleForTesting
-    public static class ResolveInfoPresentationGetter extends ActivityInfoPresentationGetter {
-        private final ResolveInfo mRi;
-        public ResolveInfoPresentationGetter(Context ctx, int iconDpi, ResolveInfo ri) {
-            super(ctx, iconDpi, ri.activityInfo);
-            mRi = ri;
-        }
-
-        @Override
-        Drawable getIconSubstituteInternal() {
-            Drawable dr = null;
-            try {
-                // Do not use ResolveInfo#getIconResource() as it defaults to the app
-                if (mRi.resolvePackageName != null && mRi.icon != 0) {
-                    dr = loadIconFromResource(
-                            mPm.getResourcesForApplication(mRi.resolvePackageName), mRi.icon);
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                Log.e(TAG, "SUBSTITUTE_SHARE_TARGET_APP_NAME_AND_ICON permission granted but "
-                        + "couldn't find resources for package", e);
-            }
-
-            // Fall back to ActivityInfo if no icon is found via ResolveInfo
-            if (dr == null) dr = super.getIconSubstituteInternal();
-
-            return dr;
-        }
-
-        @Override
-        String getAppSubLabelInternal() {
-            // Will default to app name if no intent filter or activity label set, make sure to
-            // check if subLabel matches label before final display
-            return mRi.loadLabel(mPm).toString();
-        }
-
-        @Override
-        String getAppLabelForSubstitutePermission() {
-            // Will default to app name if no activity label set
-            return mRi.getComponentInfo().loadLabel(mPm).toString();
-        }
-    }
-
-    /**
-     * Loads the icon and label for the provided ActivityInfo.
-     */
-    @VisibleForTesting
-    public static class ActivityInfoPresentationGetter extends
-            TargetPresentationGetter {
-        private final ActivityInfo mActivityInfo;
-        public ActivityInfoPresentationGetter(Context ctx, int iconDpi,
-                ActivityInfo activityInfo) {
-            super(ctx, iconDpi, activityInfo.applicationInfo);
-            mActivityInfo = activityInfo;
-        }
-
-        @Override
-        Drawable getIconSubstituteInternal() {
-            Drawable dr = null;
-            try {
-                // Do not use ActivityInfo#getIconResource() as it defaults to the app
-                if (mActivityInfo.icon != 0) {
-                    dr = loadIconFromResource(
-                            mPm.getResourcesForApplication(mActivityInfo.applicationInfo),
-                            mActivityInfo.icon);
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                Log.e(TAG, "SUBSTITUTE_SHARE_TARGET_APP_NAME_AND_ICON permission granted but "
-                        + "couldn't find resources for package", e);
-            }
-
-            return dr;
-        }
-
-        @Override
-        String getAppSubLabelInternal() {
-            // Will default to app name if no activity label set, make sure to check if subLabel
-            // matches label before final display
-            return (String) mActivityInfo.loadLabel(mPm);
-        }
-
-        @Override
-        String getAppLabelForSubstitutePermission() {
-            return getAppSubLabelInternal();
-        }
-    }
-
-    /**
-     * Loads the icon and label for the provided ApplicationInfo. Defaults to using the application
-     * icon and label over any IntentFilter or Activity icon to increase user understanding, with an
-     * exception for applications that hold the right permission. Always attempts to use available
-     * resources over PackageManager loading mechanisms so badging can be done by iconloader. Uses
-     * Strings to strip creative formatting.
-     */
-    private abstract static class TargetPresentationGetter {
-        @Nullable abstract Drawable getIconSubstituteInternal();
-        @Nullable abstract String getAppSubLabelInternal();
-        @Nullable abstract String getAppLabelForSubstitutePermission();
-
-        private Context mCtx;
-        private final int mIconDpi;
-        private final boolean mHasSubstitutePermission;
-        private final ApplicationInfo mAi;
-
-        protected PackageManager mPm;
-
-        TargetPresentationGetter(Context ctx, int iconDpi, ApplicationInfo ai) {
-            mCtx = ctx;
-            mPm = ctx.getPackageManager();
-            mAi = ai;
-            mIconDpi = iconDpi;
-            mHasSubstitutePermission = PackageManager.PERMISSION_GRANTED == mPm.checkPermission(
-                    android.Manifest.permission.SUBSTITUTE_SHARE_TARGET_APP_NAME_AND_ICON,
-                    mAi.packageName);
-        }
-
-        public Drawable getIcon(UserHandle userHandle) {
-            return new BitmapDrawable(mCtx.getResources(), getIconBitmap(userHandle));
-        }
-
-        public Bitmap getIconBitmap(@Nullable UserHandle userHandle) {
-            Drawable dr = null;
-            if (mHasSubstitutePermission) {
-                dr = getIconSubstituteInternal();
-            }
-
-            if (dr == null) {
-                try {
-                    if (mAi.icon != 0) {
-                        dr = loadIconFromResource(mPm.getResourcesForApplication(mAi), mAi.icon);
-                    }
-                } catch (PackageManager.NameNotFoundException ignore) {
-                }
-            }
-
-            // Fall back to ApplicationInfo#loadIcon if nothing has been loaded
-            if (dr == null) {
-                dr = mAi.loadIcon(mPm);
-            }
-
-            SimpleIconFactory sif = SimpleIconFactory.obtain(mCtx);
-            Bitmap icon = sif.createUserBadgedIconBitmap(dr, userHandle);
-            sif.recycle();
-
-            return icon;
-        }
-
-        public String getLabel() {
-            String label = null;
-            // Apps with the substitute permission will always show the activity label as the
-            // app label if provided
-            if (mHasSubstitutePermission) {
-                label = getAppLabelForSubstitutePermission();
-            }
-
-            if (label == null) {
-                label = (String) mAi.loadLabel(mPm);
-            }
-
-            return label;
-        }
-
-        public String getSubLabel() {
-            // Apps with the substitute permission will always show the resolve info label as the
-            // sublabel if provided
-            if (mHasSubstitutePermission){
-                String appSubLabel = getAppSubLabelInternal();
-                // Use the resolve info label as sublabel if it is set
-                if(!TextUtils.isEmpty(appSubLabel)
-                    && !TextUtils.equals(appSubLabel, getLabel())){
-                    return appSubLabel;
-                }
-                return null;
-            }
-            return getAppSubLabelInternal();
-        }
-
-        protected String loadLabelFromResource(Resources res, int resId) {
-            return res.getString(resId);
-        }
-
-        @Nullable
-        protected Drawable loadIconFromResource(Resources res, int resId) {
-            return res.getDrawableForDensity(resId, mIconDpi);
-        }
-
     }
 }
