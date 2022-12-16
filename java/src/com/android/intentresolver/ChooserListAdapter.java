@@ -224,7 +224,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
                     ri.icon = 0;
                 }
                 DisplayResolveInfo displayResolveInfo = DisplayResolveInfo.newDisplayResolveInfo(
-                        ii, ri, ii, makePresentationGetter(ri));
+                        ii, ri, ii, mPresentationFactory.makePresentationGetter(ri));
                 mCallerTargets.add(displayResolveInfo);
                 if (mCallerTargets.size() == MAX_SUGGESTED_APP_TARGETS) break;
             }
@@ -715,7 +715,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
             }
 
             // Now fetch app icon and raster with no badging even in work profile
-            Bitmap appIcon = makePresentationGetter(info).getIconBitmap(null);
+            Bitmap appIcon = mPresentationFactory.makePresentationGetter(info).getIconBitmap(null);
 
             // Raster target drawable with appIcon as a badge
             SimpleIconFactory sif = SimpleIconFactory.obtain(context);

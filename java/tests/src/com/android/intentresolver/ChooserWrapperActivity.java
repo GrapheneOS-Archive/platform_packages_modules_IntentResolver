@@ -38,7 +38,6 @@ import android.util.Size;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.QuietModeManager;
-import com.android.intentresolver.ResolverListAdapter.ResolveInfoPresentationGetter;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.NotSelectableTargetInfo;
 import com.android.intentresolver.chooser.TargetInfo;
@@ -250,7 +249,7 @@ public class ChooserWrapperActivity
     @Override
     public DisplayResolveInfo createTestDisplayResolveInfo(Intent originalIntent, ResolveInfo pri,
             CharSequence pLabel, CharSequence pInfo, Intent replacementIntent,
-            @Nullable ResolveInfoPresentationGetter resolveInfoPresentationGetter) {
+            @Nullable TargetPresentationGetter resolveInfoPresentationGetter) {
         return DisplayResolveInfo.newDisplayResolveInfo(
                 originalIntent,
                 pri,
