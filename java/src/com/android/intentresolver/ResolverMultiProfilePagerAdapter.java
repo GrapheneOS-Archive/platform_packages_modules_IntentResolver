@@ -16,11 +16,9 @@
 
 package com.android.intentresolver;
 
-import android.annotation.Nullable;
 import android.content.Context;
 import android.os.UserHandle;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
@@ -28,25 +26,33 @@ import androidx.viewpager.widget.PagerAdapter;
 
 import com.android.internal.annotations.VisibleForTesting;
 
+import com.google.common.collect.ImmutableList;
+
+import java.util.Optional;
+import java.util.function.Supplier;
+
 /**
  * A {@link PagerAdapter} which describes the work and personal profile intent resolver screens.
  */
 @VisibleForTesting
-public class ResolverMultiProfilePagerAdapter extends AbstractMultiProfilePagerAdapter {
+public class ResolverMultiProfilePagerAdapter extends
+        GenericMultiProfilePagerAdapter<ListView, ResolverListAdapter, ResolverListAdapter> {
+    private final BottomPaddingOverrideSupplier mBottomPaddingOverrideSupplier;
 
-    private final ResolverProfileDescriptor[] mItems;
-    private boolean mUseLayoutWithDefault;
-
-    ResolverMultiProfilePagerAdapter(Context context,
+    ResolverMultiProfilePagerAdapter(
+            Context context,
             ResolverListAdapter adapter,
             EmptyStateProvider emptyStateProvider,
             QuietModeManager quietModeManager,
             UserHandle workProfileUserHandle) {
-        super(context, /* currentPage */ 0, emptyStateProvider, quietModeManager,
-                workProfileUserHandle);
-        mItems = new ResolverProfileDescriptor[] {
-                createProfileDescriptor(adapter)
-        };
+        this(
+                context,
+                ImmutableList.of(adapter),
+                emptyStateProvider,
+                quietModeManager,
+                /* defaultProfile= */ 0,
+                workProfileUserHandle,
+                new BottomPaddingOverrideSupplier());
     }
 
     ResolverMultiProfilePagerAdapter(Context context,
@@ -56,129 +62,53 @@ public class ResolverMultiProfilePagerAdapter extends AbstractMultiProfilePagerA
             QuietModeManager quietModeManager,
             @Profile int defaultProfile,
             UserHandle workProfileUserHandle) {
-        super(context, /* currentPage */ defaultProfile, emptyStateProvider, quietModeManager,
-                workProfileUserHandle);
-        mItems = new ResolverProfileDescriptor[] {
-                createProfileDescriptor(personalAdapter),
-                createProfileDescriptor(workAdapter)
-        };
+        this(
+                context,
+                ImmutableList.of(personalAdapter, workAdapter),
+                emptyStateProvider,
+                quietModeManager,
+                defaultProfile,
+                workProfileUserHandle,
+                new BottomPaddingOverrideSupplier());
     }
 
-    private ResolverProfileDescriptor createProfileDescriptor(
-            ResolverListAdapter adapter) {
-        final LayoutInflater inflater = LayoutInflater.from(getContext());
-        final ViewGroup rootView =
-                (ViewGroup) inflater.inflate(R.layout.resolver_list_per_profile, null, false);
-        return new ResolverProfileDescriptor(rootView, adapter);
+    private ResolverMultiProfilePagerAdapter(
+            Context context,
+            ImmutableList<ResolverListAdapter> listAdapters,
+            EmptyStateProvider emptyStateProvider,
+            QuietModeManager quietModeManager,
+            @Profile int defaultProfile,
+            UserHandle workProfileUserHandle,
+            BottomPaddingOverrideSupplier bottomPaddingOverrideSupplier) {
+        super(
+                context,
+                        listAdapter -> listAdapter,
+                        (listView, bindAdapter) -> listView.setAdapter(bindAdapter),
+                listAdapters,
+                emptyStateProvider,
+                quietModeManager,
+                defaultProfile,
+                workProfileUserHandle,
+                        () -> (ViewGroup) LayoutInflater.from(context).inflate(
+                                R.layout.resolver_list_per_profile, null, false),
+                bottomPaddingOverrideSupplier);
+        mBottomPaddingOverrideSupplier = bottomPaddingOverrideSupplier;
     }
 
-    ListView getListViewForIndex(int index) {
-        return getItem(index).listView;
+    public void setUseLayoutWithDefault(boolean useLayoutWithDefault) {
+        mBottomPaddingOverrideSupplier.setUseLayoutWithDefault(useLayoutWithDefault);
     }
 
-    @Override
-    ResolverProfileDescriptor getItem(int pageIndex) {
-        return mItems[pageIndex];
-    }
+    private static class BottomPaddingOverrideSupplier implements Supplier<Optional<Integer>> {
+        private boolean mUseLayoutWithDefault;
 
-    @Override
-    int getItemCount() {
-        return mItems.length;
-    }
-
-    @Override
-    void setupListAdapter(int pageIndex) {
-        final ListView listView = getItem(pageIndex).listView;
-        listView.setAdapter(getItem(pageIndex).resolverListAdapter);
-    }
-
-    @Override
-    @VisibleForTesting
-    public ResolverListAdapter getAdapterForIndex(int pageIndex) {
-        return mItems[pageIndex].resolverListAdapter;
-    }
-
-    @Override
-    public ViewGroup instantiateItem(ViewGroup container, int position) {
-        setupListAdapter(position);
-        return super.instantiateItem(container, position);
-    }
-
-    @Override
-    @Nullable
-    ResolverListAdapter getListAdapterForUserHandle(UserHandle userHandle) {
-        if (getActiveListAdapter().getUserHandle().equals(userHandle)) {
-            return getActiveListAdapter();
-        } else if (getInactiveListAdapter() != null
-                && getInactiveListAdapter().getUserHandle().equals(userHandle)) {
-            return getInactiveListAdapter();
+        public void setUseLayoutWithDefault(boolean useLayoutWithDefault) {
+            mUseLayoutWithDefault = useLayoutWithDefault;
         }
-        return null;
-    }
 
-    @Override
-    @VisibleForTesting
-    public ResolverListAdapter getActiveListAdapter() {
-        return getAdapterForIndex(getCurrentPage());
-    }
-
-    @Override
-    @VisibleForTesting
-    public ResolverListAdapter getInactiveListAdapter() {
-        if (getCount() == 1) {
-            return null;
-        }
-        return getAdapterForIndex(1 - getCurrentPage());
-    }
-
-    @Override
-    public ResolverListAdapter getPersonalListAdapter() {
-        return getAdapterForIndex(PROFILE_PERSONAL);
-    }
-
-    @Override
-    @Nullable
-    public ResolverListAdapter getWorkListAdapter() {
-        return getAdapterForIndex(PROFILE_WORK);
-    }
-
-    @Override
-    ResolverListAdapter getCurrentRootAdapter() {
-        return getActiveListAdapter();
-    }
-
-    @Override
-    ListView getActiveAdapterView() {
-        return getListViewForIndex(getCurrentPage());
-    }
-
-    @Override
-    @Nullable
-    ViewGroup getInactiveAdapterView() {
-        if (getCount() == 1) {
-            return null;
-        }
-        return getListViewForIndex(1 - getCurrentPage());
-    }
-
-    void setUseLayoutWithDefault(boolean useLayoutWithDefault) {
-        mUseLayoutWithDefault = useLayoutWithDefault;
-    }
-
-    @Override
-    protected void setupContainerPadding(View container) {
-        int bottom = mUseLayoutWithDefault ? container.getPaddingBottom() : 0;
-        container.setPadding(container.getPaddingLeft(), container.getPaddingTop(),
-                container.getPaddingRight(), bottom);
-    }
-
-    class ResolverProfileDescriptor extends ProfileDescriptor {
-        private ResolverListAdapter resolverListAdapter;
-        final ListView listView;
-        ResolverProfileDescriptor(ViewGroup rootView, ResolverListAdapter adapter) {
-            super(rootView);
-            resolverListAdapter = adapter;
-            listView = rootView.findViewById(com.android.internal.R.id.resolver_list);
+        @Override
+        public Optional<Integer> get() {
+            return mUseLayoutWithDefault ? Optional.empty() : Optional.of(0);
         }
     }
 }
