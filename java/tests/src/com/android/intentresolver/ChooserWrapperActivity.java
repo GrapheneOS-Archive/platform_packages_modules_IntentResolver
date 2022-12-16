@@ -44,7 +44,6 @@ import com.android.intentresolver.chooser.NotSelectableTargetInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
-import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
 import java.util.List;
@@ -220,11 +219,6 @@ public class ChooserWrapperActivity
     @Override
     protected boolean isImageType(String mimeType) {
         return sOverrides.isImageType;
-    }
-
-    @Override
-    protected MetricsLogger getMetricsLogger() {
-        return sOverrides.metricsLogger;
     }
 
     @Override
