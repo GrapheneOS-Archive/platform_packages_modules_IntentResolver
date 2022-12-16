@@ -19,8 +19,6 @@ package com.android.intentresolver;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
-import static com.android.intentresolver.ResolverListAdapter.ResolveInfoPresentationGetter;
-
 import static java.util.stream.Collectors.toList;
 
 import android.annotation.NonNull;
@@ -136,7 +134,7 @@ public class ChooserTargetActionsDialogFragment extends DialogFragment
         ImageView icon = v.findViewById(com.android.internal.R.id.icon);
         RecyclerView rv = v.findViewById(com.android.internal.R.id.listContainer);
 
-        final ResolveInfoPresentationGetter pg = getProvidingAppPresentationGetter();
+        final TargetPresentationGetter pg = getProvidingAppPresentationGetter();
         title.setText(isShortcutTarget() ? mShortcutTitle : pg.getLabel());
         icon.setImageDrawable(pg.getIcon(mUserHandle));
         rv.setAdapter(new VHAdapter(items));
@@ -270,14 +268,14 @@ public class ChooserTargetActionsDialogFragment extends DialogFragment
         return getPinIcon(isPinned(dri));
     }
 
-    private ResolveInfoPresentationGetter getProvidingAppPresentationGetter() {
+    private TargetPresentationGetter getProvidingAppPresentationGetter() {
         final ActivityManager am = (ActivityManager) getContext()
                 .getSystemService(ACTIVITY_SERVICE);
         final int iconDpi = am.getLauncherLargeIconDensity();
 
         // Use the matching application icon and label for the title, any TargetInfo will do
-        return new ResolveInfoPresentationGetter(getContext(), iconDpi,
-                mTargetInfos.get(0).getResolveInfo());
+        return new TargetPresentationGetter.Factory(getContext(), iconDpi)
+                .makePresentationGetter(mTargetInfos.get(0).getResolveInfo());
     }
 
     private boolean isPinned(DisplayResolveInfo dri) {
