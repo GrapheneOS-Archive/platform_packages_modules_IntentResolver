@@ -77,7 +77,6 @@ import android.util.Log;
 import android.util.Size;
 import android.util.Slog;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -86,7 +85,6 @@ import android.view.WindowInsets;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
@@ -97,7 +95,6 @@ import androidx.viewpager.widget.ViewPager;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyState;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyStateProvider;
 import com.android.intentresolver.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
-import com.android.intentresolver.ResolverListAdapter.ViewHolder;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
@@ -108,6 +105,7 @@ import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
+import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
@@ -629,7 +627,7 @@ public class ChooserActivity extends ResolverActivity implements
         updateProfileViewButton();
     }
 
-    private void onCopyButtonClicked(View v) {
+    private void onCopyButtonClicked() {
         Intent targetIntent = getTargetIntent();
         if (targetIntent == null) {
             finish();
@@ -752,21 +750,23 @@ public class ChooserActivity extends ResolverActivity implements
         int previewType = ChooserContentPreviewUi.findPreferredContentPreview(
                 targetIntent, getContentResolver(), this::isImageType);
 
-        ChooserContentPreviewUi.ActionButtonFactory buttonFactory =
-                new ChooserContentPreviewUi.ActionButtonFactory() {
+        ChooserContentPreviewUi.ActionFactory actionFactory =
+                new ChooserContentPreviewUi.ActionFactory() {
                     @Override
-                    public Button createCopyButton() {
-                        return ChooserActivity.this.createCopyButton();
+                    public ActionRow.Action createCopyButton() {
+                        return ChooserActivity.this.createCopyAction();
                     }
 
+                    @Nullable
                     @Override
-                    public Button createEditButton() {
-                        return ChooserActivity.this.createEditButton(targetIntent);
+                    public ActionRow.Action createEditButton() {
+                        return ChooserActivity.this.createEditAction(targetIntent);
                     }
 
+                    @Nullable
                     @Override
-                    public Button createNearbyButton() {
-                        return ChooserActivity.this.createNearbyButton(targetIntent);
+                    public ActionRow.Action createNearbyButton() {
+                        return ChooserActivity.this.createNearbyAction(targetIntent);
                     }
                 };
 
@@ -775,7 +775,7 @@ public class ChooserActivity extends ResolverActivity implements
                 targetIntent,
                 getResources(),
                 getLayoutInflater(),
-                buttonFactory,
+                actionFactory,
                 parent,
                 previewCoordinator,
                 getContentResolver(),
@@ -902,54 +902,46 @@ public class ChooserActivity extends ResolverActivity implements
         return dri;
     }
 
-    private Button createActionButton(Drawable icon, CharSequence title, View.OnClickListener r) {
-        Button b = (Button) LayoutInflater.from(this).inflate(R.layout.chooser_action_button, null);
-        if (icon != null) {
-            final int size = getResources()
-                    .getDimensionPixelSize(R.dimen.chooser_action_button_icon_size);
-            icon.setBounds(0, 0, size, size);
-            b.setCompoundDrawablesRelative(icon, null, null, null);
-        }
-        b.setText(title);
-        b.setOnClickListener(r);
-        return b;
-    }
-
-    private Button createCopyButton() {
-        final Button b = createActionButton(
+    private ActionRow.Action createCopyAction() {
+        return new ActionRow.Action(
+                com.android.internal.R.id.chooser_copy_button,
+                getString(com.android.internal.R.string.copy),
                 getDrawable(com.android.internal.R.drawable.ic_menu_copy_material),
-                getString(com.android.internal.R.string.copy), this::onCopyButtonClicked);
-        b.setId(com.android.internal.R.id.chooser_copy_button);
-        return b;
+                this::onCopyButtonClicked);
     }
 
-    private @Nullable Button createNearbyButton(Intent originalIntent) {
+    @Nullable
+    private ActionRow.Action createNearbyAction(Intent originalIntent) {
         final TargetInfo ti = getNearbySharingTarget(originalIntent);
-        if (ti == null) return null;
+        if (ti == null) {
+            return null;
+        }
 
-        final Button b = createActionButton(
-                ti.getDisplayIconHolder().getDisplayIcon(),
+        return new ActionRow.Action(
+                com.android.internal.R.id.chooser_nearby_button,
                 ti.getDisplayLabel(),
-                (View unused) -> {
+                ti.getDisplayIconHolder().getDisplayIcon(),
+                () -> {
                     getChooserActivityLogger().logActionSelected(
                             ChooserActivityLogger.SELECTION_TYPE_NEARBY);
                     // Action bar is user-independent, always start as primary
                     safelyStartActivityAsUser(ti, getPersonalProfileUserHandle());
                     finish();
-                }
-        );
-        b.setId(com.android.internal.R.id.chooser_nearby_button);
-        return b;
+                });
     }
 
-    private @Nullable Button createEditButton(Intent originalIntent) {
+    @Nullable
+    private ActionRow.Action createEditAction(Intent originalIntent) {
         final TargetInfo ti = getEditSharingTarget(originalIntent);
-        if (ti == null) return null;
+        if (ti == null) {
+            return null;
+        }
 
-        final Button b = createActionButton(
-                ti.getDisplayIconHolder().getDisplayIcon(),
+        return new ActionRow.Action(
+                com.android.internal.R.id.chooser_edit_button,
                 ti.getDisplayLabel(),
-                (View unused) -> {
+                ti.getDisplayIconHolder().getDisplayIcon(),
+                () -> {
                     // Log share completion via edit
                     getChooserActivityLogger().logActionSelected(
                             ChooserActivityLogger.SELECTION_TYPE_EDIT);
@@ -967,25 +959,12 @@ public class ChooserActivity extends ResolverActivity implements
                     }
                 }
         );
-        b.setId(com.android.internal.R.id.chooser_edit_button);
-        return b;
     }
 
     @Nullable
     private View getFirstVisibleImgPreviewView() {
         View firstImage = findViewById(com.android.internal.R.id.content_preview_image_1_large);
         return firstImage != null && firstImage.isVisibleToUser() ? firstImage : null;
-    }
-
-    private void addActionButton(ViewGroup parent, Button b) {
-        if (b == null) return;
-        final ViewGroup.MarginLayoutParams lp = new ViewGroup.MarginLayoutParams(
-                        LayoutParams.WRAP_CONTENT,
-                        LayoutParams.WRAP_CONTENT
-                );
-        final int gap = getResources().getDimensionPixelSize(R.dimen.resolver_icon_margin) / 2;
-        lp.setMarginsRelative(gap, 0, gap, 0);
-        parent.addView(b, lp);
     }
 
     /**

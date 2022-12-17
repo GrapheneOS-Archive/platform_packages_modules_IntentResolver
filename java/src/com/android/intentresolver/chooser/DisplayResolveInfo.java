@@ -28,7 +28,7 @@ import android.os.Bundle;
 import android.os.UserHandle;
 
 import com.android.intentresolver.ResolverActivity;
-import com.android.intentresolver.ResolverListAdapter.ResolveInfoPresentationGetter;
+import com.android.intentresolver.TargetPresentationGetter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +45,7 @@ public class DisplayResolveInfo implements TargetInfo {
     private final Intent mResolvedIntent;
     private final List<Intent> mSourceIntents = new ArrayList<>();
     private final boolean mIsSuspended;
-    private ResolveInfoPresentationGetter mResolveInfoPresentationGetter;
+    private TargetPresentationGetter mPresentationGetter;
     private boolean mPinned = false;
     private final IconHolder mDisplayIconHolder = new SettableIconHolder();
 
@@ -54,7 +54,7 @@ public class DisplayResolveInfo implements TargetInfo {
             Intent originalIntent,
             ResolveInfo resolveInfo,
             @NonNull Intent resolvedIntent,
-            @Nullable ResolveInfoPresentationGetter presentationGetter) {
+            @Nullable TargetPresentationGetter presentationGetter) {
         return newDisplayResolveInfo(
                 originalIntent,
                 resolveInfo,
@@ -71,14 +71,14 @@ public class DisplayResolveInfo implements TargetInfo {
             CharSequence displayLabel,
             CharSequence extendedInfo,
             @NonNull Intent resolvedIntent,
-            @Nullable ResolveInfoPresentationGetter resolveInfoPresentationGetter) {
+            @Nullable TargetPresentationGetter presentationGetter) {
         return new DisplayResolveInfo(
                 originalIntent,
                 resolveInfo,
                 displayLabel,
                 extendedInfo,
                 resolvedIntent,
-                resolveInfoPresentationGetter);
+                presentationGetter);
     }
 
     private DisplayResolveInfo(
@@ -87,12 +87,12 @@ public class DisplayResolveInfo implements TargetInfo {
             CharSequence displayLabel,
             CharSequence extendedInfo,
             @NonNull Intent resolvedIntent,
-            @Nullable ResolveInfoPresentationGetter resolveInfoPresentationGetter) {
+            @Nullable TargetPresentationGetter presentationGetter) {
         mSourceIntents.add(originalIntent);
         mResolveInfo = resolveInfo;
         mDisplayLabel = displayLabel;
         mExtendedInfo = extendedInfo;
-        mResolveInfoPresentationGetter = resolveInfoPresentationGetter;
+        mPresentationGetter = presentationGetter;
 
         final ActivityInfo ai = mResolveInfo.activityInfo;
         mIsSuspended = (ai.applicationInfo.flags & ApplicationInfo.FLAG_SUSPENDED) != 0;
@@ -108,7 +108,7 @@ public class DisplayResolveInfo implements TargetInfo {
             DisplayResolveInfo other,
             Intent fillInIntent,
             int flags,
-            ResolveInfoPresentationGetter resolveInfoPresentationGetter) {
+            TargetPresentationGetter presentationGetter) {
         mSourceIntents.addAll(other.getAllSourceIntents());
         mResolveInfo = other.mResolveInfo;
         mIsSuspended = other.mIsSuspended;
@@ -116,7 +116,7 @@ public class DisplayResolveInfo implements TargetInfo {
         mExtendedInfo = other.mExtendedInfo;
         mResolvedIntent = new Intent(other.mResolvedIntent);
         mResolvedIntent.fillIn(fillInIntent, flags);
-        mResolveInfoPresentationGetter = resolveInfoPresentationGetter;
+        mPresentationGetter = presentationGetter;
 
         mDisplayIconHolder.setDisplayIcon(other.mDisplayIconHolder.getDisplayIcon());
     }
@@ -128,7 +128,7 @@ public class DisplayResolveInfo implements TargetInfo {
         mDisplayLabel = other.mDisplayLabel;
         mExtendedInfo = other.mExtendedInfo;
         mResolvedIntent = other.mResolvedIntent;
-        mResolveInfoPresentationGetter = other.mResolveInfoPresentationGetter;
+        mPresentationGetter = other.mPresentationGetter;
 
         mDisplayIconHolder.setDisplayIcon(other.mDisplayIconHolder.getDisplayIcon());
     }
@@ -143,9 +143,9 @@ public class DisplayResolveInfo implements TargetInfo {
     }
 
     public CharSequence getDisplayLabel() {
-        if (mDisplayLabel == null && mResolveInfoPresentationGetter != null) {
-            mDisplayLabel = mResolveInfoPresentationGetter.getLabel();
-            mExtendedInfo = mResolveInfoPresentationGetter.getSubLabel();
+        if (mDisplayLabel == null && mPresentationGetter != null) {
+            mDisplayLabel = mPresentationGetter.getLabel();
+            mExtendedInfo = mPresentationGetter.getSubLabel();
         }
         return mDisplayLabel;
     }
@@ -169,7 +169,7 @@ public class DisplayResolveInfo implements TargetInfo {
 
     @Override
     public TargetInfo cloneFilledIn(Intent fillInIntent, int flags) {
-        return new DisplayResolveInfo(this, fillInIntent, flags, mResolveInfoPresentationGetter);
+        return new DisplayResolveInfo(this, fillInIntent, flags, mPresentationGetter);
     }
 
     @Override

@@ -34,11 +34,12 @@ import android.util.PluralsMessageFormatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
+import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.RoundedRectImageView;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -88,15 +89,17 @@ public final class ChooserContentPreviewUi {
      * they're determined to be appropriate for the particular preview we display.
      * TODO: clarify why action buttons are part of preview logic.
      */
-    public interface ActionButtonFactory {
-        /** Create a button that copies the share content to the clipboard. */
-        Button createCopyButton();
+    public interface ActionFactory {
+        /** Create an action that copies the share content to the clipboard. */
+        ActionRow.Action createCopyButton();
 
-        /** Create a button that opens the share content in a system-default editor. */
-        Button createEditButton();
+        /** Create an action that opens the share content in a system-default editor. */
+        @Nullable
+        ActionRow.Action createEditButton();
 
-        /** Create a "Share to Nearby" button. */
-        Button createNearbyButton();
+        /** Create an "Share to Nearby" action. */
+        @Nullable
+        ActionRow.Action createNearbyButton();
     }
 
     /**
@@ -173,7 +176,7 @@ public final class ChooserContentPreviewUi {
             Intent targetIntent,
             Resources resources,
             LayoutInflater layoutInflater,
-            ActionButtonFactory buttonFactory,
+            ActionFactory actionFactory,
             ViewGroup parent,
             ContentPreviewCoordinator previewCoord,
             ContentResolver contentResolver,
@@ -184,18 +187,16 @@ public final class ChooserContentPreviewUi {
             case CONTENT_PREVIEW_TEXT:
                 layout = displayTextContentPreview(
                         targetIntent,
-                        resources,
                         layoutInflater,
-                        buttonFactory,
+                        createTextPreviewActions(actionFactory),
                         parent,
                         previewCoord);
                 break;
             case CONTENT_PREVIEW_IMAGE:
                 layout = displayImageContentPreview(
                         targetIntent,
-                        resources,
                         layoutInflater,
-                        buttonFactory,
+                        createImagePreviewActions(actionFactory),
                         parent,
                         previewCoord,
                         contentResolver,
@@ -206,7 +207,7 @@ public final class ChooserContentPreviewUi {
                         targetIntent,
                         resources,
                         layoutInflater,
-                        buttonFactory,
+                        createFilePreviewActions(actionFactory),
                         parent,
                         previewCoord,
                         contentResolver);
@@ -235,20 +236,18 @@ public final class ChooserContentPreviewUi {
 
     private static ViewGroup displayTextContentPreview(
             Intent targetIntent,
-            Resources resources,
             LayoutInflater layoutInflater,
-            ActionButtonFactory buttonFactory,
+            List<ActionRow.Action> actions,
             ViewGroup parent,
             ContentPreviewCoordinator previewCoord) {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_text, parent, false);
 
-        final ViewGroup actionRow =
-                (ViewGroup) contentPreviewLayout.findViewById(
-                        com.android.internal.R.id.chooser_action_row);
-        final int iconMargin = resources.getDimensionPixelSize(R.dimen.resolver_icon_margin);
-        addActionButton(actionRow, buttonFactory.createCopyButton(), iconMargin);
-        addActionButton(actionRow, buttonFactory.createNearbyButton(), iconMargin);
+        final ActionRow actionRow =
+                contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
+        if (actionRow != null) {
+            actionRow.setActions(actions);
+        }
 
         CharSequence sharingText = targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         if (sharingText == null) {
@@ -296,11 +295,20 @@ public final class ChooserContentPreviewUi {
         return contentPreviewLayout;
     }
 
+    private static List<ActionRow.Action> createTextPreviewActions(ActionFactory actionFactory) {
+        ArrayList<ActionRow.Action> actions = new ArrayList<>(2);
+        actions.add(actionFactory.createCopyButton());
+        ActionRow.Action nearbyAction = actionFactory.createNearbyButton();
+        if (nearbyAction != null) {
+            actions.add(nearbyAction);
+        }
+        return actions;
+    }
+
     private static ViewGroup displayImageContentPreview(
             Intent targetIntent,
-            Resources resources,
             LayoutInflater layoutInflater,
-            ActionButtonFactory buttonFactory,
+            List<ActionRow.Action> actions,
             ViewGroup parent,
             ContentPreviewCoordinator previewCoord,
             ContentResolver contentResolver,
@@ -310,13 +318,11 @@ public final class ChooserContentPreviewUi {
         ViewGroup imagePreview = contentPreviewLayout.findViewById(
                 com.android.internal.R.id.content_preview_image_area);
 
-        final ViewGroup actionRow =
-                (ViewGroup) contentPreviewLayout.findViewById(
-                        com.android.internal.R.id.chooser_action_row);
-        final int iconMargin = resources.getDimensionPixelSize(R.dimen.resolver_icon_margin);
-        //TODO: addActionButton(actionRow, buttonFactory.createCopyButton(), iconMargin);
-        addActionButton(actionRow, buttonFactory.createNearbyButton(), iconMargin);
-        addActionButton(actionRow, buttonFactory.createEditButton(), iconMargin);
+        final ActionRow actionRow =
+                contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
+        if (actionRow != null) {
+            actionRow.setActions(actions);
+        }
 
         String action = targetIntent.getAction();
         if (Intent.ACTION_SEND.equals(action)) {
@@ -375,24 +381,37 @@ public final class ChooserContentPreviewUi {
         return contentPreviewLayout;
     }
 
+    private static List<ActionRow.Action> createImagePreviewActions(
+            ActionFactory buttonFactory) {
+        ArrayList<ActionRow.Action> actions = new ArrayList<>(2);
+        //TODO: add copy action;
+        ActionRow.Action action = buttonFactory.createNearbyButton();
+        if (action != null) {
+            actions.add(action);
+        }
+        action = buttonFactory.createEditButton();
+        if (action != null) {
+            actions.add(action);
+        }
+        return actions;
+    }
+
     private static ViewGroup displayFileContentPreview(
             Intent targetIntent,
             Resources resources,
             LayoutInflater layoutInflater,
-            ActionButtonFactory buttonFactory,
+            List<ActionRow.Action> actions,
             ViewGroup parent,
             ContentPreviewCoordinator previewCoord,
             ContentResolver contentResolver) {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_file, parent, false);
 
-        final ViewGroup actionRow =
-                (ViewGroup) contentPreviewLayout.findViewById(
-                        com.android.internal.R.id.chooser_action_row);
-        final int iconMargin = resources.getDimensionPixelSize(R.dimen.resolver_icon_margin);
-        //TODO(b/120417119):
-        // addActionButton(actionRow, buttonFactory.createCopyButton(), iconMargin);
-        addActionButton(actionRow, buttonFactory.createNearbyButton(), iconMargin);
+        final ActionRow actionRow =
+                contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
+        if (actionRow != null) {
+            actionRow.setActions(actions);
+        }
 
         String action = targetIntent.getAction();
         if (Intent.ACTION_SEND.equals(action)) {
@@ -438,6 +457,17 @@ public final class ChooserContentPreviewUi {
         return contentPreviewLayout;
     }
 
+    private static List<ActionRow.Action> createFilePreviewActions(ActionFactory actionFactory) {
+        List<ActionRow.Action> actions = new ArrayList<>(1);
+        //TODO(b/120417119):
+        // add action buttonFactory.createCopyButton()
+        ActionRow.Action action = actionFactory.createNearbyButton();
+        if (action != null) {
+            actions.add(action);
+        }
+        return actions;
+    }
+
     private static void logContentPreviewWarning(Uri uri) {
         // The ContentResolver already logs the exception. Log something more informative.
         Log.w(TAG, "Could not load (" + uri.toString() + ") thumbnail/name for preview. If "
@@ -473,19 +503,6 @@ public final class ChooserContentPreviewUi {
             fileIconView.setVisibility(View.VISIBLE);
             fileIconView.setImageResource(R.drawable.chooser_file_generic);
         }
-    }
-
-    private static void addActionButton(ViewGroup parent, Button b, int iconMargin) {
-        if (b == null) {
-            return;
-        }
-        final ViewGroup.MarginLayoutParams lp = new ViewGroup.MarginLayoutParams(
-                        LayoutParams.WRAP_CONTENT,
-                        LayoutParams.WRAP_CONTENT
-                );
-        final int gap = iconMargin / 2;
-        lp.setMarginsRelative(gap, 0, gap, 0);
-        parent.addView(b, lp);
     }
 
     private static FileInfo extractFileInfo(Uri uri, ContentResolver resolver) {

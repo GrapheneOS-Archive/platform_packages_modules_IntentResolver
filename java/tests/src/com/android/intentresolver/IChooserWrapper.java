@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.os.UserHandle;
 
-import com.android.intentresolver.ResolverListAdapter.ResolveInfoPresentationGetter;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 
 import java.util.concurrent.Executor;
@@ -40,7 +39,7 @@ public interface IChooserWrapper {
     UsageStatsManager getUsageStatsManager();
     DisplayResolveInfo createTestDisplayResolveInfo(Intent originalIntent, ResolveInfo pri,
             CharSequence pLabel, CharSequence pInfo, Intent replacementIntent,
-            @Nullable ResolveInfoPresentationGetter resolveInfoPresentationGetter);
+            @Nullable TargetPresentationGetter resolveInfoPresentationGetter);
     UserHandle getCurrentUserHandle();
     ChooserActivityLogger getChooserActivityLogger();
     Executor getMainExecutor();
