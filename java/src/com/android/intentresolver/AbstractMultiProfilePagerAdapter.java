@@ -16,8 +16,8 @@
 package com.android.intentresolver;
 
 import android.annotation.IntDef;
-import android.annotation.Nullable;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.AppGlobals;
 import android.content.ContentResolver;
@@ -172,6 +172,10 @@ public abstract class AbstractMultiProfilePagerAdapter extends PagerAdapter {
      * </ul>
      */
     abstract ProfileDescriptor getItem(int pageIndex);
+
+    protected ViewGroup getEmptyStateView(int pageIndex) {
+        return getItem(pageIndex).getEmptyStateView();
+    }
 
     /**
      * Returns the number of {@link ProfileDescriptor} objects.
@@ -432,7 +436,7 @@ public abstract class AbstractMultiProfilePagerAdapter extends PagerAdapter {
                     && isQuietModeEnabled(mWorkProfileUserHandle));
     }
 
-    protected class ProfileDescriptor {
+    protected static class ProfileDescriptor {
         final ViewGroup rootView;
         private final ViewGroup mEmptyStateView;
         ProfileDescriptor(ViewGroup rootView) {
