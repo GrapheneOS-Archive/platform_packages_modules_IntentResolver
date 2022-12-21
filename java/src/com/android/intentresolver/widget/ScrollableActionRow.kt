@@ -17,6 +17,7 @@
 package com.android.intentresolver.widget
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -104,6 +105,8 @@ class ScrollableActionRow : RecyclerView, ActionRow {
         fun bind(action: ActionRow.Action) {
             if (action.icon != null) {
                 action.icon.setBounds(0, 0, iconSize, iconSize)
+                // some drawables (edit) does not gets tinted when set to the top of the text
+                // with TextView#setCompoundDrawableRelative
                 view.setCompoundDrawablesRelative(null, action.icon, null, null)
             }
             view.text = action.label ?: ""
@@ -115,6 +118,13 @@ class ScrollableActionRow : RecyclerView, ActionRow {
 
         fun unbind() {
             view.setOnClickListener(null)
+        }
+
+        private fun tintIcon(drawable: Drawable, view: TextView) {
+            val tintList = view.compoundDrawableTintList ?: return
+            drawable.setTintList(tintList)
+            view.compoundDrawableTintMode?.let { drawable.setTintMode(it) }
+            view.compoundDrawableTintBlendMode?.let { drawable.setTintBlendMode(it) }
         }
     }
 }

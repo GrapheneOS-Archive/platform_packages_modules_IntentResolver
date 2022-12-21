@@ -34,9 +34,11 @@ import android.util.PluralsMessageFormatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 
 import com.android.intentresolver.widget.ActionRow;
@@ -177,6 +179,7 @@ public final class ChooserContentPreviewUi {
             Resources resources,
             LayoutInflater layoutInflater,
             ActionFactory actionFactory,
+            @LayoutRes int actionRowLayout,
             ViewGroup parent,
             ContentPreviewCoordinator previewCoord,
             ContentResolver contentResolver,
@@ -190,7 +193,8 @@ public final class ChooserContentPreviewUi {
                         layoutInflater,
                         createTextPreviewActions(actionFactory),
                         parent,
-                        previewCoord);
+                        previewCoord,
+                        actionRowLayout);
                 break;
             case CONTENT_PREVIEW_IMAGE:
                 layout = displayImageContentPreview(
@@ -200,7 +204,8 @@ public final class ChooserContentPreviewUi {
                         parent,
                         previewCoord,
                         contentResolver,
-                        imageClassifier);
+                        imageClassifier,
+                        actionRowLayout);
                 break;
             case CONTENT_PREVIEW_FILE:
                 layout = displayFileContentPreview(
@@ -210,7 +215,8 @@ public final class ChooserContentPreviewUi {
                         createFilePreviewActions(actionFactory),
                         parent,
                         previewCoord,
-                        contentResolver);
+                        contentResolver,
+                        actionRowLayout);
                 break;
             default:
                 Log.e(TAG, "Unexpected content preview type: " + previewType);
@@ -239,12 +245,12 @@ public final class ChooserContentPreviewUi {
             LayoutInflater layoutInflater,
             List<ActionRow.Action> actions,
             ViewGroup parent,
-            ContentPreviewCoordinator previewCoord) {
+            ContentPreviewCoordinator previewCoord,
+            @LayoutRes int actionRowLayout) {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_text, parent, false);
 
-        final ActionRow actionRow =
-                contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
+        final ActionRow actionRow = inflateActionRow(contentPreviewLayout, actionRowLayout);
         if (actionRow != null) {
             actionRow.setActions(actions);
         }
@@ -312,14 +318,14 @@ public final class ChooserContentPreviewUi {
             ViewGroup parent,
             ContentPreviewCoordinator previewCoord,
             ContentResolver contentResolver,
-            ImageMimeTypeClassifier imageClassifier) {
+            ImageMimeTypeClassifier imageClassifier,
+            @LayoutRes int actionRowLayout) {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_image, parent, false);
         ViewGroup imagePreview = contentPreviewLayout.findViewById(
                 com.android.internal.R.id.content_preview_image_area);
 
-        final ActionRow actionRow =
-                contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
+        final ActionRow actionRow = inflateActionRow(contentPreviewLayout, actionRowLayout);
         if (actionRow != null) {
             actionRow.setActions(actions);
         }
@@ -403,12 +409,12 @@ public final class ChooserContentPreviewUi {
             List<ActionRow.Action> actions,
             ViewGroup parent,
             ContentPreviewCoordinator previewCoord,
-            ContentResolver contentResolver) {
+            ContentResolver contentResolver,
+            @LayoutRes int actionRowLayout) {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_file, parent, false);
 
-        final ActionRow actionRow =
-                contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
+        final ActionRow actionRow = inflateActionRow(contentPreviewLayout, actionRowLayout);
         if (actionRow != null) {
             actionRow.setActions(actions);
         }
@@ -466,6 +472,15 @@ public final class ChooserContentPreviewUi {
             actions.add(action);
         }
         return actions;
+    }
+
+    private static ActionRow inflateActionRow(ViewGroup parent, @LayoutRes int actionRowLayout) {
+        final ViewStub stub = parent.findViewById(com.android.intentresolver.R.id.action_row_stub);
+        if (stub != null) {
+            stub.setLayoutResource(actionRowLayout);
+            stub.inflate();
+        }
+        return parent.findViewById(com.android.internal.R.id.chooser_action_row);
     }
 
     private static void logContentPreviewWarning(Uri uri) {
