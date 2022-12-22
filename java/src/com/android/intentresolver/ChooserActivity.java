@@ -776,6 +776,7 @@ public class ChooserActivity extends ResolverActivity implements
                 getResources(),
                 getLayoutInflater(),
                 actionFactory,
+                R.layout.chooser_action_row,
                 parent,
                 previewCoordinator,
                 getContentResolver(),
