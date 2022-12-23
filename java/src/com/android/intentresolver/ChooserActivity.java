@@ -259,23 +259,17 @@ public class ChooserActivity extends ResolverActivity implements
 
     public ChooserActivity() {}
 
-    private void setupPreDrawForSharedElementTransition(View v) {
-        v.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                v.getViewTreeObserver().removeOnPreDrawListener(this);
-
-                if (!mRemoveSharedElements && isActivityTransitionRunning()) {
-                    // Disable the window animations as it interferes with the transition animation.
-                    getWindow().setWindowAnimations(0);
-                }
-                mEnterTransitionAnimationDelegate.markImagePreviewReady();
-                return true;
-            }
-        });
+    private void onSharedElementTransitionTargetReady(boolean runTransitionAnimation) {
+        if (runTransitionAnimation && !mRemoveSharedElements && isActivityTransitionRunning()) {
+            // Disable the window animations as it interferes with the transition animation.
+            getWindow().setWindowAnimations(0);
+            mEnterTransitionAnimationDelegate.markImagePreviewReady();
+        } else {
+            onSharedElementTransitionTargetMissing();
+        }
     }
 
-    private void hideContentPreview() {
+    private void onSharedElementTransitionTargetMissing() {
         mRemoveSharedElements = true;
         mEnterTransitionAnimationDelegate.markImagePreviewReady();
     }
@@ -318,8 +312,7 @@ public class ChooserActivity extends ResolverActivity implements
         mPreviewCoordinator = new ChooserContentPreviewCoordinator(
                 mBackgroundThreadPoolExecutor,
                 this,
-                this::hideContentPreview,
-                this::setupPreDrawForSharedElementTransition);
+                this::onSharedElementTransitionTargetMissing);
 
         super.onCreate(
                 savedInstanceState,
@@ -779,6 +772,7 @@ public class ChooserActivity extends ResolverActivity implements
                 R.layout.chooser_action_row,
                 parent,
                 previewCoordinator,
+                this::onSharedElementTransitionTargetReady,
                 getContentResolver(),
                 this::isImageType);
 

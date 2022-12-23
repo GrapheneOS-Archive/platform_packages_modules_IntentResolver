@@ -51,6 +51,12 @@ android_library {
         "androidx.viewpager_viewpager",
         "androidx.lifecycle_lifecycle-common-java8",
         "androidx.lifecycle_lifecycle-extensions",
+        "androidx.lifecycle_lifecycle-runtime-ktx",
+        "androidx.lifecycle_lifecycle-viewmodel-ktx",
+        "kotlin-stdlib",
+        "kotlinx_coroutines",
+        "kotlinx-coroutines-android",
+        "//external/kotlinc:kotlin-annotations",
         "guava",
     ],
 
