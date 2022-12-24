@@ -13,20 +13,18 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License
   -->
+
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal">
 
-    <com.android.intentresolver.widget.ChooserActionRow
+    <com.android.intentresolver.widget.ScrollableActionRow
         android:id="@androidprv:id/chooser_action_row"
-        android:layout_width="@dimen/chooser_preview_width"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/chooser_edge_margin_normal"
-        android:paddingRight="@dimen/chooser_edge_margin_normal"
-        android:layout_marginBottom="@dimen/chooser_view_spacing"
         android:layout_gravity="center_horizontal"
         android:gravity="center" />
-
 </FrameLayout>
