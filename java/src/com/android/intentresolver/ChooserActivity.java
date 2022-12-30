@@ -54,7 +54,6 @@ import android.content.pm.ShortcutInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.Insets;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -73,7 +72,6 @@ import android.provider.Settings;
 import android.service.chooser.ChooserTarget;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Size;
 import android.util.Slog;
 import android.util.SparseArray;
 import android.view.View;
@@ -113,7 +111,6 @@ import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.util.FrameworkStatsLog;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.text.Collator;
@@ -241,7 +238,7 @@ public class ChooserActivity extends ResolverActivity implements
     private final ExecutorService mBackgroundThreadPoolExecutor = Executors.newFixedThreadPool(5);
 
     @Nullable
-    private ChooserContentPreviewCoordinator mPreviewCoordinator;
+    private ImageLoader mPreviewImageLoader;
 
     private int mScrollStatus = SCROLL_STATUS_IDLE;
 
@@ -291,10 +288,7 @@ public class ChooserActivity extends ResolverActivity implements
                         mChooserRequest.getTargetIntentFilter()),
                 mChooserRequest.getTargetIntentFilter());
 
-        mPreviewCoordinator = new ChooserContentPreviewCoordinator(
-                mBackgroundThreadPoolExecutor,
-                this,
-                () -> mEnterTransitionAnimationDelegate.markImagePreviewReady(false));
+        mPreviewImageLoader = createPreviewImageLoader();
 
         super.onCreate(
                 savedInstanceState,
@@ -707,9 +701,7 @@ public class ChooserActivity extends ResolverActivity implements
      * @param parent reference to the parent container where the view should be attached to
      * @return content preview view
      */
-    protected ViewGroup createContentPreviewView(
-            ViewGroup parent,
-            ChooserContentPreviewUi.ContentPreviewCoordinator previewCoordinator) {
+    protected ViewGroup createContentPreviewView(ViewGroup parent, ImageLoader imageLoader) {
         Intent targetIntent = getTargetIntent();
         int previewType = ChooserContentPreviewUi.findPreferredContentPreview(
                 targetIntent, getContentResolver(), this::isImageType);
@@ -742,7 +734,7 @@ public class ChooserActivity extends ResolverActivity implements
                 actionFactory,
                 R.layout.chooser_action_row,
                 parent,
-                previewCoordinator,
+                imageLoader,
                 mEnterTransitionAnimationDelegate::markImagePreviewReady,
                 getContentResolver(),
                 this::isImageType);
@@ -1485,7 +1477,7 @@ public class ChooserActivity extends ResolverActivity implements
 
                     @Override
                     public View buildContentPreview(ViewGroup parent) {
-                        return createContentPreviewView(parent, mPreviewCoordinator);
+                        return createContentPreviewView(parent, mPreviewImageLoader);
                     }
 
                     @Override
@@ -1600,17 +1592,8 @@ public class ChooserActivity extends ResolverActivity implements
     }
 
     @VisibleForTesting
-    protected Bitmap loadThumbnail(Uri uri, Size size) {
-        if (uri == null || size == null) {
-            return null;
-        }
-
-        try {
-            return getContentResolver().loadThumbnail(uri, size, null);
-        } catch (IOException | NullPointerException | SecurityException ex) {
-            getChooserActivityLogger().logContentPreviewWarning(uri);
-        }
-        return null;
+    protected ImageLoader createPreviewImageLoader() {
+        return new ImagePreviewImageLoader(this, getLifecycle());
     }
 
     private void handleScroll(View view, int x, int y, int oldx, int oldy) {
@@ -1967,7 +1950,7 @@ public class ChooserActivity extends ResolverActivity implements
             ViewGroup contentPreviewContainer = findViewById(com.android.internal.R.id.content_preview_container);
             if (contentPreviewContainer.getChildCount() == 0) {
                 ViewGroup contentPreviewView =
-                        createContentPreviewView(contentPreviewContainer, mPreviewCoordinator);
+                        createContentPreviewView(contentPreviewContainer, mPreviewImageLoader);
                 contentPreviewContainer.addView(contentPreviewView);
             }
         }
