@@ -58,7 +58,7 @@ public class ChooserContentPreviewCoordinator implements
 
         // TODO: apparently this timeout is only used for not holding shared element transition
         //  animation for too long. If so, we already have a better place for it
-        //  ChooserActivity$EnterTransitionAnimationDelegate.
+        //  EnterTransitionAnimationDelegate.
         mHandler.postDelayed(this::onWatchdogTimeout, mImageLoadTimeoutMillis);
 
         ListenableFuture<Bitmap> bitmapFuture = mBackgroundExecutor.submit(
