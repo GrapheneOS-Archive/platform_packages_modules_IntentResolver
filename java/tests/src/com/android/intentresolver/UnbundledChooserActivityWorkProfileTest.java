@@ -27,6 +27,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isSelected;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import static com.android.intentresolver.ChooserWrapperActivity.sOverrides;
 import static com.android.intentresolver.UnbundledChooserActivityWorkProfileTest.TestCase.ExpectedBlocker.NO_BLOCKER;
 import static com.android.intentresolver.UnbundledChooserActivityWorkProfileTest.TestCase.ExpectedBlocker.PERSONAL_PROFILE_ACCESS_BLOCKER;
 import static com.android.intentresolver.UnbundledChooserActivityWorkProfileTest.TestCase.ExpectedBlocker.PERSONAL_PROFILE_SHARE_BLOCKER;
@@ -34,7 +35,6 @@ import static com.android.intentresolver.UnbundledChooserActivityWorkProfileTest
 import static com.android.intentresolver.UnbundledChooserActivityWorkProfileTest.TestCase.ExpectedBlocker.WORK_PROFILE_SHARE_BLOCKER;
 import static com.android.intentresolver.UnbundledChooserActivityWorkProfileTest.TestCase.Tab.PERSONAL;
 import static com.android.intentresolver.UnbundledChooserActivityWorkProfileTest.TestCase.Tab.WORK;
-import static com.android.intentresolver.ChooserWrapperActivity.sOverrides;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.ArgumentMatchers.eq;
@@ -48,9 +48,9 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.rule.ActivityTestRule;
 
-import com.android.internal.R;
 import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
 import com.android.intentresolver.UnbundledChooserActivityWorkProfileTest.TestCase.Tab;
+import com.android.internal.R;
 
 import junit.framework.AssertionFailedError;
 
@@ -134,14 +134,13 @@ public class UnbundledChooserActivityWorkProfileTest {
                         /* tab= */ WORK,
                         /* expectedBlocker= */ NO_BLOCKER
                 ),
-//                TODO(b/256869196) ChooserActivity goes into requestLayout loop
-//                new TestCase(
-//                        /* isSendAction= */ true,
-//                        /* hasCrossProfileIntents= */ false,
-//                        /* myUserHandle= */ WORK_USER_HANDLE,
-//                        /* tab= */ WORK,
-//                        /* expectedBlocker= */ NO_BLOCKER
-//                ),
+                new TestCase(
+                        /* isSendAction= */ true,
+                        /* hasCrossProfileIntents= */ false,
+                        /* myUserHandle= */ WORK_USER_HANDLE,
+                        /* tab= */ WORK,
+                        /* expectedBlocker= */ NO_BLOCKER
+                ),
                 new TestCase(
                         /* isSendAction= */ true,
                         /* hasCrossProfileIntents= */ true,
@@ -163,14 +162,13 @@ public class UnbundledChooserActivityWorkProfileTest {
                         /* tab= */ PERSONAL,
                         /* expectedBlocker= */ NO_BLOCKER
                 ),
-//                TODO(b/256869196) ChooserActivity goes into requestLayout loop
-//                new TestCase(
-//                        /* isSendAction= */ true,
-//                        /* hasCrossProfileIntents= */ false,
-//                        /* myUserHandle= */ WORK_USER_HANDLE,
-//                        /* tab= */ PERSONAL,
-//                        /* expectedBlocker= */ PERSONAL_PROFILE_SHARE_BLOCKER
-//                ),
+                new TestCase(
+                        /* isSendAction= */ true,
+                        /* hasCrossProfileIntents= */ false,
+                        /* myUserHandle= */ WORK_USER_HANDLE,
+                        /* tab= */ PERSONAL,
+                        /* expectedBlocker= */ PERSONAL_PROFILE_SHARE_BLOCKER
+                ),
                 new TestCase(
                         /* isSendAction= */ true,
                         /* hasCrossProfileIntents= */ true,
