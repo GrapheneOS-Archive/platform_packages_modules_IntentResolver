@@ -32,7 +32,6 @@ import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
-import android.app.SharedElementCallback;
 import android.app.prediction.AppPredictor;
 import android.app.prediction.AppTarget;
 import android.app.prediction.AppTargetEvent;
@@ -249,36 +248,13 @@ public class ChooserActivity extends ResolverActivity implements
     @VisibleForTesting
     protected ChooserMultiProfilePagerAdapter mChooserMultiProfilePagerAdapter;
     private final EnterTransitionAnimationDelegate mEnterTransitionAnimationDelegate =
-            new EnterTransitionAnimationDelegate();
-
-    private boolean mRemoveSharedElements = false;
+            new EnterTransitionAnimationDelegate(this, () -> mResolverDrawerLayout);
 
     private View mContentView = null;
 
     private final SparseArray<ProfileRecord> mProfileRecords = new SparseArray<>();
 
     public ChooserActivity() {}
-
-    private void setupPreDrawForSharedElementTransition(View v) {
-        v.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                v.getViewTreeObserver().removeOnPreDrawListener(this);
-
-                if (!mRemoveSharedElements && isActivityTransitionRunning()) {
-                    // Disable the window animations as it interferes with the transition animation.
-                    getWindow().setWindowAnimations(0);
-                }
-                mEnterTransitionAnimationDelegate.markImagePreviewReady();
-                return true;
-            }
-        });
-    }
-
-    private void hideContentPreview() {
-        mRemoveSharedElements = true;
-        mEnterTransitionAnimationDelegate.markImagePreviewReady();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -318,8 +294,7 @@ public class ChooserActivity extends ResolverActivity implements
         mPreviewCoordinator = new ChooserContentPreviewCoordinator(
                 mBackgroundThreadPoolExecutor,
                 this,
-                this::hideContentPreview,
-                this::setupPreDrawForSharedElementTransition);
+                () -> mEnterTransitionAnimationDelegate.markImagePreviewReady(false));
 
         super.onCreate(
                 savedInstanceState,
@@ -378,17 +353,6 @@ public class ChooserActivity extends ResolverActivity implements
                 mChooserRequest.getTargetAction()
         );
 
-        setEnterSharedElementCallback(new SharedElementCallback() {
-            @Override
-            public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-                if (mRemoveSharedElements) {
-                    names.remove(FIRST_IMAGE_PREVIEW_TRANSITION_NAME);
-                    sharedElements.remove(FIRST_IMAGE_PREVIEW_TRANSITION_NAME);
-                }
-                super.onMapSharedElements(names, sharedElements);
-                mRemoveSharedElements = false;
-            }
-        });
         mEnterTransitionAnimationDelegate.postponeTransition();
     }
 
@@ -779,6 +743,7 @@ public class ChooserActivity extends ResolverActivity implements
                 R.layout.chooser_action_row,
                 parent,
                 previewCoordinator,
+                mEnterTransitionAnimationDelegate::markImagePreviewReady,
                 getContentResolver(),
                 this::isImageType);
 
@@ -786,7 +751,7 @@ public class ChooserActivity extends ResolverActivity implements
             adjustPreviewWidth(getResources().getConfiguration().orientation, layout);
         }
         if (previewType != ChooserContentPreviewUi.CONTENT_PREVIEW_IMAGE) {
-            mEnterTransitionAnimationDelegate.markImagePreviewReady();
+            mEnterTransitionAnimationDelegate.markImagePreviewReady(false);
         }
 
         return layout;
@@ -2193,51 +2158,6 @@ public class ChooserActivity extends ResolverActivity implements
         public void destroy() {
             mChooserActivity = null;
             mSelectedTarget = null;
-        }
-    }
-
-    /**
-     * A helper class to track app's readiness for the scene transition animation.
-     * The app is ready when both the image is laid out and the drawer offset is calculated.
-     */
-    private class EnterTransitionAnimationDelegate implements View.OnLayoutChangeListener {
-        private boolean mPreviewReady = false;
-        private boolean mOffsetCalculated = false;
-
-        void postponeTransition() {
-            postponeEnterTransition();
-        }
-
-        void markImagePreviewReady() {
-            if (!mPreviewReady) {
-                mPreviewReady = true;
-                maybeStartListenForLayout();
-            }
-        }
-
-        void markOffsetCalculated() {
-            if (!mOffsetCalculated) {
-                mOffsetCalculated = true;
-                maybeStartListenForLayout();
-            }
-        }
-
-        private void maybeStartListenForLayout() {
-            if (mPreviewReady && mOffsetCalculated && mResolverDrawerLayout != null) {
-                if (mResolverDrawerLayout.isInLayout()) {
-                    startPostponedEnterTransition();
-                } else {
-                    mResolverDrawerLayout.addOnLayoutChangeListener(this);
-                    mResolverDrawerLayout.requestLayout();
-                }
-            }
-        }
-
-        @Override
-        public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
-                int oldTop, int oldRight, int oldBottom) {
-            v.removeOnLayoutChangeListener(this);
-            startPostponedEnterTransition();
         }
     }
 

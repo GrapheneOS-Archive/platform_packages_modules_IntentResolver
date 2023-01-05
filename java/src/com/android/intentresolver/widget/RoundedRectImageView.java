@@ -96,6 +96,7 @@ public class RoundedRectImageView extends ImageView {
         } else {
             this.mExtraImageCount = null;
         }
+        invalidate();
     }
 
     @Override
