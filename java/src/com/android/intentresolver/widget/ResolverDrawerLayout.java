@@ -89,8 +89,8 @@ public class ResolverDrawerLayout extends ViewGroup {
       * out of sync due to frequently dropping fractions of a pixel from '(int) dy' casts.
       */
     private float mDragRemainder = 0.0f;
+    private int mHeightUsed;
     private int mCollapsibleHeight;
-    private int mUncollapsibleHeight;
     private int mAlwaysShowHeight;
 
     /**
@@ -244,9 +244,7 @@ public class ResolverDrawerLayout extends ViewGroup {
             mLastTouchY -= dReserved;
         }
 
-        final int oldCollapsibleHeight = mCollapsibleHeight;
-        mCollapsibleHeight = Math.min(mCollapsibleHeight, getMaxCollapsedHeight());
-
+        final int oldCollapsibleHeight = updateCollapsibleHeight();
         if (updateCollapseOffset(oldCollapsibleHeight, !isDragging())) {
             return;
         }
@@ -485,7 +483,7 @@ public class ResolverDrawerLayout extends ViewGroup {
                     } else {
                         if (isDismissable()
                                 && yvel > 0 && mCollapseOffset > mCollapsibleHeight) {
-                            smoothScrollTo(mCollapsibleHeight + mUncollapsibleHeight, yvel);
+                            smoothScrollTo(mHeightUsed, yvel);
                             mDismissOnScrollerFinished = true;
                         } else {
                             scrollNestedScrollableChildBackToTop();
@@ -575,8 +573,7 @@ public class ResolverDrawerLayout extends ViewGroup {
             return 0;
         }
 
-        final float newPos = Math.max(0, Math.min(mCollapseOffset + dy,
-                mCollapsibleHeight + mUncollapsibleHeight));
+        final float newPos = Math.max(0, Math.min(mCollapseOffset + dy, mHeightUsed));
         if (newPos != mCollapseOffset) {
             dy = newPos - mCollapseOffset;
 
@@ -855,7 +852,7 @@ public class ResolverDrawerLayout extends ViewGroup {
             } else {
                 if (isDismissable()
                         && velocityY < 0 && mCollapseOffset > mCollapsibleHeight) {
-                    smoothScrollTo(mCollapsibleHeight + mUncollapsibleHeight, velocityY);
+                    smoothScrollTo(mHeightUsed, velocityY);
                     mDismissOnScrollerFinished = true;
                 } else {
                     smoothScrollTo(velocityY > 0 ? 0 : mCollapsibleHeight, velocityY);
@@ -883,9 +880,8 @@ public class ResolverDrawerLayout extends ViewGroup {
                 }
                 break;
             case AccessibilityNodeInfo.ACTION_DISMISS:
-                if ((mCollapseOffset < mCollapsibleHeight + mUncollapsibleHeight)
-                        && isDismissable()) {
-                    smoothScrollTo(mCollapsibleHeight + mUncollapsibleHeight, 0);
+                if ((mCollapseOffset < mHeightUsed) && isDismissable()) {
+                    smoothScrollTo(mHeightUsed, 0);
                     mDismissOnScrollerFinished = true;
                     return true;
                 }
@@ -923,7 +919,7 @@ public class ResolverDrawerLayout extends ViewGroup {
                 info.addAction(AccessibilityAction.ACTION_SCROLL_DOWN);
                 info.setScrollable(true);
             }
-            if ((mCollapseOffset < mCollapsibleHeight + mUncollapsibleHeight)
+            if ((mCollapseOffset < mHeightUsed)
                     && ((mCollapseOffset < mCollapsibleHeight) || isDismissable())) {
                 info.addAction(AccessibilityAction.ACTION_SCROLL_UP);
                 info.setScrollable(true);
@@ -931,7 +927,7 @@ public class ResolverDrawerLayout extends ViewGroup {
             if (mCollapseOffset < mCollapsibleHeight) {
                 info.addAction(AccessibilityAction.ACTION_COLLAPSE);
             }
-            if (mCollapseOffset < mCollapsibleHeight + mUncollapsibleHeight && isDismissable()) {
+            if (mCollapseOffset < mHeightUsed && isDismissable()) {
                 info.addAction(AccessibilityAction.ACTION_DISMISS);
             }
         }
@@ -1022,20 +1018,23 @@ public class ResolverDrawerLayout extends ViewGroup {
             }
         }
 
-        final int oldCollapsibleHeight = mCollapsibleHeight;
-        mCollapsibleHeight = Math.max(0,
-                heightUsed - mAlwaysShowHeight - getMaxCollapsedHeight());
-        mUncollapsibleHeight = heightUsed - mCollapsibleHeight;
-
+        mHeightUsed = heightUsed;
+        int oldCollapsibleHeight = updateCollapsibleHeight();
         updateCollapseOffset(oldCollapsibleHeight, !isDragging());
 
         if (getShowAtTop()) {
             mTopOffset = 0;
         } else {
-            mTopOffset = Math.max(0, heightSize - heightUsed) + (int) mCollapseOffset;
+            mTopOffset = Math.max(0, heightSize - mHeightUsed) + (int) mCollapseOffset;
         }
 
         setMeasuredDimension(sourceWidth, heightSize);
+    }
+
+    private int updateCollapsibleHeight() {
+        final int oldCollapsibleHeight = mCollapsibleHeight;
+        mCollapsibleHeight = Math.max(0, mHeightUsed - mAlwaysShowHeight - getMaxCollapsedHeight());
+        return oldCollapsibleHeight;
     }
 
     /**
