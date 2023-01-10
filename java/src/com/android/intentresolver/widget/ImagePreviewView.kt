@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 import java.util.function.Consumer
 import com.android.internal.R as IntR
 
-typealias ImageLoader = suspend (Uri) -> Bitmap?
+private typealias ImageLoader = suspend (Uri) -> Bitmap?
 
 private const val IMAGE_FADE_IN_MILLIS = 150L
 

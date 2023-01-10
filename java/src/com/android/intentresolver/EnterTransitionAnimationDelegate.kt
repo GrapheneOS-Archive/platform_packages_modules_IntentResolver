@@ -15,23 +15,30 @@
  */
 package com.android.intentresolver
 
-import android.app.Activity
 import android.app.SharedElementCallback
 import android.view.View
-import com.android.intentresolver.widget.ResolverDrawerLayout
+import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
+import com.android.internal.annotations.VisibleForTesting
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.function.Supplier
 
 /**
  * A helper class to track app's readiness for the scene transition animation.
  * The app is ready when both the image is laid out and the drawer offset is calculated.
  */
-internal class EnterTransitionAnimationDelegate(
-    private val activity: Activity,
-    private val resolverDrawerLayoutSupplier: Supplier<ResolverDrawerLayout?>
+@VisibleForTesting
+class EnterTransitionAnimationDelegate(
+    private val activity: ComponentActivity,
+    private val transitionTargetSupplier: Supplier<View?>,
 ) : View.OnLayoutChangeListener {
+
     private var removeSharedElements = false
     private var previewReady = false
     private var offsetCalculated = false
+    private var timeoutJob: Job? = null
 
     init {
         activity.setEnterSharedElementCallback(
@@ -46,9 +53,23 @@ internal class EnterTransitionAnimationDelegate(
             })
     }
 
-    fun postponeTransition() = activity.postponeEnterTransition()
+    fun postponeTransition() {
+        activity.postponeEnterTransition()
+        timeoutJob = activity.lifecycleScope.launch {
+            delay(activity.resources.getInteger(R.integer.config_shortAnimTime).toLong())
+            onTimeout()
+        }
+    }
+
+    private fun onTimeout() {
+        // We only mark the preview readiness and not the offset readiness
+        // (see [#markOffsetCalculated()]) as this is what legacy logic, effectively, did. We might
+        // want to review that aspect separately.
+        markImagePreviewReady(runTransitionAnimation = false)
+    }
 
     fun markImagePreviewReady(runTransitionAnimation: Boolean) {
+        timeoutJob?.cancel()
         if (!runTransitionAnimation) {
             removeSharedElements = true
         }
@@ -77,7 +98,7 @@ internal class EnterTransitionAnimationDelegate(
     }
 
     private fun maybeStartListenForLayout() {
-        val drawer = resolverDrawerLayoutSupplier.get()
+        val drawer = transitionTargetSupplier.get()
         if (previewReady && offsetCalculated && drawer != null) {
             if (drawer.isInLayout) {
                 startPostponedEnterTransition()
