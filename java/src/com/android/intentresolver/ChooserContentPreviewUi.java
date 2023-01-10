@@ -72,21 +72,6 @@ public final class ChooserContentPreviewUi {
     private static final int IMAGE_FADE_IN_MILLIS = 150;
 
     /**
-     * Delegate to handle background resource loads that are dependencies of content previews.
-     */
-    public interface ContentPreviewCoordinator {
-        /**
-         * Request that an image be loaded in the background and set into a view.
-         *
-         * @param imageUri The {@link Uri} of the image to load.
-         *
-         * TODO: it looks like clients are probably capable of passing the view directly, but the
-         * deferred computation here is a closer match to the legacy model for now.
-         */
-        void loadImage(Uri imageUri, Consumer<Bitmap> callback);
-    }
-
-    /**
      * Delegate to build the default system action buttons to display in the preview layout, if/when
      * they're determined to be appropriate for the particular preview we display.
      * TODO: clarify why action buttons are part of preview logic.
@@ -184,7 +169,7 @@ public final class ChooserContentPreviewUi {
             ActionFactory actionFactory,
             @LayoutRes int actionRowLayout,
             ViewGroup parent,
-            ContentPreviewCoordinator previewCoord,
+            ImageLoader previewImageLoader,
             Consumer<Boolean> onTransitionTargetReady,
             ContentResolver contentResolver,
             ImageMimeTypeClassifier imageClassifier) {
@@ -200,7 +185,7 @@ public final class ChooserContentPreviewUi {
                                 createTextPreviewActions(actionFactory),
                                 customActions),
                         parent,
-                        previewCoord,
+                        previewImageLoader,
                         actionRowLayout);
                 break;
             case CONTENT_PREVIEW_IMAGE:
@@ -211,7 +196,7 @@ public final class ChooserContentPreviewUi {
                                 createImagePreviewActions(actionFactory),
                                 customActions),
                         parent,
-                        previewCoord,
+                        previewImageLoader,
                         onTransitionTargetReady,
                         contentResolver,
                         imageClassifier,
@@ -226,7 +211,7 @@ public final class ChooserContentPreviewUi {
                                 createFilePreviewActions(actionFactory),
                                 customActions),
                         parent,
-                        previewCoord,
+                        previewImageLoader,
                         contentResolver,
                         actionRowLayout);
                 break;
@@ -268,7 +253,7 @@ public final class ChooserContentPreviewUi {
             LayoutInflater layoutInflater,
             List<ActionRow.Action> actions,
             ViewGroup parent,
-            ContentPreviewCoordinator previewCoord,
+            ImageLoader previewImageLoader,
             @LayoutRes int actionRowLayout) {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_text, parent, false);
@@ -313,7 +298,7 @@ public final class ChooserContentPreviewUi {
             if (previewThumbnail == null) {
                 previewThumbnailView.setVisibility(View.GONE);
             } else {
-                previewCoord.loadImage(
+                previewImageLoader.loadImage(
                         previewThumbnail,
                         (bitmap) -> updateViewWithImage(
                                 contentPreviewLayout.findViewById(
@@ -340,7 +325,7 @@ public final class ChooserContentPreviewUi {
             LayoutInflater layoutInflater,
             List<ActionRow.Action> actions,
             ViewGroup parent,
-            ContentPreviewCoordinator previewCoord,
+            ImageLoader imageLoader,
             Consumer<Boolean> onTransitionTargetReady,
             ContentResolver contentResolver,
             ImageMimeTypeClassifier imageClassifier,
@@ -355,7 +340,6 @@ public final class ChooserContentPreviewUi {
             actionRow.setActions(actions);
         }
 
-        final ImagePreviewImageLoader imageLoader = new ImagePreviewImageLoader(previewCoord);
         final ArrayList<Uri> imageUris = new ArrayList<>();
         String action = targetIntent.getAction();
         if (Intent.ACTION_SEND.equals(action)) {
@@ -408,59 +392,74 @@ public final class ChooserContentPreviewUi {
             LayoutInflater layoutInflater,
             List<ActionRow.Action> actions,
             ViewGroup parent,
-            ContentPreviewCoordinator previewCoord,
+            ImageLoader imageLoader,
             ContentResolver contentResolver,
             @LayoutRes int actionRowLayout) {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_file, parent, false);
+
+        List<Uri> uris = extractFileUris(targetIntent);
+        final int uriCount = uris.size();
+
+        if (uriCount == 0) {
+            contentPreviewLayout.setVisibility(View.GONE);
+            Log.i(TAG,
+                    "Appears to be no uris available in EXTRA_STREAM, removing "
+                            + "preview area");
+            return contentPreviewLayout;
+        }
+
+        if (uriCount == 1) {
+            loadFileUriIntoView(uris.get(0), contentPreviewLayout, imageLoader, contentResolver);
+        } else {
+            FileInfo fileInfo = extractFileInfo(uris.get(0), contentResolver);
+            int remUriCount = uriCount - 1;
+            Map<String, Object> arguments = new HashMap<>();
+            arguments.put(PLURALS_COUNT, remUriCount);
+            arguments.put(PLURALS_FILE_NAME, fileInfo.name);
+            String fileName =
+                    PluralsMessageFormatter.format(resources, arguments, R.string.file_count);
+
+            TextView fileNameView = contentPreviewLayout.findViewById(
+                    com.android.internal.R.id.content_preview_filename);
+            fileNameView.setText(fileName);
+
+            View thumbnailView = contentPreviewLayout.findViewById(
+                    com.android.internal.R.id.content_preview_file_thumbnail);
+            thumbnailView.setVisibility(View.GONE);
+
+            ImageView fileIconView = contentPreviewLayout.findViewById(
+                    com.android.internal.R.id.content_preview_file_icon);
+            fileIconView.setVisibility(View.VISIBLE);
+            fileIconView.setImageResource(R.drawable.ic_file_copy);
+        }
 
         final ActionRow actionRow = inflateActionRow(contentPreviewLayout, actionRowLayout);
         if (actionRow != null) {
             actionRow.setActions(actions);
         }
 
-        String action = targetIntent.getAction();
-        if (Intent.ACTION_SEND.equals(action)) {
+        return contentPreviewLayout;
+    }
+
+    private static List<Uri> extractFileUris(Intent targetIntent) {
+        List<Uri> uris = new ArrayList<>();
+        if (Intent.ACTION_SEND.equals(targetIntent.getAction())) {
             Uri uri = targetIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-            loadFileUriIntoView(uri, contentPreviewLayout, previewCoord, contentResolver);
+            if (uri != null) {
+                uris.add(uri);
+            }
         } else {
-            List<Uri> uris = targetIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            int uriCount = uris.size();
-
-            if (uriCount == 0) {
-                contentPreviewLayout.setVisibility(View.GONE);
-                Log.i(TAG,
-                        "Appears to be no uris available in EXTRA_STREAM, removing "
-                                + "preview area");
-                return contentPreviewLayout;
-            } else if (uriCount == 1) {
-                loadFileUriIntoView(
-                        uris.get(0), contentPreviewLayout, previewCoord, contentResolver);
-            } else {
-                FileInfo fileInfo = extractFileInfo(uris.get(0), contentResolver);
-                int remUriCount = uriCount - 1;
-                Map<String, Object> arguments = new HashMap<>();
-                arguments.put(PLURALS_COUNT, remUriCount);
-                arguments.put(PLURALS_FILE_NAME, fileInfo.name);
-                String fileName =
-                        PluralsMessageFormatter.format(resources, arguments, R.string.file_count);
-
-                TextView fileNameView = contentPreviewLayout.findViewById(
-                        com.android.internal.R.id.content_preview_filename);
-                fileNameView.setText(fileName);
-
-                View thumbnailView = contentPreviewLayout.findViewById(
-                        com.android.internal.R.id.content_preview_file_thumbnail);
-                thumbnailView.setVisibility(View.GONE);
-
-                ImageView fileIconView = contentPreviewLayout.findViewById(
-                        com.android.internal.R.id.content_preview_file_icon);
-                fileIconView.setVisibility(View.VISIBLE);
-                fileIconView.setImageResource(R.drawable.ic_file_copy);
+            List<Uri> receivedUris = targetIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+            if (receivedUris != null) {
+                for (Uri uri : receivedUris) {
+                    if (uri != null) {
+                        uris.add(uri);
+                    }
+                }
             }
         }
-
-        return contentPreviewLayout;
+        return uris;
     }
 
     private static List<ActionRow.Action> createFilePreviewActions(ActionFactory actionFactory) {
@@ -494,7 +493,7 @@ public final class ChooserContentPreviewUi {
     private static void loadFileUriIntoView(
             final Uri uri,
             final View parent,
-            final ContentPreviewCoordinator previewCoord,
+            final ImageLoader imageLoader,
             final ContentResolver contentResolver) {
         FileInfo fileInfo = extractFileInfo(uri, contentResolver);
 
@@ -503,7 +502,7 @@ public final class ChooserContentPreviewUi {
         fileNameView.setText(fileInfo.name);
 
         if (fileInfo.hasThumbnail) {
-            previewCoord.loadImage(
+            imageLoader.loadImage(
                     uri,
                     (bitmap) -> updateViewWithImage(
                             parent.findViewById(

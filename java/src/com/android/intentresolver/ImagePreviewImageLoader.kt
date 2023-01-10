@@ -16,23 +16,42 @@
 
 package com.android.intentresolver
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import kotlinx.coroutines.suspendCancellableCoroutine
+import android.util.Size
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.coroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.function.Consumer
 
-// TODO: convert ChooserContentPreviewCoordinator to Kotlin and merge this class into it.
-internal class ImagePreviewImageLoader(
-    private val previewCoordinator: ChooserContentPreviewUi.ContentPreviewCoordinator
-) : suspend (Uri) -> Bitmap? {
+internal class ImagePreviewImageLoader @JvmOverloads constructor(
+    private val context: Context,
+    private val lifecycle: Lifecycle,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) : ImageLoader {
 
-    override suspend fun invoke(uri: Uri): Bitmap? =
-        suspendCancellableCoroutine { continuation ->
-            val callback = java.util.function.Consumer<Bitmap?> { bitmap ->
-                try {
-                    continuation.resumeWith(Result.success(bitmap))
-                } catch (ignored: Exception) {
-                }
+    override suspend fun invoke(uri: Uri): Bitmap? = loadImageAsync(uri)
+
+    override fun loadImage(uri: Uri, callback: Consumer<Bitmap?>) {
+        lifecycle.coroutineScope.launch {
+            val image = loadImageAsync(uri)
+            if (isActive) {
+                callback.accept(image)
             }
-            previewCoordinator.loadImage(uri, callback)
         }
+    }
+
+    private suspend fun loadImageAsync(uri: Uri): Bitmap? {
+        val size = context.resources.getDimensionPixelSize(R.dimen.chooser_preview_image_max_dimen)
+        return withContext(dispatcher) {
+            runCatching {
+                context.contentResolver.loadThumbnail(uri, Size(size, size), null)
+            }.getOrNull()
+        }
+    }
 }
