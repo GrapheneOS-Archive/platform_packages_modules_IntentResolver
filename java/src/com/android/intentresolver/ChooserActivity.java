@@ -32,6 +32,7 @@ import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
+import android.app.PendingIntent;
 import android.app.prediction.AppPredictor;
 import android.app.prediction.AppTarget;
 import android.app.prediction.AppTargetEvent;
@@ -70,6 +71,7 @@ import android.os.UserManager;
 import android.os.storage.StorageManager;
 import android.provider.DeviceConfig;
 import android.provider.Settings;
+import android.service.chooser.ChooserAction;
 import android.service.chooser.ChooserTarget;
 import android.text.TextUtils;
 import android.util.Log;
@@ -111,6 +113,8 @@ import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.content.PackageMonitor;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.util.FrameworkStatsLog;
+
+import com.google.common.collect.ImmutableList;
 
 import java.io.File;
 import java.io.IOException;
@@ -158,6 +162,7 @@ public class ChooserActivity extends ResolverActivity implements
     private static final String CHIP_ICON_METADATA_KEY = "android.service.chooser.chip_icon";
 
     private static final boolean DEBUG = true;
+    static final boolean ENABLE_CUSTOM_ACTIONS = false;
 
     public static final String LAUNCH_LOCATION_DIRECT_SHARE = "direct_share";
     private static final String SHORTCUT_TARGET = "shortcut_target";
@@ -265,7 +270,7 @@ public class ChooserActivity extends ResolverActivity implements
 
         try {
             mChooserRequest = new ChooserRequestParameters(
-                    getIntent(), getReferrer(), getNearbySharingComponent());
+                    getIntent(), getReferrer(), getNearbySharingComponent(), ENABLE_CUSTOM_ACTIONS);
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "Caller provided invalid Chooser request parameters", e);
             finish();
@@ -732,6 +737,20 @@ public class ChooserActivity extends ResolverActivity implements
                     public ActionRow.Action createNearbyButton() {
                         return ChooserActivity.this.createNearbyAction(targetIntent);
                     }
+
+                    @Override
+                    public List<ActionRow.Action> createCustomActions() {
+                        ImmutableList<ChooserAction> customActions =
+                                mChooserRequest.getChooserActions();
+                        List<ActionRow.Action> actions = new ArrayList<>(customActions.size());
+                        for (ChooserAction customAction : customActions) {
+                            ActionRow.Action action = createCustomAction(customAction);
+                            if (action != null) {
+                                actions.add(action);
+                            }
+                        }
+                        return actions;
+                    }
                 };
 
         ViewGroup layout = ChooserContentPreviewUi.displayContentPreview(
@@ -740,7 +759,9 @@ public class ChooserActivity extends ResolverActivity implements
                 getResources(),
                 getLayoutInflater(),
                 actionFactory,
-                R.layout.chooser_action_row,
+                ENABLE_CUSTOM_ACTIONS
+                        ? R.layout.scrollable_chooser_action_row
+                        : R.layout.chooser_action_row,
                 parent,
                 previewCoordinator,
                 mEnterTransitionAnimationDelegate::markImagePreviewReady,
@@ -923,6 +944,28 @@ public class ChooserActivity extends ResolverActivity implements
                                 ti, getPersonalProfileUserHandle(), options.toBundle());
                         startFinishAnimation();
                     }
+                }
+        );
+    }
+
+    @Nullable
+    private ActionRow.Action createCustomAction(ChooserAction action) {
+        Drawable icon = action.getIcon().loadDrawable(this);
+        if (icon == null && TextUtils.isEmpty(action.getLabel())) {
+            return null;
+        }
+        return new ActionRow.Action(
+                action.getLabel(),
+                icon,
+                () -> {
+                    try {
+                        action.getAction().send();
+                    } catch (PendingIntent.CanceledException e) {
+                        Log.d(TAG, "Custom action, " + action.getLabel() + ", has been cancelled");
+                    }
+                    // TODO: add reporting
+                    setResult(RESULT_OK);
+                    finish();
                 }
         );
     }
