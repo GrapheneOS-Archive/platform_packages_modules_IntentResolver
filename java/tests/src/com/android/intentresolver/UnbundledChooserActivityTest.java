@@ -55,13 +55,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.app.PendingIntent;
 import android.app.usage.UsageStatsManager;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -69,6 +72,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager.ShareShortcutInfo;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -79,6 +83,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.provider.DeviceConfig;
+import android.service.chooser.ChooserAction;
 import android.service.chooser.ChooserTarget;
 import android.util.HashedStringCache;
 import android.util.Pair;
@@ -117,6 +122,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -1662,6 +1668,61 @@ public class UnbundledChooserActivityTest {
                 "The display label must match",
                 activeAdapter.getItem(0).getDisplayLabel(),
                 is(callerTargetLabel));
+    }
+
+    @Test
+    public void testLaunchWithCustomAction() throws InterruptedException {
+        if (!ChooserActivity.ENABLE_CUSTOM_ACTIONS) {
+            return;
+        }
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+        when(
+                ChooserActivityOverrideData
+                        .getInstance()
+                        .resolverListController
+                        .getResolversForIntent(
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.isA(List.class)))
+                .thenReturn(resolvedComponentInfos);
+
+        Context testContext = InstrumentationRegistry.getInstrumentation().getContext();
+        final String customActionLabel = "Custom Action";
+        final String testAction = "test-broadcast-receiver-action";
+        Intent chooserIntent = Intent.createChooser(createSendTextIntent(), null);
+        chooserIntent.putExtra(
+                Intent.EXTRA_CHOOSER_CUSTOM_ACTIONS,
+                new ChooserAction[] {
+                        new ChooserAction.Builder(
+                                Icon.createWithResource("", Resources.ID_NULL),
+                                customActionLabel,
+                                PendingIntent.getBroadcast(
+                                        testContext,
+                                        123,
+                                        new Intent(testAction),
+                                        PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT))
+                                .build()
+                });
+        // Start activity
+        mActivityRule.launchActivity(chooserIntent);
+        waitForIdle();
+
+        final CountDownLatch broadcastInvoked = new CountDownLatch(1);
+        BroadcastReceiver testReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                broadcastInvoked.countDown();
+            }
+        };
+        testContext.registerReceiver(testReceiver, new IntentFilter(testAction));
+
+        try {
+            onView(withText(customActionLabel)).perform(click());
+            broadcastInvoked.await();
+        } finally {
+            testContext.unregisterReceiver(testReceiver);
+        }
     }
 
     @Test
