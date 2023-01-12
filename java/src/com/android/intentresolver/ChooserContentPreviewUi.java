@@ -358,7 +358,7 @@ public final class ChooserContentPreviewUi {
         if (imageUris.size() == 0) {
             Log.i(TAG, "Attempted to display image preview area with zero"
                     + " available images detected in EXTRA_STREAM list");
-            imagePreview.setVisibility(View.GONE);
+            ((View) imagePreview).setVisibility(View.GONE);
             onTransitionTargetReady.accept(false);
             return contentPreviewLayout;
         }
