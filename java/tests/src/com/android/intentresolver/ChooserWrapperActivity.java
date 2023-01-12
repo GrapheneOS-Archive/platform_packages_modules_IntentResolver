@@ -30,10 +30,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.UserHandle;
-import android.util.Size;
 
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
@@ -208,11 +206,10 @@ public class ChooserWrapperActivity
     }
 
     @Override
-    protected Bitmap loadThumbnail(Uri uri, Size size) {
-        if (sOverrides.previewThumbnail != null) {
-            return sOverrides.previewThumbnail;
-        }
-        return super.loadThumbnail(uri, size);
+    protected ImageLoader createPreviewImageLoader() {
+        return new TestPreviewImageLoader(
+                super.createPreviewImageLoader(),
+                () -> sOverrides.previewThumbnail);
     }
 
     @Override
