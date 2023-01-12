@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver;
+package com.android.intentresolver.model;
 
 import static android.app.prediction.AppTargetEvent.ACTION_LAUNCH;
 
@@ -31,6 +31,7 @@ import android.os.Message;
 import android.os.UserHandle;
 import android.util.Log;
 
+import com.android.intentresolver.ChooserActivityLogger;
 import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ import java.util.concurrent.Executors;
  * disabled by returning an empty sorted target list, {@link AppPredictionServiceResolverComparator}
  * will fallback to using a {@link ResolverRankerServiceResolverComparator}.
  */
-class AppPredictionServiceResolverComparator extends AbstractResolverComparator {
+public class AppPredictionServiceResolverComparator extends AbstractResolverComparator {
 
     private static final String TAG = "APSResolverComparator";
 
@@ -62,7 +63,7 @@ class AppPredictionServiceResolverComparator extends AbstractResolverComparator 
     private ResolverRankerServiceResolverComparator mResolverRankerService;
     private AppPredictionServiceComparatorModel mComparatorModel;
 
-    AppPredictionServiceResolverComparator(
+    public AppPredictionServiceResolverComparator(
             Context context,
             Intent intent,
             String referrerPackage,
@@ -166,17 +167,17 @@ class AppPredictionServiceResolverComparator extends AbstractResolverComparator 
     }
 
     @Override
-    float getScore(ComponentName name) {
+    public float getScore(ComponentName name) {
         return mComparatorModel.getScore(name);
     }
 
     @Override
-    void updateModel(ComponentName componentName) {
+    public void updateModel(ComponentName componentName) {
         mComparatorModel.notifyOnTargetSelected(componentName);
     }
 
     @Override
-    void destroy() {
+    public void destroy() {
         if (mResolverRankerService != null) {
             mResolverRankerService.destroy();
             mResolverRankerService = null;

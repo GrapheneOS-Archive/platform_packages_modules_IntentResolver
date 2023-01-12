@@ -16,306 +16,159 @@
 
 package com.android.intentresolver;
 
-import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_ACCESS_PERSONAL;
-import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_ACCESS_WORK;
-import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_SHARE_WITH_PERSONAL;
-import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_SHARE_WITH_WORK;
-import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CROSS_PROFILE_BLOCKED_TITLE;
-import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_NO_PERSONAL_APPS;
-import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_NO_WORK_APPS;
-import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_WORK_PAUSED_TITLE;
-
-import android.annotation.Nullable;
-import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.os.UserHandle;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.PagerAdapter;
+
+import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.widget.GridLayoutManager;
-import com.android.internal.widget.PagerAdapter;
-import com.android.internal.widget.RecyclerView;
+
+import com.google.common.collect.ImmutableList;
+
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * A {@link PagerAdapter} which describes the work and personal profile share sheet screens.
  */
 @VisibleForTesting
-public class ChooserMultiProfilePagerAdapter extends AbstractMultiProfilePagerAdapter {
+public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAdapter<
+        RecyclerView, ChooserGridAdapter, ChooserListAdapter> {
     private static final int SINGLE_CELL_SPAN_SIZE = 1;
 
-    private final ChooserProfileDescriptor[] mItems;
-    private final boolean mIsSendAction;
-    private int mBottomOffset;
-    private int mMaxTargetsPerRow;
+    private final ChooserProfileAdapterBinder mAdapterBinder;
+    private final BottomPaddingOverrideSupplier mBottomPaddingOverrideSupplier;
 
-    ChooserMultiProfilePagerAdapter(Context context,
-            ChooserActivity.ChooserGridAdapter adapter,
-            UserHandle personalProfileUserHandle,
+    ChooserMultiProfilePagerAdapter(
+            Context context,
+            ChooserGridAdapter adapter,
+            EmptyStateProvider emptyStateProvider,
+            QuietModeManager quietModeManager,
             UserHandle workProfileUserHandle,
-            boolean isSendAction, int maxTargetsPerRow) {
-        super(context, /* currentPage */ 0, personalProfileUserHandle, workProfileUserHandle);
-        mItems = new ChooserProfileDescriptor[] {
-                createProfileDescriptor(adapter)
-        };
-        mIsSendAction = isSendAction;
-        mMaxTargetsPerRow = maxTargetsPerRow;
+            int maxTargetsPerRow) {
+        this(
+                context,
+                new ChooserProfileAdapterBinder(maxTargetsPerRow),
+                ImmutableList.of(adapter),
+                emptyStateProvider,
+                quietModeManager,
+                /* defaultProfile= */ 0,
+                workProfileUserHandle,
+                new BottomPaddingOverrideSupplier(context));
     }
 
-    ChooserMultiProfilePagerAdapter(Context context,
-            ChooserActivity.ChooserGridAdapter personalAdapter,
-            ChooserActivity.ChooserGridAdapter workAdapter,
+    ChooserMultiProfilePagerAdapter(
+            Context context,
+            ChooserGridAdapter personalAdapter,
+            ChooserGridAdapter workAdapter,
+            EmptyStateProvider emptyStateProvider,
+            QuietModeManager quietModeManager,
             @Profile int defaultProfile,
-            UserHandle personalProfileUserHandle,
             UserHandle workProfileUserHandle,
-            boolean isSendAction, int maxTargetsPerRow) {
-        super(context, /* currentPage */ defaultProfile, personalProfileUserHandle,
-                workProfileUserHandle);
-        mItems = new ChooserProfileDescriptor[] {
-                createProfileDescriptor(personalAdapter),
-                createProfileDescriptor(workAdapter)
-        };
-        mIsSendAction = isSendAction;
-        mMaxTargetsPerRow = maxTargetsPerRow;
+            int maxTargetsPerRow) {
+        this(
+                context,
+                new ChooserProfileAdapterBinder(maxTargetsPerRow),
+                ImmutableList.of(personalAdapter, workAdapter),
+                emptyStateProvider,
+                quietModeManager,
+                defaultProfile,
+                workProfileUserHandle,
+                new BottomPaddingOverrideSupplier(context));
     }
 
-    private ChooserProfileDescriptor createProfileDescriptor(
-            ChooserActivity.ChooserGridAdapter adapter) {
-        final LayoutInflater inflater = LayoutInflater.from(getContext());
-        final ViewGroup rootView =
-                (ViewGroup) inflater.inflate(R.layout.chooser_list_per_profile, null, false);
-        ChooserProfileDescriptor profileDescriptor =
-                new ChooserProfileDescriptor(rootView, adapter);
-        profileDescriptor.recyclerView.setAccessibilityDelegateCompat(
-                new ChooserRecyclerViewAccessibilityDelegate(profileDescriptor.recyclerView));
-        return profileDescriptor;
+    private ChooserMultiProfilePagerAdapter(
+            Context context,
+            ChooserProfileAdapterBinder adapterBinder,
+            ImmutableList<ChooserGridAdapter> gridAdapters,
+            EmptyStateProvider emptyStateProvider,
+            QuietModeManager quietModeManager,
+            @Profile int defaultProfile,
+            UserHandle workProfileUserHandle,
+            BottomPaddingOverrideSupplier bottomPaddingOverrideSupplier) {
+        super(
+                context,
+                        gridAdapter -> gridAdapter.getListAdapter(),
+                adapterBinder,
+                gridAdapters,
+                emptyStateProvider,
+                quietModeManager,
+                defaultProfile,
+                workProfileUserHandle,
+                        () -> makeProfileView(context),
+                bottomPaddingOverrideSupplier);
+        mAdapterBinder = adapterBinder;
+        mBottomPaddingOverrideSupplier = bottomPaddingOverrideSupplier;
     }
 
     public void setMaxTargetsPerRow(int maxTargetsPerRow) {
-        mMaxTargetsPerRow = maxTargetsPerRow;
+        mAdapterBinder.setMaxTargetsPerRow(maxTargetsPerRow);
     }
 
-    RecyclerView getListViewForIndex(int index) {
-        return getItem(index).recyclerView;
+    public void setEmptyStateBottomOffset(int bottomOffset) {
+        mBottomPaddingOverrideSupplier.setEmptyStateBottomOffset(bottomOffset);
     }
 
-    @Override
-    ChooserProfileDescriptor getItem(int pageIndex) {
-        return mItems[pageIndex];
+    private static ViewGroup makeProfileView(Context context) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(
+                R.layout.chooser_list_per_profile, null, false);
+        RecyclerView recyclerView = rootView.findViewById(com.android.internal.R.id.resolver_list);
+        recyclerView.setAccessibilityDelegateCompat(
+                new ChooserRecyclerViewAccessibilityDelegate(recyclerView));
+        return rootView;
     }
 
-    @Override
-    int getItemCount() {
-        return mItems.length;
-    }
+    private static class BottomPaddingOverrideSupplier implements Supplier<Optional<Integer>> {
+        private final Context mContext;
+        private int mBottomOffset;
 
-    @Override
-    @VisibleForTesting
-    public ChooserActivity.ChooserGridAdapter getAdapterForIndex(int pageIndex) {
-        return mItems[pageIndex].chooserGridAdapter;
-    }
-
-    @Override
-    @Nullable
-    ChooserListAdapter getListAdapterForUserHandle(UserHandle userHandle) {
-        if (getActiveListAdapter().getUserHandle().equals(userHandle)) {
-            return getActiveListAdapter();
-        } else if (getInactiveListAdapter() != null
-                && getInactiveListAdapter().getUserHandle().equals(userHandle)) {
-            return getInactiveListAdapter();
+        BottomPaddingOverrideSupplier(Context context) {
+            mContext = context;
         }
-        return null;
-    }
 
-    @Override
-    void setupListAdapter(int pageIndex) {
-        final RecyclerView recyclerView = getItem(pageIndex).recyclerView;
-        ChooserActivity.ChooserGridAdapter chooserGridAdapter =
-                getItem(pageIndex).chooserGridAdapter;
-        GridLayoutManager glm = (GridLayoutManager) recyclerView.getLayoutManager();
-        glm.setSpanCount(mMaxTargetsPerRow);
-        glm.setSpanSizeLookup(
-                new GridLayoutManager.SpanSizeLookup() {
-                    @Override
-                    public int getSpanSize(int position) {
-                        return chooserGridAdapter.shouldCellSpan(position)
-                                ? SINGLE_CELL_SPAN_SIZE
-                                : glm.getSpanCount();
-                    }
-                });
-    }
-
-    @Override
-    @VisibleForTesting
-    public ChooserListAdapter getActiveListAdapter() {
-        return getAdapterForIndex(getCurrentPage()).getListAdapter();
-    }
-
-    @Override
-    @VisibleForTesting
-    public ChooserListAdapter getInactiveListAdapter() {
-        if (getCount() == 1) {
-            return null;
+        public void setEmptyStateBottomOffset(int bottomOffset) {
+            mBottomOffset = bottomOffset;
         }
-        return getAdapterForIndex(1 - getCurrentPage()).getListAdapter();
-    }
 
-    @Override
-    public ResolverListAdapter getPersonalListAdapter() {
-        return getAdapterForIndex(PROFILE_PERSONAL).getListAdapter();
-    }
-
-    @Override
-    @Nullable
-    public ResolverListAdapter getWorkListAdapter() {
-        return getAdapterForIndex(PROFILE_WORK).getListAdapter();
-    }
-
-    @Override
-    ChooserActivity.ChooserGridAdapter getCurrentRootAdapter() {
-        return getAdapterForIndex(getCurrentPage());
-    }
-
-    @Override
-    RecyclerView getActiveAdapterView() {
-        return getListViewForIndex(getCurrentPage());
-    }
-
-    @Override
-    @Nullable
-    RecyclerView getInactiveAdapterView() {
-        if (getCount() == 1) {
-            return null;
-        }
-        return getListViewForIndex(1 - getCurrentPage());
-    }
-
-    @Override
-    String getMetricsCategory() {
-        return ResolverActivity.METRICS_CATEGORY_CHOOSER;
-    }
-
-    @Override
-    protected void showWorkProfileOffEmptyState(ResolverListAdapter activeListAdapter,
-            View.OnClickListener listener) {
-        showEmptyState(activeListAdapter,
-                getWorkAppPausedTitle(),
-                /* subtitle = */ null,
-                listener);
-    }
-
-    @Override
-    protected void showNoPersonalToWorkIntentsEmptyState(ResolverListAdapter activeListAdapter) {
-        if (mIsSendAction) {
-            showEmptyState(activeListAdapter,
-                    getCrossProfileBlockedTitle(),
-                    getCantShareWithWorkMessage());
-        } else {
-            showEmptyState(activeListAdapter,
-                    getCrossProfileBlockedTitle(),
-                    getCantAccessWorkMessage());
+        public Optional<Integer> get() {
+            int initialBottomPadding = mContext.getResources().getDimensionPixelSize(
+                    R.dimen.resolver_empty_state_container_padding_bottom);
+            return Optional.of(initialBottomPadding + mBottomOffset);
         }
     }
 
-    @Override
-    protected void showNoWorkToPersonalIntentsEmptyState(ResolverListAdapter activeListAdapter) {
-        if (mIsSendAction) {
-            showEmptyState(activeListAdapter,
-                    getCrossProfileBlockedTitle(),
-                    getCantShareWithPersonalMessage());
-        } else {
-            showEmptyState(activeListAdapter,
-                    getCrossProfileBlockedTitle(),
-                    getCantAccessPersonalMessage());
+    private static class ChooserProfileAdapterBinder implements
+            AdapterBinder<RecyclerView, ChooserGridAdapter> {
+        private int mMaxTargetsPerRow;
+
+        ChooserProfileAdapterBinder(int maxTargetsPerRow) {
+            mMaxTargetsPerRow = maxTargetsPerRow;
         }
-    }
 
-    @Override
-    protected void showNoPersonalAppsAvailableEmptyState(ResolverListAdapter listAdapter) {
-        showEmptyState(listAdapter, getNoPersonalAppsAvailableMessage(), /* subtitle= */ null);
+        public void setMaxTargetsPerRow(int maxTargetsPerRow) {
+            mMaxTargetsPerRow = maxTargetsPerRow;
+        }
 
-    }
-
-    @Override
-    protected void showNoWorkAppsAvailableEmptyState(ResolverListAdapter listAdapter) {
-        showEmptyState(listAdapter, getNoWorkAppsAvailableMessage(), /* subtitle = */ null);
-    }
-
-    private String getWorkAppPausedTitle() {
-        return getContext().getSystemService(DevicePolicyManager.class).getResources().getString(
-                RESOLVER_WORK_PAUSED_TITLE,
-                () -> getContext().getString(R.string.resolver_turn_on_work_apps));
-    }
-
-    private String getCrossProfileBlockedTitle() {
-        return getContext().getSystemService(DevicePolicyManager.class).getResources().getString(
-                RESOLVER_CROSS_PROFILE_BLOCKED_TITLE,
-                () -> getContext().getString(R.string.resolver_cross_profile_blocked));
-    }
-
-    private String getCantShareWithWorkMessage() {
-        return getContext().getSystemService(DevicePolicyManager.class).getResources().getString(
-                RESOLVER_CANT_SHARE_WITH_WORK,
-                () -> getContext().getString(
-                        R.string.resolver_cant_share_with_work_apps_explanation));
-    }
-
-    private String getCantShareWithPersonalMessage() {
-        return getContext().getSystemService(DevicePolicyManager.class).getResources().getString(
-                RESOLVER_CANT_SHARE_WITH_PERSONAL,
-                () -> getContext().getString(
-                        R.string.resolver_cant_share_with_personal_apps_explanation));
-    }
-
-    private String getCantAccessWorkMessage() {
-        return getContext().getSystemService(DevicePolicyManager.class).getResources().getString(
-                RESOLVER_CANT_ACCESS_WORK,
-                () -> getContext().getString(
-                        R.string.resolver_cant_access_work_apps_explanation));
-    }
-
-    private String getCantAccessPersonalMessage() {
-        return getContext().getSystemService(DevicePolicyManager.class).getResources().getString(
-                RESOLVER_CANT_ACCESS_PERSONAL,
-                () -> getContext().getString(
-                        R.string.resolver_cant_access_personal_apps_explanation));
-    }
-
-    private String getNoWorkAppsAvailableMessage() {
-        return getContext().getSystemService(DevicePolicyManager.class).getResources().getString(
-                RESOLVER_NO_WORK_APPS,
-                () -> getContext().getString(
-                        R.string.resolver_no_work_apps_available));
-    }
-
-    private String getNoPersonalAppsAvailableMessage() {
-        return getContext().getSystemService(DevicePolicyManager.class).getResources().getString(
-                RESOLVER_NO_PERSONAL_APPS,
-                () -> getContext().getString(
-                        R.string.resolver_no_personal_apps_available));
-    }
-
-
-    void setEmptyStateBottomOffset(int bottomOffset) {
-        mBottomOffset = bottomOffset;
-    }
-
-    @Override
-    protected void setupContainerPadding(View container) {
-        int initialBottomPadding = getContext().getResources().getDimensionPixelSize(
-                R.dimen.resolver_empty_state_container_padding_bottom);
-        container.setPadding(container.getPaddingLeft(), container.getPaddingTop(),
-                container.getPaddingRight(), initialBottomPadding + mBottomOffset);
-    }
-
-    class ChooserProfileDescriptor extends ProfileDescriptor {
-        private ChooserActivity.ChooserGridAdapter chooserGridAdapter;
-        private RecyclerView recyclerView;
-        ChooserProfileDescriptor(ViewGroup rootView, ChooserActivity.ChooserGridAdapter adapter) {
-            super(rootView);
-            chooserGridAdapter = adapter;
-            recyclerView = rootView.findViewById(com.android.internal.R.id.resolver_list);
+        @Override
+        public void bind(
+                RecyclerView recyclerView, ChooserGridAdapter chooserGridAdapter) {
+            GridLayoutManager glm = (GridLayoutManager) recyclerView.getLayoutManager();
+            glm.setSpanCount(mMaxTargetsPerRow);
+            glm.setSpanSizeLookup(
+                    new GridLayoutManager.SpanSizeLookup() {
+                        @Override
+                        public int getSpanSize(int position) {
+                            return chooserGridAdapter.shouldCellSpan(position)
+                                    ? SINGLE_CELL_SPAN_SIZE
+                                    : glm.getSpanCount();
+                        }
+                    });
         }
     }
 }

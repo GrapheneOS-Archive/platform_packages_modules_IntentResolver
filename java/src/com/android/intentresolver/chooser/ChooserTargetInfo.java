@@ -16,38 +16,27 @@
 
 package com.android.intentresolver.chooser;
 
-import android.service.chooser.ChooserTarget;
-import android.text.TextUtils;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * A TargetInfo for Direct Share. Includes a {@link ChooserTarget} representing the
  * Direct Share deep link into an application.
  */
-public interface ChooserTargetInfo extends TargetInfo {
-    float getModifiedScore();
+public abstract class ChooserTargetInfo implements TargetInfo {
 
-    ChooserTarget getChooserTarget();
+    @Override
+    public final boolean isChooserTargetInfo() {
+        return true;
+    }
 
-    /**
-     * Do not label as 'equals', since this doesn't quite work
-     * as intended with java 8.
-     */
-    default boolean isSimilar(ChooserTargetInfo other) {
-        if (other == null) return false;
-
-        ChooserTarget ct1 = getChooserTarget();
-        ChooserTarget ct2 = other.getChooserTarget();
-
-        // If either is null, there is not enough info to make an informed decision
-        // about equality, so just exit
-        if (ct1 == null || ct2 == null) return false;
-
-        if (ct1.getComponentName().equals(ct2.getComponentName())
-                && TextUtils.equals(getDisplayLabel(), other.getDisplayLabel())
-                && TextUtils.equals(getExtendedInfo(), other.getExtendedInfo())) {
-            return true;
+    @Override
+    public ArrayList<DisplayResolveInfo> getAllDisplayTargets() {
+        // TODO: consider making this the default behavior for all `TargetInfo` implementations
+        // (if it's reasonable for `DisplayResolveInfo.getDisplayResolveInfo()` to return `this`).
+        if (getDisplayResolveInfo() == null) {
+            return new ArrayList<>();
         }
-
-        return false;
+        return new ArrayList<>(Arrays.asList(getDisplayResolveInfo()));
     }
 }

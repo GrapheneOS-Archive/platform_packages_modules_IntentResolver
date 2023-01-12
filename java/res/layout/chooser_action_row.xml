@@ -13,14 +13,20 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License
   -->
-
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingLeft="@dimen/chooser_edge_margin_normal"
-    android:paddingRight="@dimen/chooser_edge_margin_normal"
-    android:gravity="center"
-    >
+    android:layout_height="wrap_content">
 
-</LinearLayout>
+    <com.android.intentresolver.widget.ChooserActionRow
+        android:id="@androidprv:id/chooser_action_row"
+        android:layout_width="@dimen/chooser_preview_width"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/chooser_edge_margin_normal"
+        android:paddingRight="@dimen/chooser_edge_margin_normal"
+        android:layout_marginBottom="@dimen/chooser_view_spacing"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center" />
+
+</FrameLayout>

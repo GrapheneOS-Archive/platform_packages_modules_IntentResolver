@@ -32,7 +32,7 @@ import android.test.mock.MockResources;
 /**
  * Utility class used by resolver tests to create mock data
  */
-class ResolverDataProvider {
+public class ResolverDataProvider {
 
     static private int USER_SOMEONE_ELSE = 10;
 
@@ -52,12 +52,12 @@ class ResolverDataProvider {
                 createResolverIntent(i), createResolveInfo(i, userId));
     }
 
-    static ComponentName createComponentName(int i) {
+    public static ComponentName createComponentName(int i) {
         final String name = "component" + i;
         return new ComponentName("foo.bar." + name, name);
     }
 
-    static ResolveInfo createResolveInfo(int i, int userId) {
+    public static ResolveInfo createResolveInfo(int i, int userId) {
         final ResolveInfo resolveInfo = new ResolveInfo();
         resolveInfo.activityInfo = createActivityInfo(i);
         resolveInfo.targetUserId = userId;
@@ -93,11 +93,17 @@ class ResolverDataProvider {
         public String setResolveInfoLabel;
     }
 
+    /** Create a {@link PackageManagerMockedInfo} with all distinct labels. */
     static PackageManagerMockedInfo createPackageManagerMockedInfo(boolean hasOverridePermission) {
-        final String appLabel = "app_label";
-        final String activityLabel = "activity_label";
-        final String resolveInfoLabel = "resolve_info_label";
+        return createPackageManagerMockedInfo(
+                hasOverridePermission, "app_label", "activity_label", "resolve_info_label");
+    }
 
+    static PackageManagerMockedInfo createPackageManagerMockedInfo(
+            boolean hasOverridePermission,
+            String appLabel,
+            String activityLabel,
+            String resolveInfoLabel) {
         MockContext ctx = new MockContext() {
             @Override
             public PackageManager getPackageManager() {

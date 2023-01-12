@@ -16,20 +16,27 @@
 
 package com.android.intentresolver;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.UserHandle;
 
+import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
+import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
+import com.android.intentresolver.AbstractMultiProfilePagerAdapter.QuietModeManager;
 import com.android.intentresolver.chooser.TargetInfo;
-import com.android.internal.logging.MetricsLogger;
+import com.android.intentresolver.shortcuts.ShortcutLoader;
 
-import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
+
+import kotlin.jvm.functions.Function2;
 
 /**
  * Singleton providing overrides to be applied by any {@code IChooserWrapper} used in testing.
@@ -49,7 +56,8 @@ public class ChooserActivityOverrideData {
     @SuppressWarnings("Since15")
     public Function<PackageManager, PackageManager> createPackageManager;
     public Function<TargetInfo, Boolean> onSafelyStartCallback;
-    public Function<ChooserListAdapter, Void> onQueryDirectShareTargets;
+    public Function2<UserHandle, Consumer<ShortcutLoader.Result>, ShortcutLoader>
+            shortcutLoaderFactory = (userHandle, callback) -> null;
     public ResolverListController resolverListController;
     public ResolverListController workResolverListController;
     public Boolean isVoiceInteraction;
@@ -57,21 +65,20 @@ public class ChooserActivityOverrideData {
     public Cursor resolverCursor;
     public boolean resolverForceException;
     public Bitmap previewThumbnail;
-    public MetricsLogger metricsLogger;
     public ChooserActivityLogger chooserActivityLogger;
     public int alternateProfileSetting;
     public Resources resources;
     public UserHandle workProfileUserHandle;
     public boolean hasCrossProfileIntents;
     public boolean isQuietModeEnabled;
-    public boolean isWorkProfileUserRunning;
-    public boolean isWorkProfileUserUnlocked;
-    public AbstractMultiProfilePagerAdapter.Injector multiPagerAdapterInjector;
+    public Integer myUserId;
+    public QuietModeManager mQuietModeManager;
+    public MyUserIdProvider mMyUserIdProvider;
+    public CrossProfileIntentsChecker mCrossProfileIntentsChecker;
     public PackageManager packageManager;
 
     public void reset() {
         onSafelyStartCallback = null;
-        onQueryDirectShareTargets = null;
         isVoiceInteraction = null;
         createPackageManager = null;
         previewThumbnail = null;
@@ -80,23 +87,15 @@ public class ChooserActivityOverrideData {
         resolverForceException = false;
         resolverListController = mock(ResolverListController.class);
         workResolverListController = mock(ResolverListController.class);
-        metricsLogger = mock(MetricsLogger.class);
-        chooserActivityLogger = new ChooserActivityLoggerFake();
+        chooserActivityLogger = mock(ChooserActivityLogger.class);
         alternateProfileSetting = 0;
         resources = null;
         workProfileUserHandle = null;
         hasCrossProfileIntents = true;
         isQuietModeEnabled = false;
-        isWorkProfileUserRunning = true;
-        isWorkProfileUserUnlocked = true;
+        myUserId = null;
         packageManager = null;
-        multiPagerAdapterInjector = new AbstractMultiProfilePagerAdapter.Injector() {
-            @Override
-            public boolean hasCrossProfileIntents(List<Intent> intents, int sourceUserId,
-                    int targetUserId) {
-                return hasCrossProfileIntents;
-            }
-
+        mQuietModeManager = new QuietModeManager() {
             @Override
             public boolean isQuietModeEnabled(UserHandle workProfileUserHandle) {
                 return isQuietModeEnabled;
@@ -107,7 +106,28 @@ public class ChooserActivityOverrideData {
                     UserHandle workProfileUserHandle) {
                 isQuietModeEnabled = enabled;
             }
+
+            @Override
+            public void markWorkProfileEnabledBroadcastReceived() {
+            }
+
+            @Override
+            public boolean isWaitingToEnableWorkProfile() {
+                return false;
+            }
         };
+        shortcutLoaderFactory = ((userHandle, resultConsumer) -> null);
+
+        mMyUserIdProvider = new MyUserIdProvider() {
+            @Override
+            public int getMyUserId() {
+                return myUserId != null ? myUserId : UserHandle.myUserId();
+            }
+        };
+
+        mCrossProfileIntentsChecker = mock(CrossProfileIntentsChecker.class);
+        when(mCrossProfileIntentsChecker.hasCrossProfileIntents(any(), anyInt(), anyInt()))
+                .thenAnswer(invocation -> hasCrossProfileIntents);
     }
 
     private ChooserActivityOverrideData() {}

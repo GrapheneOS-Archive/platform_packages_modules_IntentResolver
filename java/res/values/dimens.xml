@@ -50,4 +50,6 @@
     <dimen name="resolver_profile_tab_margin">4dp</dimen>
 
     <dimen name="chooser_action_button_icon_size">18dp</dimen>
+    <dimen name="chooser_action_view_icon_size">22dp</dimen>
+    <dimen name="chooser_action_margin">0dp</dimen>
 </resources>

@@ -22,8 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
-import com.android.internal.widget.RecyclerView;
-import com.android.internal.widget.RecyclerViewAccessibilityDelegate;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate;
 
 class ChooserRecyclerViewAccessibilityDelegate extends RecyclerViewAccessibilityDelegate {
     private final Rect mTempRect = new Rect();
