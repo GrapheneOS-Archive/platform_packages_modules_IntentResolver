@@ -16,58 +16,13 @@
 
 package com.android.intentresolver.widget
 
-import android.animation.ObjectAnimator
-import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.AttributeSet
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewTreeObserver
-import android.view.animation.DecelerateInterpolator
-import android.widget.RelativeLayout
-import androidx.core.view.isVisible
-import com.android.intentresolver.R
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import java.util.function.Consumer
-import com.android.internal.R as IntR
 
-private typealias ImageLoader = suspend (Uri) -> Bitmap?
+internal typealias ImageLoader = suspend (Uri) -> Bitmap?
 
-private const val IMAGE_FADE_IN_MILLIS = 150L
-
-class ImagePreviewView : RelativeLayout {
-
-    constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-
-    constructor(
-        context: Context, attrs: AttributeSet?, defStyleAttr: Int
-    ) : this(context, attrs, defStyleAttr, 0)
-
-    constructor(
-        context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int
-    ) : super(context, attrs, defStyleAttr, defStyleRes)
-
-    private val coroutineScope = MainScope()
-    private lateinit var mainImage: RoundedRectImageView
-    private lateinit var secondLargeImage: RoundedRectImageView
-    private lateinit var secondSmallImage: RoundedRectImageView
-    private lateinit var thirdImage: RoundedRectImageView
-
-    private var loadImageJob: Job? = null
-    private var onTransitionViewReadyCallback: Consumer<Boolean>? = null
-
-    override fun onFinishInflate() {
-        LayoutInflater.from(context).inflate(R.layout.image_preview_view, this, true)
-        mainImage = requireViewById(IntR.id.content_preview_image_1_large)
-        secondLargeImage = requireViewById(IntR.id.content_preview_image_2_large)
-        secondSmallImage = requireViewById(IntR.id.content_preview_image_2_small)
-        thirdImage = requireViewById(IntR.id.content_preview_image_3_small)
-    }
+interface ImagePreviewView {
 
     /**
      * Specifies a transition animation target name and a readiness callback. The callback will be
@@ -78,101 +33,7 @@ class ImagePreviewView : RelativeLayout {
      * @param onViewReady, a callback that will be invoked with `true` if the view is ready to
      * receive transition animation (the image was loaded successfully) and with `false` otherwise.
      */
-    fun setSharedElementTransitionTarget(name: String, onViewReady: Consumer<Boolean>) {
-        mainImage.transitionName = name
-        onTransitionViewReadyCallback = onViewReady
-    }
+    fun setSharedElementTransitionTarget(name: String, onViewReady: Consumer<Boolean>)
 
-    fun setImages(uris: List<Uri>, imageLoader: ImageLoader) {
-        loadImageJob?.cancel()
-        loadImageJob = coroutineScope.launch {
-            when (uris.size) {
-                0 -> hideAllViews()
-                1 -> showOneImage(uris, imageLoader)
-                2 -> showTwoImages(uris, imageLoader)
-                else -> showThreeImages(uris, imageLoader)
-            }
-        }
-    }
-
-    private fun hideAllViews() {
-        mainImage.isVisible = false
-        secondLargeImage.isVisible = false
-        secondSmallImage.isVisible = false
-        thirdImage.isVisible = false
-        invokeTransitionViewReadyCallback(runTransitionAnimation = false)
-    }
-
-    private suspend fun showOneImage(uris: List<Uri>, imageLoader: ImageLoader) {
-        secondLargeImage.isVisible = false
-        secondSmallImage.isVisible = false
-        thirdImage.isVisible = false
-        showImages(uris, imageLoader, mainImage)
-    }
-
-    private suspend fun showTwoImages(uris: List<Uri>, imageLoader: ImageLoader) {
-        secondSmallImage.isVisible = false
-        thirdImage.isVisible = false
-        showImages(uris, imageLoader, mainImage, secondLargeImage)
-    }
-
-    private suspend fun showThreeImages(uris: List<Uri>, imageLoader: ImageLoader) {
-        secondLargeImage.isVisible = false
-        showImages(uris, imageLoader, mainImage, secondSmallImage, thirdImage)
-        thirdImage.setExtraImageCount(uris.size - 3)
-    }
-
-    private suspend fun showImages(
-        uris: List<Uri>, imageLoader: ImageLoader, vararg views: RoundedRectImageView
-    ) = coroutineScope {
-        for (i in views.indices) {
-            launch {
-                loadImageIntoView(views[i], uris[i], imageLoader)
-            }
-        }
-    }
-
-    private suspend fun loadImageIntoView(
-        view: RoundedRectImageView, uri: Uri, imageLoader: ImageLoader
-    ) {
-        val bitmap = runCatching {
-            imageLoader(uri)
-        }.getOrDefault(null)
-        if (bitmap == null) {
-            view.isVisible = false
-            if (view === mainImage) {
-                invokeTransitionViewReadyCallback(runTransitionAnimation = false)
-            }
-        } else {
-            view.isVisible = true
-            view.setImageBitmap(bitmap)
-
-            view.alpha = 0f
-            ObjectAnimator.ofFloat(view, "alpha", 0.0f, 1.0f).apply {
-                interpolator = DecelerateInterpolator(1.0f)
-                duration = IMAGE_FADE_IN_MILLIS
-                start()
-            }
-            if (view === mainImage && onTransitionViewReadyCallback != null) {
-                setupPreDrawListener(mainImage)
-            }
-        }
-    }
-
-    private fun setupPreDrawListener(view: View) {
-        view.viewTreeObserver.addOnPreDrawListener(
-            object : ViewTreeObserver.OnPreDrawListener {
-                override fun onPreDraw(): Boolean {
-                    view.viewTreeObserver.removeOnPreDrawListener(this)
-                    invokeTransitionViewReadyCallback(runTransitionAnimation = true)
-                    return true
-                }
-            }
-        )
-    }
-
-    private fun invokeTransitionViewReadyCallback(runTransitionAnimation: Boolean) {
-        onTransitionViewReadyCallback?.accept(runTransitionAnimation)
-        onTransitionViewReadyCallback = null
-    }
+    fun setImages(uris: List<Uri>, imageLoader: ImageLoader)
 }
