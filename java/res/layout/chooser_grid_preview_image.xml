@@ -33,6 +33,15 @@
       android:paddingBottom="@dimen/chooser_view_spacing"
       android:background="?android:attr/colorBackground" />
 
+  <TextView
+      android:id="@+id/reselection_action"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:visibility="gone"
+      android:text="@string/select_images"
+      android:gravity="center"
+      style="@style/ReselectionAction" />
+
   <ViewStub
       android:id="@+id/action_row_stub"
       android:layout_width="match_parent"

@@ -18,6 +18,7 @@ package com.android.intentresolver;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -72,6 +73,7 @@ public class ChooserRequestParameters {
     private final ImmutableList<ComponentName> mFilteredComponentNames;
     private final ImmutableList<ChooserTarget> mCallerChooserTargets;
     private final ImmutableList<ChooserAction> mChooserActions;
+    private final PendingIntent mReselectionAction;
     private final boolean mRetainInOnStop;
 
     @Nullable
@@ -99,7 +101,8 @@ public class ChooserRequestParameters {
             final Intent clientIntent,
             final Uri referrer,
             @Nullable final ComponentName nearbySharingComponent,
-            boolean extractCustomActions) {
+            boolean extractCustomActions,
+            boolean extractReslectionAction) {
         final Intent requestedTarget = parseTargetIntentExtra(
                 clientIntent.getParcelableExtra(Intent.EXTRA_INTENT));
         mTarget = intentWithModifiedLaunchFlags(requestedTarget);
@@ -137,6 +140,9 @@ public class ChooserRequestParameters {
         mChooserActions = extractCustomActions
                 ? getChooserActions(clientIntent)
                 : ImmutableList.of();
+        mReselectionAction = extractReslectionAction
+                ? getReselectionActionExtra(clientIntent)
+                : null;
     }
 
     public Intent getTargetIntent() {
@@ -180,6 +186,11 @@ public class ChooserRequestParameters {
 
     public ImmutableList<ChooserAction> getChooserActions() {
         return mChooserActions;
+    }
+
+    @Nullable
+    public PendingIntent getReselectionAction() {
+        return mReselectionAction;
     }
 
     /**
@@ -319,6 +330,21 @@ public class ChooserRequestParameters {
                 true,
                 true)
             .collect(toImmutableList());
+    }
+
+    @Nullable
+    private static PendingIntent getReselectionActionExtra(Intent intent) {
+        try {
+            return intent.getParcelableExtra(
+                    Intent.EXTRA_CHOOSER_PAYLOAD_RESELECTION_ACTION,
+                    PendingIntent.class);
+        } catch (Throwable t) {
+            Log.w(
+                    TAG,
+                    "Unable to retrieve Intent.EXTRA_CHOOSER_PAYLOAD_RESELECTION_ACTION argument",
+                    t);
+            return null;
+        }
     }
 
     private static <T> Collector<T, ?, ImmutableList<T>> toImmutableList() {
