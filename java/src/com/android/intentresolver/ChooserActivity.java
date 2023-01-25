@@ -1565,9 +1565,9 @@ public class ChooserActivity extends ResolverActivity implements
                                 .getActiveListAdapter()
                                 .targetInfoForPosition(
                                         selectedPosition, /* filtered= */ true);
-                        // ItemViewHolder contents should always be "display resolve info"
-                        // targets, but check just to make sure.
-                        if (longPressedTargetInfo.isDisplayResolveInfo()) {
+                        // Only a direct share target or an app target is expected
+                        if (longPressedTargetInfo.isDisplayResolveInfo()
+                                || longPressedTargetInfo.isSelectableTargetInfo()) {
                             showTargetDetails(longPressedTargetInfo);
                         }
                     }
