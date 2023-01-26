@@ -160,6 +160,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     private static final boolean DEBUG = true;
     static final boolean ENABLE_CUSTOM_ACTIONS = false;
+    static final boolean ENABLE_RESELECTION_ACTION = false;
 
     public static final String LAUNCH_LOCATION_DIRECT_SHARE = "direct_share";
     private static final String SHORTCUT_TARGET = "shortcut_target";
@@ -267,7 +268,11 @@ public class ChooserActivity extends ResolverActivity implements
 
         try {
             mChooserRequest = new ChooserRequestParameters(
-                    getIntent(), getReferrer(), getNearbySharingComponent(), ENABLE_CUSTOM_ACTIONS);
+                    getIntent(),
+                    getReferrer(),
+                    getNearbySharingComponent(),
+                    ENABLE_CUSTOM_ACTIONS,
+                    ENABLE_RESELECTION_ACTION);
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "Caller provided invalid Chooser request parameters", e);
             finish();
@@ -743,6 +748,18 @@ public class ChooserActivity extends ResolverActivity implements
                         }
                         return actions;
                     }
+
+                    @Nullable
+                    @Override
+                    public Runnable getReselectionAction() {
+                        if (!ENABLE_RESELECTION_ACTION) {
+                            return null;
+                        }
+                        PendingIntent reselectionAction = mChooserRequest.getReselectionAction();
+                        return reselectionAction == null
+                                ? null
+                                : createReselectionRunnable(reselectionAction);
+                    }
                 };
 
         ViewGroup layout = ChooserContentPreviewUi.displayContentPreview(
@@ -960,6 +977,19 @@ public class ChooserActivity extends ResolverActivity implements
                     finish();
                 }
         );
+    }
+
+    private Runnable createReselectionRunnable(PendingIntent pendingIntent) {
+        return () -> {
+            try {
+                pendingIntent.send();
+            } catch (PendingIntent.CanceledException e) {
+                Log.d(TAG, "Payload reselection action has been cancelled");
+            }
+            // TODO: add reporting
+            setResult(RESULT_OK);
+            finish();
+        };
     }
 
     @Nullable
@@ -1535,9 +1565,9 @@ public class ChooserActivity extends ResolverActivity implements
                                 .getActiveListAdapter()
                                 .targetInfoForPosition(
                                         selectedPosition, /* filtered= */ true);
-                        // ItemViewHolder contents should always be "display resolve info"
-                        // targets, but check just to make sure.
-                        if (longPressedTargetInfo.isDisplayResolveInfo()) {
+                        // Only a direct share target or an app target is expected
+                        if (longPressedTargetInfo.isDisplayResolveInfo()
+                                || longPressedTargetInfo.isSelectableTargetInfo()) {
                             showTargetDetails(longPressedTargetInfo);
                         }
                     }

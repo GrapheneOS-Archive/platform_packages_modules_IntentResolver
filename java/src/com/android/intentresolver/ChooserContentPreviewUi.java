@@ -90,6 +90,12 @@ public final class ChooserContentPreviewUi {
 
         /** Create custom actions */
         List<ActionRow.Action> createCustomActions();
+
+        /**
+         * Provides a re-selection action, if any.
+         */
+        @Nullable
+        Runnable getReselectionAction();
     }
 
     /**
@@ -217,6 +223,15 @@ public final class ChooserContentPreviewUi {
                 break;
             default:
                 Log.e(TAG, "Unexpected content preview type: " + previewType);
+        }
+        Runnable reselectionAction = actionFactory.getReselectionAction();
+        if (reselectionAction != null && layout != null
+                && ChooserActivity.ENABLE_RESELECTION_ACTION) {
+            View reselectionView = layout.findViewById(R.id.reselection_action);
+            if (reselectionView != null) {
+                reselectionView.setVisibility(View.VISIBLE);
+                reselectionView.setOnClickListener(view -> reselectionAction.run());
+            }
         }
 
         return layout;
