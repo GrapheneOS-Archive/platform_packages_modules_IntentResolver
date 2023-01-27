@@ -47,6 +47,7 @@ import androidx.annotation.Nullable;
 
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ImagePreviewView;
+import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;
 import com.android.intentresolver.widget.RoundedRectImageView;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -55,7 +56,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Collection of helpers for building the content preview UI displayed in {@link ChooserActivity}.
@@ -176,11 +177,14 @@ public final class ChooserContentPreviewUi {
             @LayoutRes int actionRowLayout,
             ViewGroup parent,
             ImageLoader previewImageLoader,
-            Consumer<Boolean> onTransitionTargetReady,
+            TransitionElementStatusCallback transitionElementStatusCallback,
             ContentResolver contentResolver,
             ImageMimeTypeClassifier imageClassifier) {
         ViewGroup layout = null;
 
+        if (previewType != CONTENT_PREVIEW_IMAGE) {
+            transitionElementStatusCallback.onAllTransitionElementsReady();
+        }
         List<ActionRow.Action> customActions = actionFactory.createCustomActions();
         switch (previewType) {
             case CONTENT_PREVIEW_TEXT:
@@ -203,7 +207,7 @@ public final class ChooserContentPreviewUi {
                                 customActions),
                         parent,
                         previewImageLoader,
-                        onTransitionTargetReady,
+                        transitionElementStatusCallback,
                         contentResolver,
                         imageClassifier,
                         actionRowLayout);
@@ -341,7 +345,7 @@ public final class ChooserContentPreviewUi {
             List<ActionRow.Action> actions,
             ViewGroup parent,
             ImageLoader imageLoader,
-            Consumer<Boolean> onTransitionTargetReady,
+            TransitionElementStatusCallback transitionElementStatusCallback,
             ContentResolver contentResolver,
             ImageMimeTypeClassifier imageClassifier,
             @LayoutRes int actionRowLayout) {
@@ -355,32 +359,26 @@ public final class ChooserContentPreviewUi {
             actionRow.setActions(actions);
         }
 
-        final ArrayList<Uri> imageUris = new ArrayList<>();
         String action = targetIntent.getAction();
-        if (Intent.ACTION_SEND.equals(action)) {
-            // TODO: why don't we use image classifier in this case as well?
-            Uri uri = targetIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-            imageUris.add(uri);
-        } else {
-            List<Uri> uris = targetIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            for (Uri uri : uris) {
-                if (imageClassifier.isImageType(contentResolver.getType(uri))) {
-                    imageUris.add(uri);
-                }
-            }
-        }
+        // TODO: why don't we use image classifier for single-element ACTION_SEND?
+        final List<Uri> imageUris = Intent.ACTION_SEND.equals(action)
+                ? extractContentUris(targetIntent)
+                : extractContentUris(targetIntent)
+                        .stream()
+                        .filter(uri ->
+                                imageClassifier.isImageType(contentResolver.getType(uri))
+                        )
+                        .collect(Collectors.toList());
 
         if (imageUris.size() == 0) {
             Log.i(TAG, "Attempted to display image preview area with zero"
                     + " available images detected in EXTRA_STREAM list");
             ((View) imagePreview).setVisibility(View.GONE);
-            onTransitionTargetReady.accept(false);
+            transitionElementStatusCallback.onAllTransitionElementsReady();
             return contentPreviewLayout;
         }
 
-        imagePreview.setSharedElementTransitionTarget(
-                ChooserActivity.FIRST_IMAGE_PREVIEW_TRANSITION_NAME,
-                onTransitionTargetReady);
+        imagePreview.setTransitionElementStatusCallback(transitionElementStatusCallback);
         imagePreview.setImages(imageUris, imageLoader);
 
         return contentPreviewLayout;
@@ -413,7 +411,7 @@ public final class ChooserContentPreviewUi {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_file, parent, false);
 
-        List<Uri> uris = extractFileUris(targetIntent);
+        List<Uri> uris = extractContentUris(targetIntent);
         final int uriCount = uris.size();
 
         if (uriCount == 0) {
@@ -457,7 +455,7 @@ public final class ChooserContentPreviewUi {
         return contentPreviewLayout;
     }
 
-    private static List<Uri> extractFileUris(Intent targetIntent) {
+    private static List<Uri> extractContentUris(Intent targetIntent) {
         List<Uri> uris = new ArrayList<>();
         if (Intent.ACTION_SEND.equals(targetIntent.getAction())) {
             Uri uri = targetIntent.getParcelableExtra(Intent.EXTRA_STREAM);

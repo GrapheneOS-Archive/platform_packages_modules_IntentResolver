@@ -25,6 +25,7 @@
 
     <com.android.intentresolver.widget.RoundedRectImageView
         android:id="@androidprv:id/content_preview_image_1_large"
+        android:transitionName="screenshot_preview_image"
         android:layout_width="120dp"
         android:layout_height="104dp"
         android:layout_alignParentTop="true"

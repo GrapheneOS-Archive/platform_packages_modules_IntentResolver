@@ -773,15 +773,12 @@ public class ChooserActivity extends ResolverActivity implements
                         : R.layout.chooser_action_row,
                 parent,
                 imageLoader,
-                mEnterTransitionAnimationDelegate::markImagePreviewReady,
+                mEnterTransitionAnimationDelegate,
                 getContentResolver(),
                 this::isImageType);
 
         if (layout != null) {
             adjustPreviewWidth(getResources().getConfiguration().orientation, layout);
-        }
-        if (previewType != ChooserContentPreviewUi.CONTENT_PREVIEW_IMAGE) {
-            mEnterTransitionAnimationDelegate.markImagePreviewReady(false);
         }
 
         return layout;

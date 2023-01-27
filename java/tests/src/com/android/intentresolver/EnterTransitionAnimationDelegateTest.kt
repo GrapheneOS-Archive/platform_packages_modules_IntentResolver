@@ -39,6 +39,7 @@ private const val TIMEOUT_MS = 200
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EnterTransitionAnimationDelegateTest {
+    private val elementName = "shared-element"
     private val scheduler = TestCoroutineScheduler()
     private val dispatcher = StandardTestDispatcher(scheduler)
     private val lifecycleOwner = TestLifecycleOwner()
@@ -89,9 +90,9 @@ class EnterTransitionAnimationDelegateTest {
     fun test_postponeTransition_animation_resumes_only_once() {
         testSubject.postponeTransition()
         testSubject.markOffsetCalculated()
-        testSubject.markImagePreviewReady(true)
+        testSubject.onTransitionElementReady(elementName)
         testSubject.markOffsetCalculated()
-        testSubject.markImagePreviewReady(true)
+        testSubject.onTransitionElementReady(elementName)
 
         scheduler.advanceTimeBy(TIMEOUT_MS + 1L)
         verify(activity, times(1)).startPostponedEnterTransition()
@@ -105,7 +106,7 @@ class EnterTransitionAnimationDelegateTest {
         testSubject.markOffsetCalculated()
         verify(activity, never()).startPostponedEnterTransition()
 
-        testSubject.markImagePreviewReady(true)
+        testSubject.onAllTransitionElementsReady()
         verify(activity, times(1)).startPostponedEnterTransition()
     }
 }
