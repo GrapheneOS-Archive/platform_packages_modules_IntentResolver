@@ -141,7 +141,9 @@ public final class ChooserActivityLoggerTest {
                 eq(appProvidedAppTargets),
                 eq(workProfile),
                 eq(FrameworkStatsLog.SHARESHEET_STARTED__PREVIEW_TYPE__CONTENT_PREVIEW_FILE),
-                eq(FrameworkStatsLog.SHARESHEET_STARTED__INTENT_TYPE__INTENT_ACTION_SENDTO));
+                eq(FrameworkStatsLog.SHARESHEET_STARTED__INTENT_TYPE__INTENT_ACTION_SENDTO),
+                /* custom actions provided */ eq(0),
+                /* reselection action provided */ eq(false));
     }
 
     @Test
