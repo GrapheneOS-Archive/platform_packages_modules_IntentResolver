@@ -19,6 +19,7 @@ import android.app.SharedElementCallback
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
+import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback
 import com.android.internal.annotations.VisibleForTesting
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -29,13 +30,13 @@ import java.util.function.Supplier
  * A helper class to track app's readiness for the scene transition animation.
  * The app is ready when both the image is laid out and the drawer offset is calculated.
  */
-@VisibleForTesting
+@VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
 class EnterTransitionAnimationDelegate(
     private val activity: ComponentActivity,
     private val transitionTargetSupplier: Supplier<View?>,
-) : View.OnLayoutChangeListener {
+) : View.OnLayoutChangeListener, TransitionElementStatusCallback {
 
-    private var removeSharedElements = false
+    private val transitionElements = HashSet<String>()
     private var previewReady = false
     private var offsetCalculated = false
     private var timeoutJob: Job? = null
@@ -65,14 +66,15 @@ class EnterTransitionAnimationDelegate(
         // We only mark the preview readiness and not the offset readiness
         // (see [#markOffsetCalculated()]) as this is what legacy logic, effectively, did. We might
         // want to review that aspect separately.
-        markImagePreviewReady(runTransitionAnimation = false)
+        onAllTransitionElementsReady()
     }
 
-    fun markImagePreviewReady(runTransitionAnimation: Boolean) {
+    override fun onTransitionElementReady(name: String) {
+        transitionElements.add(name)
+    }
+
+    override fun onAllTransitionElementsReady() {
         timeoutJob?.cancel()
-        if (!runTransitionAnimation) {
-            removeSharedElements = true
-        }
         if (!previewReady) {
             previewReady = true
             maybeStartListenForLayout()
@@ -90,11 +92,8 @@ class EnterTransitionAnimationDelegate(
         names: MutableList<String>,
         sharedElements: MutableMap<String, View>
     ) {
-        if (removeSharedElements) {
-            names.remove(ChooserActivity.FIRST_IMAGE_PREVIEW_TRANSITION_NAME)
-            sharedElements.remove(ChooserActivity.FIRST_IMAGE_PREVIEW_TRANSITION_NAME)
-        }
-        removeSharedElements = false
+        names.removeAll { !transitionElements.contains(it) }
+        sharedElements.entries.removeAll { !transitionElements.contains(it.key) }
     }
 
     private fun maybeStartListenForLayout() {
@@ -119,7 +118,7 @@ class EnterTransitionAnimationDelegate(
     }
 
     private fun startPostponedEnterTransition() {
-        if (!removeSharedElements && activity.isActivityTransitionRunning) {
+        if (transitionElements.isNotEmpty() && activity.isActivityTransitionRunning) {
             // Disable the window animations as it interferes with the transition animation.
             activity.window.setWindowAnimations(0)
         }
