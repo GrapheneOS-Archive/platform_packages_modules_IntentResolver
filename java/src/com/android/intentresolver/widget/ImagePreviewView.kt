@@ -18,22 +18,32 @@ package com.android.intentresolver.widget
 
 import android.graphics.Bitmap
 import android.net.Uri
-import java.util.function.Consumer
 
 internal typealias ImageLoader = suspend (Uri) -> Bitmap?
 
 interface ImagePreviewView {
+    fun setTransitionElementStatusCallback(callback: TransitionElementStatusCallback?)
+    fun setImages(uris: List<Uri>, imageLoader: ImageLoader)
 
     /**
-     * Specifies a transition animation target name and a readiness callback. The callback will be
-     * invoked once when the view preparation is done i.e. either when an image is loaded into it
-     * and it is laid out (and it is ready to be draw) or image loading has failed.
-     * Should be called before [setImages].
-     * @param name, transition name
-     * @param onViewReady, a callback that will be invoked with `true` if the view is ready to
-     * receive transition animation (the image was loaded successfully) and with `false` otherwise.
+     * [ImagePreviewView] progressively prepares views for shared element transition and reports
+     * each successful preparation with [onTransitionElementReady] call followed by
+     * closing [onAllTransitionElementsReady] invocation. Thus the overall invocation pattern is
+     * zero or more [onTransitionElementReady] calls followed by the final
+     * [onAllTransitionElementsReady] call.
      */
-    fun setSharedElementTransitionTarget(name: String, onViewReady: Consumer<Boolean>)
+    interface TransitionElementStatusCallback {
+        /**
+         * Invoked when a view for a shared transition animation element is ready i.e. the image
+         * is loaded and the view is laid out.
+         * @param name shared element name.
+         */
+        fun onTransitionElementReady(name: String)
 
-    fun setImages(uris: List<Uri>, imageLoader: ImageLoader)
+        /**
+         * Indicates that all supported transition elements have been reported with
+         * [onTransitionElementReady].
+         */
+        fun onAllTransitionElementsReady()
+    }
 }

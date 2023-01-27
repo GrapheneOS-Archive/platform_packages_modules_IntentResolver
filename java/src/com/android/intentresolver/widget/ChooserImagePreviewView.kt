@@ -21,17 +21,15 @@ import android.content.Context
 import android.net.Uri
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewTreeObserver
 import android.view.animation.DecelerateInterpolator
 import android.widget.RelativeLayout
 import androidx.core.view.isVisible
 import com.android.intentresolver.R
+import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import java.util.function.Consumer
 import com.android.internal.R as IntR
 
 private const val IMAGE_FADE_IN_MILLIS = 150L
@@ -56,7 +54,7 @@ class ChooserImagePreviewView : RelativeLayout, ImagePreviewView {
     private lateinit var thirdImage: RoundedRectImageView
 
     private var loadImageJob: Job? = null
-    private var onTransitionViewReadyCallback: Consumer<Boolean>? = null
+    private var transitionStatusElementCallback: TransitionElementStatusCallback? = null
 
     override fun onFinishInflate() {
         LayoutInflater.from(context).inflate(R.layout.image_preview_view, this, true)
@@ -67,17 +65,12 @@ class ChooserImagePreviewView : RelativeLayout, ImagePreviewView {
     }
 
     /**
-     * Specifies a transition animation target name and a readiness callback. The callback will be
-     * invoked once when the view preparation is done i.e. either when an image is loaded into it
-     * and it is laid out (and it is ready to be draw) or image loading has failed.
+     * Specifies a transition animation target readiness callback. The callback will be
+     * invoked once when views preparation is done.
      * Should be called before [setImages].
-     * @param name, transition name
-     * @param onViewReady, a callback that will be invoked with `true` if the view is ready to
-     * receive transition animation (the image was loaded successfully) and with `false` otherwise.
      */
-    override fun setSharedElementTransitionTarget(name: String, onViewReady: Consumer<Boolean>) {
-        mainImage.transitionName = name
-        onTransitionViewReadyCallback = onViewReady
+    override fun setTransitionElementStatusCallback(callback: TransitionElementStatusCallback?) {
+        transitionStatusElementCallback = callback
     }
 
     override fun setImages(uris: List<Uri>, imageLoader: ImageLoader) {
@@ -97,7 +90,7 @@ class ChooserImagePreviewView : RelativeLayout, ImagePreviewView {
         secondLargeImage.isVisible = false
         secondSmallImage.isVisible = false
         thirdImage.isVisible = false
-        invokeTransitionViewReadyCallback(runTransitionAnimation = false)
+        invokeTransitionViewReadyCallback()
     }
 
     private suspend fun showOneImage(uris: List<Uri>, imageLoader: ImageLoader) {
@@ -138,7 +131,7 @@ class ChooserImagePreviewView : RelativeLayout, ImagePreviewView {
         if (bitmap == null) {
             view.isVisible = false
             if (view === mainImage) {
-                invokeTransitionViewReadyCallback(runTransitionAnimation = false)
+                invokeTransitionViewReadyCallback()
             }
         } else {
             view.isVisible = true
@@ -150,26 +143,20 @@ class ChooserImagePreviewView : RelativeLayout, ImagePreviewView {
                 duration = IMAGE_FADE_IN_MILLIS
                 start()
             }
-            if (view === mainImage && onTransitionViewReadyCallback != null) {
-                setupPreDrawListener(mainImage)
+            if (view === mainImage && transitionStatusElementCallback != null) {
+                view.waitForPreDraw()
+                invokeTransitionViewReadyCallback()
             }
         }
     }
 
-    private fun setupPreDrawListener(view: View) {
-        view.viewTreeObserver.addOnPreDrawListener(
-            object : ViewTreeObserver.OnPreDrawListener {
-                override fun onPreDraw(): Boolean {
-                    view.viewTreeObserver.removeOnPreDrawListener(this)
-                    invokeTransitionViewReadyCallback(runTransitionAnimation = true)
-                    return true
-                }
+    private fun invokeTransitionViewReadyCallback() {
+        transitionStatusElementCallback?.apply {
+            if (mainImage.isVisible && mainImage.drawable != null) {
+                mainImage.transitionName?.let { onTransitionElementReady(it) }
             }
-        )
-    }
-
-    private fun invokeTransitionViewReadyCallback(runTransitionAnimation: Boolean) {
-        onTransitionViewReadyCallback?.accept(runTransitionAnimation)
-        onTransitionViewReadyCallback = null
+            onAllTransitionElementsReady()
+        }
+        transitionStatusElementCallback = null
     }
 }
