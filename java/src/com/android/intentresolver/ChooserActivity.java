@@ -61,6 +61,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.PatternMatcher;
 import android.os.ResultReceiver;
@@ -773,15 +774,12 @@ public class ChooserActivity extends ResolverActivity implements
                         : R.layout.chooser_action_row,
                 parent,
                 imageLoader,
-                mEnterTransitionAnimationDelegate::markImagePreviewReady,
+                mEnterTransitionAnimationDelegate,
                 getContentResolver(),
                 this::isImageType);
 
         if (layout != null) {
             adjustPreviewWidth(getResources().getConfiguration().orientation, layout);
-        }
-        if (previewType != ChooserContentPreviewUi.CONTENT_PREVIEW_IMAGE) {
-            mEnterTransitionAnimationDelegate.markImagePreviewReady(false);
         }
 
         return layout;
@@ -1180,7 +1178,7 @@ public class ChooserActivity extends ResolverActivity implements
                 }
                 mRefinementResultReceiver = new RefinementResultReceiver(this, target, null);
                 fillIn.putExtra(Intent.EXTRA_RESULT_RECEIVER,
-                        mRefinementResultReceiver);
+                        mRefinementResultReceiver.copyForSending());
                 try {
                     mChooserRequest.getRefinementIntentSender().sendIntent(
                             this, 0, fillIn, null, null);
@@ -2225,6 +2223,19 @@ public class ChooserActivity extends ResolverActivity implements
         public void destroy() {
             mChooserActivity = null;
             mSelectedTarget = null;
+        }
+
+        /**
+         * Apps can't load this class directly, so we need a regular ResultReceiver copy for
+         * sending. Obtain this by parceling and unparceling (one weird trick).
+         */
+        ResultReceiver copyForSending() {
+            Parcel parcel = Parcel.obtain();
+            writeToParcel(parcel, 0);
+            parcel.setDataPosition(0);
+            ResultReceiver receiverForSending = ResultReceiver.CREATOR.createFromParcel(parcel);
+            parcel.recycle();
+            return receiverForSending;
         }
     }
 

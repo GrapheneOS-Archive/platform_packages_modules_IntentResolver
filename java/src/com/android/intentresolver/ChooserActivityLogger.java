@@ -66,7 +66,9 @@ public class ChooserActivityLogger {
                 int numAppProvidedAppTargets,
                 boolean isWorkProfile,
                 int previewType,
-                int intentType);
+                int intentType,
+                int numCustomActions,
+                boolean reselectionActionProvided);
 
         /** Overload to use for logging {@code FrameworkStatsLog.RANKING_SELECTED}. */
         void write(
@@ -126,7 +128,9 @@ public class ChooserActivityLogger {
                 /* num_app_provided_app_targets = 6 */ appProvidedApp,
                 /* is_workprofile = 7 */ isWorkprofile,
                 /* previewType = 8 */ typeFromPreviewInt(previewType),
-                /* intentType = 9 */ typeFromIntentString(intent));
+                /* intentType = 9 */ typeFromIntentString(intent),
+                /* num_provided_custom_actions = 10 */ 0,
+                /* reselection_action_provided = 11 */ false);
     }
 
     /**
@@ -463,7 +467,9 @@ public class ChooserActivityLogger {
                 int numAppProvidedAppTargets,
                 boolean isWorkProfile,
                 int previewType,
-                int intentType) {
+                int intentType,
+                int numCustomActions,
+                boolean reselectionActionProvided) {
             FrameworkStatsLog.write(
                     frameworkEventId,
                     /* event_id = 1 */ appEventId,
@@ -474,7 +480,9 @@ public class ChooserActivityLogger {
                     /* num_app_provided_app_targets */ numAppProvidedAppTargets,
                     /* is_workprofile */ isWorkProfile,
                     /* previewType = 8 */ previewType,
-                    /* intentType = 9 */ intentType);
+                    /* intentType = 9 */ intentType,
+                    /* num_provided_custom_actions = 10 */ numCustomActions,
+                    /* reselection_action_provided = 11 */ reselectionActionProvided);
         }
 
         @Override
