@@ -101,9 +101,13 @@ import androidx.test.rule.ActivityTestRule;
 
 import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
+import com.android.intentresolver.flags.FeatureFlagRepository;
+import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
+import com.android.systemui.flags.ReleasedFlag;
+import com.android.systemui.flags.UnreleasedFlag;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -1673,9 +1677,18 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testLaunchWithCustomAction() throws InterruptedException {
-        if (!ChooserActivity.ENABLE_CUSTOM_ACTIONS) {
-            return;
-        }
+        ChooserActivityOverrideData.getInstance().featureFlagRepository =
+            new FeatureFlagRepository() {
+                @Override
+                public boolean isEnabled(@NonNull UnreleasedFlag flag) {
+                    return Flags.SHARESHEET_CUSTOM_ACTIONS.equals(flag) || flag.getDefault();
+                }
+
+                @Override
+                public boolean isEnabled(@NonNull ReleasedFlag flag) {
+                    return false;
+                }
+            };
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
         when(
                 ChooserActivityOverrideData
