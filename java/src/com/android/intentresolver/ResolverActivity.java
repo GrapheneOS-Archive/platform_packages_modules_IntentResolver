@@ -163,7 +163,6 @@ public class ResolverActivity extends FragmentActivity implements
     protected boolean mSupportsAlwaysUseOption;
     protected ResolverDrawerLayout mResolverDrawerLayout;
     protected PackageManager mPm;
-    protected int mLaunchedFromUid;
 
     private static final String TAG = "ResolverActivity";
     private static final boolean DEBUG = false;
@@ -223,9 +222,15 @@ public class ResolverActivity extends FragmentActivity implements
     private BroadcastReceiver mWorkProfileStateReceiver;
     private UserHandle mHeaderCreatorUser;
 
-    private Supplier<UserHandle> mLazyWorkProfileUserHandle = () -> {
-        final UserHandle result = fetchWorkProfileUserProfile();
-        mLazyWorkProfileUserHandle = () -> result;
+    // User handle annotations are lazy-initialized to ensure that they're computed exactly once
+    // (even though they can't be computed prior to activity creation).
+    // TODO: use a less ad-hoc pattern for lazy initialization (by switching to Dagger or
+    // introducing a common `LazySingletonSupplier` API, etc), and/or migrate all dependents to a
+    // new component whose lifecycle is limited to the "created" Activity (so that we can just hold
+    // the annotations as a `final` ivar, which is a better way to show immutability).
+    private Supplier<AnnotatedUserHandles> mLazyAnnotatedUserHandles = () -> {
+        final AnnotatedUserHandles result = new AnnotatedUserHandles(this);
+        mLazyAnnotatedUserHandles = () -> result;
         return result;
     };
 
@@ -395,12 +400,9 @@ public class ResolverActivity extends FragmentActivity implements
         // from managed profile to owner or other way around.
         setProfileSwitchMessage(intent.getContentUserHint());
 
-        mLaunchedFromUid = getLaunchedFromUid();
-        if (mLaunchedFromUid < 0 || UserHandle.isIsolated(mLaunchedFromUid)) {
-            // Gulp!
-            finish();
-            return;
-        }
+        // Force computation of user handle annotations in order to validate the caller ID. (See the
+        // associated TODO comment to explain why this is structured as a lazy computation.)
+        AnnotatedUserHandles unusedReferenceToHandles = mLazyAnnotatedUserHandles.get();
 
         mPm = getPackageManager();
 
@@ -699,28 +701,18 @@ public class ResolverActivity extends FragmentActivity implements
         return (UserHandle.myUserId() == UserHandle.USER_SYSTEM ? PROFILE_PERSONAL : PROFILE_WORK);
     }
 
-    protected UserHandle getPersonalProfileUserHandle() {
-        return UserHandle.of(ActivityManager.getCurrentUser());
+    protected final AnnotatedUserHandles getAnnotatedUserHandles() {
+        return mLazyAnnotatedUserHandles.get();
     }
 
+    protected final UserHandle getPersonalProfileUserHandle() {
+        return getAnnotatedUserHandles().personalProfileUserHandle;
+    }
+
+    // TODO: have tests override `getAnnotatedUserHandles()`, and make this method `final`.
     @Nullable
     protected UserHandle getWorkProfileUserHandle() {
-        return mLazyWorkProfileUserHandle.get();
-    }
-
-    @Nullable
-    private UserHandle fetchWorkProfileUserProfile() {
-        UserManager userManager = getSystemService(UserManager.class);
-        if (userManager == null) {
-            return null;
-        }
-        UserHandle result = null;
-        for (final UserInfo userInfo : userManager.getProfiles(ActivityManager.getCurrentUser())) {
-            if (userInfo.isManagedProfile()) {
-                result = userInfo.getUserHandle();
-            }
-        }
-        return result;
+        return getAnnotatedUserHandles().workProfileUserHandle;
     }
 
     private boolean hasWorkProfile() {
@@ -1494,7 +1486,8 @@ public class ResolverActivity extends FragmentActivity implements
                 maybeLogCrossProfileTargetLaunch(cti, user);
             }
         } catch (RuntimeException e) {
-            Slog.wtf(TAG, "Unable to launch as uid " + mLaunchedFromUid
+            Slog.wtf(TAG,
+                    "Unable to launch as uid " + getAnnotatedUserHandles().userIdOfCallingApp
                     + " package " + getLaunchedFromPackage() + ", while running in "
                     + ActivityThread.currentProcessName(), e);
         }
@@ -1560,7 +1553,7 @@ public class ResolverActivity extends FragmentActivity implements
                 mPm,
                 getTargetIntent(),
                 getReferrerPackageName(),
-                mLaunchedFromUid,
+                getAnnotatedUserHandles().userIdOfCallingApp,
                 userHandle);
     }
 
