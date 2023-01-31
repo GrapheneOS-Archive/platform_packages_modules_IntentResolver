@@ -45,6 +45,8 @@ import android.widget.TextView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 
+import com.android.intentresolver.flags.FeatureFlagRepository;
+import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ImagePreviewView;
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;
@@ -129,6 +131,8 @@ public final class ChooserContentPreviewUi {
     private static final String PLURALS_COUNT  = "count";
     private static final String PLURALS_FILE_NAME = "file_name";
 
+    private final FeatureFlagRepository mFeatureFlagRepository;
+
     /** Determine the most appropriate type of preview to show for the provided {@link Intent}. */
     @ContentPreviewType
     public static int findPreferredContentPreview(
@@ -164,17 +168,21 @@ public final class ChooserContentPreviewUi {
         return CONTENT_PREVIEW_TEXT;
     }
 
+    public ChooserContentPreviewUi(
+            FeatureFlagRepository featureFlagRepository) {
+        mFeatureFlagRepository = featureFlagRepository;
+    }
+
     /**
      * Display a content preview of the specified {@code previewType} to preview the content of the
      * specified {@code intent}.
      */
-    public static ViewGroup displayContentPreview(
+    public ViewGroup displayContentPreview(
             @ContentPreviewType int previewType,
             Intent targetIntent,
             Resources resources,
             LayoutInflater layoutInflater,
             ActionFactory actionFactory,
-            @LayoutRes int actionRowLayout,
             ViewGroup parent,
             ImageLoader previewImageLoader,
             TransitionElementStatusCallback transitionElementStatusCallback,
@@ -185,6 +193,9 @@ public final class ChooserContentPreviewUi {
         if (previewType != CONTENT_PREVIEW_IMAGE) {
             transitionElementStatusCallback.onAllTransitionElementsReady();
         }
+        int actionRowLayout = mFeatureFlagRepository.isEnabled(Flags.SHARESHEET_CUSTOM_ACTIONS)
+                ? R.layout.scrollable_chooser_action_row
+                : R.layout.chooser_action_row;
         List<ActionRow.Action> customActions = actionFactory.createCustomActions();
         switch (previewType) {
             case CONTENT_PREVIEW_TEXT:
@@ -230,7 +241,7 @@ public final class ChooserContentPreviewUi {
         }
         Runnable reselectionAction = actionFactory.getReselectionAction();
         if (reselectionAction != null && layout != null
-                && ChooserActivity.ENABLE_RESELECTION_ACTION) {
+                && mFeatureFlagRepository.isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)) {
             View reselectionView = layout.findViewById(R.id.reselection_action);
             if (reselectionView != null) {
                 reselectionView.setVisibility(View.VISIBLE);
@@ -241,12 +252,12 @@ public final class ChooserContentPreviewUi {
         return layout;
     }
 
-    private static List<ActionRow.Action> createActions(
+    private List<ActionRow.Action> createActions(
             List<ActionRow.Action> systemActions, List<ActionRow.Action> customActions) {
         ArrayList<ActionRow.Action> actions =
                 new ArrayList<>(systemActions.size() + customActions.size());
         actions.addAll(systemActions);
-        if (ChooserActivity.ENABLE_CUSTOM_ACTIONS) {
+        if (mFeatureFlagRepository.isEnabled(Flags.SHARESHEET_CUSTOM_ACTIONS)) {
             actions.addAll(customActions);
         }
         return actions;
@@ -594,6 +605,4 @@ public final class ChooserContentPreviewUi {
             this.hasThumbnail = hasThumbnail;
         }
     }
-
-    private ChooserContentPreviewUi() {}
 }
