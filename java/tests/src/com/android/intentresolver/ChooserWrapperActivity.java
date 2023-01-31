@@ -39,6 +39,7 @@ import com.android.intentresolver.AbstractMultiProfilePagerAdapter.QuietModeMana
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.NotSelectableTargetInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
@@ -286,5 +287,13 @@ public class ChooserWrapperActivity
         }
         return super.createShortcutLoader(
                 context, appPredictor, userHandle, targetIntentFilter, callback);
+    }
+
+    @Override
+    protected FeatureFlagRepository createFeatureFlagRepository() {
+        if (sOverrides.featureFlagRepository != null) {
+            return sOverrides.featureFlagRepository;
+        }
+        return super.createFeatureFlagRepository();
     }
 }

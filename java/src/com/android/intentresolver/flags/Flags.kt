@@ -18,11 +18,17 @@ package com.android.intentresolver.flags
 
 import com.android.systemui.flags.UnreleasedFlag
 
-// keep in sync with com.android.systemui.flags.Flags to make the flags available in the
-// flag flipper app (see go/sysui-flags)
+// Flag id, name and namespace should be kept in sync with [com.android.systemui.flags.Flags] to
+// make the flags available in the flag flipper app (see go/sysui-flags).
 object Flags {
+    // TODO(b/266983432) Tracking Bug
     @JvmField
-    val SHARESHEET_CUSTOM_ACTIONS = UnreleasedFlag(
-        id = 1501, name = "sharesheet_custom_actions", namespace = "systemui", teamfood = false
-    )
+    val SHARESHEET_CUSTOM_ACTIONS = unreleasedFlag(1501, "sharesheet_custom_actions")
+
+    // TODO(b/266982749) Tracking Bug
+    @JvmField
+    val SHARESHEET_RESELECTION_ACTION = unreleasedFlag(1502, "sharesheet_reselection_action")
+
+    private fun unreleasedFlag(id: Int, name: String, teamfood: Boolean = false) =
+        UnreleasedFlag(id, name, "systemui", teamfood)
 }
