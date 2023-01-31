@@ -29,6 +29,12 @@ object Flags {
     @JvmField
     val SHARESHEET_RESELECTION_ACTION = unreleasedFlag(1502, "sharesheet_reselection_action")
 
+    // TODO(b/266983474) Tracking Bug
+    @JvmField
+    val SHARESHEET_IMAGE_AND_TEXT_PREVIEW = unreleasedFlag(
+        id = 1503, name = "sharesheet_image_text_preview"
+    )
+
     private fun unreleasedFlag(id: Int, name: String, teamfood: Boolean = false) =
         UnreleasedFlag(id, name, "systemui", teamfood)
 }
