@@ -972,6 +972,51 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    public void testImageAndTextPreview() {
+        ChooserActivityOverrideData.getInstance().featureFlagRepository =
+                new FeatureFlagRepository() {
+                    @Override
+                    public boolean isEnabled(@NonNull UnreleasedFlag flag) {
+                        return Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW.equals(flag)
+                                || flag.getDefault();
+                    }
+
+                    @Override
+                    public boolean isEnabled(@NonNull ReleasedFlag flag) {
+                        return false;
+                    }
+                };
+        final Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
+                + R.drawable.test320x240);
+        final String sharedText = "text-" + System.currentTimeMillis();
+
+        ArrayList<Uri> uris = new ArrayList<>();
+        uris.add(uri);
+
+        Intent sendIntent = createSendUriIntentWithPreview(uris);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, sharedText);
+        ChooserActivityOverrideData.getInstance().previewThumbnail = createBitmap();
+        ChooserActivityOverrideData.getInstance().isImageType = true;
+
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+
+        when(
+                ChooserActivityOverrideData
+                        .getInstance()
+                        .resolverListController
+                        .getResolversForIntent(
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.isA(List.class)))
+                .thenReturn(resolvedComponentInfos);
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
+        waitForIdle();
+        onView(withText(sharedText))
+                .check(matches(isDisplayed()));
+    }
+
+    @Test
     public void testOnCreateLogging() {
         Intent sendIntent = createSendTextIntent();
         sendIntent.setType(TEST_MIME_TYPE);

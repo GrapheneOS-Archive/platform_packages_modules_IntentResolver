@@ -32,6 +32,7 @@ import android.provider.DocumentsContract;
 import android.provider.Downloads;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.util.PluralsMessageFormatter;
 import android.view.LayoutInflater;
@@ -350,7 +351,7 @@ public final class ChooserContentPreviewUi {
         return actions;
     }
 
-    private static ViewGroup displayImageContentPreview(
+    private ViewGroup displayImageContentPreview(
             Intent targetIntent,
             LayoutInflater layoutInflater,
             List<ActionRow.Action> actions,
@@ -389,10 +390,30 @@ public final class ChooserContentPreviewUi {
             return contentPreviewLayout;
         }
 
+        setTextInImagePreviewVisibility(
+                contentPreviewLayout,
+                targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT));
         imagePreview.setTransitionElementStatusCallback(transitionElementStatusCallback);
         imagePreview.setImages(imageUris, imageLoader);
 
         return contentPreviewLayout;
+    }
+
+    private void setTextInImagePreviewVisibility(
+            ViewGroup contentPreview, CharSequence text) {
+        int visibility = mFeatureFlagRepository.isEnabled(Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW)
+                && !TextUtils.isEmpty(text)
+                        ? View.VISIBLE
+                        : View.GONE;
+
+        TextView textView = contentPreview
+                .requireViewById(com.android.internal.R.id.content_preview_text);
+        textView.setVisibility(visibility);
+        int linkMask = visibility == View.VISIBLE && HttpUriMatcher.isHttpUri(text.toString())
+                ? Linkify.WEB_URLS
+                : 0;
+        textView.setAutoLinkMask(linkMask);
+        textView.setText(text);
     }
 
     private static List<ActionRow.Action> createImagePreviewActions(
