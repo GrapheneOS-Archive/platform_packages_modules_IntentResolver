@@ -1785,6 +1785,64 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    public void testLaunchWithPayloadReselection() throws InterruptedException {
+        ChooserActivityOverrideData.getInstance().featureFlagRepository =
+                new FeatureFlagRepository() {
+                    @Override
+                    public boolean isEnabled(@NonNull UnreleasedFlag flag) {
+                        return Flags.SHARESHEET_RESELECTION_ACTION.equals(flag)
+                                || flag.getDefault();
+                    }
+
+                    @Override
+                    public boolean isEnabled(@NonNull ReleasedFlag flag) {
+                        return false;
+                    }
+                };
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+        when(
+                ChooserActivityOverrideData
+                        .getInstance()
+                        .resolverListController
+                        .getResolversForIntent(
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.isA(List.class)))
+                .thenReturn(resolvedComponentInfos);
+
+        Context testContext = InstrumentationRegistry.getInstrumentation().getContext();
+        final String reselectionAction = "test-broadcast-receiver-action";
+        Intent chooserIntent = Intent.createChooser(createSendTextIntent(), null);
+        chooserIntent.putExtra(
+                Intent.EXTRA_CHOOSER_PAYLOAD_RESELECTION_ACTION,
+                PendingIntent.getBroadcast(
+                        testContext,
+                        123,
+                        new Intent(reselectionAction),
+                        PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT));
+        // Start activity
+        mActivityRule.launchActivity(chooserIntent);
+        waitForIdle();
+
+        final CountDownLatch broadcastInvoked = new CountDownLatch(1);
+        BroadcastReceiver testReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                broadcastInvoked.countDown();
+            }
+        };
+        testContext.registerReceiver(testReceiver, new IntentFilter(reselectionAction));
+
+        try {
+            onView(withText(R.string.select_text)).perform(click());
+            broadcastInvoked.await();
+        } finally {
+            testContext.unregisterReceiver(testReceiver);
+        }
+    }
+
+    @Test
     public void testUpdateMaxTargetsPerRow_columnCountIsUpdated() throws InterruptedException {
         updateMaxTargetsPerRowResource(/* targetsPerRow= */ 4);
         givenAppTargets(/* appCount= */ 16);
