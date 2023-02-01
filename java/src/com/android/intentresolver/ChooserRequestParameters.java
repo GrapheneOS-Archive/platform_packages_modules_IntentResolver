@@ -33,6 +33,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
+import com.android.intentresolver.flags.FeatureFlagRepository;
+import com.android.intentresolver.flags.Flags;
+
 import com.google.common.collect.ImmutableList;
 
 import java.net.URISyntaxException;
@@ -101,8 +104,7 @@ public class ChooserRequestParameters {
             final Intent clientIntent,
             final Uri referrer,
             @Nullable final ComponentName nearbySharingComponent,
-            boolean extractCustomActions,
-            boolean extractReslectionAction) {
+            FeatureFlagRepository featureFlags) {
         final Intent requestedTarget = parseTargetIntentExtra(
                 clientIntent.getParcelableExtra(Intent.EXTRA_INTENT));
         mTarget = intentWithModifiedLaunchFlags(requestedTarget);
@@ -137,10 +139,10 @@ public class ChooserRequestParameters {
 
         mTargetIntentFilter = getTargetIntentFilter(mTarget);
 
-        mChooserActions = extractCustomActions
+        mChooserActions = featureFlags.isEnabled(Flags.SHARESHEET_CUSTOM_ACTIONS)
                 ? getChooserActions(clientIntent)
                 : ImmutableList.of();
-        mReselectionAction = extractReslectionAction
+        mReselectionAction = featureFlags.isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)
                 ? getReselectionActionExtra(clientIntent)
                 : null;
     }
@@ -194,7 +196,7 @@ public class ChooserRequestParameters {
     }
 
     /**
-     * Whether the {@link ChooserActivity.EXTRA_PRIVATE_RETAIN_IN_ON_STOP} behavior was requested.
+     * Whether the {@link ChooserActivity#EXTRA_PRIVATE_RETAIN_IN_ON_STOP} behavior was requested.
      */
     public boolean shouldRetainInOnStop() {
         return mRetainInOnStop;

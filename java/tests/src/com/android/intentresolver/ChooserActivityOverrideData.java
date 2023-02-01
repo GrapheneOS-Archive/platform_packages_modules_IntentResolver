@@ -31,6 +31,7 @@ import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileI
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.QuietModeManager;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 
 import java.util.function.Consumer;
@@ -76,6 +77,7 @@ public class ChooserActivityOverrideData {
     public MyUserIdProvider mMyUserIdProvider;
     public CrossProfileIntentsChecker mCrossProfileIntentsChecker;
     public PackageManager packageManager;
+    public FeatureFlagRepository featureFlagRepository;
 
     public void reset() {
         onSafelyStartCallback = null;
@@ -128,6 +130,7 @@ public class ChooserActivityOverrideData {
         mCrossProfileIntentsChecker = mock(CrossProfileIntentsChecker.class);
         when(mCrossProfileIntentsChecker.hasCrossProfileIntents(any(), anyInt(), anyInt()))
                 .thenAnswer(invocation -> hasCrossProfileIntents);
+        featureFlagRepository = null;
     }
 
     private ChooserActivityOverrideData() {}

@@ -98,6 +98,9 @@ import com.android.intentresolver.NoCrossProfileEmptyStateProvider.DevicePolicyB
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.flags.FeatureFlagRepository;
+import com.android.intentresolver.flags.FeatureFlagRepositoryFactory;
+import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.grid.DirectShareViewHolder;
 import com.android.intentresolver.model.AbstractResolverComparator;
@@ -160,8 +163,6 @@ public class ChooserActivity extends ResolverActivity implements
     private static final String CHIP_ICON_METADATA_KEY = "android.service.chooser.chip_icon";
 
     private static final boolean DEBUG = true;
-    static final boolean ENABLE_CUSTOM_ACTIONS = false;
-    static final boolean ENABLE_RESELECTION_ACTION = false;
 
     public static final String LAUNCH_LOCATION_DIRECT_SHARE = "direct_share";
     private static final String SHORTCUT_TARGET = "shortcut_target";
@@ -218,6 +219,9 @@ public class ChooserActivity extends ResolverActivity implements
     @Nullable
     private ChooserRequestParameters mChooserRequest;
 
+    private FeatureFlagRepository mFeatureFlagRepository;
+    private ChooserContentPreviewUi mChooserContentPreviewUi;
+
     private boolean mShouldDisplayLandscape;
     // statsd logger wrapper
     protected ChooserActivityLogger mChooserActivityLogger;
@@ -267,19 +271,20 @@ public class ChooserActivity extends ResolverActivity implements
 
         getChooserActivityLogger().logSharesheetTriggered();
 
+        mFeatureFlagRepository = createFeatureFlagRepository();
         try {
             mChooserRequest = new ChooserRequestParameters(
                     getIntent(),
                     getReferrer(),
                     getNearbySharingComponent(),
-                    ENABLE_CUSTOM_ACTIONS,
-                    ENABLE_RESELECTION_ACTION);
+                    mFeatureFlagRepository);
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "Caller provided invalid Chooser request parameters", e);
             finish();
             super_onCreate(null);
             return;
         }
+        mChooserContentPreviewUi = new ChooserContentPreviewUi(mFeatureFlagRepository);
 
         setAdditionalTargets(mChooserRequest.getAdditionalTargets());
 
@@ -364,6 +369,10 @@ public class ChooserActivity extends ResolverActivity implements
     @Override
     protected int appliedThemeResId() {
         return R.style.Theme_DeviceDefault_Chooser;
+    }
+
+    protected FeatureFlagRepository createFeatureFlagRepository() {
+        return new FeatureFlagRepositoryFactory().create(getApplicationContext());
     }
 
     private void createProfileRecords(
@@ -753,7 +762,8 @@ public class ChooserActivity extends ResolverActivity implements
                     @Nullable
                     @Override
                     public Runnable getReselectionAction() {
-                        if (!ENABLE_RESELECTION_ACTION) {
+                        if (!mFeatureFlagRepository
+                                .isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)) {
                             return null;
                         }
                         PendingIntent reselectionAction = mChooserRequest.getReselectionAction();
@@ -763,15 +773,12 @@ public class ChooserActivity extends ResolverActivity implements
                     }
                 };
 
-        ViewGroup layout = ChooserContentPreviewUi.displayContentPreview(
+        ViewGroup layout = mChooserContentPreviewUi.displayContentPreview(
                 previewType,
                 targetIntent,
                 getResources(),
                 getLayoutInflater(),
                 actionFactory,
-                ENABLE_CUSTOM_ACTIONS
-                        ? R.layout.scrollable_chooser_action_row
-                        : R.layout.chooser_action_row,
                 parent,
                 imageLoader,
                 mEnterTransitionAnimationDelegate,
