@@ -186,6 +186,11 @@ class TargetInfoTest {
         assertThat(multiTargetInfo.hasSelected()).isTrue()
         assertThat(multiTargetInfo.getSelectedTarget()).isEqualTo(secondTargetInfo)
 
+        val multiTargetInfoClone = multiTargetInfo.cloneFilledIn(Intent(), 0)
+        assertThat(multiTargetInfoClone).isInstanceOf(MultiDisplayResolveInfo::class.java)
+        assertThat((multiTargetInfoClone as MultiDisplayResolveInfo).hasSelected())
+            .isEqualTo(multiTargetInfo.hasSelected())
+
         // TODO: consider exercising activity-start behavior.
         // TODO: consider exercising DisplayResolveInfo base class behavior.
     }
