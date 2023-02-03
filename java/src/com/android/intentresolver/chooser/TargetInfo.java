@@ -88,6 +88,12 @@ public interface TargetInfo {
     Intent getResolvedIntent();
 
     /**
+     * Get the target intent, the one that will be used with one of the <code>start</code> methods.
+     * @return the intent with target will be launced with.
+     */
+    @Nullable Intent getTargetIntent();
+
+    /**
      * Get the resolved component name that represents this target. Note that this may not
      * be the component that will be directly launched by calling one of the <code>start</code>
      * methods provided; this is the component that will be credited with the launch. This may be

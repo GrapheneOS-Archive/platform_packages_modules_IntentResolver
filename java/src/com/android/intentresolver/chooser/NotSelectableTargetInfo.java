@@ -16,6 +16,7 @@
 
 package com.android.intentresolver.chooser;
 
+import android.annotation.Nullable;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -99,6 +100,12 @@ public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
 
     public boolean startAsCaller(ResolverActivity activity, Bundle options, int userId) {
         return false;
+    }
+
+    @Nullable
+    @Override
+    public Intent getTargetIntent() {
+        return null;
     }
 
     public boolean startAsUser(Activity activity, Bundle options, UserHandle user) {
