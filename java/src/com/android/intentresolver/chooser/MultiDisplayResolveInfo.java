@@ -119,4 +119,9 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
     public boolean startAsUser(Activity activity, Bundle options, UserHandle user) {
         return mTargetInfos.get(mSelected).startAsUser(activity, options, user);
     }
+
+    @Override
+    public Intent getTargetIntent() {
+        return mTargetInfos.get(mSelected).getTargetIntent();
+    }
 }
