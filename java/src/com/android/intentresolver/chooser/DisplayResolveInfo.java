@@ -169,6 +169,10 @@ public class DisplayResolveInfo implements TargetInfo {
 
     @Override
     public TargetInfo cloneFilledIn(Intent fillInIntent, int flags) {
+        return cloneFilledInInternal(fillInIntent, flags);
+    }
+
+    protected final DisplayResolveInfo cloneFilledInInternal(Intent fillInIntent, int flags) {
         return new DisplayResolveInfo(this, fillInIntent, flags, mPresentationGetter);
     }
 
