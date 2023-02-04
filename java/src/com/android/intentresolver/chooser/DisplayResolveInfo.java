@@ -224,6 +224,11 @@ public class DisplayResolveInfo implements TargetInfo {
         return false;
     }
 
+    @Override
+    public Intent getTargetIntent() {
+        return mResolvedIntent;
+    }
+
     public boolean isSuspended() {
         return mIsSuspended;
     }

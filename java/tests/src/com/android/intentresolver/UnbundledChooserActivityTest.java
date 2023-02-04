@@ -128,6 +128,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -753,6 +754,170 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
         assertThat(chosen[0], is(toChoose));
+    }
+
+    @Test
+    public void testImagePlusTextSharing_ExcludeText() {
+        ChooserActivityOverrideData.getInstance().featureFlagRepository =
+                new TestFeatureFlagRepository(
+                        Collections.singletonMap(Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW, true));
+        Intent sendIntent = createSendImageIntent(
+                Uri.parse("android.resource://com.android.frameworks.coretests/"
+                        + R.drawable.test320x240));
+        ChooserActivityOverrideData.getInstance().previewThumbnail = createBitmap();
+        ChooserActivityOverrideData.getInstance().isImageType = true;
+        sendIntent.putExtra(Intent.EXTRA_TEXT, "https://google.com/search?q=google");
+
+        List<ResolvedComponentInfo> resolvedComponentInfos = Arrays.asList(
+                ResolverDataProvider.createResolvedComponentInfo(
+                        new ComponentName("org.imageviewer", "ImageTarget"),
+                        sendIntent),
+                ResolverDataProvider.createResolvedComponentInfo(
+                        new ComponentName("org.textviewer", "UriTarget"),
+                        new Intent("VIEW_TEXT"))
+        );
+
+        when(
+                ChooserActivityOverrideData
+                        .getInstance()
+                        .resolverListController
+                        .getResolversForIntent(
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.isA(List.class)))
+                .thenReturn(resolvedComponentInfos);
+
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
+        waitForIdle();
+
+        onView(withId(R.id.include_text_action))
+                .check(matches(isDisplayed()))
+                .perform(click());
+        waitForIdle();
+
+        AtomicReference<Intent> launchedIntentRef = new AtomicReference<>();
+        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+            launchedIntentRef.set(targetInfo.getTargetIntent());
+            return true;
+        };
+
+        onView(withText(resolvedComponentInfos.get(0).getResolveInfoAt(0).activityInfo.name))
+                .perform(click());
+        waitForIdle();
+        assertThat(launchedIntentRef.get().hasExtra(Intent.EXTRA_TEXT)).isFalse();
+    }
+
+    @Test
+    public void testImagePlusTextSharing_RemoveAndAddBackText() {
+        ChooserActivityOverrideData.getInstance().featureFlagRepository =
+                new TestFeatureFlagRepository(
+                        Collections.singletonMap(Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW, true));
+        Intent sendIntent = createSendImageIntent(
+                Uri.parse("android.resource://com.android.frameworks.coretests/"
+                        + R.drawable.test320x240));
+        ChooserActivityOverrideData.getInstance().previewThumbnail = createBitmap();
+        ChooserActivityOverrideData.getInstance().isImageType = true;
+        final String text = "https://google.com/search?q=google";
+        sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+
+        List<ResolvedComponentInfo> resolvedComponentInfos = Arrays.asList(
+                ResolverDataProvider.createResolvedComponentInfo(
+                        new ComponentName("org.imageviewer", "ImageTarget"),
+                        sendIntent),
+                ResolverDataProvider.createResolvedComponentInfo(
+                        new ComponentName("org.textviewer", "UriTarget"),
+                        new Intent("VIEW_TEXT"))
+        );
+
+        when(
+                ChooserActivityOverrideData
+                        .getInstance()
+                        .resolverListController
+                        .getResolversForIntent(
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.isA(List.class)))
+                .thenReturn(resolvedComponentInfos);
+
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
+        waitForIdle();
+
+        onView(withId(R.id.include_text_action))
+                .check(matches(isDisplayed()))
+                .perform(click());
+        waitForIdle();
+        onView(withId(R.id.include_text_action))
+                .perform(click());
+        waitForIdle();
+
+        AtomicReference<Intent> launchedIntentRef = new AtomicReference<>();
+        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+            launchedIntentRef.set(targetInfo.getTargetIntent());
+            return true;
+        };
+
+        onView(withText(resolvedComponentInfos.get(0).getResolveInfoAt(0).activityInfo.name))
+                .perform(click());
+        waitForIdle();
+        assertThat(launchedIntentRef.get().getStringExtra(Intent.EXTRA_TEXT)).isEqualTo(text);
+    }
+
+    @Test
+    public void testImagePlusTextSharing_TextExclusionDoesNotAffectAlternativeIntent() {
+        ChooserActivityOverrideData.getInstance().featureFlagRepository =
+                new TestFeatureFlagRepository(
+                        Collections.singletonMap(Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW, true));
+        Intent sendIntent = createSendImageIntent(
+                Uri.parse("android.resource://com.android.frameworks.coretests/"
+                        + R.drawable.test320x240));
+        ChooserActivityOverrideData.getInstance().previewThumbnail = createBitmap();
+        ChooserActivityOverrideData.getInstance().isImageType = true;
+        sendIntent.putExtra(Intent.EXTRA_TEXT, "https://google.com/search?q=google");
+
+        Intent alternativeIntent = createSendTextIntent();
+        final String text = "alternative intent";
+        alternativeIntent.putExtra(Intent.EXTRA_TEXT, text);
+
+        List<ResolvedComponentInfo> resolvedComponentInfos = Arrays.asList(
+                ResolverDataProvider.createResolvedComponentInfo(
+                        new ComponentName("org.imageviewer", "ImageTarget"),
+                        sendIntent),
+                ResolverDataProvider.createResolvedComponentInfo(
+                        new ComponentName("org.textviewer", "UriTarget"),
+                        alternativeIntent)
+        );
+
+        when(
+                ChooserActivityOverrideData
+                        .getInstance()
+                        .resolverListController
+                        .getResolversForIntent(
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.isA(List.class)))
+                .thenReturn(resolvedComponentInfos);
+
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
+        waitForIdle();
+
+        onView(withId(R.id.include_text_action))
+                .check(matches(isDisplayed()))
+                .perform(click());
+        waitForIdle();
+
+        AtomicReference<Intent> launchedIntentRef = new AtomicReference<>();
+        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+            launchedIntentRef.set(targetInfo.getTargetIntent());
+            return true;
+        };
+
+        onView(withText(resolvedComponentInfos.get(1).getResolveInfoAt(0).activityInfo.name))
+                .perform(click());
+        waitForIdle();
+        assertThat(launchedIntentRef.get().getStringExtra(Intent.EXTRA_TEXT)).isEqualTo(text);
     }
 
     @Test

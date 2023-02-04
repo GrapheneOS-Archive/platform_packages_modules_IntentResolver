@@ -262,6 +262,8 @@ public class ChooserActivity extends ResolverActivity implements
 
     private final SparseArray<ProfileRecord> mProfileRecords = new SparseArray<>();
 
+    private boolean mExcludeSharedText = false;
+
     public ChooserActivity() {}
 
     @Override
@@ -771,6 +773,11 @@ public class ChooserActivity extends ResolverActivity implements
                                 ? null
                                 : createReselectionRunnable(reselectionAction);
                     }
+
+                    @Override
+                    public Consumer<Boolean> getExcludeSharedTextAction() {
+                        return (isExcluded) -> mExcludeSharedText = isExcluded;
+                    }
                 };
 
         ViewGroup layout = mChooserContentPreviewUi.displayContentPreview(
@@ -1196,6 +1203,7 @@ public class ChooserActivity extends ResolverActivity implements
             }
         }
         updateModelAndChooserCounts(target);
+        maybeRemoveSharedText(target);
         return super.onTargetSelected(target, alwaysCheck);
     }
 
@@ -1384,6 +1392,27 @@ public class ChooserActivity extends ResolverActivity implements
         mIsSuccessfullySelected = true;
     }
 
+    private void maybeRemoveSharedText(@androidx.annotation.NonNull TargetInfo targetInfo) {
+        Intent targetIntent = targetInfo.getTargetIntent();
+        if (targetIntent == null) {
+            return;
+        }
+        Intent originalTargetIntent = new Intent(mChooserRequest.getTargetIntent());
+        // Our TargetInfo implementations add associated component to the intent, let's do the same
+        // for the sake of the comparison below.
+        if (targetIntent.getComponent() != null) {
+            originalTargetIntent.setComponent(targetIntent.getComponent());
+        }
+        // Use filterEquals as a way to check that the primary intent is in use (and not an
+        // alternative one). For example, an app is sharing an image and a link with mime type
+        // "image/png" and provides an alternative intent to share only the link with mime type
+        // "text/uri". Should there be a target that accepts only the latter, the alternative intent
+        // will be used and we don't want to exclude the link from it.
+        if (mExcludeSharedText && originalTargetIntent.filterEquals(targetIntent)) {
+            targetIntent.removeExtra(Intent.EXTRA_TEXT);
+        }
+    }
+
     private void sendImpressionToAppPredictor(TargetInfo targetInfo, ChooserListAdapter adapter) {
         // Send DS target impression info to AppPredictor, only when user chooses app share.
         if (targetInfo.isChooserTargetInfo()) {
@@ -1451,6 +1480,7 @@ public class ChooserActivity extends ResolverActivity implements
                     + " cannot match refined source intent " + matchingIntent);
         } else {
             TargetInfo clonedTarget = selectedTarget.cloneFilledIn(matchingIntent, 0);
+            maybeRemoveSharedText(clonedTarget);
             if (super.onTargetSelected(clonedTarget, false)) {
                 updateModelAndChooserCounts(clonedTarget);
                 finish();
