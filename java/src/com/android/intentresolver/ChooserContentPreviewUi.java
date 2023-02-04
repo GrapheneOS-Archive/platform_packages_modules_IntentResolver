@@ -363,8 +363,7 @@ public final class ChooserContentPreviewUi {
             @LayoutRes int actionRowLayout) {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_image, parent, false);
-        ImagePreviewView imagePreview = contentPreviewLayout.findViewById(
-                com.android.internal.R.id.content_preview_image_area);
+        ImagePreviewView imagePreview = inflateImagePreviewView(contentPreviewLayout);
 
         final ActionRow actionRow = inflateActionRow(contentPreviewLayout, actionRowLayout);
         if (actionRow != null) {
@@ -429,6 +428,20 @@ public final class ChooserContentPreviewUi {
             actions.add(action);
         }
         return actions;
+    }
+
+    private ImagePreviewView inflateImagePreviewView(ViewGroup previewLayout) {
+        ViewStub stub = previewLayout.findViewById(R.id.image_preview_stub);
+        if (stub != null) {
+            int layoutId =
+                    mFeatureFlagRepository.isEnabled(Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW)
+                            ? R.layout.scrollable_image_preview_view
+                            : R.layout.chooser_image_preview_view;
+            stub.setLayoutResource(layoutId);
+            stub.inflate();
+        }
+        return previewLayout.findViewById(
+                com.android.internal.R.id.content_preview_image_area);
     }
 
     private static ViewGroup displayFileContentPreview(
