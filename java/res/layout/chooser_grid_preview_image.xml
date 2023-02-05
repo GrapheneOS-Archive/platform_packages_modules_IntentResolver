@@ -16,7 +16,6 @@
 * limitations under the License.
 */
 -->
-<!-- Layout Option: Supporting up to 3 images for preview -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
@@ -25,6 +24,14 @@
     android:orientation="vertical"
     android:background="?android:attr/colorBackground">
 
+  <CheckBox
+      android:id="@+id/include_text_action"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="end"
+      android:layout_marginEnd="@dimen/chooser_edge_margin_normal"
+      android:visibility="gone" />
+
   <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -32,8 +39,9 @@
       android:gravity="center_horizontal"
       android:layout_marginBottom="@dimen/chooser_view_spacing">
 
-      <com.android.intentresolver.widget.ChooserImagePreviewView
-          android:id="@androidprv:id/content_preview_image_area"
+      <ViewStub
+          android:id="@+id/image_preview_stub"
+          android:inflatedId="@androidprv:id/content_preview_image_area"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:paddingStart="@dimen/chooser_edge_margin_normal"

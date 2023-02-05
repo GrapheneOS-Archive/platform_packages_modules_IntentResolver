@@ -57,7 +57,8 @@ class ChooserImagePreviewView : RelativeLayout, ImagePreviewView {
     private var transitionStatusElementCallback: TransitionElementStatusCallback? = null
 
     override fun onFinishInflate() {
-        LayoutInflater.from(context).inflate(R.layout.image_preview_view, this, true)
+        LayoutInflater.from(context)
+            .inflate(R.layout.chooser_image_preview_view_internals, this, true)
         mainImage = requireViewById(IntR.id.content_preview_image_1_large)
         secondLargeImage = requireViewById(IntR.id.content_preview_image_2_large)
         secondSmallImage = requireViewById(IntR.id.content_preview_image_2_small)

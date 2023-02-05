@@ -346,6 +346,12 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         return mActivityStarter.startAsUser(activity, options, user);
     }
 
+    @Nullable
+    @Override
+    public Intent getTargetIntent() {
+        return mBaseIntentToSend;
+    }
+
     @Override
     public ResolveInfo getResolveInfo() {
         return mResolveInfo;

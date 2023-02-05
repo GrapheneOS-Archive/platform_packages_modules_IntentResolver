@@ -17,6 +17,7 @@
 package com.android.intentresolver.chooser;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.UserHandle;
 
@@ -30,7 +31,7 @@ import java.util.List;
  */
 public class MultiDisplayResolveInfo extends DisplayResolveInfo {
 
-    ArrayList<DisplayResolveInfo> mTargetInfos = new ArrayList<>();
+    final ArrayList<DisplayResolveInfo> mTargetInfos;
 
     // Index of selected target
     private int mSelected = -1;
@@ -66,8 +67,9 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
 
     /**
      * List of all {@link DisplayResolveInfo}s included in this target.
-     * TODO: provide as a generic {@code List<DisplayResolveInfo>} once {@link ChooserActivity}
-     * stops requiring the signature to match that of the other "lists" it builds up.
+     * TODO: provide as a generic {@code List<DisplayResolveInfo>} once
+     *  {@link com.android.intentresolver.ChooserActivity} stops requiring the signature to match
+     *  that of the other "lists" it builds up.
      */
     @Override
     public ArrayList<DisplayResolveInfo> getAllDisplayTargets() {
@@ -93,6 +95,17 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
     }
 
     @Override
+    public TargetInfo cloneFilledIn(Intent fillInIntent, int flags) {
+        ArrayList<DisplayResolveInfo> targetInfos = new ArrayList<>(mTargetInfos.size());
+        for (int i = 0, size = mTargetInfos.size(); i < size; i++) {
+            targetInfos.add(mTargetInfos.get(i).cloneFilledInInternal(fillInIntent, flags));
+        }
+        MultiDisplayResolveInfo clone = new MultiDisplayResolveInfo(targetInfos);
+        clone.mSelected = mSelected;
+        return clone;
+    }
+
+    @Override
     public boolean start(Activity activity, Bundle options) {
         return mTargetInfos.get(mSelected).start(activity, options);
     }
@@ -105,5 +118,10 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
     @Override
     public boolean startAsUser(Activity activity, Bundle options, UserHandle user) {
         return mTargetInfos.get(mSelected).startAsUser(activity, options, user);
+    }
+
+    @Override
+    public Intent getTargetIntent() {
+        return mTargetInfos.get(mSelected).getTargetIntent();
     }
 }

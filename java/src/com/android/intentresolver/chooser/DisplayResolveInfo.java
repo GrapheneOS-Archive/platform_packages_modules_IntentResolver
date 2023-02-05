@@ -169,6 +169,10 @@ public class DisplayResolveInfo implements TargetInfo {
 
     @Override
     public TargetInfo cloneFilledIn(Intent fillInIntent, int flags) {
+        return cloneFilledInInternal(fillInIntent, flags);
+    }
+
+    protected final DisplayResolveInfo cloneFilledInInternal(Intent fillInIntent, int flags) {
         return new DisplayResolveInfo(this, fillInIntent, flags, mPresentationGetter);
     }
 
@@ -218,6 +222,11 @@ public class DisplayResolveInfo implements TargetInfo {
         TargetInfo.prepareIntentForCrossProfileLaunch(mResolvedIntent, user.getIdentifier());
         activity.startActivityAsUser(mResolvedIntent, options, user);
         return false;
+    }
+
+    @Override
+    public Intent getTargetIntent() {
+        return mResolvedIntent;
     }
 
     public boolean isSuspended() {
