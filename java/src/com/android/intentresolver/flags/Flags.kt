@@ -16,6 +16,7 @@
 
 package com.android.intentresolver.flags
 
+import com.android.systemui.flags.ReleasedFlag
 import com.android.systemui.flags.UnreleasedFlag
 
 // Flag id, name and namespace should be kept in sync with [com.android.systemui.flags.Flags] to
@@ -23,23 +24,26 @@ import com.android.systemui.flags.UnreleasedFlag
 object Flags {
     // TODO(b/266983432) Tracking Bug
     @JvmField
-    val SHARESHEET_CUSTOM_ACTIONS = unreleasedFlag(1501, "sharesheet_custom_actions", teamfood = true)
+    val SHARESHEET_CUSTOM_ACTIONS = releasedFlag(1501, "sharesheet_custom_actions")
 
     // TODO(b/266982749) Tracking Bug
     @JvmField
-    val SHARESHEET_RESELECTION_ACTION = unreleasedFlag(1502, "sharesheet_reselection_action", teamfood = true)
+    val SHARESHEET_RESELECTION_ACTION = releasedFlag(1502, "sharesheet_reselection_action")
 
     // TODO(b/266983474) Tracking Bug
     @JvmField
-    val SHARESHEET_IMAGE_AND_TEXT_PREVIEW = unreleasedFlag(
-        id = 1503, name = "sharesheet_image_text_preview", teamfood = true
+    val SHARESHEET_IMAGE_AND_TEXT_PREVIEW = releasedFlag(
+        id = 1503, name = "sharesheet_image_text_preview"
     )
 
     // TODO(b/267355521) Tracking Bug
     @JvmField
-    val SHARESHEET_SCROLLABLE_IMAGE_PREVIEW = unreleasedFlag(
+    val SHARESHEET_SCROLLABLE_IMAGE_PREVIEW = releasedFlag(
         1504, "sharesheet_scrollable_image_preview"
     )
+
+    private fun releasedFlag(id: Int, name: String) =
+        ReleasedFlag(id, name, "systemui")
 
     private fun unreleasedFlag(id: Int, name: String, teamfood: Boolean = false) =
         UnreleasedFlag(id, name, "systemui", teamfood)

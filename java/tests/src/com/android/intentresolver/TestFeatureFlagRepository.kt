@@ -17,14 +17,16 @@
 package com.android.intentresolver
 
 import com.android.intentresolver.flags.FeatureFlagRepository
+import com.android.systemui.flags.BooleanFlag
 import com.android.systemui.flags.ReleasedFlag
 import com.android.systemui.flags.UnreleasedFlag
 
 internal class TestFeatureFlagRepository(
-    private val overrides: Map<UnreleasedFlag, Boolean>
+    private val overrides: Map<BooleanFlag, Boolean>
 ) : FeatureFlagRepository {
     override fun isEnabled(flag: UnreleasedFlag): Boolean =
         overrides.getOrDefault(flag, flag.default)
 
-    override fun isEnabled(flag: ReleasedFlag): Boolean = flag.default
+    override fun isEnabled(flag: ReleasedFlag): Boolean =
+        overrides.getOrDefault(flag, flag.default)
 }
