@@ -1694,7 +1694,7 @@ public class ChooserActivity extends ResolverActivity implements
                 mPm,
                 getTargetIntent(),
                 getReferrerPackageName(),
-                mLaunchedFromUid,
+                getAnnotatedUserHandles().userIdOfCallingApp,
                 userHandle,
                 resolverComparator);
     }
