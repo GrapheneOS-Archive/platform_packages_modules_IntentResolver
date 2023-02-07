@@ -16,16 +16,8 @@
 
 package com.android.intentresolver
 
-import com.android.intentresolver.flags.FeatureFlagRepository
-import com.android.systemui.flags.BooleanFlag
-import com.android.systemui.flags.ReleasedFlag
-import com.android.systemui.flags.UnreleasedFlag
-
-internal class TestFeatureFlagRepository(
-    private val overrides: Map<BooleanFlag, Boolean>
-) : FeatureFlagRepository {
-    override fun isEnabled(flag: UnreleasedFlag): Boolean = getValue(flag)
-    override fun isEnabled(flag: ReleasedFlag): Boolean = getValue(flag)
-
-    private fun getValue(flag: BooleanFlag) = overrides.getOrDefault(flag, flag.default)
-}
+/**
+ * Specifies expected feature flag values for a test.
+ */
+@Target(AnnotationTarget.FUNCTION)
+annotation class RequireFeatureFlags(val flags: Array<String>, val values: BooleanArray)
