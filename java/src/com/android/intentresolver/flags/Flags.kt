@@ -38,7 +38,7 @@ object Flags {
     // TODO(b/267355521) Tracking Bug
     @JvmField
     val SHARESHEET_SCROLLABLE_IMAGE_PREVIEW = unreleasedFlag(
-        1504, "sharesheet_scrollable_image_preview"
+        1504, "sharesheet_scrollable_image_preview", teamfood = true
     )
 
     private fun unreleasedFlag(id: Int, name: String, teamfood: Boolean = false) =
