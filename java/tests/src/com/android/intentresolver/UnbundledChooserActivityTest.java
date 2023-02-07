@@ -1998,7 +1998,7 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    public void testLaunchWithPayloadReselection() throws InterruptedException {
+    public void testLaunchWithShareModification() throws InterruptedException {
         ChooserActivityOverrideData.getInstance().featureFlagRepository =
                 new TestFeatureFlagRepository(
                         Collections.singletonMap(Flags.SHARESHEET_RESELECTION_ACTION, true));
@@ -2015,14 +2015,14 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(resolvedComponentInfos);
 
         Context testContext = InstrumentationRegistry.getInstrumentation().getContext();
-        final String reselectionAction = "test-broadcast-receiver-action";
+        final String modifyShareAction = "test-broadcast-receiver-action";
         Intent chooserIntent = Intent.createChooser(createSendTextIntent(), null);
         chooserIntent.putExtra(
-                Intent.EXTRA_CHOOSER_PAYLOAD_RESELECTION_ACTION,
+                Intent.EXTRA_CHOOSER_MODIFY_SHARE_ACTION,
                 PendingIntent.getBroadcast(
                         testContext,
                         123,
-                        new Intent(reselectionAction),
+                        new Intent(modifyShareAction),
                         PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT));
         // Start activity
         mActivityRule.launchActivity(chooserIntent);
@@ -2035,7 +2035,7 @@ public class UnbundledChooserActivityTest {
                 broadcastInvoked.countDown();
             }
         };
-        testContext.registerReceiver(testReceiver, new IntentFilter(reselectionAction));
+        testContext.registerReceiver(testReceiver, new IntentFilter(modifyShareAction));
 
         try {
             onView(withText(R.string.select_text)).perform(click());
