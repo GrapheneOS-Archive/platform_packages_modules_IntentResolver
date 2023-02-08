@@ -22,7 +22,12 @@ import com.android.systemui.flags.ParcelableFlag
 internal class DeviceConfigProxy {
     fun isEnabled(flag: ParcelableFlag<Boolean>): Boolean? {
         return runCatching {
-            DeviceConfig.getBoolean(flag.namespace, flag.name, flag.default)
+            val hasProperty = DeviceConfig.getProperty(flag.namespace, flag.name) != null
+            if (hasProperty) {
+                DeviceConfig.getBoolean(flag.namespace, flag.name, flag.default)
+            } else {
+                null
+            }
         }.getOrDefault(null)
     }
 }
