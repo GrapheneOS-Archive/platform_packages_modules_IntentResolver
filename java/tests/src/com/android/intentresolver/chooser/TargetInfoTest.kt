@@ -22,17 +22,29 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.ResolveInfo
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.UserHandle
+import android.test.UiThreadTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.intentresolver.createChooserTarget
 import com.android.intentresolver.createShortcutInfo
 import com.android.intentresolver.mock
 import com.android.intentresolver.ResolverDataProvider
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
 import org.junit.Test
 
 class TargetInfoTest {
     private val context = InstrumentationRegistry.getInstrumentation().getContext()
+
+    @Before
+    fun setup() {
+        // SelectableTargetInfo reads DeviceConfig and needs a permission for that.
+        InstrumentationRegistry
+            .getInstrumentation()
+            .getUiAutomation()
+            .adoptShellPermissionIdentity("android.permission.READ_DEVICE_CONFIG")
+    }
 
     @Test
     fun testNewEmptyTargetInfo() {
@@ -43,13 +55,19 @@ class TargetInfoTest {
         assertThat(info.getDisplayIconHolder().getDisplayIcon()).isNull()
     }
 
+    @UiThreadTest  // AnimatedVectorDrawable needs to start from a thread with a Looper.
     @Test
     fun testNewPlaceholderTargetInfo() {
         val info = NotSelectableTargetInfo.newPlaceHolderTargetInfo(context)
-        assertThat(info.isPlaceHolderTargetInfo()).isTrue()
-        assertThat(info.isChooserTargetInfo()).isTrue()  // From legacy inheritance model.
+        assertThat(info.isPlaceHolderTargetInfo).isTrue()
+        assertThat(info.isChooserTargetInfo).isTrue()  // From legacy inheritance model.
         assertThat(info.hasDisplayIcon()).isTrue()
-        // TODO: test infrastructure isn't set up to assert anything about the icon itself.
+        assertThat(info.displayIconHolder.displayIcon)
+                .isInstanceOf(AnimatedVectorDrawable::class.java)
+        // TODO: assert that the animation is pre-started/running (IIUC this requires synchronizing
+        // with some "render thread" per the `AnimatedVectorDrawable` docs). I believe this is
+        // possible using `AnimatorTestRule` but I couldn't find any sample usage in Kotlin nor get
+        // it working myself.
     }
 
     @Test
