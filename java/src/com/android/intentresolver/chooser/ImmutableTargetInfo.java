@@ -31,8 +31,6 @@ import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
 
-import com.android.intentresolver.ResolverActivity;
-
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
@@ -54,15 +52,6 @@ public final class ImmutableTargetInfo implements TargetInfo {
 
     /** Delegate interface to request that the target be launched by a particular API. */
     public interface TargetActivityStarter {
-        /**
-         * Request that the delegate use the {@link Activity#startActivity()} API to launch the
-         * specified {@code target}.
-         *
-         * @return true if the target was launched successfully.
-         */
-        boolean start(TargetInfo target, Activity activity, Bundle options);
-
-
         /**
          * Request that the delegate use the {@link Activity#startAsCaller()} API to launch the
          * specified {@code target}.
@@ -418,12 +407,7 @@ public final class ImmutableTargetInfo implements TargetInfo {
     }
 
     @Override
-    public boolean start(Activity activity, Bundle options) {
-        return mActivityStarter.start(this, activity, options);
-    }
-
-    @Override
-    public boolean startAsCaller(ResolverActivity activity, Bundle options, int userId) {
+    public boolean startAsCaller(Activity activity, Bundle options, int userId) {
         return mActivityStarter.startAsCaller(this, activity, options, userId);
     }
 

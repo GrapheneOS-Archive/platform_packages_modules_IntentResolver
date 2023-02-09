@@ -32,8 +32,6 @@ import android.service.chooser.ChooserTarget;
 import android.text.TextUtils;
 import android.util.HashedStringCache;
 
-import com.android.intentresolver.ResolverActivity;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -124,24 +122,15 @@ public interface TargetInfo {
     }
 
     /**
-     * Start the activity referenced by this target.
-     *
-     * @param activity calling Activity performing the launch
-     * @param options ActivityOptions bundle
-     * @return true if the start completed successfully
-     */
-    boolean start(Activity activity, Bundle options);
-
-    /**
-     * Start the activity referenced by this target as if the ResolverActivity's caller
-     * was performing the start operation.
+     * Start the activity referenced by this target as if the Activity's caller was performing the
+     * start operation.
      *
      * @param activity calling Activity (actually) performing the launch
      * @param options ActivityOptions bundle
      * @param userId userId to start as or {@link UserHandle#USER_NULL} for activity's caller
      * @return true if the start completed successfully
      */
-    boolean startAsCaller(ResolverActivity activity, Bundle options, int userId);
+    boolean startAsCaller(Activity activity, Bundle options, int userId);
 
     /**
      * Start the activity referenced by this target as a given user.

@@ -33,7 +33,6 @@ import android.text.SpannableStringBuilder;
 import android.util.HashedStringCache;
 import android.util.Log;
 
-import com.android.intentresolver.ResolverActivity;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 
 import java.util.ArrayList;
@@ -332,12 +331,7 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     }
 
     @Override
-    public boolean start(Activity activity, Bundle options) {
-        return mActivityStarter.start(activity, options);
-    }
-
-    @Override
-    public boolean startAsCaller(ResolverActivity activity, Bundle options, int userId) {
+    public boolean startAsCaller(Activity activity, Bundle options, int userId) {
         return mActivityStarter.startAsCaller(activity, options, userId);
     }
 
