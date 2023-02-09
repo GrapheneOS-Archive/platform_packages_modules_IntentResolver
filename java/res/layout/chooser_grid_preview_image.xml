@@ -43,10 +43,7 @@
           android:id="@+id/image_preview_stub"
           android:inflatedId="@androidprv:id/content_preview_image_area"
           android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:paddingStart="@dimen/chooser_edge_margin_normal"
-          android:paddingEnd="@dimen/chooser_edge_margin_normal"
-          android:background="?android:attr/colorBackground" />
+          android:layout_height="wrap_content" />
 
       <TextView
           android:id="@androidprv:id/content_preview_text"
