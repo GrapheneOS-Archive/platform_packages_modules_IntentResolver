@@ -20,5 +20,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
+    android:paddingStart="@dimen/chooser_edge_margin_normal"
+    android:paddingEnd="@dimen/chooser_edge_margin_normal"
     android:paddingBottom="@dimen/chooser_view_spacing"
     android:background="?android:attr/colorBackground" />
