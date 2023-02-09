@@ -33,6 +33,7 @@ import android.provider.Downloads;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.text.util.Linkify;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.util.PluralsMessageFormatter;
 import android.view.LayoutInflater;
@@ -440,6 +441,7 @@ public final class ChooserContentPreviewUi {
             shareTextAction.accept(false);
             actionView.setOnCheckedChangeListener((view, isChecked) -> {
                 view.setText(actionLabels[isChecked ? 1 : 0]);
+                TransitionManager.beginDelayedTransition((ViewGroup) textView.getParent());
                 textView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
                 shareTextAction.accept(!isChecked);
             });
