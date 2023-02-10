@@ -349,42 +349,8 @@ class ImmutableTargetInfoTest {
     }
 
     @Test
-    fun testActivityStarter_correctNumberOfInvocations_start() {
-        val activityStarter = object : TestActivityStarter() {
-            override fun startAsCaller(
-                target: TargetInfo, activity: Activity, options: Bundle, userId: Int): Boolean {
-                throw RuntimeException("Wrong API used: startAsCaller")
-            }
-
-            override fun startAsUser(
-                target: TargetInfo, activity: Activity, options: Bundle, user: UserHandle
-            ): Boolean {
-                throw RuntimeException("Wrong API used: startAsUser")
-            }
-        }
-
-        val info = ImmutableTargetInfo.newBuilder().setActivityStarter(activityStarter).build()
-        val activity: Activity = mock()
-        val options = Bundle()
-        options.putInt("TEST_KEY", 1)
-
-        info.start(activity, options)
-
-        assertThat(activityStarter.totalInvocations).isEqualTo(1)
-        assertThat(activityStarter.lastInvocationTargetInfo).isEqualTo(info)
-        assertThat(activityStarter.lastInvocationActivity).isEqualTo(activity)
-        assertThat(activityStarter.lastInvocationOptions).isEqualTo(options)
-        assertThat(activityStarter.lastInvocationUserId).isNull()
-        assertThat(activityStarter.lastInvocationAsCaller).isFalse()
-    }
-
-    @Test
     fun testActivityStarter_correctNumberOfInvocations_startAsCaller() {
         val activityStarter = object : TestActivityStarter() {
-            override fun start(target: TargetInfo, activity: Activity, options: Bundle): Boolean {
-                throw RuntimeException("Wrong API used: start")
-            }
-
             override fun startAsUser(
                 target: TargetInfo, activity: Activity, options: Bundle, user: UserHandle
             ): Boolean {
@@ -410,10 +376,6 @@ class ImmutableTargetInfoTest {
     @Test
     fun testActivityStarter_correctNumberOfInvocations_startAsUser() {
         val activityStarter = object : TestActivityStarter() {
-            override fun start(target: TargetInfo, activity: Activity, options: Bundle): Boolean {
-                throw RuntimeException("Wrong API used: start")
-            }
-
             override fun startAsCaller(
                 target: TargetInfo, activity: Activity, options: Bundle, userId: Int): Boolean {
                 throw RuntimeException("Wrong API used: startAsCaller")
@@ -441,16 +403,14 @@ class ImmutableTargetInfoTest {
         val info1 = ImmutableTargetInfo.newBuilder().setActivityStarter(activityStarter).build()
         val info2 = info1.toBuilder().build()
 
-        info1.start(mock(), Bundle())
+        info1.startAsCaller(mock(), Bundle(), 42)
         assertThat(activityStarter.lastInvocationTargetInfo).isEqualTo(info1)
-        info2.start(mock(), Bundle())
-        assertThat(activityStarter.lastInvocationTargetInfo).isEqualTo(info2)
         info2.startAsCaller(mock(), Bundle(), 42)
         assertThat(activityStarter.lastInvocationTargetInfo).isEqualTo(info2)
         info2.startAsUser(mock(), Bundle(), UserHandle.of(42))
         assertThat(activityStarter.lastInvocationTargetInfo).isEqualTo(info2)
 
-        assertThat(activityStarter.totalInvocations).isEqualTo(4)  // Instance is still shared.
+        assertThat(activityStarter.totalInvocations).isEqualTo(3)  // Instance is still shared.
     }
 }
 
@@ -461,16 +421,6 @@ private open class TestActivityStarter : ImmutableTargetInfo.TargetActivityStart
     var lastInvocationOptions: Bundle? = null
     var lastInvocationUserId: Integer? = null
     var lastInvocationAsCaller = false
-
-    override fun start(target: TargetInfo, activity: Activity, options: Bundle): Boolean {
-        ++totalInvocations
-        lastInvocationTargetInfo = target
-        lastInvocationActivity = activity
-        lastInvocationOptions = options
-        lastInvocationUserId = null
-        lastInvocationAsCaller = false
-        return true
-    }
 
     override fun startAsCaller(
             target: TargetInfo, activity: Activity, options: Bundle, userId: Int): Boolean {
