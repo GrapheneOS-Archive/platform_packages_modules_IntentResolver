@@ -18,33 +18,28 @@ package com.android.intentresolver.chooser;
 
 import android.annotation.Nullable;
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ResolveInfo;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.UserHandle;
 
 import com.android.intentresolver.R;
-import com.android.intentresolver.ResolverActivity;
 
-import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Distinguish between targets that selectable by the user, vs those that are
  * placeholders for the system while information is loading in an async manner.
  */
-public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
+public final class NotSelectableTargetInfo {
     /** Create a non-selectable {@link TargetInfo} with no content. */
     public static TargetInfo newEmptyTargetInfo() {
-        return new NotSelectableTargetInfo() {
-                @Override
-                public boolean isEmptyTargetInfo() {
-                    return true;
-                }
-            };
+        return ImmutableTargetInfo.newBuilder()
+                .setLegacyType(ImmutableTargetInfo.LegacyTargetType.EMPTY_TARGET_INFO)
+                .setDisplayIconHolder(makeReadOnlyIconHolder(() -> null))
+                .setActivityStarter(makeNoOpActivityStarter())
+                .build();
     }
 
     /**
@@ -52,108 +47,56 @@ public abstract class NotSelectableTargetInfo extends ChooserTargetInfo {
      * unless/until it can be replaced by the result of a pending asynchronous load.
      */
     public static TargetInfo newPlaceHolderTargetInfo(Context context) {
-        return new NotSelectableTargetInfo() {
-                @Override
-                public boolean isPlaceHolderTargetInfo() {
-                    return true;
-                }
-
-                @Override
-                public IconHolder getDisplayIconHolder() {
-                    return new IconHolder() {
-                        @Override
-                        public Drawable getDisplayIcon() {
-                            AnimatedVectorDrawable avd = (AnimatedVectorDrawable)
-                                    context.getDrawable(
-                                            R.drawable.chooser_direct_share_icon_placeholder);
-                            avd.start();  // Start animation after generation.
-                            return avd;
-                        }
-
-                        @Override
-                        public void setDisplayIcon(Drawable icon) {}
-                    };
-                }
-
-                @Override
-                public boolean hasDisplayIcon() {
-                    return true;
-                }
-            };
+        return ImmutableTargetInfo.newBuilder()
+                .setLegacyType(ImmutableTargetInfo.LegacyTargetType.PLACEHOLDER_TARGET_INFO)
+                .setDisplayIconHolder(
+                        makeReadOnlyIconHolder(() -> makeStartedPlaceholderDrawable(context)))
+                .setActivityStarter(makeNoOpActivityStarter())
+                .build();
     }
 
-    public final boolean isNotSelectableTargetInfo() {
-        return true;
+    private static Drawable makeStartedPlaceholderDrawable(Context context) {
+        AnimatedVectorDrawable avd = (AnimatedVectorDrawable) context.getDrawable(
+                R.drawable.chooser_direct_share_icon_placeholder);
+        avd.start();  // Start animation after generation.
+        return avd;
     }
 
-    public Intent getResolvedIntent() {
-        return null;
-    }
-
-    public ComponentName getResolvedComponentName() {
-        return null;
-    }
-
-    public boolean start(Activity activity, Bundle options) {
-        return false;
-    }
-
-    public boolean startAsCaller(ResolverActivity activity, Bundle options, int userId) {
-        return false;
-    }
-
-    @Nullable
-    @Override
-    public Intent getTargetIntent() {
-        return null;
-    }
-
-    public boolean startAsUser(Activity activity, Bundle options, UserHandle user) {
-        return false;
-    }
-
-    public ResolveInfo getResolveInfo() {
-        return null;
-    }
-
-    public CharSequence getDisplayLabel() {
-        return null;
-    }
-
-    public CharSequence getExtendedInfo() {
-        return null;
-    }
-
-    public TargetInfo cloneFilledIn(Intent fillInIntent, int flags) {
-        return null;
-    }
-
-    public List<Intent> getAllSourceIntents() {
-        return null;
-    }
-
-    public float getModifiedScore() {
-        return -0.1f;
-    }
-
-    public boolean isSuspended() {
-        return false;
-    }
-
-    public boolean isPinned() {
-        return false;
-    }
-
-    @Override
-    public IconHolder getDisplayIconHolder() {
-        return new IconHolder() {
+    private static ImmutableTargetInfo.IconHolder makeReadOnlyIconHolder(
+            Supplier</* @Nullable */ Drawable> iconProvider) {
+        return new ImmutableTargetInfo.IconHolder() {
             @Override
+            @Nullable
             public Drawable getDisplayIcon() {
-                return null;
+                return iconProvider.get();
             }
 
             @Override
             public void setDisplayIcon(Drawable icon) {}
         };
     }
+
+    private static ImmutableTargetInfo.TargetActivityStarter makeNoOpActivityStarter() {
+        return new ImmutableTargetInfo.TargetActivityStarter() {
+            @Override
+            public boolean start(TargetInfo target, Activity activity, Bundle options) {
+                return false;
+            }
+
+            @Override
+            public boolean startAsCaller(
+                    TargetInfo target, Activity activity, Bundle options, int userId) {
+                return false;
+            }
+
+            @Override
+            public boolean startAsUser(
+                    TargetInfo target, Activity activity, Bundle options, UserHandle user) {
+                return false;
+            }
+        };
+    }
+
+    // TODO: merge all the APIs up to a single `TargetInfo` class.
+    private NotSelectableTargetInfo() {}
 }
