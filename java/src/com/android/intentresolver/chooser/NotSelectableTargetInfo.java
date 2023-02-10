@@ -79,11 +79,6 @@ public final class NotSelectableTargetInfo {
     private static ImmutableTargetInfo.TargetActivityStarter makeNoOpActivityStarter() {
         return new ImmutableTargetInfo.TargetActivityStarter() {
             @Override
-            public boolean start(TargetInfo target, Activity activity, Bundle options) {
-                return false;
-            }
-
-            @Override
             public boolean startAsCaller(
                     TargetInfo target, Activity activity, Bundle options, int userId) {
                 return false;

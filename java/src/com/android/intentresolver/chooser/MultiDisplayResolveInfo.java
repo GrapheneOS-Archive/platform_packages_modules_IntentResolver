@@ -21,8 +21,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.UserHandle;
 
-import com.android.intentresolver.ResolverActivity;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,12 +104,7 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
     }
 
     @Override
-    public boolean start(Activity activity, Bundle options) {
-        return mTargetInfos.get(mSelected).start(activity, options);
-    }
-
-    @Override
-    public boolean startAsCaller(ResolverActivity activity, Bundle options, int userId) {
+    public boolean startAsCaller(Activity activity, Bundle options, int userId) {
         return mTargetInfos.get(mSelected).startAsCaller(activity, options, userId);
     }
 
