@@ -47,9 +47,11 @@
         <item name="*android:iconfactoryBadgeSize">@dimen/chooser_badge_size</item>
     </style>
 
-    <style name="ReselectionAction">
+    <style name="TextAppearance.ChooserDefault"
+            parent="@android:style/TextAppearance.DeviceDefault" />
+
+    <style name="ReselectionAction" parent="TextAppearance.ChooserDefault">
         <item name="android:paddingTop">5dp</item>
         <item name="android:paddingBottom">5dp</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 </resources>

@@ -55,7 +55,8 @@
           android:maxLines="6"
           android:ellipsize="end"
           android:linksClickable="false"
-          android:visibility="gone" />
+          android:visibility="gone"
+          android:textAppearance="@style/TextAppearance.ChooserDefault" />
   </LinearLayout>
 
   <TextView
