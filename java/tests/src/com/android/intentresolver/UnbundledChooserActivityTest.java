@@ -107,6 +107,7 @@ import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
+import com.android.systemui.flags.BooleanFlag;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -115,6 +116,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.ArgumentCaptor;
@@ -123,7 +126,6 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -162,12 +164,38 @@ public class UnbundledChooserActivityTest {
                 return mock;
             };
 
+    private static final List<BooleanFlag> ALL_FLAGS =
+            Arrays.asList(
+                    Flags.SHARESHEET_CUSTOM_ACTIONS,
+                    Flags.SHARESHEET_RESELECTION_ACTION,
+                    Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW,
+                    Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW);
+
+    private static final Map<BooleanFlag, Boolean> ALL_FLAGS_OFF =
+            createAllFlagsOverride(false);
+    private static final Map<BooleanFlag, Boolean> ALL_FLAGS_ON =
+            createAllFlagsOverride(true);
+
     @Parameterized.Parameters
     public static Collection packageManagers() {
         return Arrays.asList(new Object[][] {
-                {0, "Default PackageManager", DEFAULT_PM},
-                {1, "No App Prediction Service", NO_APP_PREDICTION_SERVICE_PM}
+                // Default PackageManager and all flags off
+                { DEFAULT_PM, ALL_FLAGS_OFF},
+                // Default PackageManager and all flags on
+                { DEFAULT_PM, ALL_FLAGS_ON},
+                // No App Prediction Service and all flags off
+                { NO_APP_PREDICTION_SERVICE_PM, ALL_FLAGS_OFF },
+                // No App Prediction Service and all flags on
+                { NO_APP_PREDICTION_SERVICE_PM, ALL_FLAGS_ON }
         });
+    }
+
+    private static Map<BooleanFlag, Boolean> createAllFlagsOverride(boolean value) {
+        HashMap<BooleanFlag, Boolean> overrides = new HashMap<>(ALL_FLAGS.size());
+        for (BooleanFlag flag : ALL_FLAGS) {
+            overrides.put(flag, value);
+        }
+        return overrides;
     }
 
     /* --------
@@ -189,6 +217,8 @@ public class UnbundledChooserActivityTest {
                 .adoptShellPermissionIdentity();
 
         cleanOverrideData();
+        ChooserActivityOverrideData.getInstance().featureFlagRepository =
+                new TestFeatureFlagRepository(mFlags);
     }
 
     /**
@@ -221,11 +251,13 @@ public class UnbundledChooserActivityTest {
      * --------
      */
 
+    @Rule
+    public final TestRule mRule;
+
     // Shared test code references the activity under test as ChooserActivity, the common ancestor
     // of any (inheritance-based) chooser implementation. For testing purposes, that activity will
     // usually be cast to IChooserWrapper to expose instrumentation.
-    @Rule
-    public ActivityTestRule<ChooserActivity> mActivityRule =
+    private ActivityTestRule<ChooserActivity> mActivityRule =
             new ActivityTestRule<>(ChooserActivity.class, false, false) {
                 @Override
                 public ChooserActivity launchActivity(Intent clientIntent) {
@@ -252,16 +284,20 @@ public class UnbundledChooserActivityTest {
     private static final int CONTENT_PREVIEW_IMAGE = 1;
     private static final int CONTENT_PREVIEW_FILE = 2;
     private static final int CONTENT_PREVIEW_TEXT = 3;
-    private Function<PackageManager, PackageManager> mPackageManagerOverride;
-    private int mTestNum;
+
+    private final Function<PackageManager, PackageManager> mPackageManagerOverride;
+    private final Map<BooleanFlag, Boolean> mFlags;
 
 
     public UnbundledChooserActivityTest(
-                int testNum,
-                String testName,
-                Function<PackageManager, PackageManager> packageManagerOverride) {
+                Function<PackageManager, PackageManager> packageManagerOverride,
+                Map<BooleanFlag, Boolean> flags) {
         mPackageManagerOverride = packageManagerOverride;
-        mTestNum = testNum;
+        mFlags = flags;
+
+        mRule = RuleChain
+                .outerRule(new FeatureFlagRule(flags))
+                .around(mActivityRule);
     }
 
     private void setDeviceConfigProperty(
@@ -757,10 +793,10 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    @RequireFeatureFlags(
+            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
+            values = { true })
     public void testImagePlusTextSharing_ExcludeText() {
-        ChooserActivityOverrideData.getInstance().featureFlagRepository =
-                new TestFeatureFlagRepository(
-                        Collections.singletonMap(Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW, true));
         Intent sendIntent = createSendImageIntent(
                 Uri.parse("android.resource://com.android.frameworks.coretests/"
                         + R.drawable.test320x240));
@@ -809,10 +845,10 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    @RequireFeatureFlags(
+            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
+            values = { true })
     public void testImagePlusTextSharing_RemoveAndAddBackText() {
-        ChooserActivityOverrideData.getInstance().featureFlagRepository =
-                new TestFeatureFlagRepository(
-                        Collections.singletonMap(Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW, true));
         Intent sendIntent = createSendImageIntent(
                 Uri.parse("android.resource://com.android.frameworks.coretests/"
                         + R.drawable.test320x240));
@@ -865,10 +901,10 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    @RequireFeatureFlags(
+            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
+            values = { true })
     public void testImagePlusTextSharing_TextExclusionDoesNotAffectAlternativeIntent() {
-        ChooserActivityOverrideData.getInstance().featureFlagRepository =
-                new TestFeatureFlagRepository(
-                        Collections.singletonMap(Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW, true));
         Intent sendIntent = createSendImageIntent(
                 Uri.parse("android.resource://com.android.frameworks.coretests/"
                         + R.drawable.test320x240));
@@ -1070,10 +1106,10 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    @RequireFeatureFlags(
+            flags = { Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW_NAME },
+            values = { false })
     public void twoVisibleImagePreview() {
-        ChooserActivityOverrideData.getInstance().featureFlagRepository =
-                new TestFeatureFlagRepository(
-                        Collections.singletonMap(Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW, false));
         Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
                 + R.drawable.test320x240);
 
@@ -1110,11 +1146,10 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    @RequireFeatureFlags(
+            flags = { Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW_NAME },
+            values = { false })
     public void threeOrMoreVisibleImagePreview() {
-        ChooserActivityOverrideData.getInstance().featureFlagRepository =
-                new TestFeatureFlagRepository(
-                        Collections.singletonMap(
-                                Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW, false));
         Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
                 + R.drawable.test320x240);
 
@@ -1154,11 +1189,10 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    @RequireFeatureFlags(
+            flags = { Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW_NAME },
+            values = { true })
     public void testManyVisibleImagePreview_ScrollableImagePreview() {
-        ChooserActivityOverrideData.getInstance().featureFlagRepository =
-                new TestFeatureFlagRepository(
-                        Collections.singletonMap(
-                                Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW, true));
         Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
                 + R.drawable.test320x240);
 
@@ -1204,10 +1238,10 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    @RequireFeatureFlags(
+            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
+            values = { true })
     public void testImageAndTextPreview() {
-        ChooserActivityOverrideData.getInstance().featureFlagRepository =
-                new TestFeatureFlagRepository(
-                        Collections.singletonMap(Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW, true));
         final Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
                 + R.drawable.test320x240);
         final String sharedText = "text-" + System.currentTimeMillis();
@@ -1943,10 +1977,10 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    @RequireFeatureFlags(
+            flags = { Flags.SHARESHEET_CUSTOM_ACTIONS_NAME },
+            values = { true })
     public void testLaunchWithCustomAction() throws InterruptedException {
-        ChooserActivityOverrideData.getInstance().featureFlagRepository =
-                new TestFeatureFlagRepository(
-                        Collections.singletonMap(Flags.SHARESHEET_CUSTOM_ACTIONS, true));
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
         when(
                 ChooserActivityOverrideData
@@ -1998,10 +2032,10 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    @RequireFeatureFlags(
+            flags = { Flags.SHARESHEET_RESELECTION_ACTION_NAME },
+            values = { true })
     public void testLaunchWithShareModification() throws InterruptedException {
-        ChooserActivityOverrideData.getInstance().featureFlagRepository =
-                new TestFeatureFlagRepository(
-                        Collections.singletonMap(Flags.SHARESHEET_RESELECTION_ACTION, true));
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
         when(
                 ChooserActivityOverrideData
