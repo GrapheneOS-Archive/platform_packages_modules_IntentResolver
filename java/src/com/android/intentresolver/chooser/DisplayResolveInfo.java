@@ -27,7 +27,6 @@ import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.UserHandle;
 
-import com.android.intentresolver.ResolverActivity;
 import com.android.intentresolver.TargetPresentationGetter;
 
 import java.util.ArrayList;
@@ -205,13 +204,7 @@ public class DisplayResolveInfo implements TargetInfo {
     }
 
     @Override
-    public boolean start(Activity activity, Bundle options) {
-        activity.startActivity(mResolvedIntent, options);
-        return true;
-    }
-
-    @Override
-    public boolean startAsCaller(ResolverActivity activity, Bundle options, int userId) {
+    public boolean startAsCaller(Activity activity, Bundle options, int userId) {
         TargetInfo.prepareIntentForCrossProfileLaunch(mResolvedIntent, userId);
         activity.startActivityAsCaller(mResolvedIntent, options, false, userId);
         return true;
@@ -220,6 +213,12 @@ public class DisplayResolveInfo implements TargetInfo {
     @Override
     public boolean startAsUser(Activity activity, Bundle options, UserHandle user) {
         TargetInfo.prepareIntentForCrossProfileLaunch(mResolvedIntent, user.getIdentifier());
+        // TODO: is this equivalent to `startActivityAsCaller` with `ignoreTargetSecurity=true`? If
+        // so, we can consolidate on the one API method to show that this flag is the only
+        // distinction between `startAsCaller` and `startAsUser`. We can even bake that flag into
+        // the `TargetActivityStarter` upfront since it just reflects our "safe forwarding mode" --
+        // which is constant for the duration of our lifecycle, leaving clients no other
+        // responsibilities in this logic.
         activity.startActivityAsUser(mResolvedIntent, options, user);
         return false;
     }

@@ -65,7 +65,8 @@
         android:ellipsize="middle"
         android:gravity="start|top"
         android:paddingRight="24dp"
-        android:singleLine="true"/>
+        android:singleLine="true"
+        android:textAppearance="@style/TextAppearance.ChooserDefault" />
   </LinearLayout>
 
   <TextView
