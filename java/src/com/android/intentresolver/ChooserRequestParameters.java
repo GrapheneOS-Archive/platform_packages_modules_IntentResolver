@@ -71,6 +71,8 @@ public class ChooserRequestParameters {
             Intent.FLAG_ACTIVITY_NEW_DOCUMENT | Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 
     private final Intent mTarget;
+    private final ChooserIntegratedDeviceComponents mIntegratedDeviceComponents;
+    private final String mReferrerPackageName;
     private final Pair<CharSequence, Integer> mTitleSpec;
     private final Intent mReferrerFillInIntent;
     private final ImmutableList<ComponentName> mFilteredComponentNames;
@@ -102,12 +104,17 @@ public class ChooserRequestParameters {
 
     public ChooserRequestParameters(
             final Intent clientIntent,
+            String referrerPackageName,
             final Uri referrer,
-            @Nullable final ComponentName nearbySharingComponent,
+            ChooserIntegratedDeviceComponents integratedDeviceComponents,
             FeatureFlagRepository featureFlags) {
         final Intent requestedTarget = parseTargetIntentExtra(
                 clientIntent.getParcelableExtra(Intent.EXTRA_INTENT));
         mTarget = intentWithModifiedLaunchFlags(requestedTarget);
+
+        mIntegratedDeviceComponents = integratedDeviceComponents;
+
+        mReferrerPackageName = referrerPackageName;
 
         mAdditionalTargets = intentsWithModifiedLaunchFlagsFromExtraIfPresent(
                 clientIntent, Intent.EXTRA_ALTERNATE_INTENTS);
@@ -128,7 +135,8 @@ public class ChooserRequestParameters {
         mRefinementIntentSender = clientIntent.getParcelableExtra(
                 Intent.EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER);
 
-        mFilteredComponentNames = getFilteredComponentNames(clientIntent, nearbySharingComponent);
+        mFilteredComponentNames = getFilteredComponentNames(
+                clientIntent, mIntegratedDeviceComponents.getNearbySharingComponent());
 
         mCallerChooserTargets = parseCallerTargetsFromClientIntent(clientIntent);
 
@@ -163,6 +171,10 @@ public class ChooserRequestParameters {
     @Nullable
     public String getTargetType() {
         return getTargetIntent().getType();
+    }
+
+    public String getReferrerPackageName() {
+        return mReferrerPackageName;
     }
 
     @Nullable
@@ -243,6 +255,10 @@ public class ChooserRequestParameters {
     @Nullable
     public IntentFilter getTargetIntentFilter() {
         return mTargetIntentFilter;
+    }
+
+    public ChooserIntegratedDeviceComponents getIntegratedDeviceComponents() {
+        return mIntegratedDeviceComponents;
     }
 
     private static boolean isSendAction(@Nullable String action) {

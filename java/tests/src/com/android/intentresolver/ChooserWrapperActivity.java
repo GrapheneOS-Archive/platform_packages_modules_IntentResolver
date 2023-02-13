@@ -37,7 +37,6 @@ import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileI
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.QuietModeManager;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
-import com.android.intentresolver.chooser.NotSelectableTargetInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.grid.ChooserGridAdapter;
@@ -120,15 +119,13 @@ public class ChooserWrapperActivity
     }
 
     @Override
-    protected ComponentName getNearbySharingComponent() {
-        // an arbitrary pre-installed activity that handles this type of intent
-        return ComponentName.unflattenFromString("com.google.android.apps.messaging/"
-                + "com.google.android.apps.messaging.ui.conversationlist.ShareIntentActivity");
-    }
-
-    @Override
-    protected TargetInfo getNearbySharingTarget(Intent originalIntent) {
-        return NotSelectableTargetInfo.newEmptyTargetInfo();
+    protected ChooserIntegratedDeviceComponents getIntegratedDeviceComponents() {
+        return new ChooserIntegratedDeviceComponents(
+                /* editSharingComponent=*/ null,
+                // An arbitrary pre-installed activity that handles this type of intent:
+                /* nearbySharingComponent=*/ new ComponentName(
+                        "com.google.android.apps.messaging",
+                        ".ui.conversationlist.ShareIntentActivity"));
     }
 
     @Override
@@ -172,7 +169,7 @@ public class ChooserWrapperActivity
     }
 
     @Override
-    public void safelyStartActivity(com.android.intentresolver.chooser.TargetInfo cti) {
+    public void safelyStartActivity(TargetInfo cti) {
         if (sOverrides.onSafelyStartCallback != null
                 && sOverrides.onSafelyStartCallback.apply(cti)) {
             return;
