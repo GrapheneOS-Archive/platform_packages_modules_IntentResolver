@@ -16,6 +16,7 @@
 
 package com.android.intentresolver;
 
+import static android.content.ContentProvider.getUserIdFromUri;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.animation.ObjectAnimator;
@@ -28,6 +29,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.UserHandle;
 import android.provider.DocumentsContract;
 import android.provider.Downloads;
 import android.provider.OpenableColumns;
@@ -341,7 +343,7 @@ public final class ChooserContentPreviewUi {
 
             ImageView previewThumbnailView = contentPreviewLayout.findViewById(
                     com.android.internal.R.id.content_preview_thumbnail);
-            if (previewThumbnail == null) {
+            if (!validForContentPreview(previewThumbnail)) {
                 previewThumbnailView.setVisibility(View.GONE);
             } else {
                 previewImageLoader.loadImage(
@@ -538,14 +540,14 @@ public final class ChooserContentPreviewUi {
         List<Uri> uris = new ArrayList<>();
         if (Intent.ACTION_SEND.equals(targetIntent.getAction())) {
             Uri uri = targetIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if (uri != null) {
+            if (validForContentPreview(uri)) {
                 uris.add(uri);
             }
         } else {
             List<Uri> receivedUris = targetIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             if (receivedUris != null) {
                 for (Uri uri : receivedUris) {
-                    if (uri != null) {
+                    if (validForContentPreview(uri)) {
                         uris.add(uri);
                     }
                 }
@@ -553,6 +555,25 @@ public final class ChooserContentPreviewUi {
         }
         return uris;
     }
+
+    /**
+     * Indicate if the incoming content URI should be allowed.
+     *
+     * @param uri the uri to test
+     * @return true if the URI is allowed for content preview
+     */
+    private static boolean validForContentPreview(Uri uri) throws SecurityException {
+        if (uri == null) {
+            return false;
+        }
+        int userId = getUserIdFromUri(uri, UserHandle.USER_CURRENT);
+        if (userId != UserHandle.USER_CURRENT && userId != UserHandle.myUserId()) {
+            Log.e(TAG, "dropped invalid content URI belonging to user " + userId);
+            return false;
+        }
+        return true;
+    }
+
 
     private static List<ActionRow.Action> createFilePreviewActions(ActionFactory actionFactory) {
         List<ActionRow.Action> actions = new ArrayList<>(1);
