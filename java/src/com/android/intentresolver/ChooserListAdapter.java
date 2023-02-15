@@ -98,6 +98,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
     // Sorted list of DisplayResolveInfos for the alphabetical app section.
     private List<DisplayResolveInfo> mSortedList = new ArrayList<>();
 
+    private final ItemRevealAnimationTracker mAnimationTracker = new ItemRevealAnimationTracker();
+
     // For pinned direct share labels, if the text spans multiple lines, the TextView will consume
     // the full width, even if the characters actually take up less than that. Measure the actual
     // line widths and constrain the View's width based upon that so that the pin doesn't end up
@@ -243,6 +245,15 @@ public class ChooserListAdapter extends ResolverListAdapter {
 
     }
 
+    @Override
+    protected boolean rebuildList(boolean doPostProcessing) {
+        mAnimationTracker.reset();
+        mSortedList.clear();
+        boolean result = super.rebuildList(doPostProcessing);
+        notifyDataSetChanged();
+        return result;
+    }
+
     private void createPlaceHolders() {
         mServiceTargets.clear();
         for (int i = 0; i < mMaxRankedTargets; ++i) {
@@ -266,7 +277,17 @@ public class ChooserListAdapter extends ResolverListAdapter {
         }
 
         holder.bindLabel(info.getDisplayLabel(), info.getExtendedInfo(), alwaysShowSubLabel());
-        holder.bindIcon(info, /*animate =*/ true);
+        mAnimationTracker.animateLabel(holder.text, info);
+        if (holder.text2.getVisibility() == View.VISIBLE) {
+            mAnimationTracker.animateLabel(holder.text2, info);
+        }
+        holder.bindIcon(info);
+        if (info.getDisplayIconHolder().getDisplayIcon() != null) {
+            mAnimationTracker.animateIcon(holder.icon, info);
+        } else {
+            holder.icon.clearAnimation();
+        }
+
         if (info.isSelectableTargetInfo()) {
             // direct share targets should append the application name for a better readout
             DisplayResolveInfo rInfo = info.getDisplayResolveInfo();
