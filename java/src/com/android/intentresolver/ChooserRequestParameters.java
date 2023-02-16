@@ -76,7 +76,7 @@ public class ChooserRequestParameters {
     private final ImmutableList<ComponentName> mFilteredComponentNames;
     private final ImmutableList<ChooserTarget> mCallerChooserTargets;
     private final ImmutableList<ChooserAction> mChooserActions;
-    private final PendingIntent mReselectionAction;
+    private final PendingIntent mModifyShareAction;
     private final boolean mRetainInOnStop;
 
     @Nullable
@@ -142,8 +142,8 @@ public class ChooserRequestParameters {
         mChooserActions = featureFlags.isEnabled(Flags.SHARESHEET_CUSTOM_ACTIONS)
                 ? getChooserActions(clientIntent)
                 : ImmutableList.of();
-        mReselectionAction = featureFlags.isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)
-                ? getReselectionActionExtra(clientIntent)
+        mModifyShareAction = featureFlags.isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)
+                ? getModifyShareAction(clientIntent)
                 : null;
     }
 
@@ -191,8 +191,8 @@ public class ChooserRequestParameters {
     }
 
     @Nullable
-    public PendingIntent getReselectionAction() {
-        return mReselectionAction;
+    public PendingIntent getModifyShareAction() {
+        return mModifyShareAction;
     }
 
     /**
@@ -335,15 +335,15 @@ public class ChooserRequestParameters {
     }
 
     @Nullable
-    private static PendingIntent getReselectionActionExtra(Intent intent) {
+    private static PendingIntent getModifyShareAction(Intent intent) {
         try {
             return intent.getParcelableExtra(
-                    Intent.EXTRA_CHOOSER_PAYLOAD_RESELECTION_ACTION,
+                    Intent.EXTRA_CHOOSER_MODIFY_SHARE_ACTION,
                     PendingIntent.class);
         } catch (Throwable t) {
             Log.w(
                     TAG,
-                    "Unable to retrieve Intent.EXTRA_CHOOSER_PAYLOAD_RESELECTION_ACTION argument",
+                    "Unable to retrieve Intent.EXTRA_CHOOSER_MODIFY_SHARE_ACTION argument",
                     t);
             return null;
         }

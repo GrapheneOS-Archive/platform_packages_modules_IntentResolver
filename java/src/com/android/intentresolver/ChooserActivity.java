@@ -763,12 +763,12 @@ public class ChooserActivity extends ResolverActivity implements
 
                     @Nullable
                     @Override
-                    public Runnable getReselectionAction() {
+                    public Runnable getModifyShareAction() {
                         if (!mFeatureFlagRepository
                                 .isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)) {
                             return null;
                         }
-                        PendingIntent reselectionAction = mChooserRequest.getReselectionAction();
+                        PendingIntent reselectionAction = mChooserRequest.getModifyShareAction();
                         return reselectionAction == null
                                 ? null
                                 : createReselectionRunnable(reselectionAction);
