@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.ResultReceiver;
@@ -94,7 +95,8 @@ public final class ChooserRefinementManager {
                         mOnRefinementCancelled.run();
                     }
                 },
-                mOnRefinementCancelled);
+                mOnRefinementCancelled,
+                mContext.getMainThreadHandler());
 
         Intent refinementRequest = makeRefinementRequest(mRefinementResultReceiver, selectedTarget);
         try {
@@ -136,8 +138,9 @@ public final class ChooserRefinementManager {
 
         RefinementResultReceiver(
                 Consumer<Intent> onSelectionRefined,
-                Runnable onRefinementCancelled) {
-            super(/* handler=*/ null);
+                Runnable onRefinementCancelled,
+                Handler handler) {
+            super(handler);
             mOnSelectionRefined = onSelectionRefined;
             mOnRefinementCancelled = onRefinementCancelled;
         }
