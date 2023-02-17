@@ -535,7 +535,7 @@ public class ChooserActivity extends ResolverActivity implements
                 /* context */ this,
                 adapter,
                 createEmptyStateProvider(/* workProfileUserHandle= */ null),
-                mQuietModeManager,
+                /* workProfileQuietModeChecker= */ () -> false,
                 /* workProfileUserHandle= */ null,
                 mMaxTargetsPerRow);
     }
@@ -564,7 +564,7 @@ public class ChooserActivity extends ResolverActivity implements
                 personalAdapter,
                 workAdapter,
                 createEmptyStateProvider(/* workProfileUserHandle= */ getWorkProfileUserHandle()),
-                mQuietModeManager,
+                () -> mWorkProfileAvailability.isQuietModeEnabled(),
                 selectedProfile,
                 getWorkProfileUserHandle(),
                 mMaxTargetsPerRow);

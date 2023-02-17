@@ -43,13 +43,13 @@ public class ResolverMultiProfilePagerAdapter extends
             Context context,
             ResolverListAdapter adapter,
             EmptyStateProvider emptyStateProvider,
-            QuietModeManager quietModeManager,
+            Supplier<Boolean> workProfileQuietModeChecker,
             UserHandle workProfileUserHandle) {
         this(
                 context,
                 ImmutableList.of(adapter),
                 emptyStateProvider,
-                quietModeManager,
+                workProfileQuietModeChecker,
                 /* defaultProfile= */ 0,
                 workProfileUserHandle,
                 new BottomPaddingOverrideSupplier());
@@ -59,14 +59,14 @@ public class ResolverMultiProfilePagerAdapter extends
             ResolverListAdapter personalAdapter,
             ResolverListAdapter workAdapter,
             EmptyStateProvider emptyStateProvider,
-            QuietModeManager quietModeManager,
+            Supplier<Boolean> workProfileQuietModeChecker,
             @Profile int defaultProfile,
             UserHandle workProfileUserHandle) {
         this(
                 context,
                 ImmutableList.of(personalAdapter, workAdapter),
                 emptyStateProvider,
-                quietModeManager,
+                workProfileQuietModeChecker,
                 defaultProfile,
                 workProfileUserHandle,
                 new BottomPaddingOverrideSupplier());
@@ -76,7 +76,7 @@ public class ResolverMultiProfilePagerAdapter extends
             Context context,
             ImmutableList<ResolverListAdapter> listAdapters,
             EmptyStateProvider emptyStateProvider,
-            QuietModeManager quietModeManager,
+            Supplier<Boolean> workProfileQuietModeChecker,
             @Profile int defaultProfile,
             UserHandle workProfileUserHandle,
             BottomPaddingOverrideSupplier bottomPaddingOverrideSupplier) {
@@ -86,7 +86,7 @@ public class ResolverMultiProfilePagerAdapter extends
                         (listView, bindAdapter) -> listView.setAdapter(bindAdapter),
                 listAdapters,
                 emptyStateProvider,
-                quietModeManager,
+                workProfileQuietModeChecker,
                 defaultProfile,
                 workProfileUserHandle,
                         () -> (ViewGroup) LayoutInflater.from(context).inflate(
