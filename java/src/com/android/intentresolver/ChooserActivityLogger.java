@@ -68,7 +68,7 @@ public class ChooserActivityLogger {
                 int previewType,
                 int intentType,
                 int numCustomActions,
-                boolean reselectionActionProvided);
+                boolean modifyShareActionProvided);
 
         /** Overload to use for logging {@code FrameworkStatsLog.RANKING_SELECTED}. */
         void write(
@@ -130,7 +130,7 @@ public class ChooserActivityLogger {
                 /* previewType = 8 */ typeFromPreviewInt(previewType),
                 /* intentType = 9 */ typeFromIntentString(intent),
                 /* num_provided_custom_actions = 10 */ 0,
-                /* reselection_action_provided = 11 */ false);
+                /* modify_share_action_provided = 11 */ false);
     }
 
     /**
@@ -469,7 +469,7 @@ public class ChooserActivityLogger {
                 int previewType,
                 int intentType,
                 int numCustomActions,
-                boolean reselectionActionProvided) {
+                boolean modifyShareActionProvided) {
             FrameworkStatsLog.write(
                     frameworkEventId,
                     /* event_id = 1 */ appEventId,
@@ -482,7 +482,7 @@ public class ChooserActivityLogger {
                     /* previewType = 8 */ previewType,
                     /* intentType = 9 */ intentType,
                     /* num_provided_custom_actions = 10 */ numCustomActions,
-                    /* reselection_action_provided = 11 */ reselectionActionProvided);
+                    /* modify_share_action_provided = 11 */ modifyShareActionProvided);
         }
 
         @Override
