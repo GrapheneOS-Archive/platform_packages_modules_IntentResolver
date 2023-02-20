@@ -20,7 +20,7 @@
             xmlns:androidprv="http://schemas.android.com/apk/prv/res/android">
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="?androidprv:attr/colorAccentSecondary"/>
+            <solid android:color="?androidprv:attr/materialColorSecondary"/>
             <size android:width="128dp" android:height="2dp"/>
             <corners android:radius="2dp" />
         </shape>
