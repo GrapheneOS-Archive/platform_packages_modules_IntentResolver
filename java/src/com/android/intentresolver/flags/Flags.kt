@@ -21,24 +21,33 @@ import com.android.systemui.flags.UnreleasedFlag
 // Flag id, name and namespace should be kept in sync with [com.android.systemui.flags.Flags] to
 // make the flags available in the flag flipper app (see go/sysui-flags).
 object Flags {
+    const val SHARESHEET_CUSTOM_ACTIONS_NAME = "sharesheet_custom_actions"
+    const val SHARESHEET_RESELECTION_ACTION_NAME = "sharesheet_reselection_action"
+    const val SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME = "sharesheet_image_text_preview"
+    const val SHARESHEET_SCROLLABLE_IMAGE_PREVIEW_NAME = "sharesheet_scrollable_image_preview"
+
     // TODO(b/266983432) Tracking Bug
     @JvmField
-    val SHARESHEET_CUSTOM_ACTIONS = unreleasedFlag(1501, "sharesheet_custom_actions", teamfood = true)
+    val SHARESHEET_CUSTOM_ACTIONS = unreleasedFlag(
+        1501, SHARESHEET_CUSTOM_ACTIONS_NAME, teamfood = true
+    )
 
     // TODO(b/266982749) Tracking Bug
     @JvmField
-    val SHARESHEET_RESELECTION_ACTION = unreleasedFlag(1502, "sharesheet_reselection_action", teamfood = true)
+    val SHARESHEET_RESELECTION_ACTION = unreleasedFlag(
+        1502, SHARESHEET_RESELECTION_ACTION_NAME, teamfood = true
+    )
 
     // TODO(b/266983474) Tracking Bug
     @JvmField
     val SHARESHEET_IMAGE_AND_TEXT_PREVIEW = unreleasedFlag(
-        id = 1503, name = "sharesheet_image_text_preview", teamfood = true
+        id = 1503, name = SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME, teamfood = true
     )
 
     // TODO(b/267355521) Tracking Bug
     @JvmField
     val SHARESHEET_SCROLLABLE_IMAGE_PREVIEW = unreleasedFlag(
-        1504, "sharesheet_scrollable_image_preview", teamfood = true
+        1504, SHARESHEET_SCROLLABLE_IMAGE_PREVIEW_NAME, teamfood = true
     )
 
     private fun unreleasedFlag(id: Int, name: String, teamfood: Boolean = false) =
