@@ -44,7 +44,6 @@ import android.app.VoiceInteractor.PickOptionRequest.Option;
 import android.app.VoiceInteractor.Prompt;
 import android.app.admin.DevicePolicyEventLogger;
 import android.app.admin.DevicePolicyManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -61,7 +60,6 @@ import android.content.res.TypedArray;
 import android.graphics.Insets;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PatternMatcher;
@@ -105,7 +103,6 @@ import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyStatePro
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.Profile;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.QuietModeManager;
 import com.android.intentresolver.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
@@ -191,7 +188,7 @@ public class ResolverActivity extends FragmentActivity implements
     @VisibleForTesting
     protected AbstractMultiProfilePagerAdapter mMultiProfilePagerAdapter;
 
-    protected QuietModeManager mQuietModeManager;
+    protected WorkProfileAvailabilityManager mWorkProfileAvailability;
 
     // Intent extra for connected audio devices
     public static final String EXTRA_IS_AUDIO_CAPTURE_DEVICE = "is_audio_capture_device";
@@ -219,7 +216,6 @@ public class ResolverActivity extends FragmentActivity implements
     protected static final int PROFILE_PERSONAL = AbstractMultiProfilePagerAdapter.PROFILE_PERSONAL;
     protected static final int PROFILE_WORK = AbstractMultiProfilePagerAdapter.PROFILE_WORK;
 
-    private BroadcastReceiver mWorkProfileStateReceiver;
     private UserHandle mHeaderCreatorUser;
 
     // User handle annotations are lazy-initialized to ensure that they're computed exactly once
@@ -357,8 +353,6 @@ public class ResolverActivity extends FragmentActivity implements
         setTheme(appliedThemeResId());
         super.onCreate(savedInstanceState);
 
-        mQuietModeManager = createQuietModeManager();
-
         // Determine whether we should show that intent is forwarded
         // from managed profile to owner or other way around.
         setProfileSwitchMessage(intent.getContentUserHint());
@@ -366,6 +360,8 @@ public class ResolverActivity extends FragmentActivity implements
         // Force computation of user handle annotations in order to validate the caller ID. (See the
         // associated TODO comment to explain why this is structured as a lazy computation.)
         AnnotatedUserHandles unusedReferenceToHandles = mLazyAnnotatedUserHandles.get();
+
+        mWorkProfileAvailability = createWorkProfileAvailabilityManager();
 
         mPm = getPackageManager();
 
@@ -593,10 +589,8 @@ public class ResolverActivity extends FragmentActivity implements
                 finish();
             }
         }
-        if (mWorkPackageMonitor != null) {
-            unregisterReceiver(mWorkProfileStateReceiver);
-            mWorkPackageMonitor = null;
-        }
+        // TODO: should we clean up the work-profile manager before we potentially finish() above?
+        mWorkProfileAvailability.unregisterWorkProfileStateReceiver(this);
     }
 
     @Override
@@ -950,7 +944,7 @@ public class ResolverActivity extends FragmentActivity implements
     public void onHandlePackagesChanged(ResolverListAdapter listAdapter) {
         if (listAdapter == mMultiProfilePagerAdapter.getActiveListAdapter()) {
             if (listAdapter.getUserHandle().equals(getWorkProfileUserHandle())
-                    && mQuietModeManager.isWaitingToEnableWorkProfile()) {
+                    && mWorkProfileAvailability.isWaitingToEnableWorkProfile()) {
                 // We have just turned on the work profile and entered the pass code to start it,
                 // now we are waiting to receive the ACTION_USER_UNLOCKED broadcast. There is no
                 // point in reloading the list now, since the work profile user is still
@@ -988,35 +982,19 @@ public class ResolverActivity extends FragmentActivity implements
 
     // @NonFinalForTesting
     @VisibleForTesting
-    protected QuietModeManager createQuietModeManager() {
-        UserManager userManager = getSystemService(UserManager.class);
-        return new QuietModeManager() {
+    protected WorkProfileAvailabilityManager createWorkProfileAvailabilityManager() {
+        final UserHandle workUser = getWorkProfileUserHandle();
 
-            private boolean mIsWaitingToEnableWorkProfile = false;
-
-            @Override
-            public boolean isQuietModeEnabled(UserHandle workProfileUserHandle) {
-                return userManager.isQuietModeEnabled(workProfileUserHandle);
-            }
-
-            @Override
-            public void requestQuietModeEnabled(boolean enabled, UserHandle workProfileUserHandle) {
-                AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
-                    userManager.requestQuietModeEnabled(enabled, workProfileUserHandle);
+        return new WorkProfileAvailabilityManager(
+                getSystemService(UserManager.class),
+                workUser,
+                () -> {
+                    if (mMultiProfilePagerAdapter.getCurrentUserHandle().equals(workUser)) {
+                        mMultiProfilePagerAdapter.rebuildActiveTab(true);
+                    } else {
+                        mMultiProfilePagerAdapter.clearInactiveProfileCache();
+                    }
                 });
-                mIsWaitingToEnableWorkProfile = true;
-            }
-
-            @Override
-            public void markWorkProfileEnabledBroadcastReceived() {
-                mIsWaitingToEnableWorkProfile = false;
-            }
-
-            @Override
-            public boolean isWaitingToEnableWorkProfile() {
-                return mIsWaitingToEnableWorkProfile;
-            }
-        };
     }
 
     // TODO: have tests override `getAnnotatedUserHandles()`, and make this method `final`.
@@ -1083,7 +1061,7 @@ public class ResolverActivity extends FragmentActivity implements
 
         final EmptyStateProvider workProfileOffEmptyStateProvider =
                 new WorkProfilePausedEmptyStateProvider(this, workProfileUserHandle,
-                        mQuietModeManager,
+                        mWorkProfileAvailability,
                         /* onSwitchOnWorkSelectedListener= */
                         () -> {
                             if (mOnSwitchOnWorkSelectedListener != null) {
@@ -1141,12 +1119,11 @@ public class ResolverActivity extends FragmentActivity implements
                 rList,
                 filterLastUsed,
                 /* userHandle */ UserHandle.of(UserHandle.myUserId()));
-        QuietModeManager quietModeManager = createQuietModeManager();
         return new ResolverMultiProfilePagerAdapter(
                 /* context */ this,
                 adapter,
                 createEmptyStateProvider(/* workProfileUserHandle= */ null),
-                quietModeManager,
+                /* workProfileQuietModeChecker= */ () -> false,
                 /* workProfileUserHandle= */ null);
     }
 
@@ -1197,13 +1174,12 @@ public class ResolverActivity extends FragmentActivity implements
                 (filterLastUsed && UserHandle.myUserId()
                         == workProfileUserHandle.getIdentifier()),
                 /* userHandle */ workProfileUserHandle);
-        QuietModeManager quietModeManager = createQuietModeManager();
         return new ResolverMultiProfilePagerAdapter(
                 /* context */ this,
                 personalAdapter,
                 workAdapter,
                 createEmptyStateProvider(getWorkProfileUserHandle()),
-                quietModeManager,
+                () -> mWorkProfileAvailability.isQuietModeEnabled(),
                 selectedProfile,
                 getWorkProfileUserHandle());
     }
@@ -1441,9 +1417,9 @@ public class ResolverActivity extends FragmentActivity implements
             }
             mRegistered = true;
         }
-        if (shouldShowTabs() && mQuietModeManager.isWaitingToEnableWorkProfile()) {
-            if (mQuietModeManager.isQuietModeEnabled(getWorkProfileUserHandle())) {
-                mQuietModeManager.markWorkProfileEnabledBroadcastReceived();
+        if (shouldShowTabs() && mWorkProfileAvailability.isWaitingToEnableWorkProfile()) {
+            if (mWorkProfileAvailability.isQuietModeEnabled()) {
+                mWorkProfileAvailability.markWorkProfileEnabledBroadcastReceived();
             }
         }
         mMultiProfilePagerAdapter.getActiveListAdapter().handlePackagesChanged();
@@ -1456,27 +1432,8 @@ public class ResolverActivity extends FragmentActivity implements
 
         this.getWindow().addSystemFlags(SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS);
         if (shouldShowTabs()) {
-            mWorkProfileStateReceiver = createWorkProfileStateReceiver();
-            registerWorkProfileStateReceiver();
-
-            mWorkProfileHasBeenEnabled = isWorkProfileEnabled();
+            mWorkProfileAvailability.registerWorkProfileStateReceiver(this);
         }
-    }
-
-    private boolean isWorkProfileEnabled() {
-        UserHandle workUserHandle = getWorkProfileUserHandle();
-        UserManager userManager = getSystemService(UserManager.class);
-
-        return !userManager.isQuietModeEnabled(workUserHandle)
-                && userManager.isUserUnlocked(workUserHandle);
-    }
-
-    private void registerWorkProfileStateReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_USER_UNLOCKED);
-        filter.addAction(Intent.ACTION_MANAGED_PROFILE_AVAILABLE);
-        filter.addAction(Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE);
-        registerReceiverAsUser(mWorkProfileStateReceiver, UserHandle.ALL, filter, null, null);
     }
 
     @Override
@@ -2246,45 +2203,6 @@ public class ResolverActivity extends FragmentActivity implements
             return false;
         }
         return mMultiProfilePagerAdapter.getInactiveListAdapter().getCount() > 0;
-    }
-
-    private BroadcastReceiver createWorkProfileStateReceiver() {
-        return new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (!TextUtils.equals(action, Intent.ACTION_USER_UNLOCKED)
-                        && !TextUtils.equals(action, Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE)
-                        && !TextUtils.equals(action, Intent.ACTION_MANAGED_PROFILE_AVAILABLE)) {
-                    return;
-                }
-
-                int userId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
-
-                if (userId != getWorkProfileUserHandle().getIdentifier()) {
-                    return;
-                }
-
-                if (isWorkProfileEnabled()) {
-                    if (mWorkProfileHasBeenEnabled) {
-                        return;
-                    }
-
-                    mWorkProfileHasBeenEnabled = true;
-                    mQuietModeManager.markWorkProfileEnabledBroadcastReceived();
-                } else {
-                    // Must be an UNAVAILABLE broadcast, so we watch for the next availability
-                    mWorkProfileHasBeenEnabled = false;
-                }
-
-                if (mMultiProfilePagerAdapter.getCurrentUserHandle()
-                        .equals(getWorkProfileUserHandle())) {
-                    mMultiProfilePagerAdapter.rebuildActiveTab(true);
-                } else {
-                    mMultiProfilePagerAdapter.clearInactiveProfileCache();
-                }
-            }
-        };
     }
 
     public static final class ResolvedComponentInfo {
