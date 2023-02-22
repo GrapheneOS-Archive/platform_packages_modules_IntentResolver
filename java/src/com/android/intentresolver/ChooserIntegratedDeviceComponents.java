@@ -32,7 +32,7 @@ import com.android.internal.annotations.VisibleForTesting;
  * Because this describes the app's external execution environment, test methods may prefer to
  * provide explicit values to override the default lookup logic.
  */
-public final class ChooserIntegratedDeviceComponents {
+public class ChooserIntegratedDeviceComponents {
     @Nullable
     private final ComponentName mEditSharingComponent;
 
