@@ -29,7 +29,6 @@ import android.os.UserHandle;
 
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.QuietModeManager;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
@@ -73,7 +72,7 @@ public class ChooserActivityOverrideData {
     public boolean hasCrossProfileIntents;
     public boolean isQuietModeEnabled;
     public Integer myUserId;
-    public QuietModeManager mQuietModeManager;
+    public WorkProfileAvailabilityManager mWorkProfileAvailability;
     public MyUserIdProvider mMyUserIdProvider;
     public CrossProfileIntentsChecker mCrossProfileIntentsChecker;
     public PackageManager packageManager;
@@ -97,21 +96,24 @@ public class ChooserActivityOverrideData {
         isQuietModeEnabled = false;
         myUserId = null;
         packageManager = null;
-        mQuietModeManager = new QuietModeManager() {
+        mWorkProfileAvailability = new WorkProfileAvailabilityManager(null, null, null) {
             @Override
-            public boolean isQuietModeEnabled(UserHandle workProfileUserHandle) {
+            public boolean isQuietModeEnabled() {
                 return isQuietModeEnabled;
             }
 
             @Override
-            public void requestQuietModeEnabled(boolean enabled,
-                    UserHandle workProfileUserHandle) {
+            public boolean isWorkProfileUserUnlocked() {
+                return true;
+            }
+
+            @Override
+            public void requestQuietModeEnabled(boolean enabled) {
                 isQuietModeEnabled = enabled;
             }
 
             @Override
-            public void markWorkProfileEnabledBroadcastReceived() {
-            }
+            public void markWorkProfileEnabledBroadcastReceived() {}
 
             @Override
             public boolean isWaitingToEnableWorkProfile() {
