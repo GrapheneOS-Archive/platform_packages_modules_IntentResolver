@@ -101,9 +101,9 @@ public class NoAppsAvailableEmptyStateProvider implements EmptyStateProvider {
         if (mWorkProfileUserHandle == null) {
             return false;
         }
-        List<ResolverActivity.ResolvedComponentInfo> resolversForIntent =
+        List<ResolvedComponentInfo> resolversForIntent =
                 adapter.getResolversForUser(UserHandle.of(mMyUserIdProvider.getMyUserId()));
-        for (ResolverActivity.ResolvedComponentInfo info : resolversForIntent) {
+        for (ResolvedComponentInfo info : resolversForIntent) {
             ResolveInfo resolveInfo = info.getResolveInfoAt(0);
             if (resolveInfo.targetUserId != UserHandle.USER_CURRENT) {
                 return true;

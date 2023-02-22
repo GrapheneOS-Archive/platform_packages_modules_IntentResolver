@@ -30,8 +30,8 @@ import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.intentresolver.ChooserActivityLogger;
+import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.ResolverActivity;
-import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
 
 import java.text.Collator;
 import java.util.ArrayList;
