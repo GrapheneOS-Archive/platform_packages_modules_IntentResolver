@@ -1165,14 +1165,19 @@ public class ChooserActivity extends ResolverActivity implements
     }
 
     public class ChooserListController extends ResolverListController {
-        public ChooserListController(Context context,
+        public ChooserListController(
+                Context context,
                 PackageManager pm,
                 Intent targetIntent,
                 String referrerPackageName,
                 int launchedFromUid,
-                UserHandle userId,
                 AbstractResolverComparator resolverComparator) {
-            super(context, pm, targetIntent, referrerPackageName, launchedFromUid, userId,
+            super(
+                    context,
+                    pm,
+                    targetIntent,
+                    referrerPackageName,
+                    launchedFromUid,
                     resolverComparator);
         }
 
@@ -1308,8 +1313,9 @@ public class ChooserActivity extends ResolverActivity implements
                 maxTargetsPerRow);
     }
 
+    @Override
     @VisibleForTesting
-    protected ResolverListController createListController(UserHandle userHandle) {
+    protected ChooserListController createListController(UserHandle userHandle) {
         AppPredictor appPredictor = getAppPredictor(userHandle);
         AbstractResolverComparator resolverComparator;
         if (appPredictor != null) {
@@ -1327,7 +1333,6 @@ public class ChooserActivity extends ResolverActivity implements
                 getTargetIntent(),
                 getReferrerPackageName(),
                 getAnnotatedUserHandles().userIdOfCallingApp,
-                userHandle,
                 resolverComparator);
     }
 
