@@ -35,7 +35,6 @@ import android.os.UserHandle;
 
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.QuietModeManager;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.flags.FeatureFlagRepository;
@@ -161,11 +160,11 @@ public class ChooserWrapperActivity
     }
 
     @Override
-    protected QuietModeManager createQuietModeManager() {
-        if (sOverrides.mQuietModeManager != null) {
-            return sOverrides.mQuietModeManager;
+    protected WorkProfileAvailabilityManager createWorkProfileAvailabilityManager() {
+        if (sOverrides.mWorkProfileAvailability != null) {
+            return sOverrides.mWorkProfileAvailability;
         }
-        return super.createQuietModeManager();
+        return super.createWorkProfileAvailabilityManager();
     }
 
     @Override
