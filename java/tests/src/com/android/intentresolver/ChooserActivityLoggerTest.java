@@ -205,6 +205,17 @@ public final class ChooserActivityLoggerTest {
     }
 
     @Test
+    public void testLogCustomActionSelected() {
+        final int position = 4;
+        mChooserLogger.logCustomActionSelected(position);
+
+        verify(mFrameworkLog).write(
+                eq(FrameworkStatsLog.RANKING_SELECTED),
+                eq(SharesheetTargetSelectedEvent.SHARESHEET_CUSTOM_ACTION_SELECTED.getId()),
+                any(), anyInt(), eq(position), eq(false));
+    }
+
+    @Test
     public void testLogDirectShareTargetReceived() {
         final int category = MetricsEvent.ACTION_DIRECT_SHARE_TARGETS_LOADED_SHORTCUT_MANAGER;
         final int latency = 123;

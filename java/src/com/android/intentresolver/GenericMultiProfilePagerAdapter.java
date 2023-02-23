@@ -81,7 +81,7 @@ class GenericMultiProfilePagerAdapter<
             AdapterBinder<PageViewT, SinglePageAdapterT> adapterBinder,
             ImmutableList<SinglePageAdapterT> adapters,
             EmptyStateProvider emptyStateProvider,
-            QuietModeManager quietModeManager,
+            Supplier<Boolean> workProfileQuietModeChecker,
             @Profile int defaultProfile,
             UserHandle workProfileUserHandle,
             Supplier<ViewGroup> pageViewInflater,
@@ -90,7 +90,7 @@ class GenericMultiProfilePagerAdapter<
                 context,
                 /* currentPage= */ defaultProfile,
                 emptyStateProvider,
-                quietModeManager,
+                workProfileQuietModeChecker,
                 workProfileUserHandle);
 
         mListAdapterExtractor = listAdapterExtractor;
