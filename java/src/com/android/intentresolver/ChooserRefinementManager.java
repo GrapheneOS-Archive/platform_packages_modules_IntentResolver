@@ -40,12 +40,6 @@ import java.util.function.Consumer;
  * additional extras and other refinements (subject to {@link Intent#filterEquals()}), e.g., to
  * convert the format of the payload, or lazy-download some data that was deferred in the original
  * call).
- *
- * TODO(b/262805893): this currently requires the result to be a refinement of <em>the best</em>
- * match for the user's selected target among the initially-provided source intents (according to
- * their originally-provided priority order). In order to support alternate formats/actions, we
- * should instead require it to refine <em>any</em> of the source intents -- presumably, the first
- * in priority order that matches according to {@link Intent#filterEquals()}.
  */
 public final class ChooserRefinementManager {
     private static final String TAG = "ChooserRefinement";
@@ -88,10 +82,12 @@ public final class ChooserRefinementManager {
         mRefinementResultReceiver = new RefinementResultReceiver(
                 refinedIntent -> {
                     destroy();
-                    TargetInfo refinedTarget = getValidRefinedTarget(selectedTarget, refinedIntent);
+                    TargetInfo refinedTarget =
+                            selectedTarget.tryToCloneWithAppliedRefinement(refinedIntent);
                     if (refinedTarget != null) {
                         mOnSelectionRefined.accept(refinedTarget);
                     } else {
+                        Log.e(TAG, "Failed to apply refinement to any matching source intent");
                         mOnRefinementCancelled.run();
                     }
                 },
@@ -191,28 +187,5 @@ public final class ChooserRefinementManager {
             parcel.recycle();
             return receiverForSending;
         }
-    }
-
-    private static TargetInfo getValidRefinedTarget(
-            TargetInfo originalTarget, Intent proposedRefinement) {
-        if (originalTarget == null) {
-            // TODO: this legacy log message doesn't seem to describe the real condition we just
-            // checked; probably this method should never be invoked with a null target.
-            Log.e(TAG, "Refinement result intent did not match any known targets; canceling");
-            return null;
-        }
-        if (!checkProposalRefinesSourceIntent(originalTarget, proposedRefinement)) {
-            Log.e(TAG, "Refinement " + proposedRefinement + " has no match in " + originalTarget);
-            return null;
-        }
-        return originalTarget.cloneFilledIn(proposedRefinement, 0);  // TODO: select the right base.
-    }
-
-    // TODO: return the actual match, to use as the base that we fill in? Or, if that's handled by
-    // `TargetInfo.cloneFilledIn()`, just let it be nullable (it already is?) and don't bother doing
-    // this pre-check.
-    private static boolean checkProposalRefinesSourceIntent(
-            TargetInfo originalTarget, Intent proposedMatch) {
-        return originalTarget.getAllSourceIntents().stream().anyMatch(proposedMatch::filterEquals);
     }
 }
