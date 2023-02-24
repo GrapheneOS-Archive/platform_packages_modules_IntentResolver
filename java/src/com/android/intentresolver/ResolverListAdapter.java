@@ -289,11 +289,7 @@ public class ResolverListAdapter extends BaseAdapter {
                     mBaseResolveList);
             return currentResolveList;
         } else {
-            return mResolverListController.getResolversForIntent(
-                            /* shouldGetResolvedFilter= */ true,
-                            mResolverListCommunicator.shouldGetActivityMetadata(),
-                            mResolverListCommunicator.shouldGetOnlyDefaultActivities(),
-                            mIntents);
+            return getResolversForUser(mUserHandle);
         }
     }
 
@@ -804,10 +800,12 @@ public class ResolverListAdapter extends BaseAdapter {
     }
 
     protected List<ResolvedComponentInfo> getResolversForUser(UserHandle userHandle) {
-        return mResolverListController.getResolversForIntentAsUser(true,
+        return mResolverListController.getResolversForIntentAsUser(
+                /* shouldGetResolvedFilter= */ true,
                 mResolverListCommunicator.shouldGetActivityMetadata(),
                 mResolverListCommunicator.shouldGetOnlyDefaultActivities(),
-                mIntents, userHandle);
+                mIntents,
+                userHandle);
     }
 
     protected List<Intent> getIntents() {

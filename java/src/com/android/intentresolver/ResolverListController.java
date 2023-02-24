@@ -58,7 +58,6 @@ public class ResolverListController {
 
     private static final String TAG = "ResolverListController";
     private static final boolean DEBUG = false;
-    private final UserHandle mUserHandle;
 
     private AbstractResolverComparator mResolverComparator;
     private boolean isComputed = false;
@@ -68,9 +67,8 @@ public class ResolverListController {
             PackageManager pm,
             Intent targetIntent,
             String referrerPackage,
-            int launchedFromUid,
-            UserHandle userHandle) {
-        this(context, pm, targetIntent, referrerPackage, launchedFromUid, userHandle,
+            int launchedFromUid) {
+        this(context, pm, targetIntent, referrerPackage, launchedFromUid,
                     new ResolverRankerServiceResolverComparator(
                         context, targetIntent, referrerPackage, null, null));
     }
@@ -81,14 +79,12 @@ public class ResolverListController {
             Intent targetIntent,
             String referrerPackage,
             int launchedFromUid,
-            UserHandle userHandle,
             AbstractResolverComparator resolverComparator) {
         mContext = context;
         mpm = pm;
         mLaunchedFromUid = launchedFromUid;
         mTargetIntent = targetIntent;
         mReferrerPackage = referrerPackage;
-        mUserHandle = userHandle;
         mResolverComparator = resolverComparator;
     }
 
@@ -106,16 +102,6 @@ public class ResolverListController {
                 intent.resolveType(mContext.getContentResolver()),
                 PackageManager.MATCH_DEFAULT_ONLY,
                 filter, match, intent.getComponent());
-    }
-
-    @VisibleForTesting
-    public List<ResolverActivity.ResolvedComponentInfo> getResolversForIntent(
-            boolean shouldGetResolvedFilter,
-            boolean shouldGetActivityMetadata,
-            boolean shouldGetOnlyDefaultActivities,
-            List<Intent> intents) {
-        return getResolversForIntentAsUser(shouldGetResolvedFilter, shouldGetActivityMetadata,
-                shouldGetOnlyDefaultActivities, intents, mUserHandle);
     }
 
     public List<ResolverActivity.ResolvedComponentInfo> getResolversForIntentAsUser(
@@ -157,11 +143,6 @@ public class ResolverListController {
             }
         }
         return resolvedComponents;
-    }
-
-    @VisibleForTesting
-    public UserHandle getUserHandle() {
-        return mUserHandle;
     }
 
     @VisibleForTesting
