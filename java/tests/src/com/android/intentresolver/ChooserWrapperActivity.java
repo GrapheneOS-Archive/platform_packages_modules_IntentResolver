@@ -16,8 +16,6 @@
 
 package com.android.intentresolver;
 
-import static org.mockito.Mockito.when;
-
 import android.annotation.Nullable;
 import android.app.prediction.AppPredictor;
 import android.app.usage.UsageStatsManager;
@@ -177,12 +175,10 @@ public class ChooserWrapperActivity
     }
 
     @Override
-    protected ResolverListController createListController(UserHandle userHandle) {
+    protected ChooserListController createListController(UserHandle userHandle) {
         if (userHandle == UserHandle.SYSTEM) {
-            when(sOverrides.resolverListController.getUserHandle()).thenReturn(UserHandle.SYSTEM);
             return sOverrides.resolverListController;
         }
-        when(sOverrides.workResolverListController.getUserHandle()).thenReturn(userHandle);
         return sOverrides.workResolverListController;
     }
 
