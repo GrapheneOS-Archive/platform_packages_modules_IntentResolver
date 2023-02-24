@@ -849,15 +849,25 @@ public class ResolverActivity extends FragmentActivity implements
         return !target.isSuspended();
     }
 
+    // TODO: this method takes an unused `UserHandle` because the override in `ChooserActivity` uses
+    // that data to set up other components as dependencies of the controller. In reality, these
+    // methods don't require polymorphism, because they're only invoked from within their respective
+    // concrete class; `ResolverActivity` will never call this method expecting to get a
+    // `ChooserListController` (subclass) result, because `ResolverActivity` only invokes this
+    // method as part of handling `createMultiProfilePagerAdapter()`, which is itself overridden in
+    // `ChooserActivity`. A future refactoring could better express the coupling between the adapter
+    // and controller types; in the meantime, structuring as an override (with matching signatures)
+    // shows that these methods are *structurally* related, and helps to prevent any regressions in
+    // the future if resolver *were* to make any (non-overridden) calls to a version that used a
+    // different signature (and thus didn't return the subclass type).
     @VisibleForTesting
-    protected ResolverListController createListController(UserHandle userHandle) {
+    protected ResolverListController createListController(UserHandle unused) {
         return new ResolverListController(
                 this,
                 mPm,
                 getTargetIntent(),
                 getReferrerPackageName(),
-                getAnnotatedUserHandles().userIdOfCallingApp,
-                userHandle);
+                getAnnotatedUserHandles().userIdOfCallingApp);
     }
 
     /**
@@ -1719,8 +1729,7 @@ public class ResolverActivity extends FragmentActivity implements
 
         findViewById(com.android.internal.R.id.button_open).setOnClickListener(v -> {
             Intent intent = otherProfileResolveInfo.getResolvedIntent();
-            safelyStartActivityAsUser(otherProfileResolveInfo,
-                    inactiveAdapter.mResolverListController.getUserHandle());
+            safelyStartActivityAsUser(otherProfileResolveInfo, inactiveAdapter.getUserHandle());
             finish();
         });
     }
