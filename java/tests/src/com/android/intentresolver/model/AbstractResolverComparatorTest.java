@@ -28,6 +28,9 @@ import android.os.Message;
 import androidx.test.InstrumentationRegistry;
 
 import com.android.intentresolver.ResolvedComponentInfo;
+import com.android.intentresolver.chooser.TargetInfo;
+
+import com.google.android.collect.Lists;
 
 import org.junit.Test;
 
@@ -81,7 +84,8 @@ public class AbstractResolverComparatorTest {
         Intent intent = new Intent();
 
         AbstractResolverComparator testComparator =
-                new AbstractResolverComparator(context, intent) {
+                new AbstractResolverComparator(context, intent,
+                        Lists.newArrayList(context.getUser())) {
 
                     @Override
                     int compare(ResolveInfo lhs, ResolveInfo rhs) {
@@ -94,7 +98,7 @@ public class AbstractResolverComparatorTest {
                     void doCompute(List<ResolvedComponentInfo> targets) {}
 
                     @Override
-                    public float getScore(ComponentName name) {
+                    public float getScore(TargetInfo targetInfo) {
                         return 0;
                     }
 

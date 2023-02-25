@@ -87,6 +87,11 @@ public final class AnnotatedUserHandles {
         // TODO: integrate logic for `ResolverActivity.EXTRA_CALLING_USER`.
         userHandleSharesheetLaunchedAs = UserHandle.of(UserHandle.myUserId());
 
+        // ActivityManager.getCurrentUser() refers to the current Foreground user. When clone/work
+        // profile is active, we always make the personal tab from the foreground user.
+        // Outside profiles, current foreground user is potentially the same as the sharesheet
+        // process's user (UserHandle.myUserId()), so we continue to create personal tab with the
+        // current foreground user.
         personalProfileUserHandle = UserHandle.of(ActivityManager.getCurrentUser());
 
         UserManager userManager = forShareActivity.getSystemService(UserManager.class);
@@ -100,14 +105,43 @@ public final class AnnotatedUserHandles {
     @Nullable
     private static UserHandle getWorkProfileForUser(
             UserManager userManager, UserHandle profileOwnerUserHandle) {
-        return userManager.getProfiles(profileOwnerUserHandle.getIdentifier()).stream()
-                .filter(info -> info.isManagedProfile()).findFirst()
-                .map(info -> info.getUserHandle()).orElse(null);
+        return userManager.getProfiles(profileOwnerUserHandle.getIdentifier())
+                .stream()
+                .filter(info -> info.isManagedProfile())
+                .findFirst()
+                .map(info -> info.getUserHandle())
+                .orElse(null);
     }
 
     @Nullable
     private static UserHandle getCloneProfileForUser(
             UserManager userManager, UserHandle profileOwnerUserHandle) {
-        return null;  // Not yet supported in framework.
+        return userManager.getProfiles(profileOwnerUserHandle.getIdentifier())
+                .stream()
+                .filter(info -> info.isCloneProfile())
+                .findFirst()
+                .map(info -> info.getUserHandle())
+                .orElse(null);
+    }
+
+    /**
+     * Returns the {@link UserHandle} to use when querying resolutions for intents in a
+     * {@link ResolverListController} configured for the provided {@code userHandle}.
+     */
+    public UserHandle getQueryIntentsUser(UserHandle userHandle) {
+        // In case launching app is in clonedProfile, and we are building the personal tab, intent
+        // resolution will be attempted as clonedUser instead of user 0. This is because intent
+        // resolution from user 0 and clonedUser is not guaranteed to return same results.
+        // We do not care about the case when personal adapter is started with non-root user
+        // (secondary user case), as clone profile is guaranteed to be non-active in that case.
+        UserHandle queryIntentsUser = userHandle;
+        if (isLaunchedAsCloneProfile() && userHandle.equals(personalProfileUserHandle)) {
+            queryIntentsUser = cloneProfileUserHandle;
+        }
+        return queryIntentsUser;
+    }
+
+    private Boolean isLaunchedAsCloneProfile() {
+        return userHandleSharesheetLaunchedAs.equals(cloneProfileUserHandle);
     }
 }
