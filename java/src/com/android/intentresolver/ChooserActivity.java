@@ -403,7 +403,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     @VisibleForTesting
     protected ChooserIntegratedDeviceComponents getIntegratedDeviceComponents() {
-        return ChooserIntegratedDeviceComponents.get(this);
+        return ChooserIntegratedDeviceComponents.get(this, new SecureSettings());
     }
 
     @Override
