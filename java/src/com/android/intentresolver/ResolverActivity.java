@@ -2214,61 +2214,6 @@ public class ResolverActivity extends FragmentActivity implements
         return mMultiProfilePagerAdapter.getInactiveListAdapter().getCount() > 0;
     }
 
-    public static final class ResolvedComponentInfo {
-        public final ComponentName name;
-        private final List<Intent> mIntents = new ArrayList<>();
-        private final List<ResolveInfo> mResolveInfos = new ArrayList<>();
-        private boolean mPinned;
-
-        public ResolvedComponentInfo(ComponentName name, Intent intent, ResolveInfo info) {
-            this.name = name;
-            add(intent, info);
-        }
-
-        public void add(Intent intent, ResolveInfo info) {
-            mIntents.add(intent);
-            mResolveInfos.add(info);
-        }
-
-        public int getCount() {
-            return mIntents.size();
-        }
-
-        public Intent getIntentAt(int index) {
-            return index >= 0 ? mIntents.get(index) : null;
-        }
-
-        public ResolveInfo getResolveInfoAt(int index) {
-            return index >= 0 ? mResolveInfos.get(index) : null;
-        }
-
-        public int findIntent(Intent intent) {
-            for (int i = 0, N = mIntents.size(); i < N; i++) {
-                if (intent.equals(mIntents.get(i))) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        public int findResolveInfo(ResolveInfo info) {
-            for (int i = 0, N = mResolveInfos.size(); i < N; i++) {
-                if (info.equals(mResolveInfos.get(i))) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        public boolean isPinned() {
-            return mPinned;
-        }
-
-        public void setPinned(boolean pinned) {
-            mPinned = pinned;
-        }
-    }
-
     final class ItemClickListener implements AdapterView.OnItemClickListener,
             AdapterView.OnItemLongClickListener {
         @Override
