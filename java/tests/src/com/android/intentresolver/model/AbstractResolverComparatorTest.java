@@ -27,7 +27,7 @@ import android.os.Message;
 
 import androidx.test.InstrumentationRegistry;
 
-import com.android.intentresolver.ResolverActivity;
+import com.android.intentresolver.ResolvedComponentInfo;
 
 import org.junit.Test;
 
@@ -37,12 +37,12 @@ public class AbstractResolverComparatorTest {
 
     @Test
     public void testPinned() {
-        ResolverActivity.ResolvedComponentInfo r1 = new ResolverActivity.ResolvedComponentInfo(
+        ResolvedComponentInfo r1 = new ResolvedComponentInfo(
                 new ComponentName("package", "class"), new Intent(), new ResolveInfo()
         );
         r1.setPinned(true);
 
-        ResolverActivity.ResolvedComponentInfo r2 = new ResolverActivity.ResolvedComponentInfo(
+        ResolvedComponentInfo r2 = new ResolvedComponentInfo(
                 new ComponentName("zackage", "zlass"), new Intent(), new ResolveInfo()
         );
 
@@ -60,14 +60,14 @@ public class AbstractResolverComparatorTest {
         pmInfo1.activityInfo = new ActivityInfo();
         pmInfo1.activityInfo.packageName = "aaa";
 
-        ResolverActivity.ResolvedComponentInfo r1 = new ResolverActivity.ResolvedComponentInfo(
+        ResolvedComponentInfo r1 = new ResolvedComponentInfo(
                 new ComponentName("package", "class"), new Intent(), pmInfo1);
         r1.setPinned(true);
 
         ResolveInfo pmInfo2 = new ResolveInfo();
         pmInfo2.activityInfo = new ActivityInfo();
         pmInfo2.activityInfo.packageName = "zzz";
-        ResolverActivity.ResolvedComponentInfo r2 = new ResolverActivity.ResolvedComponentInfo(
+        ResolvedComponentInfo r2 = new ResolvedComponentInfo(
                 new ComponentName("zackage", "zlass"), new Intent(), pmInfo2);
         r2.setPinned(true);
 
@@ -91,7 +91,7 @@ public class AbstractResolverComparatorTest {
                     }
 
                     @Override
-                    void doCompute(List<ResolverActivity.ResolvedComponentInfo> targets) {}
+                    void doCompute(List<ResolvedComponentInfo> targets) {}
 
                     @Override
                     public float getScore(ComponentName name) {

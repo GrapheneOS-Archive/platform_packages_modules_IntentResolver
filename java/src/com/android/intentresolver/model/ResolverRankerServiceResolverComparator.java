@@ -38,7 +38,7 @@ import android.service.resolver.ResolverTarget;
 import android.util.Log;
 
 import com.android.intentresolver.ChooserActivityLogger;
-import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
+import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
