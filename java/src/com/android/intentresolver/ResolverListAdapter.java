@@ -49,7 +49,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.internal.annotations.VisibleForTesting;
