@@ -77,7 +77,7 @@ public class ChooserRequestParameters {
     private final Intent mReferrerFillInIntent;
     private final ImmutableList<ComponentName> mFilteredComponentNames;
     private final ImmutableList<ChooserTarget> mCallerChooserTargets;
-    private final ImmutableList<ChooserAction> mChooserActions;
+    private final @NonNull ImmutableList<ChooserAction> mChooserActions;
     private final PendingIntent mModifyShareAction;
     private final boolean mRetainInOnStop;
 
@@ -198,6 +198,7 @@ public class ChooserRequestParameters {
         return mCallerChooserTargets;
     }
 
+    @NonNull
     public ImmutableList<ChooserAction> getChooserActions() {
         return mChooserActions;
     }
@@ -340,6 +341,7 @@ public class ChooserRequestParameters {
                 .collect(toImmutableList());
     }
 
+    @NonNull
     private static ImmutableList<ChooserAction> getChooserActions(Intent intent) {
         return streamParcelableArrayExtra(
                 intent,
