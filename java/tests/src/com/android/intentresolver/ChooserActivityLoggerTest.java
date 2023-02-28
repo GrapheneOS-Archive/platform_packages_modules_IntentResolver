@@ -112,7 +112,6 @@ public final class ChooserActivityLoggerTest {
 
     @Test
     public void testLogShareStarted() {
-        final int eventId = -1;  // Passed-in eventId is unused. TODO: remove from method signature.
         final String packageName = "com.test.foo";
         final String mimeType = "text/plain";
         final int appProvidedDirectTargets = 123;
@@ -120,16 +119,19 @@ public final class ChooserActivityLoggerTest {
         final boolean workProfile = true;
         final int previewType = ChooserContentPreviewUi.CONTENT_PREVIEW_FILE;
         final String intentAction = Intent.ACTION_SENDTO;
+        final int numCustomActions = 3;
+        final boolean modifyShareProvided = true;
 
         mChooserLogger.logShareStarted(
-                eventId,
                 packageName,
                 mimeType,
                 appProvidedDirectTargets,
                 appProvidedAppTargets,
                 workProfile,
                 previewType,
-                intentAction);
+                intentAction,
+                numCustomActions,
+                modifyShareProvided);
 
         verify(mFrameworkLog).write(
                 eq(FrameworkStatsLog.SHARESHEET_STARTED),
@@ -142,8 +144,8 @@ public final class ChooserActivityLoggerTest {
                 eq(workProfile),
                 eq(FrameworkStatsLog.SHARESHEET_STARTED__PREVIEW_TYPE__CONTENT_PREVIEW_FILE),
                 eq(FrameworkStatsLog.SHARESHEET_STARTED__INTENT_TYPE__INTENT_ACTION_SENDTO),
-                /* custom actions provided */ eq(0),
-                /* reselection action provided */ eq(false));
+                /* custom actions provided */ eq(numCustomActions),
+                /* reselection action provided */ eq(modifyShareProvided));
     }
 
     @Test
