@@ -32,7 +32,7 @@ import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.intentresolver.ChooserActivityLogger;
-import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
+import com.android.intentresolver.ResolvedComponentInfo;
 
 import java.util.ArrayList;
 import java.util.Comparator;
