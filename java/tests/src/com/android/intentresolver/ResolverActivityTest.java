@@ -54,7 +54,6 @@ import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
 
-import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.R;
 

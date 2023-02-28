@@ -36,28 +36,33 @@ public class ResolverDataProvider {
 
     static private int USER_SOMEONE_ELSE = 10;
 
-    static ResolverActivity.ResolvedComponentInfo createResolvedComponentInfo(int i) {
-        return new ResolverActivity.ResolvedComponentInfo(createComponentName(i),
-                createResolverIntent(i), createResolveInfo(i, UserHandle.USER_CURRENT));
+    static ResolvedComponentInfo createResolvedComponentInfo(int i) {
+        return new ResolvedComponentInfo(
+                createComponentName(i),
+                createResolverIntent(i),
+                createResolveInfo(i, UserHandle.USER_CURRENT));
     }
 
-    static ResolverActivity.ResolvedComponentInfo createResolvedComponentInfo(
+    static ResolvedComponentInfo createResolvedComponentInfo(
             ComponentName componentName, Intent intent) {
-        return new ResolverActivity.ResolvedComponentInfo(
+        return new ResolvedComponentInfo(
                 componentName,
                 intent,
                 createResolveInfo(componentName, UserHandle.USER_CURRENT));
     }
 
-    static ResolverActivity.ResolvedComponentInfo createResolvedComponentInfoWithOtherId(int i) {
-        return new ResolverActivity.ResolvedComponentInfo(createComponentName(i),
-                createResolverIntent(i), createResolveInfo(i, USER_SOMEONE_ELSE));
+    static ResolvedComponentInfo createResolvedComponentInfoWithOtherId(int i) {
+        return new ResolvedComponentInfo(
+                createComponentName(i),
+                createResolverIntent(i),
+                createResolveInfo(i, USER_SOMEONE_ELSE));
     }
 
-    static ResolverActivity.ResolvedComponentInfo createResolvedComponentInfoWithOtherId(int i,
-            int userId) {
-        return new ResolverActivity.ResolvedComponentInfo(createComponentName(i),
-                createResolverIntent(i), createResolveInfo(i, userId));
+    static ResolvedComponentInfo createResolvedComponentInfoWithOtherId(int i, int userId) {
+        return new ResolvedComponentInfo(
+                createComponentName(i),
+                createResolverIntent(i),
+                createResolveInfo(i, userId));
     }
 
     public static ComponentName createComponentName(int i) {
