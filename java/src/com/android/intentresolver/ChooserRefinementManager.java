@@ -121,10 +121,13 @@ public final class ChooserRefinementManager {
         final Intent fillIn = new Intent();
         final List<Intent> sourceIntents = originalTarget.getAllSourceIntents();
         fillIn.putExtra(Intent.EXTRA_INTENT, sourceIntents.get(0));
-        if (sourceIntents.size() > 1) {
+        final int sourceIntentCount = sourceIntents.size();
+        if (sourceIntentCount > 1) {
             fillIn.putExtra(
                     Intent.EXTRA_ALTERNATE_INTENTS,
-                    sourceIntents.subList(1, sourceIntents.size()).toArray());
+                    sourceIntents
+                            .subList(1, sourceIntentCount)
+                            .toArray(new Intent[sourceIntentCount - 1]));
         }
         fillIn.putExtra(Intent.EXTRA_RESULT_RECEIVER, resultReceiver.copyForSending());
         return fillIn;
