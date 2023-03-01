@@ -97,7 +97,6 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.content.PackageMonitor;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
-import com.android.internal.util.FrameworkStatsLog;
 
 import java.io.File;
 import java.lang.annotation.Retention;
@@ -386,7 +385,6 @@ public class ChooserActivity extends ResolverActivity implements
         }
 
         getChooserActivityLogger().logShareStarted(
-                FrameworkStatsLog.SHARESHEET_STARTED,
                 getReferrerPackageName(),
                 mChooserRequest.getTargetType(),
                 mChooserRequest.getCallerChooserTargets().size(),
@@ -395,7 +393,9 @@ public class ChooserActivity extends ResolverActivity implements
                 isWorkProfile(),
                 ChooserContentPreviewUi.findPreferredContentPreview(
                         getTargetIntent(), getContentResolver(), this::isImageType),
-                mChooserRequest.getTargetAction()
+                mChooserRequest.getTargetAction(),
+                mChooserRequest.getChooserActions().size(),
+                mChooserRequest.getModifyShareAction() != null
         );
 
         mEnterTransitionAnimationDelegate.postponeTransition();
