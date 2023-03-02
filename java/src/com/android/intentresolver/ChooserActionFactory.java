@@ -18,6 +18,7 @@ package com.android.intentresolver;
 
 import android.annotation.Nullable;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -490,7 +491,18 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
                 icon,
                 () -> {
                     try {
-                        action.getAction().send();
+                        action.getAction().send(
+                                null,
+                                0,
+                                null,
+                                null,
+                                null,
+                                null,
+                                ActivityOptions.makeCustomAnimation(
+                                        context,
+                                        R.anim.slide_in_right,
+                                        R.anim.slide_out_left)
+                                                .toBundle());
                     } catch (PendingIntent.CanceledException e) {
                         Log.d(TAG, "Custom action, " + action.getLabel() + ", has been cancelled");
                     }
