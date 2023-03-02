@@ -16,6 +16,7 @@
 
 package com.android.intentresolver.chooser;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.prediction.AppTarget;
@@ -27,7 +28,6 @@ import android.content.pm.ShortcutInfo;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.util.HashedStringCache;
-import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
 
@@ -84,6 +84,15 @@ public final class ImmutableTargetInfo implements TargetInfo {
         private ComponentName mResolvedComponentName;
 
         @Nullable
+        private Intent mResolvedIntent;
+
+        @Nullable
+        private Intent mBaseIntentToSend;
+
+        @Nullable
+        private Intent mTargetIntent;
+
+        @Nullable
         private ComponentName mChooserTargetComponentName;
 
         @Nullable
@@ -101,19 +110,28 @@ public final class ImmutableTargetInfo implements TargetInfo {
         @Nullable
         private Intent mReferrerFillInIntent;
 
-        private Intent mResolvedIntent;
-        private Intent mTargetIntent;
+        @Nullable
         private TargetActivityStarter mActivityStarter;
+
+        @Nullable
         private ResolveInfo mResolveInfo;
+
+        @Nullable
         private CharSequence mDisplayLabel;
+
+        @Nullable
         private CharSequence mExtendedInfo;
+
+        @Nullable
         private IconHolder mDisplayIconHolder;
-        private List<Intent> mSourceIntents;
-        private List<DisplayResolveInfo> mAllDisplayTargets;
+
         private boolean mIsSuspended;
         private boolean mIsPinned;
         private float mModifiedScore = -0.1f;
         private LegacyTargetType mLegacyType = LegacyTargetType.NOT_LEGACY_TARGET;
+
+        private ImmutableList<Intent> mAlternateSourceIntents = ImmutableList.of();
+        private ImmutableList<DisplayResolveInfo> mAllDisplayTargets = ImmutableList.of();
 
         /**
          * Configure an {@link Intent} to be built in to the output target as the resolution for the
@@ -121,6 +139,17 @@ public final class ImmutableTargetInfo implements TargetInfo {
          */
         public Builder setResolvedIntent(Intent resolvedIntent) {
             mResolvedIntent = resolvedIntent;
+            return this;
+        }
+
+        /**
+         * Configure an {@link Intent} to be built in to the output target as the "base intent to
+         * send," which may be a refinement of any of our source targets. This is private because
+         * it's only used internally by {@link #tryToCloneWithAppliedRefinement()}; if it's ever
+         * expanded, the builder should probably be responsible for enforcing the refinement check.
+         */
+        private Builder setBaseIntentToSend(Intent baseIntent) {
+            mBaseIntentToSend = baseIntent;
             return this;
         }
 
@@ -192,15 +221,33 @@ public final class ImmutableTargetInfo implements TargetInfo {
             return this;
         }
 
-        /** Configure the list of source intents to be built in to the output target. */
+        /** Configure the list of alternate source intents we could resolve for this target. */
+        public Builder setAlternateSourceIntents(List<Intent> sourceIntents) {
+            mAlternateSourceIntents = immutableCopyOrEmpty(sourceIntents);
+            return this;
+        }
+
+       /**
+        * Configure the full list of source intents we could resolve for this target. This is
+        * effectively the same as calling {@link #setResolvedIntent()} with the first element of
+        * the list, and {@link #setAlternateSourceIntents()} with the remainder (or clearing those
+        * fields on the builder if there are no corresponding elements in the list).
+        */
         public Builder setAllSourceIntents(List<Intent> sourceIntents) {
-            mSourceIntents = sourceIntents;
+            if ((sourceIntents == null) || sourceIntents.isEmpty()) {
+                setResolvedIntent(null);
+                setAlternateSourceIntents(null);
+                return this;
+            }
+
+            setResolvedIntent(sourceIntents.get(0));
+            setAlternateSourceIntents(sourceIntents.subList(1, sourceIntents.size()));
             return this;
         }
 
         /** Configure the list of display targets to be built in to the output target. */
         public Builder setAllDisplayTargets(List<DisplayResolveInfo> targets) {
-            mAllDisplayTargets = targets;
+            mAllDisplayTargets = immutableCopyOrEmpty(targets);
             return this;
         }
 
@@ -246,28 +293,27 @@ public final class ImmutableTargetInfo implements TargetInfo {
             return this;
         }
 
-        Builder setLegacyType(LegacyTargetType legacyType) {
+        Builder setLegacyType(@NonNull LegacyTargetType legacyType) {
             mLegacyType = legacyType;
             return this;
         }
 
-        /**
-         * Construct an {@code ImmutableTargetInfo} with the current builder data, where the
-         * provided intent is used to fill in missing values from the resolved intent before the
-         * target is (potentially) ever launched.
-         *
-         * @see android.content.Intent#fillIn(Intent, int)
-         */
-        public ImmutableTargetInfo buildWithFillInIntent(
-                @Nullable Intent fillInIntent, int fillInFlags) {
-            Intent baseIntentToSend = mResolvedIntent;
-            if (baseIntentToSend == null) {
-                Log.w(TAG, "No base intent to send");
-            } else {
+        /** Construct an {@code ImmutableTargetInfo} with the current builder data. */
+        public ImmutableTargetInfo build() {
+            List<Intent> sourceIntents = new ArrayList<>();
+            if (mResolvedIntent != null) {
+                sourceIntents.add(mResolvedIntent);
+            }
+            if (mAlternateSourceIntents != null) {
+                sourceIntents.addAll(mAlternateSourceIntents);
+            }
+
+            Intent baseIntentToSend = mBaseIntentToSend;
+            if ((baseIntentToSend == null) && !sourceIntents.isEmpty()) {
+                baseIntentToSend = sourceIntents.get(0);
+            }
+            if (baseIntentToSend != null) {
                 baseIntentToSend = new Intent(baseIntentToSend);
-                if (fillInIntent != null) {
-                    baseIntentToSend.fillIn(fillInIntent, fillInFlags);
-                }
                 if (mReferrerFillInIntent != null) {
                     baseIntentToSend.fillIn(mReferrerFillInIntent, 0);
                 }
@@ -275,7 +321,7 @@ public final class ImmutableTargetInfo implements TargetInfo {
 
             return new ImmutableTargetInfo(
                     baseIntentToSend,
-                    mResolvedIntent,
+                    ImmutableList.copyOf(sourceIntents),
                     mTargetIntent,
                     mReferrerFillInIntent,
                     mResolvedComponentName,
@@ -285,7 +331,6 @@ public final class ImmutableTargetInfo implements TargetInfo {
                     mDisplayLabel,
                     mExtendedInfo,
                     mDisplayIconHolder,
-                    mSourceIntents,
                     mAllDisplayTargets,
                     mIsSuspended,
                     mIsPinned,
@@ -295,11 +340,6 @@ public final class ImmutableTargetInfo implements TargetInfo {
                     mDisplayResolveInfo,
                     mHashProvider,
                     mLegacyType);
-        }
-
-        /** Construct an {@code ImmutableTargetInfo} with the current builder data. */
-        public ImmutableTargetInfo build() {
-            return buildWithFillInIntent(null, 0);
         }
     }
 
@@ -325,14 +365,13 @@ public final class ImmutableTargetInfo implements TargetInfo {
     private final TargetHashProvider mHashProvider;
 
     private final Intent mBaseIntentToSend;
-    private final Intent mResolvedIntent;
+    private final ImmutableList<Intent> mSourceIntents;
     private final Intent mTargetIntent;
     private final TargetActivityStarter mActivityStarter;
     private final ResolveInfo mResolveInfo;
     private final CharSequence mDisplayLabel;
     private final CharSequence mExtendedInfo;
     private final IconHolder mDisplayIconHolder;
-    private final ImmutableList<Intent> mSourceIntents;
     private final ImmutableList<DisplayResolveInfo> mAllDisplayTargets;
     private final boolean mIsSuspended;
     private final boolean mIsPinned;
@@ -347,6 +386,7 @@ public final class ImmutableTargetInfo implements TargetInfo {
     /** Construct a {@link Builder} pre-initialized to match this target. */
     public Builder toBuilder() {
         return newBuilder()
+                .setBaseIntentToSend(getBaseIntentToSend())
                 .setResolvedIntent(getResolvedIntent())
                 .setTargetIntent(getTargetIntent())
                 .setReferrerFillInIntent(getReferrerFillInIntent())
@@ -375,13 +415,26 @@ public final class ImmutableTargetInfo implements TargetInfo {
     }
 
     @Override
-    public ImmutableTargetInfo cloneFilledIn(Intent fillInIntent, int flags) {
-        return toBuilder().buildWithFillInIntent(fillInIntent, flags);
+    @Nullable
+    public ImmutableTargetInfo tryToCloneWithAppliedRefinement(Intent proposedRefinement) {
+        Intent matchingBase =
+                getAllSourceIntents()
+                        .stream()
+                        .filter(i -> i.filterEquals(proposedRefinement))
+                        .findFirst()
+                        .orElse(null);
+        if (matchingBase == null) {
+            return null;
+        }
+
+        Intent merged = new Intent(matchingBase);
+        merged.fillIn(proposedRefinement, 0);
+        return toBuilder().setBaseIntentToSend(merged).build();
     }
 
     @Override
     public Intent getResolvedIntent() {
-        return mResolvedIntent;
+        return (mSourceIntents.isEmpty() ? null : mSourceIntents.get(0));
     }
 
     @Override
@@ -408,11 +461,13 @@ public final class ImmutableTargetInfo implements TargetInfo {
 
     @Override
     public boolean startAsCaller(Activity activity, Bundle options, int userId) {
+        // TODO: make sure that the component name is set in all cases
         return mActivityStarter.startAsCaller(this, activity, options, userId);
     }
 
     @Override
     public boolean startAsUser(Activity activity, Bundle options, UserHandle user) {
+        // TODO: make sure that the component name is set in all cases
         return mActivityStarter.startAsUser(this, activity, options, user);
     }
 
@@ -531,7 +586,7 @@ public final class ImmutableTargetInfo implements TargetInfo {
 
     private ImmutableTargetInfo(
             Intent baseIntentToSend,
-            Intent resolvedIntent,
+            ImmutableList<Intent> sourceIntents,
             Intent targetIntent,
             @Nullable Intent referrerFillInIntent,
             @Nullable ComponentName resolvedComponentName,
@@ -541,8 +596,7 @@ public final class ImmutableTargetInfo implements TargetInfo {
             CharSequence displayLabel,
             CharSequence extendedInfo,
             IconHolder iconHolder,
-            @Nullable List<Intent> sourceIntents,
-            @Nullable List<DisplayResolveInfo> allDisplayTargets,
+            ImmutableList<DisplayResolveInfo> allDisplayTargets,
             boolean isSuspended,
             boolean isPinned,
             float modifiedScore,
@@ -552,7 +606,7 @@ public final class ImmutableTargetInfo implements TargetInfo {
             @Nullable TargetHashProvider hashProvider,
             LegacyTargetType legacyType) {
         mBaseIntentToSend = baseIntentToSend;
-        mResolvedIntent = resolvedIntent;
+        mSourceIntents = sourceIntents;
         mTargetIntent = targetIntent;
         mReferrerFillInIntent = referrerFillInIntent;
         mResolvedComponentName = resolvedComponentName;
@@ -562,8 +616,7 @@ public final class ImmutableTargetInfo implements TargetInfo {
         mDisplayLabel = displayLabel;
         mExtendedInfo = extendedInfo;
         mDisplayIconHolder = iconHolder;
-        mSourceIntents = immutableCopyOrEmpty(sourceIntents);
-        mAllDisplayTargets = immutableCopyOrEmpty(allDisplayTargets);
+        mAllDisplayTargets = allDisplayTargets;
         mIsSuspended = isSuspended;
         mIsPinned = isPinned;
         mModifiedScore = modifiedScore;
