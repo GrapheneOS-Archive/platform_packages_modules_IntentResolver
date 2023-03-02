@@ -40,10 +40,12 @@ public class ChooserIntegratedDeviceComponents {
     private final ComponentName mNearbySharingComponent;
 
     /** Look up the integrated components available on this device. */
-    public static ChooserIntegratedDeviceComponents get(Context context) {
+    public static ChooserIntegratedDeviceComponents get(
+            Context context,
+            SecureSettings secureSettings) {
         return new ChooserIntegratedDeviceComponents(
                 getEditSharingComponent(context),
-                getNearbySharingComponent(context));
+                getNearbySharingComponent(context, secureSettings));
     }
 
     @VisibleForTesting
@@ -68,9 +70,13 @@ public class ChooserIntegratedDeviceComponents {
                 ? null : ComponentName.unflattenFromString(editorComponent);
     }
 
-    private static ComponentName getNearbySharingComponent(Context context) {
-        String nearbyComponent = Settings.Secure.getString(
+    private static ComponentName getNearbySharingComponent(Context context,
+            SecureSettings secureSettings) {
+        String nearbyComponent = secureSettings.getString(
                 context.getContentResolver(), Settings.Secure.NEARBY_SHARING_COMPONENT);
+        if (TextUtils.isEmpty(nearbyComponent)) {
+            nearbyComponent = context.getString(R.string.config_defaultNearbySharingComponent);
+        }
         return TextUtils.isEmpty(nearbyComponent)
                 ? null : ComponentName.unflattenFromString(nearbyComponent);
     }
