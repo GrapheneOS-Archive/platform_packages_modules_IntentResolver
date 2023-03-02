@@ -21,7 +21,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.UserHandle;
 
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -93,10 +96,19 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
     }
 
     @Override
-    public TargetInfo cloneFilledIn(Intent fillInIntent, int flags) {
-        ArrayList<DisplayResolveInfo> targetInfos = new ArrayList<>(mTargetInfos.size());
-        for (int i = 0, size = mTargetInfos.size(); i < size; i++) {
-            targetInfos.add(mTargetInfos.get(i).cloneFilledInInternal(fillInIntent, flags));
+    @Nullable
+    public MultiDisplayResolveInfo tryToCloneWithAppliedRefinement(Intent proposedRefinement) {
+        final int size = mTargetInfos.size();
+        ArrayList<DisplayResolveInfo> targetInfos = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            DisplayResolveInfo target = mTargetInfos.get(i);
+            DisplayResolveInfo targetClone = (i == mSelected)
+                    ? target.tryToCloneWithAppliedRefinement(proposedRefinement)
+                    : new DisplayResolveInfo(target);
+            if (targetClone == null) {
+                return null;
+            }
+            targetInfos.add(targetClone);
         }
         MultiDisplayResolveInfo clone = new MultiDisplayResolveInfo(targetInfos);
         clone.mSelected = mSelected;
@@ -116,5 +128,12 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
     @Override
     public Intent getTargetIntent() {
         return mTargetInfos.get(mSelected).getTargetIntent();
+    }
+
+    @Override
+    public List<Intent> getAllSourceIntents() {
+        return hasSelected()
+                ? mTargetInfos.get(mSelected).getAllSourceIntents()
+                : Collections.emptyList();
     }
 }
