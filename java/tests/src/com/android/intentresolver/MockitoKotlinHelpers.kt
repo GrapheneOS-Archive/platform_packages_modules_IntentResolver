@@ -26,6 +26,7 @@ package com.android.intentresolver
 
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatcher
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import org.mockito.stubbing.OngoingStubbing
 
@@ -144,3 +145,5 @@ inline fun <reified T : Any> withArgCaptor(block: KotlinArgumentCaptor<T>.() -> 
  */
 inline fun <reified T : Any> captureMany(block: KotlinArgumentCaptor<T>.() -> Unit): List<T> =
     kotlinArgumentCaptor<T>().apply{ block() }.allValues
+
+inline fun <reified T> anyOrNull() = ArgumentMatchers.argThat(ArgumentMatcher<T?> { true })
