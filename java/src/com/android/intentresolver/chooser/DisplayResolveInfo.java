@@ -96,25 +96,22 @@ public class DisplayResolveInfo implements TargetInfo {
         final ActivityInfo ai = mResolveInfo.activityInfo;
         mIsSuspended = (ai.applicationInfo.flags & ApplicationInfo.FLAG_SUSPENDED) != 0;
 
-        final Intent intent = new Intent(resolvedIntent);
-        intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT
-                | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-        intent.setComponent(new ComponentName(ai.applicationInfo.packageName, ai.name));
-        mResolvedIntent = intent;
+        mResolvedIntent = createResolvedIntent(resolvedIntent, ai);
     }
 
     private DisplayResolveInfo(
             DisplayResolveInfo other,
-            Intent fillInIntent,
-            int flags,
+            @Nullable Intent baseIntentToSend,
             TargetPresentationGetter presentationGetter) {
         mSourceIntents.addAll(other.getAllSourceIntents());
         mResolveInfo = other.mResolveInfo;
         mIsSuspended = other.mIsSuspended;
         mDisplayLabel = other.mDisplayLabel;
         mExtendedInfo = other.mExtendedInfo;
-        mResolvedIntent = new Intent(other.mResolvedIntent);
-        mResolvedIntent.fillIn(fillInIntent, flags);
+
+        mResolvedIntent = createResolvedIntent(
+                baseIntentToSend == null ? other.mResolvedIntent : baseIntentToSend,
+                mResolveInfo.activityInfo);
         mPresentationGetter = presentationGetter;
 
         mDisplayIconHolder.setDisplayIcon(other.mDisplayIconHolder.getDisplayIcon());
@@ -130,6 +127,14 @@ public class DisplayResolveInfo implements TargetInfo {
         mPresentationGetter = other.mPresentationGetter;
 
         mDisplayIconHolder.setDisplayIcon(other.mDisplayIconHolder.getDisplayIcon());
+    }
+
+    private static Intent createResolvedIntent(Intent resolvedIntent, ActivityInfo ai) {
+        final Intent result = new Intent(resolvedIntent);
+        result.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT
+                | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        result.setComponent(new ComponentName(ai.applicationInfo.packageName, ai.name));
+        return result;
     }
 
     @Override
@@ -167,12 +172,21 @@ public class DisplayResolveInfo implements TargetInfo {
     }
 
     @Override
-    public TargetInfo cloneFilledIn(Intent fillInIntent, int flags) {
-        return cloneFilledInInternal(fillInIntent, flags);
-    }
+    @Nullable
+    public DisplayResolveInfo tryToCloneWithAppliedRefinement(Intent proposedRefinement) {
+        Intent matchingBase =
+                getAllSourceIntents()
+                        .stream()
+                        .filter(i -> i.filterEquals(proposedRefinement))
+                        .findFirst()
+                        .orElse(null);
+        if (matchingBase == null) {
+            return null;
+        }
 
-    protected final DisplayResolveInfo cloneFilledInInternal(Intent fillInIntent, int flags) {
-        return new DisplayResolveInfo(this, fillInIntent, flags, mPresentationGetter);
+        Intent merged = new Intent(matchingBase);
+        merged.fillIn(proposedRefinement, 0);
+        return new DisplayResolveInfo(this, merged, mPresentationGetter);
     }
 
     @Override
