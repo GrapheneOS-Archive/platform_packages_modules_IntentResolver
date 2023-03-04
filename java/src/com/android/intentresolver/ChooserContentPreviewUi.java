@@ -17,6 +17,7 @@
 package com.android.intentresolver;
 
 import static android.content.ContentProvider.getUserIdFromUri;
+
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.animation.ObjectAnimator;
@@ -413,6 +414,7 @@ public final class ChooserContentPreviewUi {
                 actionFactory);
         imagePreview.setTransitionElementStatusCallback(transitionElementStatusCallback);
         imagePreview.setImages(imageUris, imageLoader);
+        imageLoader.prePopulate(imageUris);
 
         return contentPreviewLayout;
     }
