@@ -414,6 +414,7 @@ public final class ChooserContentPreviewUi {
                 actionFactory);
         imagePreview.setTransitionElementStatusCallback(transitionElementStatusCallback);
         imagePreview.setImages(imageUris, imageLoader);
+        imageLoader.prePopulate(imageUris);
 
         return contentPreviewLayout;
     }

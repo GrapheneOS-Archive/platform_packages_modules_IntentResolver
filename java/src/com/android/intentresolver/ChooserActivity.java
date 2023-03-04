@@ -85,6 +85,7 @@ import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.flags.FeatureFlagRepositoryFactory;
+import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.grid.DirectShareViewHolder;
 import com.android.intentresolver.model.AbstractResolverComparator;
@@ -1338,7 +1339,15 @@ public class ChooserActivity extends ResolverActivity implements
 
     @VisibleForTesting
     protected ImageLoader createPreviewImageLoader() {
-        return new ImagePreviewImageLoader(this, getLifecycle());
+        final int cacheSize;
+        if (mFeatureFlagRepository.isEnabled(Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW)) {
+            float chooserWidth = getResources().getDimension(R.dimen.chooser_width);
+            float imageWidth = getResources().getDimension(R.dimen.chooser_preview_image_width);
+            cacheSize = (int) (Math.ceil(chooserWidth / imageWidth) + 2);
+        } else {
+            cacheSize = 3;
+        }
+        return new ImagePreviewImageLoader(this, getLifecycle(), cacheSize);
     }
 
     private void handleScroll(View view, int x, int y, int oldx, int oldy) {

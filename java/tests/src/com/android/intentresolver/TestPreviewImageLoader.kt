@@ -34,4 +34,5 @@ internal class TestPreviewImageLoader(
     }
 
     override suspend fun invoke(uri: Uri): Bitmap? = imageOverride() ?: imageLoader(uri)
+    override fun prePopulate(uris: List<Uri>) = Unit
 }
