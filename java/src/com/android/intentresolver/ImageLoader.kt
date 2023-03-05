@@ -22,4 +22,5 @@ import java.util.function.Consumer
 
 interface ImageLoader : suspend (Uri) -> Bitmap? {
     fun loadImage(uri: Uri, callback: Consumer<Bitmap?>)
+    fun prePopulate(uris: List<Uri>)
 }
