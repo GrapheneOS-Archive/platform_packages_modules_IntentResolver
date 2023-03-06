@@ -83,6 +83,7 @@ import com.android.intentresolver.NoCrossProfileEmptyStateProvider.DevicePolicyB
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.contentpreview.ChooserContentPreviewUi;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.flags.FeatureFlagRepositoryFactory;
 import com.android.intentresolver.flags.Flags;
@@ -205,7 +206,6 @@ public class ChooserActivity extends ResolverActivity implements
     private ChooserRefinementManager mRefinementManager;
 
     private FeatureFlagRepository mFeatureFlagRepository;
-    private ChooserActionFactory mChooserActionFactory;
     private ChooserContentPreviewUi mChooserContentPreviewUi;
 
     private boolean mShouldDisplayLandscape;
@@ -230,9 +230,6 @@ public class ChooserActivity extends ResolverActivity implements
     private static final String PINNED_SHARED_PREFS_NAME = "chooser_pin_settings";
 
     private final ExecutorService mBackgroundThreadPoolExecutor = Executors.newFixedThreadPool(5);
-
-    @Nullable
-    private ImageLoader mPreviewImageLoader;
 
     private int mScrollStatus = SCROLL_STATUS_IDLE;
 
@@ -273,38 +270,6 @@ public class ChooserActivity extends ResolverActivity implements
             return;
         }
 
-        mChooserActionFactory = new ChooserActionFactory(
-                this,
-                mChooserRequest,
-                mFeatureFlagRepository,
-                mIntegratedDeviceComponents,
-                getChooserActivityLogger(),
-                (isExcluded) -> mExcludeSharedText = isExcluded,
-                this::getFirstVisibleImgPreviewView,
-                new ChooserActionFactory.ActionActivityStarter() {
-                    @Override
-                    public void safelyStartActivityAsPersonalProfileUser(TargetInfo targetInfo) {
-                        safelyStartActivityAsUser(targetInfo, getPersonalProfileUserHandle());
-                        finish();
-                    }
-
-                    @Override
-                    public void safelyStartActivityAsPersonalProfileUserWithSharedElementTransition(
-                            TargetInfo targetInfo, View sharedElement, String sharedElementName) {
-                        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
-                                ChooserActivity.this, sharedElement, sharedElementName);
-                        safelyStartActivityAsUser(
-                                targetInfo, getPersonalProfileUserHandle(), options.toBundle());
-                        startFinishAnimation();
-                    }
-                },
-                (status) -> {
-                    if (status != null) {
-                        setResult(status);
-                    }
-                    finish();
-                });
-
         mRefinementManager = new ChooserRefinementManager(
                 this,
                 mChooserRequest.getRefinementIntentSender(),
@@ -319,7 +284,14 @@ public class ChooserActivity extends ResolverActivity implements
                     finish();
                 });
 
-        mChooserContentPreviewUi = new ChooserContentPreviewUi(mFeatureFlagRepository);
+        mChooserContentPreviewUi = new ChooserContentPreviewUi(
+                mChooserRequest.getTargetIntent(),
+                getContentResolver(),
+                this::isImageType,
+                createPreviewImageLoader(),
+                createChooserActionFactory(),
+                mEnterTransitionAnimationDelegate,
+                mFeatureFlagRepository);
 
         setAdditionalTargets(mChooserRequest.getAdditionalTargets());
 
@@ -338,8 +310,6 @@ public class ChooserActivity extends ResolverActivity implements
                         mChooserRequest.getSharedText(),
                         mChooserRequest.getTargetIntentFilter()),
                 mChooserRequest.getTargetIntentFilter());
-
-        mPreviewImageLoader = createPreviewImageLoader();
 
         super.onCreate(
                 savedInstanceState,
@@ -392,8 +362,7 @@ public class ChooserActivity extends ResolverActivity implements
                 (mChooserRequest.getInitialIntents() == null)
                         ? 0 : mChooserRequest.getInitialIntents().length,
                 isWorkProfile(),
-                ChooserContentPreviewUi.findPreferredContentPreview(
-                        getTargetIntent(), getContentResolver(), this::isImageType),
+                mChooserContentPreviewUi.getPreferredContentPreview(),
                 mChooserRequest.getTargetAction(),
                 mChooserRequest.getChooserActions().size(),
                 mChooserRequest.getModifyShareAction() != null
@@ -594,8 +563,7 @@ public class ChooserActivity extends ResolverActivity implements
                 || mChooserMultiProfilePagerAdapter
                         .getCurrentRootAdapter().getSystemRowCount() != 0) {
             getChooserActivityLogger().logActionShareWithPreview(
-                    ChooserContentPreviewUi.findPreferredContentPreview(
-                            getTargetIntent(), getContentResolver(), this::isImageType));
+                    mChooserContentPreviewUi.getPreferredContentPreview());
         }
         return postRebuildListInternal(rebuildCompleted);
     }
@@ -717,22 +685,11 @@ public class ChooserActivity extends ResolverActivity implements
      * @param parent reference to the parent container where the view should be attached to
      * @return content preview view
      */
-    protected ViewGroup createContentPreviewView(ViewGroup parent, ImageLoader imageLoader) {
-        Intent targetIntent = getTargetIntent();
-        int previewType = ChooserContentPreviewUi.findPreferredContentPreview(
-                targetIntent, getContentResolver(), this::isImageType);
-
+    protected ViewGroup createContentPreviewView(ViewGroup parent) {
         ViewGroup layout = mChooserContentPreviewUi.displayContentPreview(
-                previewType,
-                targetIntent,
                 getResources(),
                 getLayoutInflater(),
-                mChooserActionFactory,
-                parent,
-                imageLoader,
-                mEnterTransitionAnimationDelegate,
-                getContentResolver(),
-                this::isImageType);
+                parent);
 
         if (layout != null) {
             adjustPreviewWidth(getResources().getConfiguration().orientation, layout);
@@ -1223,7 +1180,7 @@ public class ChooserActivity extends ResolverActivity implements
 
                     @Override
                     public View buildContentPreview(ViewGroup parent) {
-                        return createContentPreviewView(parent, mPreviewImageLoader);
+                        return createContentPreviewView(parent);
                     }
 
                     @Override
@@ -1348,6 +1305,40 @@ public class ChooserActivity extends ResolverActivity implements
             cacheSize = 3;
         }
         return new ImagePreviewImageLoader(this, getLifecycle(), cacheSize);
+    }
+
+    private ChooserActionFactory createChooserActionFactory() {
+        return new ChooserActionFactory(
+                this,
+                mChooserRequest,
+                mFeatureFlagRepository,
+                mIntegratedDeviceComponents,
+                getChooserActivityLogger(),
+                (isExcluded) -> mExcludeSharedText = isExcluded,
+                this::getFirstVisibleImgPreviewView,
+                new ChooserActionFactory.ActionActivityStarter() {
+                    @Override
+                    public void safelyStartActivityAsPersonalProfileUser(TargetInfo targetInfo) {
+                        safelyStartActivityAsUser(targetInfo, getPersonalProfileUserHandle());
+                        finish();
+                    }
+
+                    @Override
+                    public void safelyStartActivityAsPersonalProfileUserWithSharedElementTransition(
+                            TargetInfo targetInfo, View sharedElement, String sharedElementName) {
+                        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
+                                ChooserActivity.this, sharedElement, sharedElementName);
+                        safelyStartActivityAsUser(
+                                targetInfo, getPersonalProfileUserHandle(), options.toBundle());
+                        startFinishAnimation();
+                    }
+                },
+                (status) -> {
+                    if (status != null) {
+                        setResult(status);
+                    }
+                    finish();
+                });
     }
 
     private void handleScroll(View view, int x, int y, int oldx, int oldy) {
@@ -1712,10 +1703,10 @@ public class ChooserActivity extends ResolverActivity implements
             // We don't show it in landscape as otherwise there is no room for scrolling.
             // If the sticky content preview will be shown at some point with orientation change,
             // then always preload it to avoid subsequent resizing of the share sheet.
-            ViewGroup contentPreviewContainer = findViewById(com.android.internal.R.id.content_preview_container);
+            ViewGroup contentPreviewContainer =
+                    findViewById(com.android.internal.R.id.content_preview_container);
             if (contentPreviewContainer.getChildCount() == 0) {
-                ViewGroup contentPreviewView =
-                        createContentPreviewView(contentPreviewContainer, mPreviewImageLoader);
+                ViewGroup contentPreviewView = createContentPreviewView(contentPreviewContainer);
                 contentPreviewContainer.addView(contentPreviewView);
             }
         }
