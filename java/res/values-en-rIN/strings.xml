@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="325107764352168045">"IntentResolver"</string>
+    <string name="whichViewApplicationLabel" msgid="9123647023323311663">"Open"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"Use a different app"</string>
+    <string name="noApplications" msgid="1139487441772284671">"No apps can perform this action."</string>
+    <string name="activity_resolver_use_always" msgid="8674194687637555245">"Always"</string>
+    <string name="activity_resolver_use_once" msgid="594173435998892989">"Just once"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"Pin <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="unpin_specific_target" msgid="3115158908159857777">"Unpin <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # file}other{{file_name} + # files}}"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"No recommended people to share with"</string>
+    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Apps list"</string>
+    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"This app has not been granted record permission but could capture audio through this USB device."</string>
+    <string name="resolver_personal_tab" msgid="1381052735324320565">"Personal"</string>
+    <string name="resolver_work_tab" msgid="3588325717455216412">"Work"</string>
+    <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Personal view"</string>
+    <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Work view"</string>
+    <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Blocked by your IT admin"</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"This content can’t be shared with work apps"</string>
+    <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"This content can’t be opened with work apps"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"This content can’t be shared with personal apps"</string>
+    <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"This content can’t be opened with personal apps"</string>
+    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Work profile is paused"</string>
+    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Tap to turn on"</string>
+    <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"No work apps"</string>
+    <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"No personal apps"</string>
+    <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Open <xliff:g id="APP">%s</xliff:g> in your personal profile?"</string>
+    <string name="miniresolver_open_in_work" msgid="4271638122142624693">"Open <xliff:g id="APP">%s</xliff:g> in your work profile?"</string>
+    <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"Use personal browser"</string>
+    <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"Use work browser"</string>
+    <string name="select_files" msgid="717427764544068086">"Select Files"</string>
+    <string name="select_images" msgid="5564089845412362804">"Select Images"</string>
+    <string name="select_text" msgid="7253549490440625849">"Select Text"</string>
+    <string name="exclude_text" msgid="5508128757025928034">"Exclude text"</string>
+    <string name="include_text" msgid="642280283268536140">"Include text"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"Exclude link"</string>
+    <string name="include_link" msgid="827855767220339802">"Include link"</string>
+</resources>
