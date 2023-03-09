@@ -36,6 +36,7 @@ import com.android.intentresolver.ChooserActivityLogger.FrameworkStatsLogger;
 import com.android.intentresolver.ChooserActivityLogger.SharesheetStandardEvent;
 import com.android.intentresolver.ChooserActivityLogger.SharesheetStartedEvent;
 import com.android.intentresolver.ChooserActivityLogger.SharesheetTargetSelectedEvent;
+import com.android.intentresolver.contentpreview.ContentPreviewType;
 import com.android.internal.logging.InstanceId;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.UiEventLogger;
@@ -117,7 +118,7 @@ public final class ChooserActivityLoggerTest {
         final int appProvidedDirectTargets = 123;
         final int appProvidedAppTargets = 456;
         final boolean workProfile = true;
-        final int previewType = ChooserContentPreviewUi.CONTENT_PREVIEW_FILE;
+        final int previewType = ContentPreviewType.CONTENT_PREVIEW_FILE;
         final String intentAction = Intent.ACTION_SENDTO;
         final int numCustomActions = 3;
         final boolean modifyShareProvided = true;
@@ -233,7 +234,7 @@ public final class ChooserActivityLoggerTest {
 
     @Test
     public void testLogActionShareWithPreview() {
-        final int previewType = ChooserContentPreviewUi.CONTENT_PREVIEW_TEXT;
+        final int previewType = ContentPreviewType.CONTENT_PREVIEW_TEXT;
 
         mChooserLogger.logActionShareWithPreview(previewType);
 
