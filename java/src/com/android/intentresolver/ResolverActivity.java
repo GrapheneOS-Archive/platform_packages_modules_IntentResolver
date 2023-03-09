@@ -1581,7 +1581,7 @@ public class ResolverActivity extends FragmentActivity implements
      * @param cti TargetInfo to be launched.
      * @param user User to launch this activity as.
      */
-    @VisibleForTesting
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PROTECTED)
     public final void safelyStartActivityAsUser(TargetInfo cti, UserHandle user) {
         safelyStartActivityAsUser(cti, user, null);
     }
