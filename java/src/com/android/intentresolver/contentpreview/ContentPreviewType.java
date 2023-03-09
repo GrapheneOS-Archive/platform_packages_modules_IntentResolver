@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver
+package com.android.intentresolver.contentpreview;
 
-import com.android.intentresolver.flags.FeatureFlagRepository
-import com.android.systemui.flags.BooleanFlag
-import com.android.systemui.flags.ReleasedFlag
-import com.android.systemui.flags.UnreleasedFlag
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-class TestFeatureFlagRepository(
-    private val overrides: Map<BooleanFlag, Boolean>
-) : FeatureFlagRepository {
-    override fun isEnabled(flag: UnreleasedFlag): Boolean = getValue(flag)
-    override fun isEnabled(flag: ReleasedFlag): Boolean = getValue(flag)
+import android.annotation.IntDef;
 
-    private fun getValue(flag: BooleanFlag) = overrides.getOrDefault(flag, flag.default)
+import java.lang.annotation.Retention;
+
+@Retention(SOURCE)
+@IntDef({ContentPreviewType.CONTENT_PREVIEW_FILE,
+        ContentPreviewType.CONTENT_PREVIEW_IMAGE,
+        ContentPreviewType.CONTENT_PREVIEW_TEXT})
+public @interface ContentPreviewType {
+    // Starting at 1 since 0 is considered "undefined" for some of the database transformations
+    // of tron logs.
+    int CONTENT_PREVIEW_IMAGE = 1;
+    int CONTENT_PREVIEW_FILE = 2;
+    int CONTENT_PREVIEW_TEXT = 3;
 }

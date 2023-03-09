@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver
+package com.android.intentresolver.contentpreview
 
-import com.android.intentresolver.flags.FeatureFlagRepository
-import com.android.systemui.flags.BooleanFlag
-import com.android.systemui.flags.ReleasedFlag
-import com.android.systemui.flags.UnreleasedFlag
+import android.content.res.Resources
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.ViewGroup
 
-class TestFeatureFlagRepository(
-    private val overrides: Map<BooleanFlag, Boolean>
-) : FeatureFlagRepository {
-    override fun isEnabled(flag: UnreleasedFlag): Boolean = getValue(flag)
-    override fun isEnabled(flag: ReleasedFlag): Boolean = getValue(flag)
+internal class NoContextPreviewUi(private val type: Int) : ContentPreviewUi() {
+    override fun getType(): Int = type
 
-    private fun getValue(flag: BooleanFlag) = overrides.getOrDefault(flag, flag.default)
+    override fun display(
+        resources: Resources?, layoutInflater: LayoutInflater?, parent: ViewGroup?
+    ): ViewGroup? {
+        Log.e(TAG, "Unexpected content preview type: $type")
+        return null
+    }
 }
