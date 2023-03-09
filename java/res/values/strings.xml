@@ -102,13 +102,6 @@
     <!-- Button option. Open the link in the work browser. [CHAR LIMIT=NONE] -->
     <string name="miniresolver_use_work_browser">Use work browser</string>
 
-    <!-- Tittle for a button. Launches client-provided content reselection action. -->
-    <string name="select_files">Select Files</string>
-    <!-- Tittle for a button. Launches client-provided content reselection action. -->
-    <string name="select_images">Select Images</string>
-    <!-- Tittle for a button. Launches client-provided content reselection action. -->
-    <string name="select_text">Select Text</string>
-
     <!-- Title for a button. Excludes a text from the shared content (a media and a text). -->
     <string name="exclude_text">Exclude text</string>
     <!-- Title for a button. Adds back a (previously excluded) text into the shared content. -->

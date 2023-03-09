@@ -97,7 +97,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
     private final TargetInfo mNearbySharingTarget;
     private final Runnable mOnNearbyButtonClicked;
     private final ImmutableList<ChooserAction> mCustomActions;
-    private final Runnable mOnModifyShareClicked;
+    private final @Nullable ChooserAction mModifyShareAction;
     private final Consumer<Boolean> mExcludeSharedTextAction;
     private final Consumer</* @Nullable */ Integer> mFinishCallback;
     private final ChooserActivityLogger mLogger;
@@ -162,10 +162,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
                         logger),
                 chooserRequest.getChooserActions(),
                 (featureFlagRepository.isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)
-                        ? createModifyShareRunnable(
-                                chooserRequest.getModifyShareAction(),
-                                finishCallback,
-                                logger)
+                        ? chooserRequest.getModifyShareAction()
                         : null),
                 onUpdateSharedTextIsExcluded,
                 logger,
@@ -183,7 +180,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
             TargetInfo nearbySharingTarget,
             Runnable onNearbyButtonClicked,
             List<ChooserAction> customActions,
-            @Nullable Runnable onModifyShareClicked,
+            @Nullable ChooserAction modifyShareAction,
             Consumer<Boolean> onUpdateSharedTextIsExcluded,
             ChooserActivityLogger logger,
             Consumer</* @Nullable */ Integer> finishCallback) {
@@ -196,7 +193,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
         mNearbySharingTarget = nearbySharingTarget;
         mOnNearbyButtonClicked = onNearbyButtonClicked;
         mCustomActions = ImmutableList.copyOf(customActions);
-        mOnModifyShareClicked = onModifyShareClicked;
+        mModifyShareAction = modifyShareAction;
         mExcludeSharedTextAction = onUpdateSharedTextIsExcluded;
         mLogger = logger;
         mFinishCallback = finishCallback;
@@ -247,8 +244,15 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
     public List<ActionRow.Action> createCustomActions() {
         List<ActionRow.Action> actions = new ArrayList<>();
         for (int i = 0; i < mCustomActions.size(); i++) {
+            final int position = i;
             ActionRow.Action actionRow = createCustomAction(
-                    mContext, mCustomActions.get(i), mFinishCallback, i, mLogger);
+                    mContext,
+                    mCustomActions.get(i),
+                    mFinishCallback,
+                    () -> {
+                        mLogger.logCustomActionSelected(position);
+                    }
+            );
             if (actionRow != null) {
                 actions.add(actionRow);
             }
@@ -261,27 +265,14 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
      */
     @Override
     @Nullable
-    public Runnable getModifyShareAction() {
-        return mOnModifyShareClicked;
-    }
-
-    private static Runnable createModifyShareRunnable(
-            PendingIntent pendingIntent,
-            Consumer<Integer> finishCallback,
-            ChooserActivityLogger logger) {
-        if (pendingIntent == null) {
-            return null;
-        }
-
-        return () -> {
-            try {
-                pendingIntent.send();
-            } catch (PendingIntent.CanceledException e) {
-                Log.d(TAG, "Payload reselection action has been cancelled");
-            }
-            logger.logActionSelected(ChooserActivityLogger.SELECTION_TYPE_MODIFY_SHARE);
-            finishCallback.accept(Activity.RESULT_OK);
-        };
+    public ActionRow.Action getModifyShareAction() {
+        return createCustomAction(
+                mContext,
+                mModifyShareAction,
+                mFinishCallback,
+                () -> {
+                    mLogger.logActionSelected(ChooserActivityLogger.SELECTION_TYPE_MODIFY_SHARE);
+                });
     }
 
     /**
@@ -481,8 +472,10 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
             Context context,
             ChooserAction action,
             Consumer<Integer> finishCallback,
-            int position,
-            ChooserActivityLogger logger) {
+            Runnable loggingRunnable) {
+        if (action == null || action.getAction() == null) {
+            return null;
+        }
         Drawable icon = action.getIcon().loadDrawable(context);
         if (icon == null && TextUtils.isEmpty(action.getLabel())) {
             return null;
@@ -507,7 +500,9 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
                     } catch (PendingIntent.CanceledException e) {
                         Log.d(TAG, "Custom action, " + action.getLabel() + ", has been cancelled");
                     }
-                    logger.logCustomActionSelected(position);
+                    if (loggingRunnable != null) {
+                        loggingRunnable.run();
+                    }
                     finishCallback.accept(Activity.RESULT_OK);
                 }
         );

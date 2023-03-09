@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
 
@@ -117,13 +118,14 @@ abstract class ContentPreviewUi {
             ViewGroup layout,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             FeatureFlagRepository featureFlagRepository) {
-        Runnable modifyShareAction = actionFactory.getModifyShareAction();
+        ActionRow.Action modifyShareAction = actionFactory.getModifyShareAction();
         if (modifyShareAction != null && layout != null
                 && featureFlagRepository.isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)) {
-            View modifyShareView = layout.findViewById(R.id.reselection_action);
+            TextView modifyShareView = layout.findViewById(R.id.reselection_action);
             if (modifyShareView != null) {
+                modifyShareView.setText(modifyShareAction.getLabel());
                 modifyShareView.setVisibility(View.VISIBLE);
-                modifyShareView.setOnClickListener(view -> modifyShareAction.run());
+                modifyShareView.setOnClickListener(view -> modifyShareAction.getOnClicked().run());
             }
         }
     }
