@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for app_label (325107764352168045) -->
+    <skip />
+    <string name="whichViewApplicationLabel" msgid="9123647023323311663">"باز کردن"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"استتفاده از یک برنامه دیگر"</string>
+    <string name="noApplications" msgid="1139487441772284671">"‏هیچ برنامه‌ای نمی‌‎تواند این کار را انجام دهد."</string>
+    <string name="activity_resolver_use_always" msgid="8674194687637555245">"همیشه"</string>
+    <string name="activity_resolver_use_once" msgid="594173435998892989">"فقط این بار"</string>
+    <!-- no translation found for pin_specific_target (5057063421361441406) -->
+    <skip />
+    <string name="unpin_specific_target" msgid="3115158908159857777">"برداشتن سنجاق <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # فایل}one{{file_name} + # فایل}other{{file_name} + # فایل}}"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"هیچ فردی توصیه نشده است که با او هم‌رسانی کنید"</string>
+    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"فهرست برنامه‌ها"</string>
+    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"‏مجوز ضبط به این برنامه داده نشده است اما می‌تواند صدا را ازطریق این دستگاه USB ضبط کند."</string>
+    <string name="resolver_personal_tab" msgid="1381052735324320565">"شخصی"</string>
+    <string name="resolver_work_tab" msgid="3588325717455216412">"کاری"</string>
+    <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"نمای شخصی"</string>
+    <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"نمای کاری"</string>
+    <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"سرپرست فناوری اطلاعات آن را مسدود کرده است"</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"نمی‌توان این محتوا را با برنامه‌های کاری هم‌رسانی کرد"</string>
+    <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"نمی‌توان این محتوا را با برنامه‌های کاری باز کرد"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"نمی‌توان این محتوا را با برنامه‌های شخصی هم‌رسانی کرد"</string>
+    <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"نمی‌توان این محتوا را با برنامه‌های شخصی باز کرد"</string>
+    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"نمایه کاری موقتاً متوقف شده است"</string>
+    <string name="resolver_switch_on_work" msgid="4615505942222617333">"برای روشن کردن، ضربه بزنید"</string>
+    <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"برنامه کاری‌ای وجود ندارد"</string>
+    <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"برنامه شخصی‌ای وجود ندارد"</string>
+    <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"<xliff:g id="APP">%s</xliff:g> در نمایه شخصی باز شود؟"</string>
+    <string name="miniresolver_open_in_work" msgid="4271638122142624693">"<xliff:g id="APP">%s</xliff:g> در نمایه کاری باز شود؟"</string>
+    <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"استفاده از مرورگر شخصی"</string>
+    <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"استفاده از مرورگر کاری"</string>
+    <!-- no translation found for select_files (717427764544068086) -->
+    <skip />
+    <!-- no translation found for select_images (5564089845412362804) -->
+    <skip />
+    <!-- no translation found for select_text (7253549490440625849) -->
+    <skip />
+    <!-- no translation found for exclude_text (5508128757025928034) -->
+    <skip />
+    <!-- no translation found for include_text (642280283268536140) -->
+    <skip />
+    <!-- no translation found for exclude_link (1332778255031992228) -->
+    <skip />
+    <!-- no translation found for include_link (827855767220339802) -->
+    <skip />
+</resources>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for app_label (325107764352168045) -->
+    <skip />
+    <string name="whichViewApplicationLabel" msgid="9123647023323311663">"ଖୋଲନ୍ତୁ"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"ଏକ ଭିନ୍ନ ଆପ୍‌ର ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="noApplications" msgid="1139487441772284671">"କୌଣସି ଆପ୍‍ ଏହି କାର୍ଯ୍ୟ କରିପାରିବ ନାହିଁ।"</string>
+    <string name="activity_resolver_use_always" msgid="8674194687637555245">"ସର୍ବଦା"</string>
+    <string name="activity_resolver_use_once" msgid="594173435998892989">"ଥରେ ମାତ୍ର"</string>
+    <!-- no translation found for pin_specific_target (5057063421361441406) -->
+    <skip />
+    <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g>ରେ ଅନ୍‌ପିନ୍ କରନ୍ତୁ"</string>
+    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + #ଟି ଫାଇଲ}other{{file_name} + #ଟି ଫାଇଲ}}"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ଏହାକୁ ସେୟାର୍ କରିବା ପାଇଁ କୌଣସି ସୁପାରିଶ କରାଯାଇଥିବା ଲୋକ ନାହାଁନ୍ତି"</string>
+    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"ଆପ୍ସ ତାଲିକା"</string>
+    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ଏହି ଆପ୍‌କୁ ରେକର୍ଡ କରିବାକୁ ଅନୁମତି ଦିଆଯାଇ ନାହିଁ କିନ୍ତୁ ଏହି USB ଡିଭାଇସ୍ ଜରିଆରେ ଅଡିଓ କ୍ୟାପ୍‍ଚର୍‍ କରିପାରିବ।"</string>
+    <string name="resolver_personal_tab" msgid="1381052735324320565">"ବ୍ୟକ୍ତିଗତ"</string>
+    <string name="resolver_work_tab" msgid="3588325717455216412">"ୱାର୍କ"</string>
+    <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"ବ୍ୟକ୍ତିଗତ ଭ୍ୟୁ"</string>
+    <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"ୱାର୍କ ଭ୍ୟୁ"</string>
+    <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"ଆପଣଙ୍କ IT ଆଡମିନଙ୍କ ଦ୍ୱାରା ବ୍ଲକ୍ କରାଯାଇଛି"</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"ଏହି ବିଷୟବସ୍ତୁ ୱାର୍କ ଆପଗୁଡ଼ିକରେ ସେୟାର୍ କରାଯାଇପାରିବ ନାହିଁ"</string>
+    <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ଏହି ବିଷୟବସ୍ତୁ ୱାର୍କ ଆପଗୁଡ଼ିକରେ ଖୋଲାଯାଇପାରିବ ନାହିଁ"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"ଏହି ବିଷୟବସ୍ତୁ ବ୍ୟକ୍ତିଗତ ଆପଗୁଡ଼ିକରେ ସେୟାର୍ କରାଯାଇପାରିବ ନାହିଁ"</string>
+    <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"ଏହି ବିଷୟବସ୍ତୁ ବ୍ୟକ୍ତିଗତ ଆପଗୁଡ଼ିକରେ ଖୋଲାଯାଇପାରିବ ନାହିଁ"</string>
+    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"ୱାର୍କ ପ୍ରୋଫାଇଲକୁ ବିରତ କରାଯାଇଛି"</string>
+    <string name="resolver_switch_on_work" msgid="4615505942222617333">"ଚାଲୁ କରିବା ପାଇଁ ଟାପ୍ କରନ୍ତୁ"</string>
+    <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"କୌଣସି ୱାର୍କ ଆପ୍ ନାହିଁ"</string>
+    <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"କୌଣସି ବ୍ୟକ୍ତିଗତ ଆପ୍ ନାହିଁ"</string>
+    <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"<xliff:g id="APP">%s</xliff:g>କୁ ଆପଣଙ୍କ ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲରେ ଖୋଲିବେ?"</string>
+    <string name="miniresolver_open_in_work" msgid="4271638122142624693">"<xliff:g id="APP">%s</xliff:g>କୁ ଆପଣଙ୍କ ୱାର୍କ ପ୍ରୋଫାଇଲରେ ଖୋଲିବେ?"</string>
+    <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"ବ୍ୟକ୍ତିଗତ ବ୍ରାଉଜର୍ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"ୱାର୍କ ବ୍ରାଉଜର୍ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <!-- no translation found for select_files (717427764544068086) -->
+    <skip />
+    <!-- no translation found for select_images (5564089845412362804) -->
+    <skip />
+    <!-- no translation found for select_text (7253549490440625849) -->
+    <skip />
+    <!-- no translation found for exclude_text (5508128757025928034) -->
+    <skip />
+    <!-- no translation found for include_text (642280283268536140) -->
+    <skip />
+    <!-- no translation found for exclude_link (1332778255031992228) -->
+    <skip />
+    <!-- no translation found for include_link (827855767220339802) -->
+    <skip />
+</resources>

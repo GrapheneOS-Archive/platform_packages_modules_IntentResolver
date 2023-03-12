@@ -398,10 +398,9 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     private static List<Intent> getAllSourceIntents(@Nullable DisplayResolveInfo sourceInfo) {
         final List<Intent> results = new ArrayList<>();
         if (sourceInfo != null) {
-            // We only queried the service for the first one in our sourceinfo.
-            results.add(sourceInfo.getAllSourceIntents().get(0));
+            results.addAll(sourceInfo.getAllSourceIntents());
         }
-        return results;
+        return results;  // TODO: just use our own intent if there's no sourceInfo?
     }
 
     private static ComponentName getResolvedComponentName(
