@@ -17,16 +17,91 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- Title of the IntentResolver application. [CHAR LIMIT=50] -->
-    <string name="app_label">IntentResolver</string>
+    <string name="app_label" translatable="false">IntentResolver</string>
 
+    <!-- Title of intent resolver dialog when selecting an application to run. -->
+    <string name="whichApplication">Complete action using</string>
+    <!-- Title of intent resolver dialog when selecting an application to run
+         and a previously used application is known. -->
+    <string name="whichApplicationNamed">Complete action using <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <!-- Generic label for a link to a intent resolver. -->
+    <string name="whichApplicationLabel">Complete action</string>
+    <!-- Title of intent resolver dialog when selecting a viewer application to run. -->
+    <string name="whichViewApplication">Open with</string>
+    <!-- Title of intent resolver dialog when selecting a viewer application to run
+         and a previously used application is known. -->
+    <string name="whichViewApplicationNamed">Open with <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
     <!-- Label for a link to a intent resolver dialog to view something -->
     <string name="whichViewApplicationLabel">Open</string>
+    <!-- Title of intent resolver dialog when selecting a browser/application that opens specific URIs
+         [CHAR LIMIT=128]. -->
+    <string name="whichOpenHostLinksWith">Open <xliff:g id="host" example="mail.google.com">%1$s</xliff:g> links with</string>
+    <!-- Title of intent resolver dialog when selecting a browser that opens URI
+         [CHAR LIMIT=128]. -->
+    <string name="whichOpenLinksWith">Open links with</string>
+    <!-- Title of intent resolver dialog when defaulting to a specific browser that opens URI
+         [CHAR LIMIT=128]. -->
+    <string name="whichOpenLinksWithApp">Open links with <xliff:g id="application" example="Chrome">%1$s</xliff:g></string>
+    <!-- Title of intent resolver dialog when defaulting to a specific browser that opens URI
+         [CHAR LIMIT=128]. -->
+    <string name="whichOpenHostLinksWithApp">Open <xliff:g id="host" example="mail.google.com">%1$s</xliff:g> links with <xliff:g id="application" example="Chrome">%2$s</xliff:g></string>
+    <!-- Label for a link to an intent resolver dialog to open URI [CHAR LIMIT=18] -->
+    <string name="whichGiveAccessToApplicationLabel">Give access</string>
+    <!-- Title of intent resolver dialog when selecting an editor application to run. -->
+    <string name="whichEditApplication">Edit with</string>
+    <!-- Title of intent resolver dialog when selecting an editor application to run
+         and a previously used application is known. -->
+    <string name="whichEditApplicationNamed">Edit with <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <!-- Label for a link to a intent resolver dialog when selecting an editor application -->
+    <string name="whichEditApplicationLabel">Edit</string>
+    <!-- Title of intent resolver dialog when selecting a sharing application to run. -->
+    <string name="whichSendApplication">Share</string>
+    <!-- Title of intent resolver dialog when selecting a sharing application to run
+         and a previously used application is known. -->
+    <string name="whichSendApplicationNamed">Share with <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <!-- Label for a link to a intent resolver dialog to sharing something -->
+    <string name="whichSendApplicationLabel">Share</string>
+    <!-- Title of intent resolver dialog when selecting an application to run to
+         send content to a specific recipient. Often used for email. -->
+    <string name="whichSendToApplication">Send using</string>
+    <!-- Title of intent resolver dialog when selecting an application to run to
+         send content to a specific recipient and a previously used application is known.
+         Often used for email. -->
+    <string name="whichSendToApplicationNamed">Send using <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <!-- Label for a link to a intent resolver dialog to send content to a specific recipient. -->
+    <string name="whichSendToApplicationLabel">Send</string>
+    <!-- Title of intent resolver dialog when selecting a HOME application to run. -->
+    <string name="whichHomeApplication">Select a Home app</string>
+    <!-- Title of intent resolver dialog when selecting a HOME application to run
+         and a previously used application is known. -->
+    <string name="whichHomeApplicationNamed">Use <xliff:g id="app" example="YouTube">%1$s</xliff:g> as Home</string>
+    <!-- Label for a link to a intent resolver dialog when selecting a HOME -->
+    <string name="whichHomeApplicationLabel">Capture image</string>
+    <!-- Option to always use the selected application resolution in the future. See the "Complete action using" dialog title-->
+    <!-- Title of intent resolver dialog when capturing an image. -->
+    <string name="whichImageCaptureApplication">Capture image with</string>
+    <!-- Title of intent resolver dialog when capturing an image
+         and a previously used application is known. -->
+    <string name="whichImageCaptureApplicationNamed">Capture image with <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <!-- Label for a link to a intent resolver dialog when capturing an image -->
+    <string name="whichImageCaptureApplicationLabel">Capture image</string>
+
      <!-- Title of the list of alternate options to complete an action shown when the
          last used option is being displayed separately. -->
     <string name="use_a_different_app">Use a different app</string>
+    <!-- Default title for the activity chooser, when one is not given. Android allows multiple
+         activities to perform an action.  for example, there may be many ringtone pickers installed.
+         A dialog is shown to the user allowing them to pick which activity should be used.  This is
+         the title. -->
+    <string name="chooseActivity">Choose an action</string>
     <!-- Text to display when there are no activities found to display in the
          activity chooser. See the "Select an action" title. -->
     <string name="noApplications">No apps can perform this action.</string>
+
+    <!-- Message to show when an intent automatically switches users into the personal profile. -->
+    <string name="forward_intent_to_owner">You\'re using this app outside of your work profile</string>
+    <!-- Message to show when an intent automatically switches users into a work profile. -->
+    <string name="forward_intent_to_work">You\'re using this app in your work profile</string>
 
     <!-- Title for a button to choose the currently selected activity
          as the default in the activity resolver. [CHAR LIMIT=25] -->
@@ -36,11 +111,18 @@
          from the activity resolver to use just this once. [CHAR LIMIT=25] -->
     <string name="activity_resolver_use_once">Just once</string>
 
+    <!-- Text for the toast that is shown when the user clicks on a launcher that
+         doesn't support the work profile. [CHAR LIMIT=100] -->
+    <string name="activity_resolver_work_profiles_support"><xliff:g id="app" example="YouTube">%1$s</xliff:g> doesn\'t support work profile</string>
+
     <!-- Resolver target actions strings -->
     <!-- Pin this app to the top of the Sharesheet app list. [CHAR LIMIT=60]-->
     <string name="pin_specific_target">Pin <xliff:g id="label" example="Tweet">%1$s</xliff:g></string>
     <!-- Un-pin this app in the Sharesheet, so that it is sorted normally. [CHAR LIMIT=60]-->
     <string name="unpin_specific_target">Unpin <xliff:g id="label" example="Tweet">%1$s</xliff:g></string>
+
+    <!-- Notification action for editing a screenshot (drawing on it, cropping it, etc) -->
+    <string name="screenshot_edit">Edit</string>
 
     <string name="file_count">{count, plural,
         =1    {{file_name} + # file}

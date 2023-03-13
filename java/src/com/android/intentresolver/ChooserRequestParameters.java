@@ -310,8 +310,7 @@ public class ChooserRequestParameters {
             requestedTitle = null;
         }
 
-        int defaultTitleRes =
-                (requestedTitle == null) ? com.android.internal.R.string.chooseActivity : 0;
+        int defaultTitleRes = (requestedTitle == null) ? R.string.chooseActivity : 0;
 
         return Pair.create(requestedTitle, defaultTitleRes);
     }
