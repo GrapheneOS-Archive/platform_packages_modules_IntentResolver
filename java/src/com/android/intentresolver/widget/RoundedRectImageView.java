@@ -17,6 +17,7 @@
 package com.android.intentresolver.widget;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -52,7 +53,17 @@ public class RoundedRectImageView extends ImageView {
     public RoundedRectImageView(
             Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        mRadius = context.getResources().getDimensionPixelSize(R.dimen.chooser_corner_radius);
+
+        final TypedArray a = context.obtainStyledAttributes(
+                attrs,
+                R.styleable.RoundedRectImageView,
+                defStyleAttr,
+                0);
+        mRadius = a.getDimensionPixelSize(R.styleable.RoundedRectImageView_radius, -1);
+        if (mRadius < 0) {
+            mRadius = context.getResources().getDimensionPixelSize(R.dimen.chooser_corner_radius);
+        }
+        a.recycle();
 
         mOverlayPaint.setColor(0x99000000);
         mOverlayPaint.setStyle(Paint.Style.FILL);

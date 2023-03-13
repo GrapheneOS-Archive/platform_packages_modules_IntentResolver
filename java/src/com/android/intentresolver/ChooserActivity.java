@@ -714,7 +714,7 @@ public class ChooserActivity extends ResolverActivity implements
     }
 
     @VisibleForTesting
-    protected boolean isImageType(String mimeType) {
+    protected boolean isImageType(@Nullable String mimeType) {
         return mimeType != null && mimeType.startsWith("image/");
     }
 

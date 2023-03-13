@@ -48,6 +48,13 @@
     }
     </string>
 
+    <!-- Represents a number of other files also being shared; used as an item at the end of a list -->
+    <string name="other_files">{count, plural,
+        =1    {+ # file}
+        other {+ # files}
+    }
+    </string>
+
     <!-- ChooserActivity - No direct share targets are available. [CHAR LIMIT=NONE] -->
     <string name="chooser_no_direct_share_targets">No recommended people to share with</string>
 
