@@ -31,7 +31,6 @@ import android.stats.devicepolicy.nano.DevicePolicyEnums;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyState;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyStateProvider;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
-import com.android.internal.R;
 
 import java.util.List;
 
