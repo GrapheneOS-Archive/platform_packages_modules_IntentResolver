@@ -29,7 +29,6 @@ import android.stats.devicepolicy.nano.DevicePolicyEnums;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyState;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyStateProvider;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener;
-import com.android.internal.R;
 
 /**
  * Chooser/ResolverActivity empty state provider that returns empty state which is shown when

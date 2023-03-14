@@ -55,7 +55,6 @@ import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.android.intentresolver.widget.ResolverDrawerLayout;
-import com.android.internal.R;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -117,7 +116,7 @@ public class ResolverActivityTest {
         ResolveInfo toChoose = resolvedComponentInfos.get(0).getResolveInfoAt(0);
         onView(withText(toChoose.activityInfo.name))
                 .perform(click());
-        onView(withId(R.id.button_once))
+        onView(withId(com.android.internal.R.id.button_once))
                 .perform(click());
         waitForIdle();
         assertThat(chosen[0], is(toChoose));
@@ -133,13 +132,13 @@ public class ResolverActivityTest {
         waitForIdle();
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
-        final View viewPager = activity.findViewById(R.id.profile_pager);
+        final View viewPager = activity.findViewById(com.android.internal.R.id.profile_pager);
         final int initialResolverHeight = viewPager.getHeight();
 
         activity.runOnUiThread(() -> {
             ResolverDrawerLayout layout = (ResolverDrawerLayout)
                     activity.findViewById(
-                            R.id.contentPanel);
+                            com.android.internal.R.id.contentPanel);
             ((ResolverDrawerLayout.LayoutParams) viewPager.getLayoutParams()).maxHeight
                     = initialResolverHeight - 1;
             // Force a relayout
@@ -153,7 +152,7 @@ public class ResolverActivityTest {
         activity.runOnUiThread(() -> {
             ResolverDrawerLayout layout = (ResolverDrawerLayout)
                     activity.findViewById(
-                            R.id.contentPanel);
+                            com.android.internal.R.id.contentPanel);
             ((ResolverDrawerLayout.LayoutParams) viewPager.getLayoutParams()).maxHeight
                     = initialResolverHeight + 1;
             // Force a relayout
@@ -175,10 +174,11 @@ public class ResolverActivityTest {
         waitForIdle();
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
-        final View viewPager = activity.findViewById(R.id.profile_pager);
-        final View divider = activity.findViewById(R.id.divider);
+        final View viewPager = activity.findViewById(com.android.internal.R.id.profile_pager);
+        final View divider = activity.findViewById(com.android.internal.R.id.divider);
         final RelativeLayout profileView =
-                (RelativeLayout) activity.findViewById(R.id.profile_button).getParent();
+                (RelativeLayout) activity.findViewById(com.android.internal.R.id.profile_button)
+                        .getParent();
         assertThat("Drawer should show at bottom by default",
                 profileView.getBottom() + divider.getHeight() == viewPager.getTop()
                         && profileView.getTop() > 0);
@@ -186,7 +186,7 @@ public class ResolverActivityTest {
         activity.runOnUiThread(() -> {
             ResolverDrawerLayout layout = (ResolverDrawerLayout)
                     activity.findViewById(
-                            R.id.contentPanel);
+                            com.android.internal.R.id.contentPanel);
             layout.setShowAtTop(true);
         });
         waitForIdle();
@@ -218,7 +218,7 @@ public class ResolverActivityTest {
             return true;
         };
 
-        onView(withId(R.id.button_once)).perform(click());
+        onView(withId(com.android.internal.R.id.button_once)).perform(click());
         waitForIdle();
         assertThat(chosen[0], is(toChoose));
     }
@@ -251,7 +251,7 @@ public class ResolverActivityTest {
         // We pick the first one as there is another one in the work profile side
         onView(first(withText(stableCopy.get(1).getResolveInfoAt(0).activityInfo.name)))
                 .perform(click());
-        onView(withId(R.id.button_once))
+        onView(withId(com.android.internal.R.id.button_once))
                 .perform(click());
         waitForIdle();
         assertThat(chosen[0], is(toChoose));
@@ -280,7 +280,7 @@ public class ResolverActivityTest {
         };
 
         // Confirm that the button bar is disabled by default
-        onView(withId(R.id.button_once)).check(matches(not(isEnabled())));
+        onView(withId(com.android.internal.R.id.button_once)).check(matches(not(isEnabled())));
 
         // Make a stable copy of the components as the original list may be modified
         List<ResolvedComponentInfo> stableCopy =
@@ -288,7 +288,7 @@ public class ResolverActivityTest {
 
         onView(withText(stableCopy.get(1).getResolveInfoAt(0).activityInfo.name))
                 .perform(click());
-        onView(withId(R.id.button_once)).perform(click());
+        onView(withId(com.android.internal.R.id.button_once)).perform(click());
         waitForIdle();
         assertThat(chosen[0], is(toChoose));
     }
@@ -321,7 +321,7 @@ public class ResolverActivityTest {
         };
 
         // Confirm that the button bar is disabled by default
-        onView(withId(R.id.button_once)).check(matches(not(isEnabled())));
+        onView(withId(com.android.internal.R.id.button_once)).check(matches(not(isEnabled())));
 
         // Make a stable copy of the components as the original list may be modified
         List<ResolvedComponentInfo> stableCopy =
@@ -329,7 +329,7 @@ public class ResolverActivityTest {
 
         onView(withText(stableCopy.get(1).getResolveInfoAt(0).activityInfo.name))
                 .perform(click());
-        onView(withId(R.id.button_once)).perform(click());
+        onView(withId(com.android.internal.R.id.button_once)).perform(click());
         waitForIdle();
         assertThat(chosen[0], is(toChoose));
     }
@@ -342,7 +342,7 @@ public class ResolverActivityTest {
         mActivityRule.launchActivity(sendIntent);
         waitForIdle();
 
-        onView(withId(R.id.tabs)).check(matches(isDisplayed()));
+        onView(withId(com.android.internal.R.id.tabs)).check(matches(isDisplayed()));
     }
 
     @Test
@@ -352,7 +352,7 @@ public class ResolverActivityTest {
         mActivityRule.launchActivity(sendIntent);
         waitForIdle();
 
-        onView(withId(R.id.tabs)).check(matches(not(isDisplayed())));
+        onView(withId(com.android.internal.R.id.tabs)).check(matches(not(isDisplayed())));
     }
 
     @Test
@@ -447,7 +447,7 @@ public class ResolverActivityTest {
         onView(first(allOf(withText(workResolvedComponentInfos.get(0)
                 .getResolveInfoAt(0).activityInfo.applicationInfo.name), isCompletelyDisplayed())))
                 .perform(click());
-        onView(withId(R.id.button_once))
+        onView(withId(com.android.internal.R.id.button_once))
                 .perform(click());
 
         waitForIdle();
@@ -484,7 +484,7 @@ public class ResolverActivityTest {
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
         waitForIdle();
-        TextView headerText = activity.findViewById(R.id.title);
+        TextView headerText = activity.findViewById(com.android.internal.R.id.title);
         String initialText = headerText.getText().toString();
         assertFalse(initialText.isEmpty(), "Header text is empty.");
         assertThat(headerText.getVisibility(), is(View.VISIBLE));
@@ -501,7 +501,7 @@ public class ResolverActivityTest {
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
         waitForIdle();
-        TextView headerText = activity.findViewById(R.id.title);
+        TextView headerText = activity.findViewById(com.android.internal.R.id.title);
         String initialText = headerText.getText().toString();
         onView(withText(R.string.resolver_work_tab))
                 .perform(click());
@@ -539,7 +539,7 @@ public class ResolverActivityTest {
                         .getResolveInfoAt(0).activityInfo.applicationInfo.name),
                 isDisplayed())))
                 .perform(click());
-        onView(withId(R.id.button_once))
+        onView(withId(com.android.internal.R.id.button_once))
                 .perform(click());
         waitForIdle();
 
@@ -563,7 +563,7 @@ public class ResolverActivityTest {
         waitForIdle();
         onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
-        onView(withId(R.id.contentPanel))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
 
         onView(withText(R.string.resolver_cross_profile_blocked))
@@ -585,7 +585,7 @@ public class ResolverActivityTest {
 
         mActivityRule.launchActivity(sendIntent);
         waitForIdle();
-        onView(withId(R.id.contentPanel))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
         onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
@@ -607,7 +607,7 @@ public class ResolverActivityTest {
 
         mActivityRule.launchActivity(sendIntent);
         waitForIdle();
-        onView(withId(R.id.contentPanel))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
         onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
@@ -631,7 +631,7 @@ public class ResolverActivityTest {
 
         mActivityRule.launchActivity(sendIntent);
         waitForIdle();
-        onView(withId(R.id.contentPanel))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
         onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
@@ -655,7 +655,7 @@ public class ResolverActivityTest {
 
         mActivityRule.launchActivity(sendIntent);
         waitForIdle();
-        onView(withId(R.id.open_cross_profile)).check(matches(isDisplayed()));
+        onView(withId(com.android.internal.R.id.open_cross_profile)).check(matches(isDisplayed()));
     }
 
     @Test
@@ -678,7 +678,8 @@ public class ResolverActivityTest {
 
     private void assertNotMiniResolver() {
         try {
-            onView(withId(R.id.open_cross_profile)).check(matches(isDisplayed()));
+            onView(withId(com.android.internal.R.id.open_cross_profile))
+                    .check(matches(isDisplayed()));
         } catch (NoMatchingViewException e) {
             return;
         }
@@ -699,7 +700,7 @@ public class ResolverActivityTest {
 
         mActivityRule.launchActivity(sendIntent);
         waitForIdle();
-        onView(withId(R.id.contentPanel))
+        onView(withId(com.android.internal.R.id.contentPanel))
                 .perform(swipeUp());
         onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();

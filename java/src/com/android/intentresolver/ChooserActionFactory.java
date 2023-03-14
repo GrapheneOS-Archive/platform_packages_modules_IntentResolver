@@ -386,7 +386,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
         final DisplayResolveInfo dri = DisplayResolveInfo.newDisplayResolveInfo(
                 originalIntent,
                 ri,
-                context.getString(com.android.internal.R.string.screenshot_edit),
+                context.getString(R.string.screenshot_edit),
                 "",
                 resolveIntent,
                 null);
