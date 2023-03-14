@@ -19,15 +19,12 @@ package com.android.intentresolver;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
-import static com.android.intentresolver.ResolverListAdapter.ResolveInfoPresentationGetter;
-
 import static java.util.stream.Collectors.toList;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -49,11 +46,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 
-import com.android.internal.widget.RecyclerView;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -64,68 +62,61 @@ import java.util.stream.Collectors;
 public class ChooserTargetActionsDialogFragment extends DialogFragment
         implements DialogInterface.OnClickListener {
 
-    protected ArrayList<DisplayResolveInfo> mTargetInfos = new ArrayList<>();
-    protected UserHandle mUserHandle;
-    protected String mShortcutId;
-    protected String mShortcutTitle;
-    protected boolean mIsShortcutPinned;
-    protected IntentFilter mIntentFilter;
+    protected final static String TARGET_DETAILS_FRAGMENT_TAG = "targetDetailsFragment";
 
-    public static final String USER_HANDLE_KEY = "user_handle";
-    public static final String TARGET_INFOS_KEY = "target_infos";
-    public static final String SHORTCUT_ID_KEY = "shortcut_id";
-    public static final String SHORTCUT_TITLE_KEY = "shortcut_title";
-    public static final String IS_SHORTCUT_PINNED_KEY = "is_shortcut_pinned";
-    public static final String INTENT_FILTER_KEY = "intent_filter";
+    private final List<DisplayResolveInfo> mTargetInfos;
+    private final UserHandle mUserHandle;
+    private final boolean mIsShortcutPinned;
 
-    public ChooserTargetActionsDialogFragment() {}
+    @Nullable
+    private final String mShortcutId;
+
+    @Nullable
+    private final String mShortcutTitle;
+
+    @Nullable
+    private final IntentFilter mIntentFilter;
+
+    public static void show(
+            FragmentManager fragmentManager,
+            List<DisplayResolveInfo> targetInfos,
+            UserHandle userHandle,
+            @Nullable String shortcutId,
+            @Nullable String shortcutTitle,
+            boolean isShortcutPinned,
+            @Nullable IntentFilter intentFilter) {
+        ChooserTargetActionsDialogFragment fragment = new ChooserTargetActionsDialogFragment(
+                targetInfos,
+                userHandle,
+                shortcutId,
+                shortcutTitle,
+                isShortcutPinned,
+                intentFilter);
+        fragment.show(fragmentManager, TARGET_DETAILS_FRAGMENT_TAG);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (savedInstanceState != null) {
-            setStateFromBundle(savedInstanceState);
-        } else {
-            setStateFromBundle(getArguments());
+            // Bail. It's probably not possible to trigger reloading our fragments from a saved
+            // instance since Sharesheet isn't kept in history and the entire session will probably
+            // be lost under any conditions that would've triggered our retention. Nevertheless, if
+            // we ever *did* try to load from a saved state, we wouldn't be able to populate valid
+            // data (since we wouldn't be able to get back our original TargetInfos if we had to
+            // restore them from a Bundle).
+            dismissAllowingStateLoss();
         }
     }
 
-    void setStateFromBundle(Bundle b) {
-        mTargetInfos = (ArrayList<DisplayResolveInfo>) b.get(TARGET_INFOS_KEY);
-        mUserHandle = (UserHandle) b.get(USER_HANDLE_KEY);
-        mShortcutId = b.getString(SHORTCUT_ID_KEY);
-        mShortcutTitle = b.getString(SHORTCUT_TITLE_KEY);
-        mIsShortcutPinned = b.getBoolean(IS_SHORTCUT_PINNED_KEY);
-        mIntentFilter = (IntentFilter) b.get(INTENT_FILTER_KEY);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putParcelable(ChooserTargetActionsDialogFragment.USER_HANDLE_KEY,
-                mUserHandle);
-        outState.putParcelableArrayList(ChooserTargetActionsDialogFragment.TARGET_INFOS_KEY,
-                mTargetInfos);
-        outState.putString(ChooserTargetActionsDialogFragment.SHORTCUT_ID_KEY, mShortcutId);
-        outState.putBoolean(ChooserTargetActionsDialogFragment.IS_SHORTCUT_PINNED_KEY,
-                mIsShortcutPinned);
-        outState.putString(ChooserTargetActionsDialogFragment.SHORTCUT_TITLE_KEY, mShortcutTitle);
-        outState.putParcelable(ChooserTargetActionsDialogFragment.INTENT_FILTER_KEY, mIntentFilter);
-    }
-
     /**
-     * Recreate the layout from scratch to match new Sharesheet redlines
+     * Build the menu UI according to our design spec.
      */
     @Override
     public View onCreateView(LayoutInflater inflater,
             @Nullable ViewGroup container,
             Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            setStateFromBundle(savedInstanceState);
-        } else {
-            setStateFromBundle(getArguments());
-        }
         // Make the background transparent to show dialog rounding
         Optional.of(getDialog()).map(Dialog::getWindow)
                 .ifPresent(window -> {
@@ -143,7 +134,7 @@ public class ChooserTargetActionsDialogFragment extends DialogFragment
         ImageView icon = v.findViewById(com.android.internal.R.id.icon);
         RecyclerView rv = v.findViewById(com.android.internal.R.id.listContainer);
 
-        final ResolveInfoPresentationGetter pg = getProvidingAppPresentationGetter();
+        final TargetPresentationGetter pg = getProvidingAppPresentationGetter();
         title.setText(isShortcutTarget() ? mShortcutTitle : pg.getLabel());
         icon.setImageDrawable(pg.getIcon(mUserHandle));
         rv.setAdapter(new VHAdapter(items));
@@ -277,14 +268,14 @@ public class ChooserTargetActionsDialogFragment extends DialogFragment
         return getPinIcon(isPinned(dri));
     }
 
-    private ResolveInfoPresentationGetter getProvidingAppPresentationGetter() {
+    private TargetPresentationGetter getProvidingAppPresentationGetter() {
         final ActivityManager am = (ActivityManager) getContext()
                 .getSystemService(ACTIVITY_SERVICE);
         final int iconDpi = am.getLauncherLargeIconDensity();
 
         // Use the matching application icon and label for the title, any TargetInfo will do
-        return new ResolveInfoPresentationGetter(getContext(), iconDpi,
-                mTargetInfos.get(0).getResolveInfo());
+        return new TargetPresentationGetter.Factory(getContext(), iconDpi)
+                .makePresentationGetter(mTargetInfos.get(0).getResolveInfo());
     }
 
     private boolean isPinned(DisplayResolveInfo dri) {
@@ -293,5 +284,25 @@ public class ChooserTargetActionsDialogFragment extends DialogFragment
 
     private boolean isShortcutTarget() {
         return mShortcutId != null;
+    }
+
+    protected ChooserTargetActionsDialogFragment(
+            List<DisplayResolveInfo> targetInfos, UserHandle userHandle) {
+        this(targetInfos, userHandle, null, null, false, null);
+    }
+
+    private ChooserTargetActionsDialogFragment(
+            List<DisplayResolveInfo> targetInfos,
+            UserHandle userHandle,
+            @Nullable String shortcutId,
+            @Nullable String shortcutTitle,
+            boolean isShortcutPinned,
+            @Nullable IntentFilter intentFilter) {
+        mTargetInfos = targetInfos;
+        mUserHandle = userHandle;
+        mShortcutId = shortcutId;
+        mShortcutTitle = shortcutTitle;
+        mIsShortcutPinned = isShortcutPinned;
+        mIntentFilter = intentFilter;
     }
 }

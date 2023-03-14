@@ -32,7 +32,8 @@ import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
-
+import com.android.intentresolver.model.AbstractResolverComparator;
+import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
@@ -187,7 +188,6 @@ public class ResolverListController {
                 final ResolverActivity.ResolvedComponentInfo rci =
                         new ResolverActivity.ResolvedComponentInfo(name, intent, newInfo);
                 rci.setPinned(isComponentPinned(name));
-                rci.setFixedAtTop(isFixedAtTop(name));
                 into.add(rci);
             }
         }
@@ -199,14 +199,6 @@ public class ResolverListController {
      * Chooser.
      */
     public boolean isComponentPinned(ComponentName name) {
-        return false;
-    }
-
-    /**
-     * Whether this component is fixed at top in the ranked apps list. Always false for Resolver;
-     * overridden in Chooser.
-     */
-    public boolean isFixedAtTop(ComponentName name) {
         return false;
     }
 
@@ -274,19 +266,6 @@ public class ResolverListController {
         return listToReturn;
     }
 
-    private class ComputeCallback implements AbstractResolverComparator.AfterCompute {
-
-        private CountDownLatch mFinishComputeSignal;
-
-        public ComputeCallback(CountDownLatch finishComputeSignal) {
-            mFinishComputeSignal = finishComputeSignal;
-        }
-
-        public void afterCompute () {
-            mFinishComputeSignal.countDown();
-        }
-    }
-
     private void compute(List<ResolverActivity.ResolvedComponentInfo> inputList)
             throws InterruptedException {
         if (mResolverComparator == null) {
@@ -294,8 +273,7 @@ public class ResolverListController {
             return;
         }
         final CountDownLatch finishComputeSignal = new CountDownLatch(1);
-        ComputeCallback callback = new ComputeCallback(finishComputeSignal);
-        mResolverComparator.setCallBack(callback);
+        mResolverComparator.setCallBack(() -> finishComputeSignal.countDown());
         mResolverComparator.compute(inputList);
         finishComputeSignal.await();
         isComputed = true;

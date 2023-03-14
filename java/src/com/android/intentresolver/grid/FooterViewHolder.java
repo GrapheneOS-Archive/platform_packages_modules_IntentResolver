@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver;
+package com.android.intentresolver.grid;
 
-import android.app.prediction.AppPredictionManager;
+import android.view.View;
 
 /**
- * Common flags for {@link ChooserListAdapter} and {@link ChooserActivity}.
+ * A footer on the list, to support scrolling behavior below the navbar.
  */
-public class ChooserFlags {
-
-    /**
-     * Whether to use {@link AppPredictionManager} to query for direct share targets (as opposed to
-     * talking directly to {@link android.content.pm.ShortcutManager}.
-     */
-    // TODO(b/123089490): Replace with system flag
-    static final boolean USE_PREDICTION_MANAGER_FOR_DIRECT_TARGETS = true;
+public final class FooterViewHolder extends ViewHolderBase {
+    public FooterViewHolder(View itemView, int viewType) {
+        super(itemView, viewType);
+    }
 }
-

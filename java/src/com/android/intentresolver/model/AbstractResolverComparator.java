@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver;
+package com.android.intentresolver.model;
 
 import android.app.usage.UsageStatsManager;
 import android.content.ComponentName;
@@ -29,6 +29,8 @@ import android.os.Message;
 import android.os.UserHandle;
 import android.util.Log;
 
+import com.android.intentresolver.ChooserActivityLogger;
+import com.android.intentresolver.ResolverActivity;
 import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
 
 import java.text.Collator;
@@ -47,7 +49,7 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
     private static final boolean DEBUG = true;
     private static final String TAG = "AbstractResolverComp";
 
-    protected AfterCompute mAfterCompute;
+    protected Runnable mAfterCompute;
     protected final PackageManager mPm;
     protected final UsageStatsManager mUsm;
     protected String[] mAnnotations;
@@ -129,15 +131,7 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
         }
     }
 
-    /**
-     * Callback to be called when {@link #compute(List)} finishes. This signals to stop waiting.
-     */
-    interface AfterCompute {
-
-        void afterCompute();
-    }
-
-    void setCallBack(AfterCompute afterCompute) {
+    public void setCallBack(Runnable afterCompute) {
         mAfterCompute = afterCompute;
     }
 
@@ -150,9 +144,9 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
     }
 
     protected final void afterCompute() {
-        final AfterCompute afterCompute = mAfterCompute;
+        final Runnable afterCompute = mAfterCompute;
         if (afterCompute != null) {
-            afterCompute.afterCompute();
+            afterCompute.run();
         }
     }
 
@@ -160,11 +154,6 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
     public final int compare(ResolvedComponentInfo lhsp, ResolvedComponentInfo rhsp) {
         final ResolveInfo lhs = lhsp.getResolveInfoAt(0);
         final ResolveInfo rhs = rhsp.getResolveInfoAt(0);
-
-        final boolean lFixedAtTop = lhsp.isFixedAtTop();
-        final boolean rFixedAtTop = rhsp.isFixedAtTop();
-        if (lFixedAtTop && !rFixedAtTop) return -1;
-        if (!lFixedAtTop && rFixedAtTop) return 1;
 
         // We want to put the one targeted to another user at the end of the dialog.
         if (lhs.targetUserId != UserHandle.USER_CURRENT) {
@@ -214,7 +203,7 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
      * ResolvedComponentInfo} by {@link ComponentName}. {@link #beforeCompute()} will be called
      * before doing any computing.
      */
-    final void compute(List<ResolvedComponentInfo> targets) {
+    public final void compute(List<ResolvedComponentInfo> targets) {
         beforeCompute();
         doCompute(targets);
     }
@@ -226,7 +215,7 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
      * Returns the score that was calculated for the corresponding {@link ResolvedComponentInfo}
      * when {@link #compute(List)} was called before this.
      */
-    abstract float getScore(ComponentName name);
+    public abstract float getScore(ComponentName name);
 
     /** Handles result message sent to mHandler. */
     abstract void handleResultMessage(Message message);
@@ -234,7 +223,7 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
     /**
      * Reports to UsageStats what was chosen.
      */
-    final void updateChooserCounts(String packageName, int userId, String action) {
+    public final void updateChooserCounts(String packageName, int userId, String action) {
         if (mUsm != null) {
             mUsm.reportChooserSelection(packageName, userId, mContentType, mAnnotations, action);
         }
@@ -248,7 +237,7 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
      *
      * @param componentName the component that the user clicked
      */
-    void updateModel(ComponentName componentName) {
+    public void updateModel(ComponentName componentName) {
     }
 
     /** Called before {@link #doCompute(List)}. Sets up 500ms timeout. */
@@ -266,7 +255,7 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
      * this call needs to happen at a different time during destroy, the method should be
      * overridden.
      */
-    void destroy() {
+    public void destroy() {
         mHandler.removeMessages(RANKER_SERVICE_RESULT);
         mHandler.removeMessages(RANKER_RESULT_TIMEOUT);
         afterCompute();
