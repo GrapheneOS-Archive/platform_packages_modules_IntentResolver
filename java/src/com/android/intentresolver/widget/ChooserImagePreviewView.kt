@@ -74,7 +74,7 @@ class ChooserImagePreviewView : RelativeLayout, ImagePreviewView {
         transitionStatusElementCallback = callback
     }
 
-    override fun setImages(uris: List<Uri>, imageLoader: ImageLoader) {
+    fun setImages(uris: List<Uri>, imageLoader: ImageLoader) {
         loadImageJob?.cancel()
         loadImageJob = coroutineScope.launch {
             when (uris.size) {
