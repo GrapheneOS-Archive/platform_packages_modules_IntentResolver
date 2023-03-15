@@ -57,7 +57,6 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:visibility="gone"
-      android:text="@string/select_text"
       android:gravity="center"
       style="@style/ReselectionAction" />
 

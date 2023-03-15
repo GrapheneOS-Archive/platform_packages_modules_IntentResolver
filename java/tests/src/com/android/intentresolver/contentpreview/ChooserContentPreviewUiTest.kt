@@ -54,7 +54,7 @@ class ChooserContentPreviewUiTest {
         override fun createEditButton(): ActionRow.Action? = null
         override fun createNearbyButton(): ActionRow.Action? = null
         override fun createCustomActions(): List<ActionRow.Action> = emptyList()
-        override fun getModifyShareAction(): Runnable? = null
+        override fun getModifyShareAction(): ActionRow.Action? = null
         override fun getExcludeSharedTextAction(): Consumer<Boolean> = Consumer<Boolean> {}
     }
     private val transitionCallback = mock<ImagePreviewView.TransitionElementStatusCallback>()
