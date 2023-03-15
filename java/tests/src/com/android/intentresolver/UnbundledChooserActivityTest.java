@@ -350,7 +350,7 @@ public class UnbundledChooserActivityTest {
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "chooser test"));
         waitForIdle();
         onView(withId(android.R.id.title))
-                .check(matches(withText(com.android.internal.R.string.whichSendApplication)));
+                .check(matches(withText(R.string.whichSendApplication)));
     }
 
     @Test
@@ -362,7 +362,7 @@ public class UnbundledChooserActivityTest {
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
         onView(withId(android.R.id.title))
-                .check(matches(withText(com.android.internal.R.string.whichSendApplication)));
+                .check(matches(withText(R.string.whichSendApplication)));
     }
 
     @Test

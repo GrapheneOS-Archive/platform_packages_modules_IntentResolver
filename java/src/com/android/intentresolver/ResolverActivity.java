@@ -237,47 +237,43 @@ public class ResolverActivity extends FragmentActivity implements
 
     private enum ActionTitle {
         VIEW(Intent.ACTION_VIEW,
-                com.android.internal.R.string.whichViewApplication,
-                com.android.internal.R.string.whichViewApplicationNamed,
-                com.android.internal.R.string.whichViewApplicationLabel),
+                R.string.whichViewApplication,
+                R.string.whichViewApplicationNamed,
+                R.string.whichViewApplicationLabel),
         EDIT(Intent.ACTION_EDIT,
-                com.android.internal.R.string.whichEditApplication,
-                com.android.internal.R.string.whichEditApplicationNamed,
-                com.android.internal.R.string.whichEditApplicationLabel),
+                R.string.whichEditApplication,
+                R.string.whichEditApplicationNamed,
+                R.string.whichEditApplicationLabel),
         SEND(Intent.ACTION_SEND,
-                com.android.internal.R.string.whichSendApplication,
-                com.android.internal.R.string.whichSendApplicationNamed,
-                com.android.internal.R.string.whichSendApplicationLabel),
+                R.string.whichSendApplication,
+                R.string.whichSendApplicationNamed,
+                R.string.whichSendApplicationLabel),
         SENDTO(Intent.ACTION_SENDTO,
-                com.android.internal.R.string.whichSendToApplication,
-                com.android.internal.R.string.whichSendToApplicationNamed,
-                com.android.internal.R.string.whichSendToApplicationLabel),
+                R.string.whichSendToApplication,
+                R.string.whichSendToApplicationNamed,
+                R.string.whichSendToApplicationLabel),
         SEND_MULTIPLE(Intent.ACTION_SEND_MULTIPLE,
-                com.android.internal.R.string.whichSendApplication,
-                com.android.internal.R.string.whichSendApplicationNamed,
-                com.android.internal.R.string.whichSendApplicationLabel),
+                R.string.whichSendApplication,
+                R.string.whichSendApplicationNamed,
+                R.string.whichSendApplicationLabel),
         CAPTURE_IMAGE(MediaStore.ACTION_IMAGE_CAPTURE,
-                com.android.internal.R.string.whichImageCaptureApplication,
-                com.android.internal.R.string.whichImageCaptureApplicationNamed,
-                com.android.internal.R.string.whichImageCaptureApplicationLabel),
+                R.string.whichImageCaptureApplication,
+                R.string.whichImageCaptureApplicationNamed,
+                R.string.whichImageCaptureApplicationLabel),
         DEFAULT(null,
-                com.android.internal.R.string.whichApplication,
-                com.android.internal.R.string.whichApplicationNamed,
-                com.android.internal.R.string.whichApplicationLabel),
+                R.string.whichApplication,
+                R.string.whichApplicationNamed,
+                R.string.whichApplicationLabel),
         HOME(Intent.ACTION_MAIN,
-                com.android.internal.R.string.whichHomeApplication,
-                com.android.internal.R.string.whichHomeApplicationNamed,
-                com.android.internal.R.string.whichHomeApplicationLabel);
+                R.string.whichHomeApplication,
+                R.string.whichHomeApplicationNamed,
+                R.string.whichHomeApplicationLabel);
 
         // titles for layout that deals with http(s) intents
-        public static final int BROWSABLE_TITLE_RES =
-                com.android.internal.R.string.whichOpenLinksWith;
-        public static final int BROWSABLE_HOST_TITLE_RES =
-                com.android.internal.R.string.whichOpenHostLinksWith;
-        public static final int BROWSABLE_HOST_APP_TITLE_RES =
-                com.android.internal.R.string.whichOpenHostLinksWithApp;
-        public static final int BROWSABLE_APP_TITLE_RES =
-                com.android.internal.R.string.whichOpenLinksWithApp;
+        public static final int BROWSABLE_TITLE_RES = R.string.whichOpenLinksWith;
+        public static final int BROWSABLE_HOST_TITLE_RES = R.string.whichOpenHostLinksWith;
+        public static final int BROWSABLE_HOST_APP_TITLE_RES = R.string.whichOpenHostLinksWithApp;
+        public static final int BROWSABLE_APP_TITLE_RES = R.string.whichOpenLinksWithApp;
 
         public final String action;
         public final int titleRes;
@@ -1361,13 +1357,13 @@ public class ResolverActivity extends FragmentActivity implements
     private String getForwardToPersonalMsg() {
         return getSystemService(DevicePolicyManager.class).getResources().getString(
                 FORWARD_INTENT_TO_PERSONAL,
-                () -> getString(com.android.internal.R.string.forward_intent_to_owner));
+                () -> getString(R.string.forward_intent_to_owner));
     }
 
     private String getForwardToWorkMsg() {
         return getSystemService(DevicePolicyManager.class).getResources().getString(
                 FORWARD_INTENT_TO_WORK,
-                () -> getString(com.android.internal.R.string.forward_intent_to_work));
+                () -> getString(R.string.forward_intent_to_work));
     }
 
     /**
@@ -1544,7 +1540,7 @@ public class ResolverActivity extends FragmentActivity implements
         return getSystemService(DevicePolicyManager.class).getResources().getString(
                 RESOLVER_WORK_PROFILE_NOT_SUPPORTED,
                 () -> getString(
-                        com.android.internal.R.string.activity_resolver_work_profiles_support,
+                        R.string.activity_resolver_work_profiles_support,
                         launcherName),
                 launcherName);
     }
