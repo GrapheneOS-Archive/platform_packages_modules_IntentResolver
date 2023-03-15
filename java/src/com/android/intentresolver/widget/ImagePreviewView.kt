@@ -23,7 +23,6 @@ internal typealias ImageLoader = suspend (Uri) -> Bitmap?
 
 interface ImagePreviewView {
     fun setTransitionElementStatusCallback(callback: TransitionElementStatusCallback?)
-    fun setImages(uris: List<Uri>, imageLoader: ImageLoader)
 
     /**
      * [ImagePreviewView] progressively prepares views for shared element transition and reports
