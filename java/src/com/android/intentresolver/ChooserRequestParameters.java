@@ -18,7 +18,6 @@ package com.android.intentresolver;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -78,7 +77,7 @@ public class ChooserRequestParameters {
     private final ImmutableList<ComponentName> mFilteredComponentNames;
     private final ImmutableList<ChooserTarget> mCallerChooserTargets;
     private final @NonNull ImmutableList<ChooserAction> mChooserActions;
-    private final PendingIntent mModifyShareAction;
+    private final ChooserAction mModifyShareAction;
     private final boolean mRetainInOnStop;
 
     @Nullable
@@ -204,7 +203,7 @@ public class ChooserRequestParameters {
     }
 
     @Nullable
-    public PendingIntent getModifyShareAction() {
+    public ChooserAction getModifyShareAction() {
         return mModifyShareAction;
     }
 
@@ -352,11 +351,11 @@ public class ChooserRequestParameters {
     }
 
     @Nullable
-    private static PendingIntent getModifyShareAction(Intent intent) {
+    private static ChooserAction getModifyShareAction(Intent intent) {
         try {
             return intent.getParcelableExtra(
                     Intent.EXTRA_CHOOSER_MODIFY_SHARE_ACTION,
-                    PendingIntent.class);
+                    ChooserAction.class);
         } catch (Throwable t) {
             Log.w(
                     TAG,
