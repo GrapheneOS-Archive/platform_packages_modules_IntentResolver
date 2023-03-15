@@ -1726,13 +1726,17 @@ public class UnbundledChooserActivityTest {
         Context testContext = InstrumentationRegistry.getInstrumentation().getContext();
         final String modifyShareAction = "test-broadcast-receiver-action";
         Intent chooserIntent = Intent.createChooser(createSendTextIntent(), null);
+        String label = "modify share";
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                testContext,
+                123,
+                new Intent(modifyShareAction),
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT);
+        ChooserAction action = new ChooserAction.Builder(Icon.createWithBitmap(
+                createBitmap()), label, pendingIntent).build();
         chooserIntent.putExtra(
                 Intent.EXTRA_CHOOSER_MODIFY_SHARE_ACTION,
-                PendingIntent.getBroadcast(
-                        testContext,
-                        123,
-                        new Intent(modifyShareAction),
-                        PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT));
+                action);
         // Start activity
         mActivityRule.launchActivity(chooserIntent);
         waitForIdle();
@@ -1747,7 +1751,7 @@ public class UnbundledChooserActivityTest {
         testContext.registerReceiver(testReceiver, new IntentFilter(modifyShareAction));
 
         try {
-            onView(withText(R.string.select_text)).perform(click());
+            onView(withText(label)).perform(click());
             broadcastInvoked.await();
         } finally {
             testContext.unregisterReceiver(testReceiver);

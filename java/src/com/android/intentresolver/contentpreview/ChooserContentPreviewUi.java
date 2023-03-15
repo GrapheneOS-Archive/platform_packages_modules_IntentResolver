@@ -74,7 +74,7 @@ public final class ChooserContentPreviewUi {
          * Provides a share modification action, if any.
          */
         @Nullable
-        Runnable getModifyShareAction();
+        ActionRow.Action getModifyShareAction();
 
         /**
          * <p>
