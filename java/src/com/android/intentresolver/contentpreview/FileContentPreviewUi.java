@@ -16,15 +16,7 @@
 
 package com.android.intentresolver.contentpreview;
 
-import android.content.ContentInterface;
 import android.content.res.Resources;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.RemoteException;
-import android.provider.DocumentsContract;
-import android.provider.Downloads;
-import android.provider.OpenableColumns;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.PluralsMessageFormatter;
 import android.view.LayoutInflater;
@@ -49,21 +41,19 @@ class FileContentPreviewUi extends ContentPreviewUi {
     private static final String PLURALS_COUNT  = "count";
     private static final String PLURALS_FILE_NAME = "file_name";
 
-    private final List<Uri> mUris;
+    private final List<FileInfo> mFiles;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
     private final ImageLoader mImageLoader;
-    private final ContentInterface mContentResolver;
     private final FeatureFlagRepository mFeatureFlagRepository;
 
-    FileContentPreviewUi(List<Uri> uris,
+    FileContentPreviewUi(
+            List<FileInfo> files,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
-            ContentInterface contentResolver,
             FeatureFlagRepository featureFlagRepository) {
-        mUris = uris;
+        mFiles = files;
         mActionFactory = actionFactory;
         mImageLoader = imageLoader;
-        mContentResolver = contentResolver;
         mFeatureFlagRepository = featureFlagRepository;
     }
 
@@ -85,7 +75,7 @@ class FileContentPreviewUi extends ContentPreviewUi {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_file, parent, false);
 
-        final int uriCount = mUris.size();
+        final int uriCount = mFiles.size();
 
         if (uriCount == 0) {
             contentPreviewLayout.setVisibility(View.GONE);
@@ -95,13 +85,13 @@ class FileContentPreviewUi extends ContentPreviewUi {
         }
 
         if (uriCount == 1) {
-            loadFileUriIntoView(mUris.get(0), contentPreviewLayout, mImageLoader, mContentResolver);
+            loadFileUriIntoView(mFiles.get(0), contentPreviewLayout, mImageLoader);
         } else {
-            FileInfo fileInfo = extractFileInfo(mUris.get(0), mContentResolver);
+            FileInfo fileInfo = mFiles.get(0);
             int remUriCount = uriCount - 1;
             Map<String, Object> arguments = new HashMap<>();
             arguments.put(PLURALS_COUNT, remUriCount);
-            arguments.put(PLURALS_FILE_NAME, fileInfo.name);
+            arguments.put(PLURALS_FILE_NAME, fileInfo.getName());
             String fileName =
                     PluralsMessageFormatter.format(resources, arguments, R.string.file_count);
 
@@ -143,19 +133,16 @@ class FileContentPreviewUi extends ContentPreviewUi {
     }
 
     private static void loadFileUriIntoView(
-            final Uri uri,
+            final FileInfo fileInfo,
             final View parent,
-            final ImageLoader imageLoader,
-            final ContentInterface contentResolver) {
-        FileInfo fileInfo = extractFileInfo(uri, contentResolver);
-
+            final ImageLoader imageLoader) {
         TextView fileNameView = parent.findViewById(
                 com.android.internal.R.id.content_preview_filename);
-        fileNameView.setText(fileInfo.name);
+        fileNameView.setText(fileInfo.getName());
 
-        if (fileInfo.hasThumbnail) {
+        if (fileInfo.getPreviewUri() != null) {
             imageLoader.loadImage(
-                    uri,
+                    fileInfo.getPreviewUri(),
                     (bitmap) -> updateViewWithImage(
                             parent.findViewById(
                                     com.android.internal.R.id.content_preview_file_thumbnail),
@@ -169,68 +156,6 @@ class FileContentPreviewUi extends ContentPreviewUi {
                     com.android.internal.R.id.content_preview_file_icon);
             fileIconView.setVisibility(View.VISIBLE);
             fileIconView.setImageResource(R.drawable.chooser_file_generic);
-        }
-    }
-
-    private static FileInfo extractFileInfo(Uri uri, ContentInterface resolver) {
-        String fileName = null;
-        boolean hasThumbnail = false;
-
-        try (Cursor cursor = queryResolver(resolver, uri)) {
-            if (cursor != null && cursor.getCount() > 0) {
-                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                int titleIndex = cursor.getColumnIndex(Downloads.Impl.COLUMN_TITLE);
-                int flagsIndex = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_FLAGS);
-
-                cursor.moveToFirst();
-                if (nameIndex != -1) {
-                    fileName = cursor.getString(nameIndex);
-                } else if (titleIndex != -1) {
-                    fileName = cursor.getString(titleIndex);
-                }
-
-                if (flagsIndex != -1) {
-                    hasThumbnail = (cursor.getInt(flagsIndex)
-                            & DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL) != 0;
-                }
-            }
-        } catch (SecurityException | NullPointerException e) {
-            // The ContentResolver already logs the exception. Log something more informative.
-            Log.w(
-                    TAG,
-                    "Could not load (" + uri.toString() + ") thumbnail/name for preview. If "
-                    + "desired, consider using Intent#createChooser to launch the ChooserActivity, "
-                    + "and set your Intent's clipData and flags in accordance with that method's "
-                    + "documentation");
-        }
-
-        if (TextUtils.isEmpty(fileName)) {
-            fileName = uri.getPath();
-            fileName = fileName == null ? "" : fileName;
-            int index = fileName.lastIndexOf('/');
-            if (index != -1) {
-                fileName = fileName.substring(index + 1);
-            }
-        }
-
-        return new FileInfo(fileName, hasThumbnail);
-    }
-
-    private static Cursor queryResolver(ContentInterface resolver, Uri uri) {
-        try {
-            return resolver.query(uri, null, null, null);
-        } catch (RemoteException e) {
-            return null;
-        }
-    }
-
-    private static class FileInfo {
-        public final String name;
-        public final boolean hasThumbnail;
-
-        FileInfo(String name, boolean hasThumbnail) {
-            this.name = name;
-            this.hasThumbnail = hasThumbnail;
         }
     }
 }
