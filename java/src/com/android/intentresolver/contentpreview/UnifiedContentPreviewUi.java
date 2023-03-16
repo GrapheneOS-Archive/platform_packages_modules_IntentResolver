@@ -19,7 +19,6 @@ package com.android.intentresolver.contentpreview;
 import static com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_IMAGE;
 
 import android.content.res.Resources;
-import android.net.Uri;
 import android.text.TextUtils;
 import android.text.util.Linkify;
 import android.transition.TransitionManager;
@@ -39,37 +38,44 @@ import com.android.intentresolver.R;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.widget.ActionRow;
-import com.android.intentresolver.widget.ChooserImagePreviewView;
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;
+import com.android.intentresolver.widget.ScrollableImagePreviewView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
-class ImageContentPreviewUi extends ContentPreviewUi {
-    private final List<Uri> mImageUris;
+class UnifiedContentPreviewUi extends ContentPreviewUi {
+    private final List<FileInfo> mFiles;
     @Nullable
     private final CharSequence mText;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
     private final ImageLoader mImageLoader;
+    private final MimeTypeClassifier mTypeClassifier;
     private final TransitionElementStatusCallback mTransitionElementStatusCallback;
     private final FeatureFlagRepository mFeatureFlagRepository;
 
-    ImageContentPreviewUi(
-            List<Uri> imageUris,
+    UnifiedContentPreviewUi(
+            List<FileInfo> files,
             @Nullable CharSequence text,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
+            MimeTypeClassifier typeClassifier,
             TransitionElementStatusCallback transitionElementStatusCallback,
             FeatureFlagRepository featureFlagRepository) {
-        mImageUris = imageUris;
+        mFiles = files;
         mText = text;
         mActionFactory = actionFactory;
         mImageLoader = imageLoader;
+        mTypeClassifier = typeClassifier;
         mTransitionElementStatusCallback = transitionElementStatusCallback;
         mFeatureFlagRepository = featureFlagRepository;
 
-        mImageLoader.prePopulate(mImageUris);
+        mImageLoader.prePopulate(mFiles.stream()
+                .map(FileInfo::getPreviewUri)
+                .filter(Objects::nonNull)
+                .toList());
     }
 
     @Override
@@ -88,7 +94,7 @@ class ImageContentPreviewUi extends ContentPreviewUi {
         @LayoutRes int actionRowLayout = getActionRowLayout(mFeatureFlagRepository);
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_image, parent, false);
-        ChooserImagePreviewView imagePreview = inflateImagePreviewView(contentPreviewLayout);
+        ScrollableImagePreviewView imagePreview = inflateImagePreviewView(contentPreviewLayout);
 
         final ActionRow actionRow = inflateActionRow(contentPreviewLayout, actionRowLayout);
         if (actionRow != null) {
@@ -99,7 +105,7 @@ class ImageContentPreviewUi extends ContentPreviewUi {
                             mFeatureFlagRepository));
         }
 
-        if (mImageUris.size() == 0) {
+        if (mFiles.size() == 0) {
             Log.i(
                     TAG,
                     "Attempted to display image preview area with zero"
@@ -111,7 +117,17 @@ class ImageContentPreviewUi extends ContentPreviewUi {
 
         setTextInImagePreviewVisibility(contentPreviewLayout, mActionFactory);
         imagePreview.setTransitionElementStatusCallback(mTransitionElementStatusCallback);
-        imagePreview.setImages(mImageUris, mImageLoader);
+        List<ScrollableImagePreviewView.Preview> previews = mFiles.stream()
+                .filter(fileInfo -> fileInfo.getPreviewUri() != null)
+                .map(fileInfo ->
+                        new ScrollableImagePreviewView.Preview(
+                                getPreviewType(fileInfo.getMimeType()),
+                                fileInfo.getPreviewUri()))
+                .toList();
+        imagePreview.setPreviews(
+                previews,
+                mFiles.size() - previews.size(),
+                mImageLoader);
 
         return contentPreviewLayout;
     }
@@ -130,10 +146,10 @@ class ImageContentPreviewUi extends ContentPreviewUi {
         return actions;
     }
 
-    private ChooserImagePreviewView inflateImagePreviewView(ViewGroup previewLayout) {
+    private ScrollableImagePreviewView inflateImagePreviewView(ViewGroup previewLayout) {
         ViewStub stub = previewLayout.findViewById(R.id.image_preview_stub);
         if (stub != null) {
-            stub.setLayoutResource(R.layout.chooser_image_preview_view);
+            stub.setLayoutResource(R.layout.scrollable_image_preview_view);
             stub.inflate();
         }
         return previewLayout.findViewById(
@@ -172,5 +188,15 @@ class ImageContentPreviewUi extends ContentPreviewUi {
             });
         }
         actionView.setVisibility(visibility);
+    }
+
+    private ScrollableImagePreviewView.PreviewType getPreviewType(String mimeType) {
+        if (mTypeClassifier.isImageType(mimeType)) {
+            return ScrollableImagePreviewView.PreviewType.Image;
+        }
+        if (mTypeClassifier.isVideoType(mimeType)) {
+            return ScrollableImagePreviewView.PreviewType.Video;
+        }
+        return ScrollableImagePreviewView.PreviewType.File;
     }
 }

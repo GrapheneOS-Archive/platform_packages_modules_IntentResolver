@@ -33,6 +33,7 @@ import com.android.intentresolver.flags.Flags
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -50,6 +51,7 @@ class ChooserActionFactoryTest {
     private val logger = mock<ChooserActivityLogger>()
     private val flags = mock<FeatureFlagRepository>()
     private val actionLabel = "Action label"
+    private val modifyShareLabel = "Modify share"
     private val testAction = "com.android.intentresolver.testaction"
     private val countdown = CountDownLatch(1)
     private val testReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -115,7 +117,8 @@ class ChooserActionFactoryTest {
     fun testModifyShareAction() {
         val factory = createFactory(includeModifyShare = true)
 
-        factory.modifyShareAction!!.run()
+        val action = factory.modifyShareAction ?: error("Modify share action should not be null")
+        action.onClicked.run()
 
         Mockito.verify(logger).logActionSelected(
             eq(ChooserActivityLogger.SELECTION_TYPE_MODIFY_SHARE))
@@ -137,7 +140,12 @@ class ChooserActionFactoryTest {
         whenever(chooserRequest.chooserActions).thenReturn(ImmutableList.of(action))
 
         if (includeModifyShare) {
-            whenever(chooserRequest.modifyShareAction).thenReturn(testPendingIntent)
+            val modifyShare = ChooserAction.Builder(
+                Icon.createWithResource("", Resources.ID_NULL),
+                modifyShareLabel,
+                testPendingIntent
+            ).build()
+            whenever(chooserRequest.modifyShareAction).thenReturn(modifyShare)
         }
 
         return ChooserActionFactory(

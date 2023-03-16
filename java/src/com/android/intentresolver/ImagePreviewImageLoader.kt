@@ -19,6 +19,7 @@ package com.android.intentresolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import android.util.Size
 import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
@@ -31,6 +32,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.function.Consumer
+
+private const val TAG = "ImagePreviewImageLoader"
 
 @VisibleForTesting
 class ImagePreviewImageLoader @JvmOverloads constructor(
@@ -79,9 +82,12 @@ class ImagePreviewImageLoader @JvmOverloads constructor(
     }
 
     private fun CompletableDeferred<Bitmap?>.loadBitmap(uri: Uri) {
-        val bitmap = runCatching {
+        val bitmap = try {
             context.contentResolver.loadThumbnail(uri,  thumbnailSize, null)
-        }.getOrNull()
+        } catch (t: Throwable) {
+            Log.d(TAG, "failed to load $uri preview", t)
+            null
+        }
         complete(bitmap)
     }
 }
