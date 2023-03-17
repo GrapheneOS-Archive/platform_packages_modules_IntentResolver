@@ -16,17 +16,56 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for app_label (325107764352168045) -->
+    <string name="whichApplication" msgid="2309561338625872614">"Кайсынысын колдоносуз?"</string>
+    <!-- no translation found for whichApplicationNamed (8514249643796783492) -->
+    <skip />
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"Аракетти аягына чыгаруу"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"Төмөнкү менен ачуу"</string>
+    <!-- no translation found for whichViewApplicationNamed (8231810543224200555) -->
     <skip />
     <string name="whichViewApplicationLabel" msgid="9123647023323311663">"Ачуу"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"<xliff:g id="HOST">%1$s</xliff:g> шилтемелерин төмөнкү колдонмодо ачуу:"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"Шилтемелерди төмөнкү колдонмодо ачуу:"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"Шилтемелерди <xliff:g id="APPLICATION">%1$s</xliff:g> колдонмосунда ачуу"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"<xliff:g id="HOST">%1$s</xliff:g> шилтемелерин <xliff:g id="APPLICATION">%2$s</xliff:g> колдонмосунда ачуу"</string>
+    <!-- no translation found for whichGiveAccessToApplicationLabel (5120142857844152131) -->
+    <skip />
+    <string name="whichEditApplication" msgid="5097563012157950614">"Төмөнкү менен түзөтүү"</string>
+    <!-- no translation found for whichEditApplicationNamed (3150137489226219100) -->
+    <skip />
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"Түзөтүү"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"Бөлүшүү"</string>
+    <!-- no translation found for whichSendApplicationNamed (495577664218765855) -->
+    <skip />
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"Бөлүшүү"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"Колдонмо тандаңыз"</string>
+    <!-- no translation found for whichSendToApplicationNamed (1996548940365954543) -->
+    <skip />
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"Жөнөтүү"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"Башкы бет колдонмосун тандаңыз"</string>
+    <!-- no translation found for whichHomeApplicationNamed (3943122502791761387) -->
+    <skip />
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"Сүрөткө тартуу"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"Сүрөткө төмөнкү параметрлер менен тартуу"</string>
+    <!-- no translation found for whichImageCaptureApplicationNamed (5927801386307049780) -->
+    <skip />
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"Сүрөткө тартуу"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"Башка колдонмону пайдалануу"</string>
+    <!-- no translation found for chooseActivity (6659724877523973446) -->
+    <skip />
     <string name="noApplications" msgid="1139487441772284671">"Бул аракетти аткара турган колдонмо жок."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"Бул колдонмо жумуш профилиңиздин сыртында колдонулуп жатат"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"Бул колдонмону жумуш профилиңизде пайдаланып жатасыз"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"Ар дайым"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"Бир жолу гана"</string>
-    <!-- no translation found for pin_specific_target (5057063421361441406) -->
+    <!-- no translation found for activity_resolver_work_profiles_support (8228711455685203580) -->
     <skip />
+    <string name="pin_specific_target" msgid="5057063421361441406">"Кадап коюу: <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> бошотуу"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"Түзөтүү"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # файл}other{{file_name} + # файл}}"</string>
+    <!-- no translation found for other_files (4501185823517473875) -->
+    <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Бөлүшкөнгө эч ким сунушталган жок"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Колдонмолордун тизмеси"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Бул колдонмого жаздырууга уруксат берилген эмес, бирок ушул USB түзмөгү аркылуу үндөрдү жаза алат."</string>
@@ -47,18 +86,8 @@
     <string name="miniresolver_open_in_work" msgid="4271638122142624693">"<xliff:g id="APP">%s</xliff:g> колдонмосу жумуш профилинде ачылсынбы?"</string>
     <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"Жеке серепчини колдонуу"</string>
     <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"Жумуш серепчисин колдонуу"</string>
-    <!-- no translation found for select_files (717427764544068086) -->
-    <skip />
-    <!-- no translation found for select_images (5564089845412362804) -->
-    <skip />
-    <!-- no translation found for select_text (7253549490440625849) -->
-    <skip />
-    <!-- no translation found for exclude_text (5508128757025928034) -->
-    <skip />
-    <!-- no translation found for include_text (642280283268536140) -->
-    <skip />
-    <!-- no translation found for exclude_link (1332778255031992228) -->
-    <skip />
-    <!-- no translation found for include_link (827855767220339802) -->
-    <skip />
+    <string name="exclude_text" msgid="5508128757025928034">"Текстти чыгарып салуу"</string>
+    <string name="include_text" msgid="642280283268536140">"Текст кошуу"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"Шилтемени чыгарып салуу"</string>
+    <string name="include_link" msgid="827855767220339802">"Шилтеме кошуу"</string>
 </resources>
