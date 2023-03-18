@@ -42,6 +42,7 @@ class ChooserContentPreviewUiTest {
     private val imageClassifier = MimeTypeClassifier { mimeType ->
         mimeType != null && ClipDescription.compareMimeTypes(mimeType, "image/*")
     }
+    private val headlineGenerator = mock<HeadlineGenerator>()
     private val imageLoader = object : ImageLoader {
         override fun loadImage(uri: Uri, callback: Consumer<Bitmap?>) {
             callback.accept(null)
@@ -74,7 +75,8 @@ class ChooserContentPreviewUiTest {
             imageLoader,
             actionFactory,
             transitionCallback,
-            featureFlagRepository
+            featureFlagRepository,
+            headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_TEXT)
@@ -94,7 +96,8 @@ class ChooserContentPreviewUiTest {
             imageLoader,
             actionFactory,
             transitionCallback,
-            featureFlagRepository
+            featureFlagRepository,
+            headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_TEXT)
@@ -115,7 +118,8 @@ class ChooserContentPreviewUiTest {
             imageLoader,
             actionFactory,
             transitionCallback,
-            featureFlagRepository
+            featureFlagRepository,
+            headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
@@ -136,7 +140,8 @@ class ChooserContentPreviewUiTest {
             imageLoader,
             actionFactory,
             transitionCallback,
-            featureFlagRepository
+            featureFlagRepository,
+            headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
@@ -159,7 +164,8 @@ class ChooserContentPreviewUiTest {
                 imageLoader,
                 actionFactory,
                 transitionCallback,
-                featureFlagRepository
+                featureFlagRepository,
+                headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
                 .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
@@ -188,7 +194,8 @@ class ChooserContentPreviewUiTest {
             imageLoader,
             actionFactory,
             transitionCallback,
-            featureFlagRepository
+            featureFlagRepository,
+            headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
@@ -217,7 +224,8 @@ class ChooserContentPreviewUiTest {
             imageLoader,
             actionFactory,
             transitionCallback,
-            featureFlagRepository
+            featureFlagRepository,
+            headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
@@ -248,7 +256,8 @@ class ChooserContentPreviewUiTest {
                 imageLoader,
                 actionFactory,
                 transitionCallback,
-                featureFlagRepository
+                featureFlagRepository,
+                headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
                 .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
@@ -277,7 +286,8 @@ class ChooserContentPreviewUiTest {
                 imageLoader,
                 actionFactory,
                 transitionCallback,
-                featureFlagRepository
+                featureFlagRepository,
+                headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
                 .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)

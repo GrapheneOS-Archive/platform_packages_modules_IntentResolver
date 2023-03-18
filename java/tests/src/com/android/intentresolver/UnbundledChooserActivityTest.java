@@ -26,6 +26,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
@@ -98,6 +99,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.matcher.BoundedDiagnosingMatcher;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -1065,6 +1067,43 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
         onView(withText(sharedText))
                 .check(matches(isDisplayed()));
+    }
+
+    @Test
+    @RequireFeatureFlags(
+            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
+            values = { true })
+    public void testNoTextPreviewWhenTextIsSharedWithMultipleImages() {
+        final Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
+                + R.drawable.test320x240);
+        final String sharedText = "text-" + System.currentTimeMillis();
+
+        ArrayList<Uri> uris = new ArrayList<>();
+        uris.add(uri);
+        uris.add(uri);
+
+        Intent sendIntent = createSendUriIntentWithPreview(uris);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, sharedText);
+        ChooserActivityOverrideData.getInstance().previewThumbnail = createBitmap();
+        ChooserActivityOverrideData.getInstance().isImageType = true;
+
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+
+        when(
+                ChooserActivityOverrideData
+                        .getInstance()
+                        .resolverListController
+                        .getResolversForIntentAsUser(
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.anyBoolean(),
+                                Mockito.isA(List.class),
+                                Mockito.any(UserHandle.class)))
+                .thenReturn(resolvedComponentInfos);
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
+        waitForIdle();
+        onView(withId(com.android.internal.R.id.content_preview_text))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
     @Test
