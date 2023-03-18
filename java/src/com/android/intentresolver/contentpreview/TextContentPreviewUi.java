@@ -92,35 +92,34 @@ class TextContentPreviewUi extends ContentPreviewUi {
 
         if (mSharingText == null) {
             contentPreviewLayout
-                    .findViewById(com.android.internal.R.id.content_preview_text_layout)
+                    .findViewById(R.id.text_preview_layout)
                     .setVisibility(View.GONE);
-        } else {
-            TextView textView = contentPreviewLayout.findViewById(
-                    com.android.internal.R.id.content_preview_text);
-            textView.setText(mSharingText);
+            return contentPreviewLayout;
         }
 
-        if (TextUtils.isEmpty(mPreviewTitle)) {
-            contentPreviewLayout
-                    .findViewById(com.android.internal.R.id.content_preview_title_layout)
-                    .setVisibility(View.GONE);
-        } else {
-            TextView previewTitleView = contentPreviewLayout.findViewById(
-                    com.android.internal.R.id.content_preview_title);
-            previewTitleView.setText(mPreviewTitle);
+        TextView textView = contentPreviewLayout.findViewById(
+                com.android.internal.R.id.content_preview_text);
+        textView.setText(mSharingText);
 
-            ImageView previewThumbnailView = contentPreviewLayout.findViewById(
-                    com.android.internal.R.id.content_preview_thumbnail);
-            if (!validForContentPreview(mPreviewThumbnail)) {
-                previewThumbnailView.setVisibility(View.GONE);
-            } else {
-                mImageLoader.loadImage(
-                        mPreviewThumbnail,
-                        (bitmap) -> updateViewWithImage(
-                                contentPreviewLayout.findViewById(
-                                        com.android.internal.R.id.content_preview_thumbnail),
-                                bitmap));
-            }
+        TextView previewTitleView = contentPreviewLayout.findViewById(
+                com.android.internal.R.id.content_preview_title);
+        if (TextUtils.isEmpty(mPreviewTitle)) {
+            previewTitleView.setVisibility(View.GONE);
+        } else {
+            previewTitleView.setText(mPreviewTitle);
+        }
+
+        ImageView previewThumbnailView = contentPreviewLayout.findViewById(
+                com.android.internal.R.id.content_preview_thumbnail);
+        if (!validForContentPreview(mPreviewThumbnail)) {
+            previewThumbnailView.setVisibility(View.GONE);
+        } else {
+            mImageLoader.loadImage(
+                    mPreviewThumbnail,
+                    (bitmap) -> updateViewWithImage(
+                            contentPreviewLayout.findViewById(
+                                    com.android.internal.R.id.content_preview_thumbnail),
+                            bitmap));
         }
 
         return contentPreviewLayout;
