@@ -652,8 +652,6 @@ public class ChooserActivity extends ResolverActivity implements
 
         parent = parent == null ? getWindow().getDecorView() : parent;
 
-        updateLayoutWidth(com.android.internal.R.id.content_preview_text_layout, width, parent);
-        updateLayoutWidth(com.android.internal.R.id.content_preview_title_layout, width, parent);
         updateLayoutWidth(com.android.internal.R.id.content_preview_file_layout, width, parent);
     }
 

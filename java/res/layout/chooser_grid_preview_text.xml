@@ -27,29 +27,59 @@
     android:background="?android:attr/colorBackground">
 
   <RelativeLayout
-      android:layout_width="@dimen/chooser_preview_width"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="center"
       android:orientation="horizontal"
-      android:paddingLeft="@dimen/chooser_edge_margin_normal"
-      android:paddingRight="@dimen/chooser_edge_margin_normal"
+      android:layout_marginLeft="@dimen/chooser_edge_margin_normal"
+      android:layout_marginRight="@dimen/chooser_edge_margin_normal"
       android:layout_marginBottom="@dimen/chooser_view_spacing"
-      android:id="@androidprv:id/content_preview_text_layout">
+      android:padding="@dimen/chooser_edge_margin_normal"
+      android:minHeight="80dp"
+      android:background="@drawable/chooser_content_preview_rounded"
+      android:id="@+id/text_preview_layout">
+
+    <ImageView
+          android:id="@androidprv:id/content_preview_thumbnail"
+          android:layout_width="48dp"
+          android:layout_height="48dp"
+          android:layout_alignParentStart="true"
+          android:layout_alignParentTop="true"
+          android:layout_marginEnd="@dimen/chooser_edge_margin_normal"
+          android:adjustViewBounds="true"
+          android:layout_gravity="center_vertical"
+          android:gravity="center"
+          android:scaleType="centerCrop"/>
+
+    <TextView
+        android:id="@androidprv:id/content_preview_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@androidprv:id/content_preview_thumbnail"
+        android:layout_alignParentTop="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAlignment="gravity"
+        android:textDirection="locale"
+        android:textStyle="bold"
+        android:textColor="?android:attr/textColorPrimary"
+        android:fontFamily="@androidprv:string/config_headlineFontFamily"/>
 
     <TextView
         android:id="@androidprv:id/content_preview_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
+        android:layout_toEndOf="@androidprv:id/content_preview_thumbnail"
+        android:layout_below="@androidprv:id/content_preview_title"
+        android:layout_alignWithParentIfMissing="true"
         android:ellipsize="end"
         android:fontFamily="@androidprv:string/config_headlineFontFamily"
         android:textColor="?android:attr/textColorPrimary"
         android:textAlignment="gravity"
         android:textDirection="locale"
-        android:maxLines="2"
+        android:maxLines="3"
         android:focusable="true"/>
-
   </RelativeLayout>
 
   <TextView
@@ -64,43 +94,5 @@
       android:id="@+id/action_row_stub"
       android:layout_width="match_parent"
       android:layout_height="wrap_content" />
-
-  <!-- Required sub-layout so we can get the nice rounded corners-->
-  <!-- around this section -->
-  <LinearLayout
-      android:layout_width="@dimen/chooser_preview_width"
-      android:layout_height="wrap_content"
-      android:layout_gravity="center"
-      android:orientation="horizontal"
-      android:layout_marginLeft="@dimen/chooser_edge_margin_normal"
-      android:layout_marginRight="@dimen/chooser_edge_margin_normal"
-      android:layout_marginBottom="@dimen/chooser_view_spacing"
-      android:minHeight="80dp"
-      android:background="@androidprv:drawable/chooser_content_preview_rounded"
-      android:id="@androidprv:id/content_preview_title_layout">
-
-    <com.android.intentresolver.widget.RoundedRectImageView
-          android:id="@androidprv:id/content_preview_thumbnail"
-          android:layout_width="75dp"
-          android:layout_height="75dp"
-          android:layout_marginRight="16dp"
-          android:adjustViewBounds="true"
-          android:layout_gravity="center_vertical"
-          android:gravity="center"
-          android:scaleType="centerCrop"/>
-
-    <TextView
-        android:id="@androidprv:id/content_preview_title"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:ellipsize="end"
-        android:maxLines="2"
-        android:textAlignment="gravity"
-        android:textDirection="locale"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.WindowTitle"
-        android:fontFamily="@androidprv:string/config_headlineFontFamily"/>
-  </LinearLayout>
 </LinearLayout>
 
