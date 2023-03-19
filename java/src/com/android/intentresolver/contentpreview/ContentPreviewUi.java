@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
@@ -38,7 +39,6 @@ import com.android.intentresolver.R;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.widget.ActionRow;
-import com.android.intentresolver.widget.RoundedRectImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +99,7 @@ abstract class ContentPreviewUi {
         return true;
     }
 
-    protected static void updateViewWithImage(RoundedRectImageView imageView, Bitmap image) {
+    protected static void updateViewWithImage(ImageView imageView, Bitmap image) {
         if (image == null) {
             imageView.setVisibility(View.GONE);
             return;
