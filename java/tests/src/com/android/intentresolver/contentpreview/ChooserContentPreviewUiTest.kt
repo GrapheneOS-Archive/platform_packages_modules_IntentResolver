@@ -23,6 +23,8 @@ import android.graphics.Bitmap
 import android.net.Uri
 import com.android.intentresolver.ImageLoader
 import com.android.intentresolver.TestFeatureFlagRepository
+import com.android.intentresolver.any
+import com.android.intentresolver.anyOrNull
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
 import com.android.intentresolver.flags.Flags
 import com.android.intentresolver.mock
@@ -137,6 +139,53 @@ class ChooserContentPreviewUiTest {
             actionFactory,
             transitionCallback,
             featureFlagRepository
+        )
+        assertThat(testSubject.preferredContentPreview)
+            .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
+        verify(transitionCallback, times(1)).onAllTransitionElementsReady()
+    }
+
+    @Test
+    fun test_ChooserContentPreview_single_uri_crashing_getType_to_file_preview() {
+        val uri = Uri.parse("content://$PROVIDER_NAME/test.pdf")
+        val targetIntent = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_STREAM, uri)
+        }
+        whenever(contentResolver.getType(any()))
+            .thenThrow(SecurityException("Test getType() exception"))
+        val testSubject = ChooserContentPreviewUi(
+                targetIntent,
+                contentResolver,
+                imageClassifier,
+                imageLoader,
+                actionFactory,
+                transitionCallback,
+                featureFlagRepository
+        )
+        assertThat(testSubject.preferredContentPreview)
+            .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
+        verify(transitionCallback, times(1)).onAllTransitionElementsReady()
+    }
+
+    @Test
+    fun test_ChooserContentPreview_single_uri_crashing_metadata_to_file_preview() {
+        val uri = Uri.parse("content://$PROVIDER_NAME/test.pdf")
+        val targetIntent = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_STREAM, uri)
+        }
+        whenever(contentResolver.getType(any())).thenReturn("application/pdf")
+        whenever(contentResolver.query(any(), anyOrNull(), anyOrNull(), anyOrNull()))
+            .thenThrow(SecurityException("Test query() exception"))
+        whenever(contentResolver.getStreamTypes(any(), any()))
+            .thenThrow(SecurityException("Test getStreamType() exception"))
+        val testSubject = ChooserContentPreviewUi(
+                targetIntent,
+                contentResolver,
+                imageClassifier,
+                imageLoader,
+                actionFactory,
+                transitionCallback,
+                featureFlagRepository
         )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
@@ -283,4 +332,5 @@ class ChooserContentPreviewUiTest {
                 .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
         verify(transitionCallback, times(1)).onAllTransitionElementsReady()
     }
+
 }
