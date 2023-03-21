@@ -152,8 +152,7 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
             stub.setLayoutResource(R.layout.scrollable_image_preview_view);
             stub.inflate();
         }
-        return previewLayout.findViewById(
-                com.android.internal.R.id.content_preview_image_area);
+        return previewLayout.findViewById(R.id.scrollable_image_preview);
     }
 
     private void setTextInImagePreviewVisibility(

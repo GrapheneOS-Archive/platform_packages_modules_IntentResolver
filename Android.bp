@@ -68,6 +68,7 @@ android_library {
     static_libs: [
         "androidx.annotation_annotation",
         "androidx.concurrent_concurrent-futures",
+        "androidx-constraintlayout_constraintlayout",
         "androidx.recyclerview_recyclerview",
         "androidx.viewpager_viewpager",
         "androidx.lifecycle_lifecycle-common-java8",

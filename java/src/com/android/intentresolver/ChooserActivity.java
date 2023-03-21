@@ -1297,7 +1297,9 @@ public class ChooserActivity extends ResolverActivity implements
         final int cacheSize;
         if (mFeatureFlagRepository.isEnabled(Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW)) {
             float chooserWidth = getResources().getDimension(R.dimen.chooser_width);
-            float imageWidth = getResources().getDimension(R.dimen.chooser_preview_image_width);
+            // imageWidth = imagePreviewHeight / minAspectRatio (see ScrollableImagePreviewView)
+            float imageWidth =
+                    getResources().getDimension(R.dimen.chooser_preview_image_height_tall) * 5 / 2;
             cacheSize = (int) (Math.ceil(chooserWidth / imageWidth) + 2);
         } else {
             cacheSize = 3;
