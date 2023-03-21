@@ -1030,7 +1030,7 @@ public class UnbundledChooserActivityTest {
         setupResolverControllers(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_image_area))
+        onView(withId(R.id.scrollable_image_preview))
                 .perform(RecyclerViewActions.scrollToLastPosition())
                 .check((view, exception) -> {
                     if (exception != null) {
