@@ -39,5 +39,5 @@
          This name is in the ComponentName flattened format (package/class) [DO NOT TRANSLATE]  -->
     <string name="config_systemImageEditor" translatable="false">@*android:string/config_systemImageEditor</string>
 
-    <integer name="config_chooser_max_targets_per_row">@*android:integer/config_chooser_max_targets_per_row</integer>
+    <integer name="config_chooser_max_targets_per_row">5</integer>
 </resources>
