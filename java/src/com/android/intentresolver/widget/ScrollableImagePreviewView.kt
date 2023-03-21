@@ -17,6 +17,7 @@
 package com.android.intentresolver.widget
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Rect
 import android.net.Uri
 import android.util.AttributeSet
@@ -27,20 +28,32 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.intentresolver.R
+import com.android.intentresolver.util.throttle
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
-import kotlin.math.sign
+import java.util.ArrayDeque
+import kotlin.math.roundToInt
 
 private const val TRANSITION_NAME = "screenshot_preview_image"
 private const val PLURALS_COUNT = "count"
+private const val ADAPTER_UPDATE_INTERVAL_MS = 150L
+private const val MIN_ASPECT_RATIO = 0.4f
+private const val MIN_ASPECT_RATIO_STRING = "2:5"
+private const val MAX_ASPECT_RATIO = 2.5f
+private const val MAX_ASPECT_RATIO_STRING = "5:2"
 
 class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
     constructor(context: Context) : this(context, null)
@@ -50,13 +63,52 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
     ) : super(context, attrs, defStyleAttr) {
         layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         adapter = Adapter(context)
-        val spacing = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, 5f, context.resources.displayMetrics
-        ).toInt()
-        addItemDecoration(SpacingDecoration(spacing))
+
+        context.obtainStyledAttributes(
+            attrs, R.styleable.ScrollableImagePreviewView, defStyleAttr, 0
+        ).use { a ->
+            var innerSpacing = a.getDimensionPixelSize(
+                R.styleable.ScrollableImagePreviewView_itemInnerSpacing, -1
+            )
+            if (innerSpacing < 0) {
+                innerSpacing = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 3f, context.resources.displayMetrics
+                ).toInt()
+            }
+            var outerSpacing = a.getDimensionPixelSize(
+                R.styleable.ScrollableImagePreviewView_itemOuterSpacing, -1
+            )
+            if (outerSpacing < 0) {
+                outerSpacing = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 16f, context.resources.displayMetrics
+                ).toInt()
+            }
+            addItemDecoration(SpacingDecoration(innerSpacing, outerSpacing))
+
+            maxWidthHint = a.getDimensionPixelSize(
+                R.styleable.ScrollableImagePreviewView_maxWidthHint, -1
+            )
+        }
     }
 
+    private var batchLoader: BatchPreviewLoader? = null
     private val previewAdapter get() = adapter as Adapter
+
+    /**
+     * A hint about the maximum width this view can grow to, this helps to optimize preview
+     * loading.
+     */
+    var maxWidthHint: Int = -1
+    private var requestedHeight: Int = 0
+    private var isMeasured = false
+
+    override fun onMeasure(widthSpec: Int, heightSpec: Int) {
+        super.onMeasure(widthSpec, heightSpec)
+        if (!isMeasured) {
+            isMeasured = true
+            batchLoader?.loadAspectRatios(getMaxWidth(), this::calcPreviewWidth)
+        }
+    }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         super.onLayout(changed, l, t, r, b)
@@ -69,30 +121,101 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         previewAdapter.transitionStatusElementCallback = callback
     }
 
-    fun setPreviews(previews: List<Preview>, otherItemCount: Int, imageLoader: ImageLoader) =
-        previewAdapter.setPreviews(previews, otherItemCount, imageLoader)
+    fun setPreviews(previews: List<Preview>, otherItemCount: Int, imageLoader: ImageLoader) {
+        previewAdapter.reset(0, imageLoader)
+        batchLoader?.cancel()
+        batchLoader = BatchPreviewLoader(
+            previewAdapter,
+            imageLoader,
+            previews,
+            otherItemCount,
+        ).apply {
+            if (isMeasured) {
+                loadAspectRatios(getMaxWidth(), this@ScrollableImagePreviewView::calcPreviewWidth)
+            }
+        }
+    }
 
-    class Preview(val type: PreviewType, val uri: Uri)
+    private fun getMaxWidth(): Int =
+        when {
+            maxWidthHint > 0 -> maxWidthHint
+            isLaidOut -> width
+            else -> measuredWidth
+        }
+
+    private fun calcPreviewWidth(bitmap: Bitmap): Int {
+        val effectiveHeight = if (isLaidOut) height else measuredHeight
+        return if (bitmap.width <= 0 || bitmap.height <= 0) {
+            effectiveHeight
+        } else {
+            val ar = (bitmap.width.toFloat() / bitmap.height.toFloat())
+                    .coerceIn(MIN_ASPECT_RATIO, MAX_ASPECT_RATIO)
+            (effectiveHeight * ar).roundToInt()
+        }
+    }
+
+    class Preview internal constructor(
+        val type: PreviewType,
+        val uri: Uri,
+        internal var aspectRatioString: String
+    ) {
+        constructor(type: PreviewType, uri: Uri) : this(type, uri, "1:1")
+
+        internal var bitmap: Bitmap? = null
+
+        internal fun updateAspectRatio(width: Int, height: Int) {
+            if (width <= 0 || height <= 0) return
+            val aspectRatio = width.toFloat() / height.toFloat()
+            aspectRatioString = when {
+                aspectRatio <= MIN_ASPECT_RATIO -> MIN_ASPECT_RATIO_STRING
+                aspectRatio >= MAX_ASPECT_RATIO -> MAX_ASPECT_RATIO_STRING
+                else -> "$width:$height"
+            }
+        }
+    }
+
     enum class PreviewType {
         Image, Video, File
     }
 
-    private class Adapter(private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
+    private class Adapter(
+        private val context: Context
+    ) : RecyclerView.Adapter<ViewHolder>() {
         private val previews = ArrayList<Preview>()
         private var imageLoader: ImageLoader? = null
         private var firstImagePos = -1
-        var transitionStatusElementCallback: TransitionElementStatusCallback? = null
-        private var otherItemCount = 0
+        private var totalItemCount: Int = 0
 
-        fun setPreviews(
-            previews: List<Preview>, otherItemCount: Int, imageLoader: ImageLoader
-        ) {
-            this.previews.clear()
-            this.previews.addAll(previews)
+        private val hasOtherItem get() = previews.size < totalItemCount
+
+        var transitionStatusElementCallback: TransitionElementStatusCallback? = null
+
+        fun reset(totalItemCount: Int, imageLoader: ImageLoader) {
             this.imageLoader = imageLoader
-            firstImagePos = previews.indexOfFirst { it.type == PreviewType.Image }
-            this.otherItemCount = maxOf(0, otherItemCount)
+            firstImagePos = -1
+            previews.clear()
+            this.totalItemCount = maxOf(0, totalItemCount)
             notifyDataSetChanged()
+        }
+
+        fun addPreviews(newPreviews: Collection<Preview>) {
+            if (newPreviews.isEmpty()) return
+            val insertPos = previews.size
+            val hadOtherItem = hasOtherItem
+            previews.addAll(newPreviews)
+            if (firstImagePos < 0) {
+                val pos = newPreviews.indexOfFirst { it.type == PreviewType.Image }
+                if (pos >= 0) firstImagePos = insertPos + pos
+            }
+            notifyItemRangeInserted(insertPos, newPreviews.size)
+            when {
+                hadOtherItem && previews.size >= totalItemCount -> {
+                    notifyItemRemoved(previews.size)
+                }
+                !hadOtherItem && previews.size < totalItemCount -> {
+                    notifyItemInserted(previews.size)
+                }
+            }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, itemType: Int): ViewHolder {
@@ -104,7 +227,7 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
             }
         }
 
-        override fun getItemCount(): Int = previews.size + otherItemCount.sign
+        override fun getItemCount(): Int = previews.size + if (hasOtherItem) 1 else 0
 
         override fun getItemViewType(position: Int): Int {
             return if (position == previews.size) {
@@ -116,7 +239,7 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
 
         override fun onBindViewHolder(vh: ViewHolder, position: Int) {
             when (vh) {
-                is OtherItemViewHolder -> vh.bind(otherItemCount)
+                is OtherItemViewHolder -> vh.bind(totalItemCount - previews.size)
                 is PreviewViewHolder -> vh.bind(
                     previews[position],
                     imageLoader ?: error("ImageLoader is missing"),
@@ -163,6 +286,9 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
             previewReadyCallback: ((String) -> Unit)?
         ) {
             image.setImageDrawable(null)
+            (image.layoutParams as? ConstraintLayout.LayoutParams)?.let { params ->
+                params.dimensionRatio = preview.aspectRatioString
+            }
             image.transitionName = if (previewReadyCallback != null) {
                 TRANSITION_NAME
             } else {
@@ -180,7 +306,7 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
                 }
             }
             resetScope().launch {
-                loadImage(preview.uri, imageLoader)
+                loadImage(preview, imageLoader)
                 if (preview.type == PreviewType.Image) {
                     previewReadyCallback?.let { callback ->
                         image.waitForPreDraw()
@@ -190,11 +316,11 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
             }
         }
 
-        private suspend fun loadImage(uri: Uri, imageLoader: ImageLoader) {
-            val bitmap = runCatching {
+        private suspend fun loadImage(preview: Preview, imageLoader: ImageLoader) {
+            val bitmap = preview.bitmap ?: runCatching {
                 // it's expected for all loading/caching optimizations to be implemented by the
                 // loader
-                imageLoader(uri)
+                imageLoader(preview.uri)
             }.getOrNull()
             image.setImageBitmap(bitmap)
         }
@@ -225,9 +351,92 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         override fun unbind() = Unit
     }
 
-    private class SpacingDecoration(private val margin: Int) : ItemDecoration() {
+    private class SpacingDecoration(
+        private val innerSpacing: Int,
+        private val outerSpacing: Int
+    ) : ItemDecoration() {
         override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: State) {
-            outRect.set(margin, 0, margin, 0)
+            val itemCount = parent.adapter?.itemCount ?: return
+            val pos = parent.getChildAdapterPosition(view)
+            var leftMargin = if (pos == 0) outerSpacing else innerSpacing
+            var rightMargin = if (pos == itemCount - 1) outerSpacing else 0
+            outRect.set(leftMargin, 0, rightMargin, 0)
+        }
+    }
+
+    private class BatchPreviewLoader(
+        private val adapter: Adapter,
+        private val imageLoader: ImageLoader,
+        previews: List<Preview>,
+        otherItemCount: Int,
+    ) {
+        private val pendingPreviews = ArrayDeque<Preview>(previews)
+        private val totalItemCount = previews.size + otherItemCount
+        private var scope: CoroutineScope? = MainScope() + Dispatchers.Main.immediate
+
+        fun cancel() {
+            scope?.cancel()
+            scope = null
+        }
+
+        fun loadAspectRatios(maxWidth: Int, previewWidthCalculator: (Bitmap) -> Int) {
+            val scope = this.scope ?: return
+            val updates = ArrayDeque<Preview>(pendingPreviews.size)
+            // replay 2 items to guarantee that we'd get at least one update
+            val reportFlow = MutableSharedFlow<Any>(replay = 2)
+            var isFirstUpdate = true
+            val updateEvent = Any()
+            val completedEvent = Any()
+            // throttle adapter updates by waiting on the channel, the channel first notified
+            // when enough preview elements is loaded and then periodically with a delay
+            scope.launch(Dispatchers.Main) {
+                reportFlow
+                    .takeWhile { it !== completedEvent }
+                    .throttle(ADAPTER_UPDATE_INTERVAL_MS)
+                    .collect {
+                        if (isFirstUpdate) {
+                            isFirstUpdate = false
+                            adapter.reset(totalItemCount, imageLoader)
+                        }
+                        if (updates.isNotEmpty()) {
+                            adapter.addPreviews(updates)
+                            updates.clear()
+                        }
+                    }
+            }
+
+            scope.launch {
+                var loadedPreviewWidth = 0
+                List<Job>(4) {
+                    launch {
+                        while (pendingPreviews.isNotEmpty()) {
+                            val preview = pendingPreviews.poll() ?: continue
+                            val bitmap = runCatching {
+                                // TODO: decide on adding a timeout
+                                imageLoader(preview.uri)
+                            }.getOrNull() ?: continue
+                            preview.updateAspectRatio(bitmap.width, bitmap.height)
+                            updates.add(preview)
+                            if (loadedPreviewWidth < maxWidth) {
+                                loadedPreviewWidth += previewWidthCalculator(bitmap)
+                                // cache bitmaps for the first preview items to aovid potential
+                                // double-loading (in case those values are evicted from the image
+                                // loader's cache)
+                                preview.bitmap = bitmap
+                                if (loadedPreviewWidth >= maxWidth) {
+                                    // notify that the preview now can be displayed
+                                    reportFlow.emit(updateEvent)
+                                }
+                            } else {
+                                reportFlow.emit(updateEvent)
+                            }
+                        }
+                    }
+                }.joinAll()
+                // in case all previews have failed to load
+                reportFlow.emit(updateEvent)
+                reportFlow.emit(completedEvent)
+            }
         }
     }
 }
