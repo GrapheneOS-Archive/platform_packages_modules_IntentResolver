@@ -16,17 +16,46 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for app_label (325107764352168045) -->
-    <skip />
+    <string name="whichApplication" msgid="2309561338625872614">"இதைப் பயன்படுத்தி செயலை நிறைவுசெய்"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"<xliff:g id="APP">%1$s</xliff:g> ஆப்ஸைப் பயன்படுத்தி செயலை நிறைவுசெய்யுங்கள்"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"செயலை முடி"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"இதன்மூலம் திற"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"<xliff:g id="APP">%1$s</xliff:g> ஆப்ஸ் மூலம் திறங்கள்"</string>
     <string name="whichViewApplicationLabel" msgid="9123647023323311663">"திற"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"<xliff:g id="HOST">%1$s</xliff:g> இணைப்புகளை இதன் மூலம் திற:"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"இணைப்புகளை இதன் மூலம் திற:"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"இணைப்புகளை <xliff:g id="APPLICATION">%1$s</xliff:g> ஆப்ஸில் திறத்தல்"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"<xliff:g id="HOST">%1$s</xliff:g> இணைப்புகளை <xliff:g id="APPLICATION">%2$s</xliff:g> ஆப்ஸில் திறத்தல்"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"அணுகல் வழங்கு"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"இதன் மூலம் திருத்து"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"<xliff:g id="APP">%1$s</xliff:g> ஆப்ஸ் மூலம் மாற்றுங்கள்"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"மாற்று"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"பகிர்"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"<xliff:g id="APP">%1$s</xliff:g> ஆப்ஸ் மூலம் பகிருங்கள்"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"பகிர்"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"இதைப் பயன்படுத்தி அனுப்பு:"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"<xliff:g id="APP">%1$s</xliff:g> ஆப்ஸைப் பயன்படுத்தி அனுப்புங்கள்"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"அனுப்பு"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"முகப்புப் பயன்பாட்டைத் தேர்வுசெய்க"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"<xliff:g id="APP">%1$s</xliff:g> ஆப்ஸை முகப்பாகப் பயன்படுத்துங்கள்"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"படமெடு"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"இதன் மூலம் படமெடு:"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"<xliff:g id="APP">%1$s</xliff:g> ஆப்ஸ் மூலம் படமெடுங்கள்"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"படமெடு"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"வேறு ஆப்ஸைப் பயன்படுத்தவும்"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"ஒரு செயலைத் தேர்ந்தெடுங்கள்"</string>
     <string name="noApplications" msgid="1139487441772284671">"இந்தச் செயலைச் செய்ய ஆப்ஸ் எதுவுமில்லை."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"இந்தப் பயன்பாட்டைப் பணிக் கணக்கிற்கு வெளியே பயன்படுத்துகிறீர்கள்"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"பணிக் கணக்கில் பயன்பாட்டைப் பயன்படுத்துகிறீர்கள்"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"எப்போதும்"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"இப்போது மட்டும்"</string>
-    <!-- no translation found for pin_specific_target (5057063421361441406) -->
-    <skip />
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> ஆப்ஸில் பணிக் கணக்கைப் பயன்படுத்த முடியாது"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g> ஆப்ஸைப் பின் செய்"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> ஐப் பின் நீக்கு"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"திருத்து"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # ஃபைல்}other{{file_name} + # ஃபைல்கள்}}"</string>
+    <!-- no translation found for other_files (4501185823517473875) -->
+    <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"பகிர்வதற்கு எவரும் பரிந்துரைக்கப்படவில்லை"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"ஆப்ஸ் பட்டியல்"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"இந்த ஆப்ஸிற்கு ரெக்கார்டு செய்வதற்கான அனுமதி வழங்கப்படவில்லை, எனினும் இந்த USB சாதனம் மூலம் ஆடியோவைப் பதிவுசெய்ய முடியும்."</string>
@@ -47,18 +76,8 @@
     <string name="miniresolver_open_in_work" msgid="4271638122142624693">"உங்கள் பணிக் கணக்கில் <xliff:g id="APP">%s</xliff:g> ஆப்ஸைத் திறக்கவா?"</string>
     <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"தனிப்பட்ட உலாவியைப் பயன்படுத்து"</string>
     <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"பணி உலாவியைப் பயன்படுத்து"</string>
-    <!-- no translation found for select_files (717427764544068086) -->
-    <skip />
-    <!-- no translation found for select_images (5564089845412362804) -->
-    <skip />
-    <!-- no translation found for select_text (7253549490440625849) -->
-    <skip />
-    <!-- no translation found for exclude_text (5508128757025928034) -->
-    <skip />
-    <!-- no translation found for include_text (642280283268536140) -->
-    <skip />
-    <!-- no translation found for exclude_link (1332778255031992228) -->
-    <skip />
-    <!-- no translation found for include_link (827855767220339802) -->
-    <skip />
+    <string name="exclude_text" msgid="5508128757025928034">"வார்த்தைகளைத் தவிர்"</string>
+    <string name="include_text" msgid="642280283268536140">"வார்த்தைகளைச் சேர்"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"இணைப்பைத் தவிர்"</string>
+    <string name="include_link" msgid="827855767220339802">"இணைப்பைச் சேர்"</string>
 </resources>
