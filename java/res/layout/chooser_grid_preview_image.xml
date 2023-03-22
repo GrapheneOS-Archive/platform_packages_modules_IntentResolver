@@ -24,13 +24,7 @@
     android:orientation="vertical"
     android:background="?android:attr/colorBackground">
 
-  <CheckBox
-      android:id="@+id/include_text_action"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="end"
-      android:layout_marginEnd="@dimen/chooser_edge_margin_normal"
-      android:visibility="gone" />
+    <include layout="@layout/chooser_headline_row" />
 
   <LinearLayout
       android:layout_width="match_parent"
@@ -58,14 +52,6 @@
           android:visibility="gone"
           android:textAppearance="@style/TextAppearance.ChooserDefault" />
   </LinearLayout>
-
-  <TextView
-      android:id="@+id/reselection_action"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:visibility="gone"
-      android:gravity="center"
-      style="@style/ReselectionAction" />
 
   <ViewStub
       android:id="@+id/action_row_stub"

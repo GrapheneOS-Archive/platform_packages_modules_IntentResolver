@@ -84,6 +84,7 @@ import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi;
+import com.android.intentresolver.contentpreview.HeadlineGeneratorImpl;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.flags.FeatureFlagRepositoryFactory;
 import com.android.intentresolver.flags.Flags;
@@ -291,7 +292,8 @@ public class ChooserActivity extends ResolverActivity implements
                 createPreviewImageLoader(),
                 createChooserActionFactory(),
                 mEnterTransitionAnimationDelegate,
-                mFeatureFlagRepository);
+                mFeatureFlagRepository,
+                new HeadlineGeneratorImpl(this));
 
         setAdditionalTargets(mChooserRequest.getAdditionalTargets());
 

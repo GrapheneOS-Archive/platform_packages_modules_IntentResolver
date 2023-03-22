@@ -54,6 +54,7 @@ class ImageContentPreviewUi extends ContentPreviewUi {
     private final ImageLoader mImageLoader;
     private final TransitionElementStatusCallback mTransitionElementStatusCallback;
     private final FeatureFlagRepository mFeatureFlagRepository;
+    private final HeadlineGenerator mHeadlineGenerator;
 
     ImageContentPreviewUi(
             List<Uri> imageUris,
@@ -61,13 +62,15 @@ class ImageContentPreviewUi extends ContentPreviewUi {
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
             TransitionElementStatusCallback transitionElementStatusCallback,
-            FeatureFlagRepository featureFlagRepository) {
+            FeatureFlagRepository featureFlagRepository,
+            HeadlineGenerator headlineGenerator) {
         mImageUris = imageUris;
         mText = text;
         mActionFactory = actionFactory;
         mImageLoader = imageLoader;
         mTransitionElementStatusCallback = transitionElementStatusCallback;
         mFeatureFlagRepository = featureFlagRepository;
+        mHeadlineGenerator = headlineGenerator;
 
         mImageLoader.prePopulate(mImageUris);
     }
@@ -80,7 +83,7 @@ class ImageContentPreviewUi extends ContentPreviewUi {
     @Override
     public ViewGroup display(Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
         ViewGroup layout = displayInternal(layoutInflater, parent);
-        displayPayloadReselectionAction(layout, mActionFactory, mFeatureFlagRepository);
+        displayModifyShareAction(layout, mActionFactory, mFeatureFlagRepository);
         return layout;
     }
 
@@ -113,6 +116,8 @@ class ImageContentPreviewUi extends ContentPreviewUi {
         imagePreview.setTransitionElementStatusCallback(mTransitionElementStatusCallback);
         imagePreview.setImages(mImageUris, mImageLoader);
 
+        updateHeadline(contentPreviewLayout);
+
         return contentPreviewLayout;
     }
 
@@ -138,6 +143,17 @@ class ImageContentPreviewUi extends ContentPreviewUi {
         }
         return previewLayout.findViewById(
                 com.android.internal.R.id.content_preview_image_area);
+    }
+
+    private void updateHeadline(ViewGroup contentPreview) {
+        CheckBox includeTextCheckbox = contentPreview.requireViewById(R.id.include_text_action);
+        if (includeTextCheckbox.getVisibility() == View.VISIBLE
+                && includeTextCheckbox.isChecked()) {
+            displayHeadline(contentPreview, mHeadlineGenerator.getImageWithTextHeadline(mText));
+        } else {
+            displayHeadline(
+                    contentPreview, mHeadlineGenerator.getImagesHeadline(mImageUris.size()));
+        }
     }
 
     private void setTextInImagePreviewVisibility(
@@ -169,6 +185,7 @@ class ImageContentPreviewUi extends ContentPreviewUi {
                 TransitionManager.beginDelayedTransition((ViewGroup) textView.getParent());
                 textView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
                 shareTextAction.accept(!isChecked);
+                updateHeadline(contentPreview);
             });
         }
         actionView.setVisibility(visibility);
