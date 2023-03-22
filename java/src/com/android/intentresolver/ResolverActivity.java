@@ -33,6 +33,8 @@ import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_S
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_WORK;
 import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
 
+import static com.android.internal.annotations.VisibleForTesting.Visibility.PROTECTED;
+
 import android.annotation.Nullable;
 import android.annotation.StringRes;
 import android.annotation.UiThread;
@@ -106,6 +108,7 @@ import com.android.intentresolver.AbstractMultiProfilePagerAdapter.Profile;
 import com.android.intentresolver.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.content.PackageMonitor;
@@ -375,8 +378,11 @@ public class ResolverActivity extends FragmentActivity implements
         // turn this off when running under voice interaction, since it results in
         // a more complicated UI that the current voice interaction flow is not able
         // to handle. We also turn it off when the work tab is shown to simplify the UX.
+        // We also turn it off when clonedProfile is present on the device, because we might have
+        // different "last chosen" activities in the different profiles, and PackageManager doesn't
+        // provide any more information to help us select between them.
         boolean filterLastUsed = mSupportsAlwaysUseOption && !isVoiceInteraction()
-                && !shouldShowTabs();
+                && !shouldShowTabs() && !hasCloneProfile();
         mMultiProfilePagerAdapter = createMultiProfilePagerAdapter(initialIntents, rList, filterLastUsed);
         if (configureContentView()) {
             return;
@@ -480,7 +486,7 @@ public class ResolverActivity extends FragmentActivity implements
 
         return new NoCrossProfileEmptyStateProvider(getPersonalProfileUserHandle(),
                 noWorkToPersonalEmptyState, noPersonalToWorkEmptyState,
-                createCrossProfileIntentsChecker(), createMyUserIdProvider());
+                createCrossProfileIntentsChecker(), getTabOwnerUserHandleForLaunch());
     }
 
     protected int appliedThemeResId() {
@@ -857,13 +863,23 @@ public class ResolverActivity extends FragmentActivity implements
     // the future if resolver *were* to make any (non-overridden) calls to a version that used a
     // different signature (and thus didn't return the subclass type).
     @VisibleForTesting
-    protected ResolverListController createListController(UserHandle unused) {
+    protected ResolverListController createListController(UserHandle userHandle) {
+        ResolverRankerServiceResolverComparator resolverComparator =
+                new ResolverRankerServiceResolverComparator(
+                        this,
+                        getTargetIntent(),
+                        getReferrerPackageName(),
+                        null,
+                        null,
+                        getResolverRankerServiceUserHandleList(userHandle));
         return new ResolverListController(
                 this,
                 mPm,
                 getTargetIntent(),
                 getReferrerPackageName(),
-                getAnnotatedUserHandles().userIdOfCallingApp);
+                getAnnotatedUserHandles().userIdOfCallingApp,
+                resolverComparator,
+                getQueryIntentsUser(userHandle));
     }
 
     /**
@@ -1003,27 +1019,6 @@ public class ResolverActivity extends FragmentActivity implements
                 });
     }
 
-    // TODO: have tests override `getAnnotatedUserHandles()`, and make this method `final`.
-    // @NonFinalForTesting
-    @Nullable
-    protected UserHandle getWorkProfileUserHandle() {
-        return getAnnotatedUserHandles().workProfileUserHandle;
-    }
-
-    // @NonFinalForTesting
-    @VisibleForTesting
-    public void safelyStartActivity(TargetInfo cti) {
-        // We're dispatching intents that might be coming from legacy apps, so
-        // don't kill ourselves.
-        StrictMode.disableDeathOnFileUriExposure();
-        try {
-            UserHandle currentUserHandle = mMultiProfilePagerAdapter.getCurrentUserHandle();
-            safelyStartActivityInternal(cti, currentUserHandle, null);
-        } finally {
-            StrictMode.enableDeathOnFileUriExposure();
-        }
-    }
-
     // @NonFinalForTesting
     @VisibleForTesting
     protected ResolverListAdapter createResolverListAdapter(Context context,
@@ -1032,6 +1027,9 @@ public class ResolverActivity extends FragmentActivity implements
         Intent startIntent = getIntent();
         boolean isAudioCaptureDevice =
                 startIntent.getBooleanExtra(EXTRA_IS_AUDIO_CAPTURE_DEVICE, false);
+        UserHandle initialIntentsUserSpace = isLaunchedAsCloneProfile()
+                && userHandle.equals(getPersonalProfileUserHandle())
+                ? getCloneProfileUserHandle() : userHandle;
         return new ResolverListAdapter(
                 context,
                 payloadIntents,
@@ -1042,7 +1040,8 @@ public class ResolverActivity extends FragmentActivity implements
                 userHandle,
                 getTargetIntent(),
                 this,
-                isAudioCaptureDevice);
+                isAudioCaptureDevice,
+                initialIntentsUserSpace);
     }
 
     private LatencyTracker getLatencyTracker() {
@@ -1081,7 +1080,7 @@ public class ResolverActivity extends FragmentActivity implements
                 workProfileUserHandle,
                 getPersonalProfileUserHandle(),
                 getMetricsCategory(),
-                createMyUserIdProvider()
+                getTabOwnerUserHandleForLaunch()
         );
 
         // Return composite provider, the order matters (the higher, the more priority)
@@ -1124,19 +1123,20 @@ public class ResolverActivity extends FragmentActivity implements
                 initialIntents,
                 rList,
                 filterLastUsed,
-                /* userHandle */ UserHandle.of(UserHandle.myUserId()));
+                /* userHandle */ getPersonalProfileUserHandle());
         return new ResolverMultiProfilePagerAdapter(
                 /* context */ this,
                 adapter,
                 createEmptyStateProvider(/* workProfileUserHandle= */ null),
                 /* workProfileQuietModeChecker= */ () -> false,
-                /* workProfileUserHandle= */ null);
+                /* workProfileUserHandle= */ null,
+                getCloneProfileUserHandle());
     }
 
     private UserHandle getIntentUser() {
         return getIntent().hasExtra(EXTRA_CALLING_USER)
                 ? getIntent().getParcelableExtra(EXTRA_CALLING_USER)
-                : getUser();
+                : getTabOwnerUserHandleForLaunch();
     }
 
     private ResolverMultiProfilePagerAdapter createResolverMultiProfilePagerAdapterForTwoProfiles(
@@ -1148,7 +1148,7 @@ public class ResolverActivity extends FragmentActivity implements
         // this happens, we check for it here and set the current profile's tab.
         int selectedProfile = getCurrentProfile();
         UserHandle intentUser = getIntentUser();
-        if (!getUser().equals(intentUser)) {
+        if (!getTabOwnerUserHandleForLaunch().equals(intentUser)) {
             if (getPersonalProfileUserHandle().equals(intentUser)) {
                 selectedProfile = PROFILE_PERSONAL;
             } else if (getWorkProfileUserHandle().equals(intentUser)) {
@@ -1187,7 +1187,8 @@ public class ResolverActivity extends FragmentActivity implements
                 createEmptyStateProvider(getWorkProfileUserHandle()),
                 () -> mWorkProfileAvailability.isQuietModeEnabled(),
                 selectedProfile,
-                getWorkProfileUserHandle());
+                getWorkProfileUserHandle(),
+                getCloneProfileUserHandle());
     }
 
     /**
@@ -1210,7 +1211,8 @@ public class ResolverActivity extends FragmentActivity implements
     }
 
     protected final @Profile int getCurrentProfile() {
-        return (UserHandle.myUserId() == UserHandle.USER_SYSTEM ? PROFILE_PERSONAL : PROFILE_WORK);
+        return (getTabOwnerUserHandleForLaunch().equals(getPersonalProfileUserHandle())
+                ? PROFILE_PERSONAL : PROFILE_WORK);
     }
 
     protected final AnnotatedUserHandles getAnnotatedUserHandles() {
@@ -1221,9 +1223,42 @@ public class ResolverActivity extends FragmentActivity implements
         return getAnnotatedUserHandles().personalProfileUserHandle;
     }
 
+    // TODO: have tests override `getAnnotatedUserHandles()`, and make this method `final`.
+    // @NonFinalForTesting
+    @Nullable
+    protected UserHandle getWorkProfileUserHandle() {
+        return getAnnotatedUserHandles().workProfileUserHandle;
+    }
+
+    // TODO: have tests override `getAnnotatedUserHandles()`, and make this method `final`.
+    @Nullable
+    protected UserHandle getCloneProfileUserHandle() {
+        return getAnnotatedUserHandles().cloneProfileUserHandle;
+    }
+
+    // TODO: have tests override `getAnnotatedUserHandles()`, and make this method `final`.
+    protected UserHandle getTabOwnerUserHandleForLaunch() {
+        return getAnnotatedUserHandles().tabOwnerUserHandleForLaunch;
+    }
+
+    protected UserHandle getUserHandleSharesheetLaunchedAs() {
+        return getAnnotatedUserHandles().userHandleSharesheetLaunchedAs;
+    }
+
+
     private boolean hasWorkProfile() {
         return getWorkProfileUserHandle() != null;
     }
+
+    private boolean hasCloneProfile() {
+        return getCloneProfileUserHandle() != null;
+    }
+
+    protected final boolean isLaunchedAsCloneProfile() {
+        return hasCloneProfile()
+                && getUserHandleSharesheetLaunchedAs().equals(getCloneProfileUserHandle());
+    }
+
 
     protected final boolean shouldShowTabs() {
         return hasWorkProfile();
@@ -1498,6 +1533,13 @@ public class ResolverActivity extends FragmentActivity implements
             mAlwaysButton.setEnabled(false);
             return;
         }
+        // In case of clonedProfile being active, we do not allow the 'Always' option in the
+        // disambiguation dialog of Personal Profile as the package manager cannot distinguish
+        // between cross-profile preferred activities.
+        if (hasCloneProfile() && (mMultiProfilePagerAdapter.getCurrentPage() == PROFILE_PERSONAL)) {
+            mAlwaysButton.setEnabled(false);
+            return;
+        }
         boolean enabled = false;
         ResolveInfo ri = null;
         if (hasValidSelection) {
@@ -1572,6 +1614,16 @@ public class ResolverActivity extends FragmentActivity implements
         }
     }
 
+    /** Start the activity specified by the {@link TargetInfo}.*/
+    public final void safelyStartActivity(TargetInfo cti) {
+        // In case cloned apps are present, we would want to start those apps in cloned user
+        // space, which will not be same as adaptor's userHandle. resolveInfo.userHandle
+        // identifies the correct user space in such cases.
+        UserHandle activityUserHandle = getResolveInfoUserHandle(
+                cti.getResolveInfo(), mMultiProfilePagerAdapter.getCurrentUserHandle());
+        safelyStartActivityAsUser(cti, activityUserHandle, null);
+    }
+
     /**
      * Start activity as a fixed user handle.
      * @param cti TargetInfo to be launched.
@@ -1594,7 +1646,8 @@ public class ResolverActivity extends FragmentActivity implements
         }
     }
 
-    private void safelyStartActivityInternal(
+    @VisibleForTesting
+    protected void safelyStartActivityInternal(
             TargetInfo cti, UserHandle user, @Nullable Bundle options) {
         // If the target is suspended, the activity will not be successfully launched.
         // Do not unregister from package manager updates in this case
@@ -2172,16 +2225,10 @@ public class ResolverActivity extends FragmentActivity implements
     public final boolean useLayoutWithDefault() {
         // We only use the default app layout when the profile of the active user has a
         // filtered item. We always show the same default app even in the inactive user profile.
-        boolean currentUserAdapterHasFilteredItem;
-        if (mMultiProfilePagerAdapter.getCurrentUserHandle().getIdentifier()
-                == UserHandle.myUserId()) {
-            currentUserAdapterHasFilteredItem =
-                    mMultiProfilePagerAdapter.getActiveListAdapter().hasFilteredItem();
-        } else {
-            currentUserAdapterHasFilteredItem =
-                    mMultiProfilePagerAdapter.getInactiveListAdapter().hasFilteredItem();
-        }
-        return mSupportsAlwaysUseOption && currentUserAdapterHasFilteredItem;
+        boolean adapterForCurrentUserHasFilteredItem =
+                mMultiProfilePagerAdapter.getListAdapterForUserHandle(
+                        getTabOwnerUserHandleForLaunch()).hasFilteredItem();
+        return mSupportsAlwaysUseOption && adapterForCurrentUserHasFilteredItem;
     }
 
     /**
@@ -2200,7 +2247,14 @@ public class ResolverActivity extends FragmentActivity implements
         return lhs == null ? rhs == null
                 : lhs.activityInfo == null ? rhs.activityInfo == null
                 : Objects.equals(lhs.activityInfo.name, rhs.activityInfo.name)
-                && Objects.equals(lhs.activityInfo.packageName, rhs.activityInfo.packageName);
+                && Objects.equals(lhs.activityInfo.packageName, rhs.activityInfo.packageName)
+                        // Comparing against resolveInfo.userHandle in case cloned apps are present,
+                        // as they will have the same activityInfo.
+                && Objects.equals(
+                        getResolveInfoUserHandle(lhs,
+                                mMultiProfilePagerAdapter.getActiveListAdapter().getUserHandle()),
+                        getResolveInfoUserHandle(rhs,
+                                mMultiProfilePagerAdapter.getActiveListAdapter().getUserHandle()));
     }
 
     private boolean inactiveListAdapterHasItems() {
@@ -2306,5 +2360,45 @@ public class ResolverActivity extends FragmentActivity implements
                 }
             }
         }
+    }
+    /**
+     * Returns the {@link UserHandle} to use when querying resolutions for intents in a
+     * {@link ResolverListController} configured for the provided {@code userHandle}.
+     */
+    protected final UserHandle getQueryIntentsUser(UserHandle userHandle) {
+        return mLazyAnnotatedUserHandles.get().getQueryIntentsUser(userHandle);
+    }
+
+    /**
+     * Returns the {@link List} of {@link UserHandle} to pass on to the
+     * {@link ResolverRankerServiceResolverComparator} as per the provided {@code userHandle}.
+     */
+    @VisibleForTesting(visibility = PROTECTED)
+    public final List<UserHandle> getResolverRankerServiceUserHandleList(UserHandle userHandle) {
+        return getResolverRankerServiceUserHandleListInternal(userHandle);
+    }
+
+    @VisibleForTesting
+    protected List<UserHandle> getResolverRankerServiceUserHandleListInternal(
+            UserHandle userHandle) {
+        List<UserHandle> userList = new ArrayList<>();
+        userList.add(userHandle);
+        // Add clonedProfileUserHandle to the list only if we are:
+        // a. Building the Personal Tab.
+        // b. CloneProfile exists on the device.
+        if (userHandle.equals(getPersonalProfileUserHandle())
+                && getCloneProfileUserHandle() != null) {
+            userList.add(getCloneProfileUserHandle());
+        }
+        return userList;
+    }
+
+    /**
+     * This function is temporary in nature, and its usages will be replaced with just
+     * resolveInfo.userHandle, once it is available, once sharesheet is stable.
+     */
+    public static UserHandle getResolveInfoUserHandle(ResolveInfo resolveInfo,
+            UserHandle predictedHandle) {
+        return resolveInfo.userHandle;
     }
 }
