@@ -56,6 +56,8 @@ import androidx.test.runner.AndroidJUnit4;
 
 import com.android.intentresolver.widget.ResolverDrawerLayout;
 
+import com.google.android.collect.Lists;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -71,6 +73,9 @@ import java.util.List;
  */
 @RunWith(AndroidJUnit4.class)
 public class ResolverActivityTest {
+
+    private static final UserHandle PERSONAL_USER_HANDLE = androidx.test.platform.app
+            .InstrumentationRegistry.getInstrumentation().getTargetContext().getUser();
     protected Intent getConcreteIntentForLaunch(Intent clientIntent) {
         clientIntent.setClass(
                 androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext(),
@@ -97,7 +102,8 @@ public class ResolverActivityTest {
     @Test
     public void twoOptionsAndUserSelectsOne() throws InterruptedException {
         Intent sendIntent = createSendImageIntent();
-        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2,
+                PERSONAL_USER_HANDLE);
 
         setupResolverControllers(resolvedComponentInfos);
 
@@ -108,8 +114,8 @@ public class ResolverActivityTest {
         assertThat(activity.getAdapter().getCount(), is(2));
 
         ResolveInfo[] chosen = new ResolveInfo[1];
-        sOverrides.onSafelyStartCallback = targetInfo -> {
-            chosen[0] = targetInfo.getResolveInfo();
+        sOverrides.onSafelyStartInternalCallback = result -> {
+            chosen[0] = result.first.getResolveInfo();
             return true;
         };
 
@@ -126,7 +132,8 @@ public class ResolverActivityTest {
     @Test
     public void setMaxHeight() throws Exception {
         Intent sendIntent = createSendImageIntent();
-        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2,
+                PERSONAL_USER_HANDLE);
 
         setupResolverControllers(resolvedComponentInfos);
         waitForIdle();
@@ -168,7 +175,8 @@ public class ResolverActivityTest {
     @Test
     public void setShowAtTopToTrue() throws Exception {
         Intent sendIntent = createSendImageIntent();
-        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2,
+                PERSONAL_USER_HANDLE);
 
         setupResolverControllers(resolvedComponentInfos);
         waitForIdle();
@@ -198,7 +206,8 @@ public class ResolverActivityTest {
     @Test
     public void hasLastChosenActivity() throws Exception {
         Intent sendIntent = createSendImageIntent();
-        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2,
+                PERSONAL_USER_HANDLE);
         ResolveInfo toChoose = resolvedComponentInfos.get(0).getResolveInfoAt(0);
 
         setupResolverControllers(resolvedComponentInfos);
@@ -213,8 +222,8 @@ public class ResolverActivityTest {
         assertThat(activity.getAdapter().getPlaceholderCount(), is(1));
 
         ResolveInfo[] chosen = new ResolveInfo[1];
-        sOverrides.onSafelyStartCallback = targetInfo -> {
-            chosen[0] = targetInfo.getResolveInfo();
+        sOverrides.onSafelyStartInternalCallback = result -> {
+            chosen[0] = result.first.getResolveInfo();
             return true;
         };
 
@@ -226,10 +235,12 @@ public class ResolverActivityTest {
     @Test
     public void hasOtherProfileOneOption() throws Exception {
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(2, /* userId */ 10);
-        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4);
-        setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
+                createResolvedComponentsForTestWithOtherProfile(2, /* userId */ 10,
+                        PERSONAL_USER_HANDLE);
         markWorkProfileUserAvailable();
+        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
+                sOverrides.workProfileUserHandle);
+        setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
 
         ResolveInfo toChoose = personalResolvedComponentInfos.get(1).getResolveInfoAt(0);
         Intent sendIntent = createSendImageIntent();
@@ -241,13 +252,14 @@ public class ResolverActivityTest {
         assertThat(activity.getAdapter().getCount(), is(1));
 
         ResolveInfo[] chosen = new ResolveInfo[1];
-        sOverrides.onSafelyStartCallback = targetInfo -> {
-            chosen[0] = targetInfo.getResolveInfo();
+        sOverrides.onSafelyStartInternalCallback = result -> {
+            chosen[0] = result.first.getResolveInfo();
             return true;
         };
         // Make a stable copy of the components as the original list may be modified
         List<ResolvedComponentInfo> stableCopy =
-                createResolvedComponentsForTestWithOtherProfile(2, /* userId= */ 10);
+                createResolvedComponentsForTestWithOtherProfile(2, /* userId= */ 10,
+                        PERSONAL_USER_HANDLE);
         // We pick the first one as there is another one in the work profile side
         onView(first(withText(stableCopy.get(1).getResolveInfoAt(0).activityInfo.name)))
                 .perform(click());
@@ -261,7 +273,7 @@ public class ResolverActivityTest {
     public void hasOtherProfileTwoOptionsAndUserSelectsOne() throws Exception {
         Intent sendIntent = createSendImageIntent();
         List<ResolvedComponentInfo> resolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(3);
+                createResolvedComponentsForTestWithOtherProfile(3, PERSONAL_USER_HANDLE);
         ResolveInfo toChoose = resolvedComponentInfos.get(1).getResolveInfoAt(0);
 
         setupResolverControllers(resolvedComponentInfos);
@@ -274,8 +286,8 @@ public class ResolverActivityTest {
         assertThat(activity.getAdapter().getCount(), is(2));
 
         ResolveInfo[] chosen = new ResolveInfo[1];
-        sOverrides.onSafelyStartCallback = targetInfo -> {
-            chosen[0] = targetInfo.getResolveInfo();
+        sOverrides.onSafelyStartInternalCallback = result -> {
+            chosen[0] = result.first.getResolveInfo();
             return true;
         };
 
@@ -284,7 +296,7 @@ public class ResolverActivityTest {
 
         // Make a stable copy of the components as the original list may be modified
         List<ResolvedComponentInfo> stableCopy =
-                createResolvedComponentsForTestWithOtherProfile(2);
+                createResolvedComponentsForTestWithOtherProfile(2, PERSONAL_USER_HANDLE);
 
         onView(withText(stableCopy.get(1).getResolveInfoAt(0).activityInfo.name))
                 .perform(click());
@@ -300,7 +312,7 @@ public class ResolverActivityTest {
         // chosen activity.
         Intent sendIntent = createSendImageIntent();
         List<ResolvedComponentInfo> resolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(3);
+                createResolvedComponentsForTestWithOtherProfile(3, PERSONAL_USER_HANDLE);
         ResolveInfo toChoose = resolvedComponentInfos.get(1).getResolveInfoAt(0);
 
         setupResolverControllers(resolvedComponentInfos);
@@ -315,8 +327,8 @@ public class ResolverActivityTest {
         assertThat(activity.getAdapter().getCount(), is(2));
 
         ResolveInfo[] chosen = new ResolveInfo[1];
-        sOverrides.onSafelyStartCallback = targetInfo -> {
-            chosen[0] = targetInfo.getResolveInfo();
+        sOverrides.onSafelyStartInternalCallback = result -> {
+            chosen[0] = result.first.getResolveInfo();
             return true;
         };
 
@@ -325,7 +337,7 @@ public class ResolverActivityTest {
 
         // Make a stable copy of the components as the original list may be modified
         List<ResolvedComponentInfo> stableCopy =
-                createResolvedComponentsForTestWithOtherProfile(2);
+                createResolvedComponentsForTestWithOtherProfile(2, PERSONAL_USER_HANDLE);
 
         onView(withText(stableCopy.get(1).getResolveInfoAt(0).activityInfo.name))
                 .perform(click());
@@ -358,12 +370,14 @@ public class ResolverActivityTest {
     @Test
     public void testWorkTab_workTabListPopulatedBeforeGoingToTab() throws InterruptedException {
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(3, /* userId = */ 10);
-        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4);
+                createResolvedComponentsForTestWithOtherProfile(3, /* userId = */ 10,
+                        PERSONAL_USER_HANDLE);
+        markWorkProfileUserAvailable();
+        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
+                sOverrides.workProfileUserHandle);
         setupResolverControllers(personalResolvedComponentInfos,
                 new ArrayList<>(workResolvedComponentInfos));
         Intent sendIntent = createSendImageIntent();
-        markWorkProfileUserAvailable();
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
         waitForIdle();
@@ -376,8 +390,11 @@ public class ResolverActivityTest {
     @Test
     public void testWorkTab_workTabUsesExpectedAdapter() {
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
-        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4);
+                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10,
+                        PERSONAL_USER_HANDLE);
+        markWorkProfileUserAvailable();
+        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
+                sOverrides.workProfileUserHandle);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         markWorkProfileUserAvailable();
@@ -393,11 +410,12 @@ public class ResolverActivityTest {
     @Test
     public void testWorkTab_personalTabUsesExpectedAdapter() {
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(3);
-        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4);
+                createResolvedComponentsForTestWithOtherProfile(3, PERSONAL_USER_HANDLE);
+        markWorkProfileUserAvailable();
+        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
+                sOverrides.workProfileUserHandle);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
-        markWorkProfileUserAvailable();
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
         waitForIdle();
@@ -411,8 +429,10 @@ public class ResolverActivityTest {
     public void testWorkTab_workProfileHasExpectedNumberOfTargets() throws InterruptedException {
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
-        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4);
+                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10,
+                        PERSONAL_USER_HANDLE);
+        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
+                sOverrides.workProfileUserHandle);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
 
@@ -429,13 +449,15 @@ public class ResolverActivityTest {
     public void testWorkTab_selectingWorkTabAppOpensAppInWorkProfile() throws InterruptedException {
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
-        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4);
+                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10,
+                        PERSONAL_USER_HANDLE);
+        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
+                sOverrides.workProfileUserHandle);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         ResolveInfo[] chosen = new ResolveInfo[1];
-        sOverrides.onSafelyStartCallback = targetInfo -> {
-            chosen[0] = targetInfo.getResolveInfo();
+        sOverrides.onSafelyStartInternalCallback = result -> {
+            chosen[0] = result.first.getResolveInfo();
             return true;
         };
 
@@ -459,8 +481,9 @@ public class ResolverActivityTest {
             throws InterruptedException {
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(1);
-        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4);
+                createResolvedComponentsForTestWithOtherProfile(1, PERSONAL_USER_HANDLE);
+        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
+                sOverrides.workProfileUserHandle);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
 
@@ -477,8 +500,9 @@ public class ResolverActivityTest {
     public void testWorkTab_headerIsVisibleInPersonalTab() {
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(1);
-        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4);
+                createResolvedComponentsForTestWithOtherProfile(1, PERSONAL_USER_HANDLE);
+        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
+                sOverrides.workProfileUserHandle);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createOpenWebsiteIntent();
 
@@ -494,8 +518,9 @@ public class ResolverActivityTest {
     public void testWorkTab_switchTabs_headerStaysSame() {
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(1);
-        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4);
+                createResolvedComponentsForTestWithOtherProfile(1, PERSONAL_USER_HANDLE);
+        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
+                sOverrides.workProfileUserHandle);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createOpenWebsiteIntent();
 
@@ -519,13 +544,15 @@ public class ResolverActivityTest {
             throws InterruptedException {
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(3, /* userId= */ 10);
-        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4);
+                createResolvedComponentsForTestWithOtherProfile(3, /* userId= */ 10,
+                        PERSONAL_USER_HANDLE);
+        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
+                sOverrides.workProfileUserHandle);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         ResolveInfo[] chosen = new ResolveInfo[1];
-        sOverrides.onSafelyStartCallback = targetInfo -> {
-            chosen[0] = targetInfo.getResolveInfo();
+        sOverrides.onSafelyStartInternalCallback = result -> {
+            chosen[0] = result.first.getResolveInfo();
             return true;
         };
 
@@ -551,9 +578,11 @@ public class ResolverActivityTest {
         markWorkProfileUserAvailable();
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
+                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10,
+                        PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(workProfileTargets);
+                createResolvedComponentsForTest(workProfileTargets,
+                        sOverrides.workProfileUserHandle);
         sOverrides.hasCrossProfileIntents = false;
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
@@ -575,9 +604,11 @@ public class ResolverActivityTest {
         markWorkProfileUserAvailable();
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
+                createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10,
+                        PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(workProfileTargets);
+                createResolvedComponentsForTest(workProfileTargets,
+                        sOverrides.workProfileUserHandle);
         sOverrides.isQuietModeEnabled = true;
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
@@ -598,9 +629,9 @@ public class ResolverActivityTest {
     public void testWorkTab_noWorkAppsAvailable_emptyStateShown() {
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTest(3);
+                createResolvedComponentsForTest(3, PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(0);
+                createResolvedComponentsForTest(0, sOverrides.workProfileUserHandle);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         sendIntent.setType("TestType");
@@ -620,9 +651,9 @@ public class ResolverActivityTest {
     public void testWorkTab_xProfileOff_noAppsAvailable_workOff_xProfileOffEmptyStateShown() {
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTest(3);
+                createResolvedComponentsForTest(3, PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(0);
+                createResolvedComponentsForTest(0, sOverrides.workProfileUserHandle);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         sendIntent.setType("TestType");
@@ -644,9 +675,9 @@ public class ResolverActivityTest {
     public void testMiniResolver() {
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTest(1);
+                createResolvedComponentsForTest(1, PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(1);
+                createResolvedComponentsForTest(1, sOverrides.workProfileUserHandle);
         // Personal profile only has a browser
         personalResolvedComponentInfos.get(0).getResolveInfoAt(0).handleAllWebDataURI = true;
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
@@ -662,9 +693,9 @@ public class ResolverActivityTest {
     public void testMiniResolver_noCurrentProfileTarget() {
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTest(0);
+                createResolvedComponentsForTest(0, PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(1);
+                createResolvedComponentsForTest(1, sOverrides.workProfileUserHandle);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         sendIntent.setType("TestType");
@@ -690,9 +721,9 @@ public class ResolverActivityTest {
     public void testWorkTab_noAppsAvailable_workOff_noAppsAvailableEmptyStateShown() {
         markWorkProfileUserAvailable();
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTest(3);
+                createResolvedComponentsForTest(3, PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(0);
+                createResolvedComponentsForTest(0, sOverrides.workProfileUserHandle);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         sendIntent.setType("TestType");
@@ -714,16 +745,18 @@ public class ResolverActivityTest {
         markWorkProfileUserAvailable();
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
-                createResolvedComponentsForTestWithOtherProfile(2, /* userId */ 10);
+                createResolvedComponentsForTestWithOtherProfile(2, /* userId */ 10,
+                        PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(workProfileTargets);
+                createResolvedComponentsForTest(workProfileTargets,
+                        sOverrides.workProfileUserHandle);
         sOverrides.hasCrossProfileIntents = false;
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         sendIntent.setType("TestType");
         ResolveInfo[] chosen = new ResolveInfo[1];
-        sOverrides.onSafelyStartCallback = targetInfo -> {
-            chosen[0] = targetInfo.getResolveInfo();
+        sOverrides.onSafelyStartInternalCallback = result -> {
+            chosen[0] = result.first.getResolveInfo();
             return true;
         };
 
@@ -741,7 +774,7 @@ public class ResolverActivityTest {
         // chosen activity.
         Intent sendIntent = createSendImageIntent();
         List<ResolvedComponentInfo> resolvedComponentInfos =
-                createResolvedComponentsForTest(2);
+                createResolvedComponentsForTest(2, PERSONAL_USER_HANDLE);
 
         setupResolverControllers(resolvedComponentInfos);
         when(sOverrides.resolverListController.getLastChosen())
@@ -755,6 +788,200 @@ public class ResolverActivityTest {
         assertThat(activity.getAdapter().hasFilteredItem(), is(false));
         assertThat(activity.getAdapter().getCount(), is(2));
         assertThat(activity.getAdapter().getPlaceholderCount(), is(2));
+    }
+
+    @Test
+    public void testClonedProfilePresent_personalAdapterIsSetWithPersonalProfile() {
+        // enable cloneProfile
+        markCloneProfileUserAvailable();
+        List<ResolvedComponentInfo> resolvedComponentInfos =
+                createResolvedComponentsWithCloneProfileForTest(
+                        3,
+                        PERSONAL_USER_HANDLE,
+                        sOverrides.cloneProfileUserHandle);
+        setupResolverControllers(resolvedComponentInfos);
+        Intent sendIntent = createSendImageIntent();
+
+        final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
+        waitForIdle();
+
+        assertThat(activity.getCurrentUserHandle(), is(activity.getPersonalProfileUserHandle()));
+        assertThat(activity.getAdapter().getCount(), is(3));
+    }
+
+    @Test
+    public void testClonedProfilePresent_personalTabUsesExpectedAdapter() {
+        markWorkProfileUserAvailable();
+        // enable cloneProfile
+        markCloneProfileUserAvailable();
+        List<ResolvedComponentInfo> personalResolvedComponentInfos =
+                createResolvedComponentsWithCloneProfileForTest(
+                        3,
+                        PERSONAL_USER_HANDLE,
+                        sOverrides.cloneProfileUserHandle);
+        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
+                sOverrides.workProfileUserHandle);
+        setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
+        Intent sendIntent = createSendImageIntent();
+
+        final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
+        waitForIdle();
+
+        assertThat(activity.getCurrentUserHandle(), is(activity.getPersonalProfileUserHandle()));
+        assertThat(activity.getAdapter().getCount(), is(3));
+    }
+
+    @Test
+    public void testClonedProfilePresent_layoutWithDefault_neverShown() throws Exception {
+        // enable cloneProfile
+        markCloneProfileUserAvailable();
+        Intent sendIntent = createSendImageIntent();
+        List<ResolvedComponentInfo> resolvedComponentInfos =
+                createResolvedComponentsWithCloneProfileForTest(
+                        2,
+                        PERSONAL_USER_HANDLE,
+                        sOverrides.cloneProfileUserHandle);
+
+        setupResolverControllers(resolvedComponentInfos);
+        when(sOverrides.resolverListController.getLastChosen())
+                .thenReturn(resolvedComponentInfos.get(0).getResolveInfoAt(0));
+
+        final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
+        Espresso.registerIdlingResources(activity.getAdapter().getLabelIdlingResource());
+        waitForIdle();
+
+        assertThat(activity.getAdapter().hasFilteredItem(), is(false));
+        assertThat(activity.getAdapter().getCount(), is(2));
+        assertThat(activity.getAdapter().getPlaceholderCount(), is(2));
+    }
+
+    @Test
+    public void testClonedProfilePresent_alwaysButtonDisabled() throws Exception {
+        // enable cloneProfile
+        markCloneProfileUserAvailable();
+        Intent sendIntent = createSendImageIntent();
+        List<ResolvedComponentInfo> resolvedComponentInfos =
+                createResolvedComponentsWithCloneProfileForTest(
+                        3,
+                        PERSONAL_USER_HANDLE,
+                        sOverrides.cloneProfileUserHandle);
+
+        setupResolverControllers(resolvedComponentInfos);
+        when(sOverrides.resolverListController.getLastChosen())
+                .thenReturn(resolvedComponentInfos.get(0).getResolveInfoAt(0));
+
+        final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
+        waitForIdle();
+
+        // Confirm that the button bar is disabled by default
+        onView(withId(com.android.internal.R.id.button_once)).check(matches(not(isEnabled())));
+        onView(withId(com.android.internal.R.id.button_always)).check(matches(not(isEnabled())));
+
+        // Make a stable copy of the components as the original list may be modified
+        List<ResolvedComponentInfo> stableCopy =
+                createResolvedComponentsForTestWithOtherProfile(2, PERSONAL_USER_HANDLE);
+
+        onView(withText(stableCopy.get(1).getResolveInfoAt(0).activityInfo.name))
+                .perform(click());
+
+        onView(withId(com.android.internal.R.id.button_once)).check(matches(isEnabled()));
+        onView(withId(com.android.internal.R.id.button_always)).check(matches(not(isEnabled())));
+    }
+
+    @Test
+    public void testClonedProfilePresent_personalProfileActivityIsStartedInCorrectUser()
+            throws Exception {
+        markWorkProfileUserAvailable();
+        // enable cloneProfile
+        markCloneProfileUserAvailable();
+
+        List<ResolvedComponentInfo> personalResolvedComponentInfos =
+                createResolvedComponentsWithCloneProfileForTest(
+                        3,
+                        PERSONAL_USER_HANDLE,
+                        sOverrides.cloneProfileUserHandle);
+        List<ResolvedComponentInfo> workResolvedComponentInfos =
+                createResolvedComponentsForTest(3, sOverrides.workProfileUserHandle);
+        sOverrides.hasCrossProfileIntents = false;
+        setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
+        Intent sendIntent = createSendImageIntent();
+        sendIntent.setType("TestType");
+        final UserHandle[] selectedActivityUserHandle = new UserHandle[1];
+        sOverrides.onSafelyStartInternalCallback = result -> {
+            selectedActivityUserHandle[0] = result.second;
+            return true;
+        };
+
+        final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
+        waitForIdle();
+        onView(first(allOf(withText(personalResolvedComponentInfos.get(0)
+                .getResolveInfoAt(0).activityInfo.applicationInfo.name), isCompletelyDisplayed())))
+                .perform(click());
+        onView(withId(com.android.internal.R.id.button_once))
+                .perform(click());
+        waitForIdle();
+
+        assertThat(selectedActivityUserHandle[0], is(activity.getAdapter().getUserHandle()));
+    }
+
+    @Test
+    public void testClonedProfilePresent_workProfileActivityIsStartedInCorrectUser()
+            throws Exception {
+        markWorkProfileUserAvailable();
+        // enable cloneProfile
+        markCloneProfileUserAvailable();
+
+        List<ResolvedComponentInfo> personalResolvedComponentInfos =
+                createResolvedComponentsWithCloneProfileForTest(
+                        3,
+                        PERSONAL_USER_HANDLE,
+                        sOverrides.cloneProfileUserHandle);
+        List<ResolvedComponentInfo> workResolvedComponentInfos =
+                createResolvedComponentsForTest(3, sOverrides.workProfileUserHandle);
+        setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
+        Intent sendIntent = createSendImageIntent();
+        sendIntent.setType("TestType");
+        final UserHandle[] selectedActivityUserHandle = new UserHandle[1];
+        sOverrides.onSafelyStartInternalCallback = result -> {
+            selectedActivityUserHandle[0] = result.second;
+            return true;
+        };
+
+        final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
+        waitForIdle();
+        onView(withText(R.string.resolver_work_tab))
+                .perform(click());
+        waitForIdle();
+        onView(first(allOf(withText(workResolvedComponentInfos.get(0)
+                .getResolveInfoAt(0).activityInfo.applicationInfo.name), isCompletelyDisplayed())))
+                .perform(click());
+        onView(withId(com.android.internal.R.id.button_once))
+                .perform(click());
+        waitForIdle();
+
+        assertThat(selectedActivityUserHandle[0], is(activity.getAdapter().getUserHandle()));
+    }
+
+    @Test
+    public void testClonedProfilePresent_personalProfileResolverComparatorHasCorrectUsers()
+            throws Exception {
+        // enable cloneProfile
+        markCloneProfileUserAvailable();
+        List<ResolvedComponentInfo> resolvedComponentInfos =
+                createResolvedComponentsWithCloneProfileForTest(
+                        3,
+                        PERSONAL_USER_HANDLE,
+                        sOverrides.cloneProfileUserHandle);
+        setupResolverControllers(resolvedComponentInfos);
+        Intent sendIntent = createSendImageIntent();
+
+        final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
+        waitForIdle();
+        List<UserHandle> result = activity
+                .getResolverRankerServiceUserHandleList(PERSONAL_USER_HANDLE);
+
+        assertThat(result.containsAll(Lists.newArrayList(PERSONAL_USER_HANDLE,
+                sOverrides.cloneProfileUserHandle)), is(true));
     }
 
     private Intent createSendImageIntent() {
@@ -772,36 +999,56 @@ public class ResolverActivityTest {
         return sendIntent;
     }
 
-    private List<ResolvedComponentInfo> createResolvedComponentsForTest(int numberOfResults) {
+    private List<ResolvedComponentInfo> createResolvedComponentsForTest(int numberOfResults,
+            UserHandle resolvedForUser) {
         List<ResolvedComponentInfo> infoList = new ArrayList<>(numberOfResults);
         for (int i = 0; i < numberOfResults; i++) {
-            infoList.add(ResolverDataProvider.createResolvedComponentInfo(i));
+            infoList.add(ResolverDataProvider.createResolvedComponentInfo(i, resolvedForUser));
+        }
+        return infoList;
+    }
+
+    private List<ResolvedComponentInfo> createResolvedComponentsWithCloneProfileForTest(
+            int numberOfResults,
+            UserHandle resolvedForPersonalUser,
+            UserHandle resolvedForClonedUser) {
+        List<ResolvedComponentInfo> infoList = new ArrayList<>(numberOfResults);
+        for (int i = 0; i < 1; i++) {
+            infoList.add(ResolverDataProvider.createResolvedComponentInfo(i,
+                    resolvedForPersonalUser));
+        }
+        for (int i = 1; i < numberOfResults; i++) {
+            infoList.add(ResolverDataProvider.createResolvedComponentInfo(i,
+                    resolvedForClonedUser));
         }
         return infoList;
     }
 
     private List<ResolvedComponentInfo> createResolvedComponentsForTestWithOtherProfile(
-            int numberOfResults) {
+            int numberOfResults,
+            UserHandle resolvedForUser) {
         List<ResolvedComponentInfo> infoList = new ArrayList<>(numberOfResults);
         for (int i = 0; i < numberOfResults; i++) {
             if (i == 0) {
-                infoList.add(ResolverDataProvider.createResolvedComponentInfoWithOtherId(i));
+                infoList.add(ResolverDataProvider.createResolvedComponentInfoWithOtherId(i,
+                        resolvedForUser));
             } else {
-                infoList.add(ResolverDataProvider.createResolvedComponentInfo(i));
+                infoList.add(ResolverDataProvider.createResolvedComponentInfo(i, resolvedForUser));
             }
         }
         return infoList;
     }
 
     private List<ResolvedComponentInfo> createResolvedComponentsForTestWithOtherProfile(
-            int numberOfResults, int userId) {
+            int numberOfResults, int userId, UserHandle resolvedForUser) {
         List<ResolvedComponentInfo> infoList = new ArrayList<>(numberOfResults);
         for (int i = 0; i < numberOfResults; i++) {
             if (i == 0) {
                 infoList.add(
-                        ResolverDataProvider.createResolvedComponentInfoWithOtherId(i, userId));
+                        ResolverDataProvider.createResolvedComponentInfoWithOtherId(i, userId,
+                                resolvedForUser));
             } else {
-                infoList.add(ResolverDataProvider.createResolvedComponentInfo(i));
+                infoList.add(ResolverDataProvider.createResolvedComponentInfo(i, resolvedForUser));
             }
         }
         return infoList;
@@ -818,6 +1065,10 @@ public class ResolverActivityTest {
     private void setupResolverControllers(
             List<ResolvedComponentInfo> personalResolvedComponentInfos) {
         setupResolverControllers(personalResolvedComponentInfos, new ArrayList<>());
+    }
+
+    private void markCloneProfileUserAvailable() {
+        ResolverWrapperActivity.sOverrides.cloneProfileUserHandle = UserHandle.of(11);
     }
 
     private void setupResolverControllers(

@@ -29,10 +29,10 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.UserHandle;
 
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.flags.FeatureFlagRepository;
@@ -80,14 +80,15 @@ public class ChooserWrapperActivity
                 initialIntents,
                 rList,
                 filterLastUsed,
-                resolverListController,
+                createListController(userHandle),
                 userHandle,
                 targetIntent,
                 this,
                 packageManager,
                 getChooserActivityLogger(),
                 chooserRequest,
-                maxTargetsPerRow);
+                maxTargetsPerRow,
+                userHandle);
     }
 
     @Override
@@ -142,14 +143,6 @@ public class ChooserWrapperActivity
     }
 
     @Override
-    protected MyUserIdProvider createMyUserIdProvider() {
-        if (sOverrides.mMyUserIdProvider != null) {
-            return sOverrides.mMyUserIdProvider;
-        }
-        return super.createMyUserIdProvider();
-    }
-
-    @Override
     protected CrossProfileIntentsChecker createCrossProfileIntentsChecker() {
         if (sOverrides.mCrossProfileIntentsChecker != null) {
             return sOverrides.mCrossProfileIntentsChecker;
@@ -166,12 +159,13 @@ public class ChooserWrapperActivity
     }
 
     @Override
-    public void safelyStartActivity(TargetInfo cti) {
-        if (sOverrides.onSafelyStartCallback != null
-                && sOverrides.onSafelyStartCallback.apply(cti)) {
+    public void safelyStartActivityInternal(TargetInfo cti, UserHandle user,
+            @Nullable Bundle options) {
+        if (sOverrides.onSafelyStartInternalCallback != null
+                && sOverrides.onSafelyStartInternalCallback.apply(cti)) {
             return;
         }
-        super.safelyStartActivity(cti);
+        super.safelyStartActivityInternal(cti, user, options);
     }
 
     @Override
@@ -257,6 +251,14 @@ public class ChooserWrapperActivity
     @Override
     public UserHandle getCurrentUserHandle() {
         return mMultiProfilePagerAdapter.getCurrentUserHandle();
+    }
+
+    @Override
+    protected UserHandle getTabOwnerUserHandleForLaunch() {
+        if (sOverrides.tabOwnerUserHandleForLaunch == null) {
+            return super.getTabOwnerUserHandleForLaunch();
+        }
+        return sOverrides.tabOwnerUserHandleForLaunch;
     }
 
     @Override
