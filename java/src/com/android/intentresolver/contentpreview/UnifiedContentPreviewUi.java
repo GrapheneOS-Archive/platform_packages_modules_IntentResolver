@@ -55,7 +55,6 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
     private final MimeTypeClassifier mTypeClassifier;
     private final TransitionElementStatusCallback mTransitionElementStatusCallback;
     private final FeatureFlagRepository mFeatureFlagRepository;
-    private final HeadlineGenerator mHeadlineGenerator;
 
     UnifiedContentPreviewUi(
             List<FileInfo> files,
@@ -64,8 +63,7 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
             ImageLoader imageLoader,
             MimeTypeClassifier typeClassifier,
             TransitionElementStatusCallback transitionElementStatusCallback,
-            FeatureFlagRepository featureFlagRepository,
-            HeadlineGenerator headlineGenerator) {
+            FeatureFlagRepository featureFlagRepository) {
         mFiles = files;
         mText = text;
         mActionFactory = actionFactory;
@@ -73,7 +71,6 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
         mTypeClassifier = typeClassifier;
         mTransitionElementStatusCallback = transitionElementStatusCallback;
         mFeatureFlagRepository = featureFlagRepository;
-        mHeadlineGenerator = headlineGenerator;
 
         mImageLoader.prePopulate(mFiles.stream()
                 .map(FileInfo::getPreviewUri)
@@ -89,7 +86,7 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
     @Override
     public ViewGroup display(Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
         ViewGroup layout = displayInternal(layoutInflater, parent);
-        displayModifyShareAction(layout, mActionFactory, mFeatureFlagRepository);
+        displayPayloadReselectionAction(layout, mActionFactory, mFeatureFlagRepository);
         return layout;
     }
 
@@ -118,46 +115,19 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
             return contentPreviewLayout;
         }
 
+        setTextInImagePreviewVisibility(contentPreviewLayout, mActionFactory);
         imagePreview.setTransitionElementStatusCallback(mTransitionElementStatusCallback);
-
-        List<ScrollableImagePreviewView.Preview> previews = new ArrayList<>();
-        boolean allImages = !mFiles.isEmpty();
-        boolean allVideos = !mFiles.isEmpty();
-        for (FileInfo fileInfo : mFiles) {
-            ScrollableImagePreviewView.PreviewType previewType =
-                    getPreviewType(fileInfo.getMimeType());
-            allImages = allImages && previewType == ScrollableImagePreviewView.PreviewType.Image;
-            allVideos = allVideos && previewType == ScrollableImagePreviewView.PreviewType.Video;
-
-            if (fileInfo.getPreviewUri() != null) {
-                previews.add(new ScrollableImagePreviewView.Preview(
-                        previewType,
-                        fileInfo.getPreviewUri()));
-            }
-        }
+        List<ScrollableImagePreviewView.Preview> previews = mFiles.stream()
+                .filter(fileInfo -> fileInfo.getPreviewUri() != null)
+                .map(fileInfo ->
+                        new ScrollableImagePreviewView.Preview(
+                                getPreviewType(fileInfo.getMimeType()),
+                                fileInfo.getPreviewUri()))
+                .toList();
         imagePreview.setPreviews(
                 previews,
                 mFiles.size() - previews.size(),
                 mImageLoader);
-
-        if (mFeatureFlagRepository.isEnabled(Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW)
-                && !TextUtils.isEmpty(mText)
-                && mFiles.size() == 1
-                && allImages) {
-            setTextInImagePreviewVisibility(contentPreviewLayout, mActionFactory);
-            updateTextWithImageHeadline(contentPreviewLayout);
-        } else {
-            if (allImages) {
-                displayHeadline(
-                        contentPreviewLayout, mHeadlineGenerator.getImagesHeadline(mFiles.size()));
-            } else if (allVideos) {
-                displayHeadline(
-                        contentPreviewLayout, mHeadlineGenerator.getVideosHeadline(mFiles.size()));
-            } else {
-                displayHeadline(
-                        contentPreviewLayout, mHeadlineGenerator.getItemsHeadline(mFiles.size()));
-            }
-        }
 
         return contentPreviewLayout;
     }
@@ -186,42 +156,38 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
                 com.android.internal.R.id.content_preview_image_area);
     }
 
-    private void updateTextWithImageHeadline(ViewGroup contentPreview) {
-        CheckBox actionView = contentPreview.requireViewById(R.id.include_text_action);
-        if (actionView.getVisibility() == View.VISIBLE && actionView.isChecked()) {
-            displayHeadline(contentPreview, mHeadlineGenerator.getImageWithTextHeadline(mText));
-        } else {
-            displayHeadline(
-                    contentPreview, mHeadlineGenerator.getImagesHeadline(mFiles.size()));
-        }
-    }
-
     private void setTextInImagePreviewVisibility(
             ViewGroup contentPreview, ChooserContentPreviewUi.ActionFactory actionFactory) {
+        int visibility = mFeatureFlagRepository.isEnabled(Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW)
+                && !TextUtils.isEmpty(mText)
+                ? View.VISIBLE
+                : View.GONE;
+
         final TextView textView = contentPreview
                 .requireViewById(com.android.internal.R.id.content_preview_text);
         CheckBox actionView = contentPreview
                 .requireViewById(R.id.include_text_action);
-        textView.setVisibility(View.VISIBLE);
-        boolean isLink = HttpUriMatcher.isHttpUri(mText.toString());
+        textView.setVisibility(visibility);
+        boolean isLink = visibility == View.VISIBLE && HttpUriMatcher.isHttpUri(mText.toString());
         textView.setAutoLinkMask(isLink ? Linkify.WEB_URLS : 0);
         textView.setText(mText);
 
-        final int[] actionLabels = isLink
-                ? new int[] { R.string.include_link, R.string.exclude_link }
-                : new int[] { R.string.include_text, R.string.exclude_text };
-        final Consumer<Boolean> shareTextAction = actionFactory.getExcludeSharedTextAction();
-        actionView.setChecked(true);
-        actionView.setText(actionLabels[1]);
-        shareTextAction.accept(false);
-        actionView.setOnCheckedChangeListener((view, isChecked) -> {
-            view.setText(actionLabels[isChecked ? 1 : 0]);
-            TransitionManager.beginDelayedTransition((ViewGroup) textView.getParent());
-            textView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-            shareTextAction.accept(!isChecked);
-            updateTextWithImageHeadline(contentPreview);
-        });
-        actionView.setVisibility(View.VISIBLE);
+        if (visibility == View.VISIBLE) {
+            final int[] actionLabels = isLink
+                    ? new int[] { R.string.include_link, R.string.exclude_link }
+                    : new int[] { R.string.include_text, R.string.exclude_text };
+            final Consumer<Boolean> shareTextAction = actionFactory.getExcludeSharedTextAction();
+            actionView.setChecked(true);
+            actionView.setText(actionLabels[1]);
+            shareTextAction.accept(false);
+            actionView.setOnCheckedChangeListener((view, isChecked) -> {
+                view.setText(actionLabels[isChecked ? 1 : 0]);
+                TransitionManager.beginDelayedTransition((ViewGroup) textView.getParent());
+                textView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                shareTextAction.accept(!isChecked);
+            });
+        }
+        actionView.setVisibility(visibility);
     }
 
     private ScrollableImagePreviewView.PreviewType getPreviewType(String mimeType) {
