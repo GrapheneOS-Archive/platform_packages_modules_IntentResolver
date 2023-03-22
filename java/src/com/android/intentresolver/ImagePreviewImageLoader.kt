@@ -26,8 +26,11 @@ import androidx.annotation.VisibleForTesting
 import androidx.collection.LruCache
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
+import com.android.intentresolver.contentpreview.ImageLoader
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -35,6 +38,10 @@ import java.util.function.Consumer
 
 private const val TAG = "ImagePreviewImageLoader"
 
+/**
+ * Implements preview image loading for the content preview UI. Provides requests deduplication and
+ * image caching.
+ */
 @VisibleForTesting
 class ImagePreviewImageLoader @JvmOverloads constructor(
     private val context: Context,
@@ -48,14 +55,17 @@ class ImagePreviewImageLoader @JvmOverloads constructor(
             Size(it, it)
         }
 
-    @GuardedBy("self")
-    private val cache = LruCache<Uri, CompletableDeferred<Bitmap?>>(cacheSize)
+    private val lock = Any()
+    @GuardedBy("lock")
+    private val cache = LruCache<Uri, RequestRecord>(cacheSize)
+    @GuardedBy("lock")
+    private val runningRequests = HashMap<Uri, RequestRecord>()
 
-    override suspend fun invoke(uri: Uri): Bitmap? = loadImageAsync(uri)
+    override suspend fun invoke(uri: Uri, caching: Boolean): Bitmap? = loadImageAsync(uri, caching)
 
     override fun loadImage(uri: Uri, callback: Consumer<Bitmap?>) {
         lifecycle.coroutineScope.launch {
-            val image = loadImageAsync(uri)
+            val image = loadImageAsync(uri, caching = true)
             if (isActive) {
                 callback.accept(image)
             }
@@ -65,23 +75,44 @@ class ImagePreviewImageLoader @JvmOverloads constructor(
     override fun prePopulate(uris: List<Uri>) {
         uris.asSequence().take(cache.maxSize()).forEach { uri ->
             lifecycle.coroutineScope.launch {
-                loadImageAsync(uri)
+                loadImageAsync(uri, caching = true)
             }
         }
     }
 
-    private suspend fun loadImageAsync(uri: Uri): Bitmap? {
-        return synchronized(cache) {
-            cache.get(uri) ?: CompletableDeferred<Bitmap?>().also { result ->
-                cache.put(uri, result)
-                lifecycle.coroutineScope.launch(dispatcher) {
-                    result.loadBitmap(uri)
-                }
-            }
-        }.await()
+    private suspend fun loadImageAsync(uri: Uri, caching: Boolean): Bitmap? {
+        return getRequestDeferred(uri, caching)
+            .await()
     }
 
-    private fun CompletableDeferred<Bitmap?>.loadBitmap(uri: Uri) {
+    private fun getRequestDeferred(uri: Uri, caching: Boolean): Deferred<Bitmap?> {
+        var shouldLaunchImageLoading = false
+        val request = synchronized(lock) {
+            cache[uri]
+                ?: runningRequests.getOrPut(uri) {
+                    shouldLaunchImageLoading = true
+                    RequestRecord(uri, CompletableDeferred(), caching)
+                }.apply {
+                    this.caching = this.caching || caching
+                }
+        }
+        if (shouldLaunchImageLoading) {
+            request.loadBitmapAsync()
+        }
+        return request.deferred
+    }
+
+    private fun RequestRecord.loadBitmapAsync() {
+        lifecycle.coroutineScope.launch(dispatcher) {
+            loadBitmap()
+        }.invokeOnCompletion { cause ->
+            if (cause is CancellationException) {
+                cancel()
+            }
+        }
+    }
+
+    private fun RequestRecord.loadBitmap() {
         val bitmap = try {
             context.contentResolver.loadThumbnail(uri,  thumbnailSize, null)
         } catch (t: Throwable) {
@@ -90,4 +121,27 @@ class ImagePreviewImageLoader @JvmOverloads constructor(
         }
         complete(bitmap)
     }
+
+    private fun RequestRecord.cancel() {
+        synchronized(lock) {
+            runningRequests.remove(uri)
+            deferred.cancel()
+        }
+    }
+
+    private fun RequestRecord.complete(bitmap: Bitmap?) {
+        deferred.complete(bitmap)
+        synchronized(lock) {
+            runningRequests.remove(uri)
+            if (bitmap != null && caching) {
+                cache.put(uri, this)
+            }
+        }
+    }
+
+    private class RequestRecord(
+        val uri: Uri,
+        val deferred: CompletableDeferred<Bitmap?>,
+        @GuardedBy("lock") var caching: Boolean
+    )
 }
