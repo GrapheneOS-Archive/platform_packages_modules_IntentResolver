@@ -54,8 +54,7 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> ला अनपिन करा"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"संपादित करा"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # फाइल}other{{file_name} + # फाइल}}"</string>
-    <!-- no translation found for other_files (4501185823517473875) -->
-    <skip />
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # फाइल}other{+ # फाइल}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"शेअर करण्यासाठी शिफारस केलेल्या कोणत्याही व्यक्ती नाहीत"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"अ‍ॅप्स सूची"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"या अ‍ॅपला रेकॉर्ड करण्याची परवानगी दिली गेली नाही पण हे USB डिव्हाइस वापरून ऑडिओ कॅप्चर केला जाऊ शकतो."</string>

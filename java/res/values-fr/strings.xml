@@ -17,55 +17,44 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="whichApplication" msgid="2309561338625872614">"Continuer avec"</string>
-    <!-- no translation found for whichApplicationNamed (8514249643796783492) -->
-    <skip />
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"Effectuer l\'action avec <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichApplicationLabel" msgid="4312929689807826793">"Terminer l\'action"</string>
     <string name="whichViewApplication" msgid="7660051361612888119">"Ouvrir avec"</string>
-    <!-- no translation found for whichViewApplicationNamed (8231810543224200555) -->
-    <skip />
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"Ouvrir avec <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichViewApplicationLabel" msgid="9123647023323311663">"Ouvrir"</string>
     <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"Ouvrir les liens <xliff:g id="HOST">%1$s</xliff:g> avec"</string>
     <string name="whichOpenLinksWith" msgid="3468042265545684416">"Ouvrir les liens avec"</string>
     <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"Ouvrir les liens avec <xliff:g id="APPLICATION">%1$s</xliff:g>"</string>
     <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"Ouvrir les liens <xliff:g id="HOST">%1$s</xliff:g> avec <xliff:g id="APPLICATION">%2$s</xliff:g>"</string>
-    <!-- no translation found for whichGiveAccessToApplicationLabel (5120142857844152131) -->
-    <skip />
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"Autoriser l\'accès"</string>
     <string name="whichEditApplication" msgid="5097563012157950614">"Modifier avec"</string>
-    <!-- no translation found for whichEditApplicationNamed (3150137489226219100) -->
-    <skip />
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"Modifier avec <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichEditApplicationLabel" msgid="5992662938338600364">"Modifier"</string>
     <string name="whichSendApplication" msgid="59510564281035884">"Partager"</string>
-    <!-- no translation found for whichSendApplicationNamed (495577664218765855) -->
-    <skip />
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"Partager avec <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichSendApplicationLabel" msgid="2391198069286568035">"Partager"</string>
     <string name="whichSendToApplication" msgid="2724450540348806267">"Envoyer avec"</string>
-    <!-- no translation found for whichSendToApplicationNamed (1996548940365954543) -->
-    <skip />
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"Envoyer avec <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"Envoyer"</string>
     <string name="whichHomeApplication" msgid="8797832422254564739">"Sélectionner une application de l\'écran d\'accueil"</string>
-    <!-- no translation found for whichHomeApplicationNamed (3943122502791761387) -->
-    <skip />
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"Utiliser <xliff:g id="APP">%1$s</xliff:g> pour l\'accueil"</string>
     <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"Capturer une image"</string>
     <string name="whichImageCaptureApplication" msgid="7830965894804399333">"Capturer une image avec"</string>
-    <!-- no translation found for whichImageCaptureApplicationNamed (5927801386307049780) -->
-    <skip />
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"Capturer une image avec <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"Capturer une image"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"Utiliser une autre application"</string>
-    <!-- no translation found for chooseActivity (6659724877523973446) -->
-    <skip />
+    <string name="chooseActivity" msgid="6659724877523973446">"Sélectionner une action"</string>
     <string name="noApplications" msgid="1139487441772284671">"Aucune application ne peut effectuer cette action."</string>
     <string name="forward_intent_to_owner" msgid="6454987608971162379">"Vous utilisez cette application en dehors de votre profil professionnel."</string>
     <string name="forward_intent_to_work" msgid="2906094223089139419">"Vous utilisez cette application dans votre profil professionnel."</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"Toujours"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"Une seule fois"</string>
-    <!-- no translation found for activity_resolver_work_profiles_support (8228711455685203580) -->
-    <skip />
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> n\'est pas compatible avec le profil professionnel"</string>
     <string name="pin_specific_target" msgid="5057063421361441406">"Épingler <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Retirer <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Modifier"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # fichier}one{{file_name} + # fichier}many{{file_name} + # fichiers}other{{file_name} + # fichiers}}"</string>
-    <!-- no translation found for other_files (4501185823517473875) -->
-    <skip />
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # fichier}one{+ # fichier}many{+ # fichiers}other{+ # fichiers}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Aucune recommandation de personnes avec lesquelles effectuer un partage"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Liste des applications"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Cette application n\'a pas reçu l\'autorisation d\'enregistrer des contenus audio, mais peut le faire via ce périphérique USB."</string>

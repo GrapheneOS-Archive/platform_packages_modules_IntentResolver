@@ -54,8 +54,7 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> の固定を解除"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"編集"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name}、他 # ファイル}other{{file_name}、他 # ファイル}}"</string>
-    <!-- no translation found for other_files (4501185823517473875) -->
-    <skip />
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{他 # 件のファイル}other{他 # 件のファイル}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"おすすめの共有相手はいません"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"アプリのリスト"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"このアプリに録音権限は付与されていませんが、この USB デバイスから音声を収集できるようになります。"</string>
