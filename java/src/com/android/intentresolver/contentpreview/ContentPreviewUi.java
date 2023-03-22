@@ -24,7 +24,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.UserHandle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -115,21 +114,7 @@ abstract class ContentPreviewUi {
         fadeAnim.start();
     }
 
-    protected static void displayHeadline(ViewGroup layout, String headline) {
-        if (layout != null) {
-            TextView titleView = layout.findViewById(R.id.headline);
-            if (titleView != null) {
-                if (!TextUtils.isEmpty(headline)) {
-                    titleView.setText(headline);
-                    titleView.setVisibility(View.VISIBLE);
-                } else {
-                    titleView.setVisibility(View.GONE);
-                }
-            }
-        }
-    }
-
-    protected static void displayModifyShareAction(
+    protected static void displayPayloadReselectionAction(
             ViewGroup layout,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             FeatureFlagRepository featureFlagRepository) {
