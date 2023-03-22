@@ -62,6 +62,7 @@ public abstract class AbstractMultiProfilePagerAdapter extends PagerAdapter {
     private Set<Integer> mLoadedPages;
     private final EmptyStateProvider mEmptyStateProvider;
     private final UserHandle mWorkProfileUserHandle;
+    private final UserHandle mCloneProfileUserHandle;
     private final Supplier<Boolean> mWorkProfileQuietModeChecker;  // True when work is quiet.
 
     AbstractMultiProfilePagerAdapter(
@@ -69,11 +70,13 @@ public abstract class AbstractMultiProfilePagerAdapter extends PagerAdapter {
             int currentPage,
             EmptyStateProvider emptyStateProvider,
             Supplier<Boolean> workProfileQuietModeChecker,
-            UserHandle workProfileUserHandle) {
+            UserHandle workProfileUserHandle,
+            UserHandle cloneProfileUserHandle) {
         mContext = Objects.requireNonNull(context);
         mCurrentPage = currentPage;
         mLoadedPages = new HashSet<>();
         mWorkProfileUserHandle = workProfileUserHandle;
+        mCloneProfileUserHandle = cloneProfileUserHandle;
         mEmptyStateProvider = emptyStateProvider;
         mWorkProfileQuietModeChecker = workProfileQuietModeChecker;
     }
@@ -158,6 +161,10 @@ public abstract class AbstractMultiProfilePagerAdapter extends PagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return null;
+    }
+
+    public UserHandle getCloneUserHandle() {
+        return mCloneProfileUserHandle;
     }
 
     /**

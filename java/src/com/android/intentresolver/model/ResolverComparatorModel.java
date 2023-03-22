@@ -16,8 +16,9 @@
 
 package com.android.intentresolver.model;
 
-import android.content.ComponentName;
 import android.content.pm.ResolveInfo;
+
+import com.android.intentresolver.chooser.TargetInfo;
 
 import java.util.Comparator;
 
@@ -44,7 +45,7 @@ interface ResolverComparatorModel {
      * likelihood that the user will select that component as the target. Implementations that don't
      * assign numerical scores are <em>recommended</em> to return a value of 0 for all components.
      */
-    float getScore(ComponentName name);
+    float getScore(TargetInfo targetInfo);
 
     /**
      * Notify the model that the user selected a target. (Models may log this information, use it as
@@ -52,5 +53,5 @@ interface ResolverComparatorModel {
      * {@code ResolverComparatorModel} instance is immutable, clients will need to get an up-to-date
      * instance in order to see any changes in the ranking that might result from this feedback.
      */
-    void notifyOnTargetSelected(ComponentName componentName);
+    void notifyOnTargetSelected(TargetInfo targetInfo);
 }

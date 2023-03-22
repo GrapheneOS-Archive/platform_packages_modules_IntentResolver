@@ -155,6 +155,8 @@ public class UnbundledChooserActivityTest {
      * --------
      */
 
+    private static final UserHandle PERSONAL_USER_HANDLE = InstrumentationRegistry
+            .getInstrumentation().getTargetContext().getUser();
     private static final Function<PackageManager, PackageManager> DEFAULT_PM = pm -> pm;
     private static final Function<PackageManager, PackageManager> NO_APP_PREDICTION_SERVICE_PM =
             pm -> {
@@ -445,7 +447,7 @@ public class UnbundledChooserActivityTest {
         onView(withId(com.android.internal.R.id.profile_button)).check(doesNotExist());
 
         ResolveInfo[] chosen = new ResolveInfo[1];
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             chosen[0] = targetInfo.getResolveInfo();
             return true;
         };
@@ -472,7 +474,7 @@ public class UnbundledChooserActivityTest {
         List<ResolvedComponentInfo> infosToStack = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             ResolveInfo resolveInfo = ResolverDataProvider.createResolveInfo(i,
-                    UserHandle.USER_CURRENT);
+                    UserHandle.USER_CURRENT, PERSONAL_USER_HANDLE);
             resolveInfo.activityInfo.applicationInfo.name = appName;
             resolveInfo.activityInfo.applicationInfo.packageName = packageName;
             resolveInfo.activityInfo.packageName = packageName;
@@ -491,7 +493,7 @@ public class UnbundledChooserActivityTest {
         assertThat(activity.getAdapter().getCount(), is(6));
 
         ResolveInfo[] chosen = new ResolveInfo[1];
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             chosen[0] = targetInfo.getResolveInfo();
             return true;
         };
@@ -522,17 +524,21 @@ public class UnbundledChooserActivityTest {
         verify(ChooserActivityOverrideData.getInstance().resolverListController, times(1))
                 .topK(any(List.class), anyInt());
         assertThat(activity.getIsSelected(), is(false));
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             return true;
         };
         ResolveInfo toChoose = resolvedComponentInfos.get(0).getResolveInfoAt(0);
+        DisplayResolveInfo testDri =
+                activity.createTestDisplayResolveInfo(sendIntent, toChoose, "testLabel", "testInfo",
+                        sendIntent, /* resolveInfoPresentationGetter */ null);
         onView(withText(toChoose.activityInfo.name))
                 .perform(click());
         waitForIdle();
         verify(ChooserActivityOverrideData.getInstance().resolverListController, times(1))
-                .updateChooserCounts(Mockito.anyString(), anyInt(), Mockito.anyString());
+                .updateChooserCounts(Mockito.anyString(), any(UserHandle.class),
+                        Mockito.anyString());
         verify(ChooserActivityOverrideData.getInstance().resolverListController, times(1))
-                .updateModel(toChoose.activityInfo.getComponentName());
+                .updateModel(testDri);
         assertThat(activity.getIsSelected(), is(true));
     }
 
@@ -560,7 +566,7 @@ public class UnbundledChooserActivityTest {
     @Test
     public void autoLaunchSingleResult() throws InterruptedException {
         ResolveInfo[] chosen = new ResolveInfo[1];
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             chosen[0] = targetInfo.getResolveInfo();
             return true;
         };
@@ -595,7 +601,7 @@ public class UnbundledChooserActivityTest {
         assertThat(activity.getAdapter().getCount(), is(1));
 
         ResolveInfo[] chosen = new ResolveInfo[1];
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             chosen[0] = targetInfo.getResolveInfo();
             return true;
         };
@@ -630,7 +636,7 @@ public class UnbundledChooserActivityTest {
         assertThat(activity.getAdapter().getCount(), is(2));
 
         ResolveInfo[] chosen = new ResolveInfo[1];
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             chosen[0] = targetInfo.getResolveInfo();
             return true;
         };
@@ -661,7 +667,7 @@ public class UnbundledChooserActivityTest {
         assertThat(activity.getAdapter().getCount(), is(2));
 
         ResolveInfo[] chosen = new ResolveInfo[1];
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             chosen[0] = targetInfo.getResolveInfo();
             return true;
         };
@@ -690,10 +696,10 @@ public class UnbundledChooserActivityTest {
         List<ResolvedComponentInfo> resolvedComponentInfos = Arrays.asList(
                 ResolverDataProvider.createResolvedComponentInfo(
                         new ComponentName("org.imageviewer", "ImageTarget"),
-                        sendIntent),
+                        sendIntent, PERSONAL_USER_HANDLE),
                 ResolverDataProvider.createResolvedComponentInfo(
                         new ComponentName("org.textviewer", "UriTarget"),
-                        new Intent("VIEW_TEXT"))
+                        new Intent("VIEW_TEXT"), PERSONAL_USER_HANDLE)
         );
 
         setupResolverControllers(resolvedComponentInfos);
@@ -707,7 +713,7 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
 
         AtomicReference<Intent> launchedIntentRef = new AtomicReference<>();
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             launchedIntentRef.set(targetInfo.getTargetIntent());
             return true;
         };
@@ -734,10 +740,10 @@ public class UnbundledChooserActivityTest {
         List<ResolvedComponentInfo> resolvedComponentInfos = Arrays.asList(
                 ResolverDataProvider.createResolvedComponentInfo(
                         new ComponentName("org.imageviewer", "ImageTarget"),
-                        sendIntent),
+                        sendIntent, PERSONAL_USER_HANDLE),
                 ResolverDataProvider.createResolvedComponentInfo(
                         new ComponentName("org.textviewer", "UriTarget"),
-                        new Intent("VIEW_TEXT"))
+                        new Intent("VIEW_TEXT"), PERSONAL_USER_HANDLE)
         );
 
         setupResolverControllers(resolvedComponentInfos);
@@ -754,7 +760,7 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
 
         AtomicReference<Intent> launchedIntentRef = new AtomicReference<>();
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             launchedIntentRef.set(targetInfo.getTargetIntent());
             return true;
         };
@@ -784,10 +790,10 @@ public class UnbundledChooserActivityTest {
         List<ResolvedComponentInfo> resolvedComponentInfos = Arrays.asList(
                 ResolverDataProvider.createResolvedComponentInfo(
                         new ComponentName("org.imageviewer", "ImageTarget"),
-                        sendIntent),
+                        sendIntent, PERSONAL_USER_HANDLE),
                 ResolverDataProvider.createResolvedComponentInfo(
                         new ComponentName("org.textviewer", "UriTarget"),
-                        alternativeIntent)
+                        alternativeIntent, PERSONAL_USER_HANDLE)
         );
 
         setupResolverControllers(resolvedComponentInfos);
@@ -801,7 +807,7 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
 
         AtomicReference<Intent> launchedIntentRef = new AtomicReference<>();
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             launchedIntentRef.set(targetInfo.getTargetIntent());
             return true;
         };
@@ -1271,8 +1277,12 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
 
         final DisplayResolveInfo testDri =
-                activity.createTestDisplayResolveInfo(sendIntent,
-                ResolverDataProvider.createResolveInfo(3, 0), "testLabel", "testInfo", sendIntent,
+                activity.createTestDisplayResolveInfo(
+                        sendIntent,
+                        ResolverDataProvider.createResolveInfo(3, 0, PERSONAL_USER_HANDLE),
+                        "testLabel",
+                        "testInfo",
+                        sendIntent,
                 /* resolveInfoPresentationGetter */ null);
         final ChooserListAdapter adapter = activity.getAdapter();
 
@@ -1814,7 +1824,7 @@ public class UnbundledChooserActivityTest {
         // Create direct share target
         List<ChooserTarget> serviceTargets = createDirectShareTargets(1,
                 resolvedComponentInfos.get(14).getResolveInfoAt(0).activityInfo.packageName);
-        ResolveInfo ri = ResolverDataProvider.createResolveInfo(16, 0);
+        ResolveInfo ri = ResolverDataProvider.createResolveInfo(16, 0, PERSONAL_USER_HANDLE);
 
         // Start activity
         final IChooserWrapper wrapper = (IChooserWrapper)
@@ -1947,7 +1957,7 @@ public class UnbundledChooserActivityTest {
         Intent sendIntent = createSendTextIntent();
         sendIntent.setType(TEST_MIME_TYPE);
         ResolveInfo[] chosen = new ResolveInfo[1];
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             chosen[0] = targetInfo.getResolveInfo();
             return true;
         };
@@ -2103,7 +2113,7 @@ public class UnbundledChooserActivityTest {
         onView(withId(com.android.internal.R.id.profile_button)).check(doesNotExist());
 
         ResolveInfo[] chosen = new ResolveInfo[1];
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             chosen[0] = targetInfo.getResolveInfo();
             return true;
         };
@@ -2330,7 +2340,7 @@ public class UnbundledChooserActivityTest {
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendTextIntent();
         ResolveInfo[] chosen = new ResolveInfo[1];
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             chosen[0] = targetInfo.getResolveInfo();
             return true;
         };
@@ -2349,7 +2359,7 @@ public class UnbundledChooserActivityTest {
         Intent chooserIntent = createChooserIntent(createSendTextIntent(),
                 new Intent[] {new Intent("action.fake")});
         ResolveInfo[] chosen = new ResolveInfo[1];
-        ChooserActivityOverrideData.getInstance().onSafelyStartCallback = targetInfo -> {
+        ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             chosen[0] = targetInfo.getResolveInfo();
             return true;
         };
@@ -2477,7 +2487,7 @@ public class UnbundledChooserActivityTest {
                 new Intent[] {new Intent("action.fake")});
         ChooserActivityOverrideData.getInstance().packageManager = mock(PackageManager.class);
         ResolveInfo ri = ResolverDataProvider.createResolveInfo(0,
-                UserHandle.USER_CURRENT);
+                UserHandle.USER_CURRENT, PERSONAL_USER_HANDLE);
         when(
                 ChooserActivityOverrideData
                         .getInstance()
@@ -2527,6 +2537,46 @@ public class UnbundledChooserActivityTest {
         verify(workProfileShortcutLoader, times(1)).queryShortcuts(any());
     }
 
+    @Test
+    public void testClonedProfilePresent_personalAdapterIsSetWithPersonalProfile() {
+        // enable cloneProfile
+        markCloneProfileUserAvailable();
+        List<ResolvedComponentInfo> resolvedComponentInfos =
+                createResolvedComponentsWithCloneProfileForTest(
+                        3,
+                        PERSONAL_USER_HANDLE,
+                        ChooserActivityOverrideData.getInstance().cloneProfileUserHandle);
+        setupResolverControllers(resolvedComponentInfos);
+        Intent sendIntent = createSendTextIntent();
+
+        final IChooserWrapper activity = (IChooserWrapper) mActivityRule
+                .launchActivity(Intent.createChooser(sendIntent, "personalProfileTest"));
+        waitForIdle();
+
+        assertThat(activity.getPersonalListAdapter().getUserHandle(), is(PERSONAL_USER_HANDLE));
+        assertThat(activity.getAdapter().getCount(), is(3));
+    }
+
+    @Test
+    public void testClonedProfilePresent_personalTabUsesExpectedAdapter() {
+        markWorkProfileUserAvailable();
+        markCloneProfileUserAvailable();
+        List<ResolvedComponentInfo> personalResolvedComponentInfos =
+                createResolvedComponentsForTest(3);
+        List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(
+                4);
+        setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
+        Intent sendIntent = createSendTextIntent();
+        sendIntent.setType(TEST_MIME_TYPE);
+
+
+        final IChooserWrapper activity = (IChooserWrapper)
+                mActivityRule.launchActivity(Intent.createChooser(sendIntent, "multi tab test"));
+        waitForIdle();
+
+        assertThat(activity.getCurrentUserHandle(), is(PERSONAL_USER_HANDLE));
+    }
+
     private Intent createChooserIntent(Intent intent, Intent[] initialIntents) {
         Intent chooserIntent = new Intent();
         chooserIntent.setAction(Intent.ACTION_CHOOSER);
@@ -2561,6 +2611,7 @@ public class UnbundledChooserActivityTest {
         ri.activityInfo.packageName = "fake.package.name";
         ri.activityInfo.applicationInfo = new ApplicationInfo();
         ri.activityInfo.applicationInfo.packageName = "fake.package.name";
+        ri.userHandle = UserHandle.CURRENT;
         return ri;
     }
 
@@ -2622,7 +2673,23 @@ public class UnbundledChooserActivityTest {
     private List<ResolvedComponentInfo> createResolvedComponentsForTest(int numberOfResults) {
         List<ResolvedComponentInfo> infoList = new ArrayList<>(numberOfResults);
         for (int i = 0; i < numberOfResults; i++) {
-            infoList.add(ResolverDataProvider.createResolvedComponentInfo(i));
+            infoList.add(ResolverDataProvider.createResolvedComponentInfo(i, PERSONAL_USER_HANDLE));
+        }
+        return infoList;
+    }
+
+    private List<ResolvedComponentInfo> createResolvedComponentsWithCloneProfileForTest(
+            int numberOfResults,
+            UserHandle resolvedForPersonalUser,
+            UserHandle resolvedForClonedUser) {
+        List<ResolvedComponentInfo> infoList = new ArrayList<>(numberOfResults);
+        for (int i = 0; i < 1; i++) {
+            infoList.add(ResolverDataProvider.createResolvedComponentInfo(i,
+                    resolvedForPersonalUser));
+        }
+        for (int i = 1; i < numberOfResults; i++) {
+            infoList.add(ResolverDataProvider.createResolvedComponentInfo(i,
+                    resolvedForClonedUser));
         }
         return infoList;
     }
@@ -2632,9 +2699,11 @@ public class UnbundledChooserActivityTest {
         List<ResolvedComponentInfo> infoList = new ArrayList<>(numberOfResults);
         for (int i = 0; i < numberOfResults; i++) {
             if (i == 0) {
-                infoList.add(ResolverDataProvider.createResolvedComponentInfoWithOtherId(i));
+                infoList.add(ResolverDataProvider.createResolvedComponentInfoWithOtherId(i,
+                        PERSONAL_USER_HANDLE));
             } else {
-                infoList.add(ResolverDataProvider.createResolvedComponentInfo(i));
+                infoList.add(ResolverDataProvider.createResolvedComponentInfo(i,
+                        PERSONAL_USER_HANDLE));
             }
         }
         return infoList;
@@ -2646,9 +2715,11 @@ public class UnbundledChooserActivityTest {
         for (int i = 0; i < numberOfResults; i++) {
             if (i == 0) {
                 infoList.add(
-                        ResolverDataProvider.createResolvedComponentInfoWithOtherId(i, userId));
+                        ResolverDataProvider.createResolvedComponentInfoWithOtherId(i, userId,
+                                PERSONAL_USER_HANDLE));
             } else {
-                infoList.add(ResolverDataProvider.createResolvedComponentInfo(i));
+                infoList.add(ResolverDataProvider.createResolvedComponentInfo(i,
+                        PERSONAL_USER_HANDLE));
             }
         }
         return infoList;
@@ -2658,7 +2729,8 @@ public class UnbundledChooserActivityTest {
             int numberOfResults, int userId) {
         List<ResolvedComponentInfo> infoList = new ArrayList<>(numberOfResults);
         for (int i = 0; i < numberOfResults; i++) {
-            infoList.add(ResolverDataProvider.createResolvedComponentInfoWithOtherId(i, userId));
+            infoList.add(ResolverDataProvider.createResolvedComponentInfoWithOtherId(i, userId,
+                    PERSONAL_USER_HANDLE));
         }
         return infoList;
     }
@@ -2735,6 +2807,10 @@ public class UnbundledChooserActivityTest {
 
     private void markWorkProfileUserAvailable() {
         ChooserActivityOverrideData.getInstance().workProfileUserHandle = UserHandle.of(10);
+    }
+
+    private void markCloneProfileUserAvailable() {
+        ChooserActivityOverrideData.getInstance().cloneProfileUserHandle = UserHandle.of(11);
     }
 
     private void setupResolverControllers(

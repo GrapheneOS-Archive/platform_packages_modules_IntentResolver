@@ -35,6 +35,7 @@
     <uses-permission android:name="android.permission.SET_CLIP_SOURCE" />
     <uses-permission android:name="android.permission.START_ACTIVITY_AS_CALLER" />
     <uses-permission android:name="android.permission.UNLIMITED_SHORTCUTS_API_CALLS" />
+    <uses-permission android:name="android.permission.QUERY_CLONED_APPS" />
 
     <application
         android:hardwareAccelerated="true"
