@@ -28,11 +28,11 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.media.MediaMetadata;
 import android.net.Uri;
-import android.os.RemoteException;
 import android.provider.DocumentsContract;
 import android.provider.Downloads;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -351,7 +351,8 @@ public final class ChooserContentPreviewUi {
     private static String getType(ContentInterface resolver, Uri uri) {
         try {
             return resolver.getType(uri);
-        } catch (RemoteException e) {
+        } catch (Throwable t) {
+            Log.e(ContentPreviewUi.TAG, "Failed to read content type, uri: " +  uri, t);
             return null;
         }
     }
@@ -360,7 +361,8 @@ public final class ChooserContentPreviewUi {
     private static Cursor query(ContentInterface resolver, Uri uri) {
         try {
             return resolver.query(uri, null, null, null);
-        } catch (RemoteException e) {
+        } catch (Throwable t) {
+            Log.e(ContentPreviewUi.TAG, "Failed to read metadata, uri: " +  uri, t);
             return null;
         }
     }
@@ -369,7 +371,8 @@ public final class ChooserContentPreviewUi {
     private static String[] getStreamTypes(ContentInterface resolver, Uri uri) {
         try {
             return resolver.getStreamTypes(uri, "*/*");
-        } catch (RemoteException e) {
+        } catch (Throwable t) {
+            Log.e(ContentPreviewUi.TAG, "Failed to read stream types, uri: " +  uri, t);
             return null;
         }
     }
