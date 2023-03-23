@@ -16,17 +16,45 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for app_label (325107764352168045) -->
-    <skip />
+    <string name="whichApplication" msgid="2309561338625872614">"Slutför åtgärd med"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"Slutför åtgärd med <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"Slutför åtgärd"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"Öppna med"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"Öppna med <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichViewApplicationLabel" msgid="9123647023323311663">"Öppna"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"Öppna länkar på <xliff:g id="HOST">%1$s</xliff:g> med"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"Öppna länkar med"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"Öppna länkar med <xliff:g id="APPLICATION">%1$s</xliff:g>"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"Öppna länkar på <xliff:g id="HOST">%1$s</xliff:g> med <xliff:g id="APPLICATION">%2$s</xliff:g>"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"Ge åtkomst"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"Redigera med"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"Redigera med <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"Redigera"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"Dela"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"Dela med <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"Dela"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"Skicka med"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"Skicka via <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"Skicka"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"Välj en startsidesapp"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"Använd <xliff:g id="APP">%1$s</xliff:g> som startsida"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"Ta bild"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"Ta bild med"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"Ta bild med <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"Ta bild"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"Använd en annan app"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"Välj en åtgärd"</string>
     <string name="noApplications" msgid="1139487441772284671">"Inga appar kan utföra den här åtgärden."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"Du använder den här appen i din jobbprofil"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"Du använder den här appen i din jobbprofil"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"Alltid"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"Bara en gång"</string>
-    <!-- no translation found for pin_specific_target (5057063421361441406) -->
-    <skip />
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> har inte stöd för jobbprofiler"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"Fäst <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Lossa <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"Redigera"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # fil}other{{file_name} + # filer}}"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # fil}other{+ # filer}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Inga rekommenderade personer att dela med"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Applista"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Appen har inte fått inspelningsbehörighet men kan spela in ljud via denna USB-enhet."</string>
@@ -47,18 +75,8 @@
     <string name="miniresolver_open_in_work" msgid="4271638122142624693">"Vill du öppna <xliff:g id="APP">%s</xliff:g> i din jobbprofil?"</string>
     <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"Använd privat webbläsare"</string>
     <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"Använd jobbwebbläsare"</string>
-    <!-- no translation found for select_files (717427764544068086) -->
-    <skip />
-    <!-- no translation found for select_images (5564089845412362804) -->
-    <skip />
-    <!-- no translation found for select_text (7253549490440625849) -->
-    <skip />
-    <!-- no translation found for exclude_text (5508128757025928034) -->
-    <skip />
-    <!-- no translation found for include_text (642280283268536140) -->
-    <skip />
-    <!-- no translation found for exclude_link (1332778255031992228) -->
-    <skip />
-    <!-- no translation found for include_link (827855767220339802) -->
-    <skip />
+    <string name="exclude_text" msgid="5508128757025928034">"Uteslut text"</string>
+    <string name="include_text" msgid="642280283268536140">"Inkludera text"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"Uteslut länk"</string>
+    <string name="include_link" msgid="827855767220339802">"Inkludera länk"</string>
 </resources>
