@@ -275,9 +275,13 @@ public class ChooserActivity extends ResolverActivity implements
                 mChooserRequest.getRefinementIntentSender(),
                 (validatedRefinedTarget) -> {
                     maybeRemoveSharedText(validatedRefinedTarget);
-                    if (super.onTargetSelected(validatedRefinedTarget, false)) {
-                        finish();
-                    }
+
+                    // We already block suspended targets from going to refinement, and we probably
+                    // can't recover a Chooser session if that's the reason the refined target fails
+                    // to launch now. Fire-and-forget the refined launch; ignore the return value
+                    // and just make sure the Sharesheet session gets cleaned up regardless.
+                    super.onTargetSelected(validatedRefinedTarget, false);
+                    finish();
                 },
                 this::finish);
 
