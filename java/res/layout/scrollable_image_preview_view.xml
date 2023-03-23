@@ -15,12 +15,21 @@
   ~ limitations under the License.
   -->
 
-<com.android.intentresolver.widget.ScrollableImagePreviewView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- TODO: the unnecessary FrameLayout wrapping is a workaround for ViewStub (it ignores this view's
+      width and height specs); remove when when the legacy image preview is removed -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center_horizontal"
-    android:paddingStart="@dimen/chooser_edge_margin_normal"
-    android:paddingEnd="@dimen/chooser_edge_margin_normal"
-    android:paddingBottom="@dimen/chooser_view_spacing"
-    android:background="?android:attr/colorBackground" />
+    android:layout_height="wrap_content">
+
+    <com.android.intentresolver.widget.ScrollableImagePreviewView
+        android:id="@+id/scrollable_image_preview"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/chooser_preview_image_height_tall"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/chooser_view_spacing"
+        android:background="?android:attr/colorBackground"
+        app:itemInnerSpacing="3dp"
+        app:itemOuterSpacing="@dimen/chooser_edge_margin_normal"
+        app:maxWidthHint="@dimen/chooser_width" />
+</FrameLayout>

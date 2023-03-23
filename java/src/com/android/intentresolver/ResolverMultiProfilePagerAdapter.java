@@ -44,7 +44,8 @@ public class ResolverMultiProfilePagerAdapter extends
             ResolverListAdapter adapter,
             EmptyStateProvider emptyStateProvider,
             Supplier<Boolean> workProfileQuietModeChecker,
-            UserHandle workProfileUserHandle) {
+            UserHandle workProfileUserHandle,
+            UserHandle cloneProfileUserHandle) {
         this(
                 context,
                 ImmutableList.of(adapter),
@@ -52,6 +53,7 @@ public class ResolverMultiProfilePagerAdapter extends
                 workProfileQuietModeChecker,
                 /* defaultProfile= */ 0,
                 workProfileUserHandle,
+                cloneProfileUserHandle,
                 new BottomPaddingOverrideSupplier());
     }
 
@@ -61,7 +63,8 @@ public class ResolverMultiProfilePagerAdapter extends
             EmptyStateProvider emptyStateProvider,
             Supplier<Boolean> workProfileQuietModeChecker,
             @Profile int defaultProfile,
-            UserHandle workProfileUserHandle) {
+            UserHandle workProfileUserHandle,
+            UserHandle cloneProfileUserHandle) {
         this(
                 context,
                 ImmutableList.of(personalAdapter, workAdapter),
@@ -69,6 +72,7 @@ public class ResolverMultiProfilePagerAdapter extends
                 workProfileQuietModeChecker,
                 defaultProfile,
                 workProfileUserHandle,
+                cloneProfileUserHandle,
                 new BottomPaddingOverrideSupplier());
     }
 
@@ -79,6 +83,7 @@ public class ResolverMultiProfilePagerAdapter extends
             Supplier<Boolean> workProfileQuietModeChecker,
             @Profile int defaultProfile,
             UserHandle workProfileUserHandle,
+            UserHandle cloneProfileUserHandle,
             BottomPaddingOverrideSupplier bottomPaddingOverrideSupplier) {
         super(
                 context,
@@ -89,6 +94,7 @@ public class ResolverMultiProfilePagerAdapter extends
                 workProfileQuietModeChecker,
                 defaultProfile,
                 workProfileUserHandle,
+                cloneProfileUserHandle,
                         () -> (ViewGroup) LayoutInflater.from(context).inflate(
                                 R.layout.resolver_list_per_profile, null, false),
                 bottomPaddingOverrideSupplier);

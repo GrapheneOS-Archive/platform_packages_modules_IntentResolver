@@ -84,6 +84,7 @@ import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi;
+import com.android.intentresolver.contentpreview.HeadlineGeneratorImpl;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.flags.FeatureFlagRepositoryFactory;
 import com.android.intentresolver.flags.Flags;
@@ -291,7 +292,8 @@ public class ChooserActivity extends ResolverActivity implements
                 createPreviewImageLoader(),
                 createChooserActionFactory(),
                 mEnterTransitionAnimationDelegate,
-                mFeatureFlagRepository);
+                mFeatureFlagRepository,
+                new HeadlineGeneratorImpl(this));
 
         setAdditionalTargets(mChooserRequest.getAdditionalTargets());
 
@@ -495,7 +497,7 @@ public class ChooserActivity extends ResolverActivity implements
 
         return new NoCrossProfileEmptyStateProvider(getPersonalProfileUserHandle(),
                 noWorkToPersonalEmptyState, noPersonalToWorkEmptyState,
-                createCrossProfileIntentsChecker(), createMyUserIdProvider());
+                createCrossProfileIntentsChecker(), getTabOwnerUserHandleForLaunch());
     }
 
     private ChooserMultiProfilePagerAdapter createChooserMultiProfilePagerAdapterForOneProfile(
@@ -508,13 +510,14 @@ public class ChooserActivity extends ResolverActivity implements
                 initialIntents,
                 rList,
                 filterLastUsed,
-                /* userHandle */ UserHandle.of(UserHandle.myUserId()));
+                /* userHandle */ getPersonalProfileUserHandle());
         return new ChooserMultiProfilePagerAdapter(
                 /* context */ this,
                 adapter,
                 createEmptyStateProvider(/* workProfileUserHandle= */ null),
                 /* workProfileQuietModeChecker= */ () -> false,
                 /* workProfileUserHandle= */ null,
+                getCloneProfileUserHandle(),
                 mMaxTargetsPerRow);
     }
 
@@ -545,13 +548,14 @@ public class ChooserActivity extends ResolverActivity implements
                 () -> mWorkProfileAvailability.isQuietModeEnabled(),
                 selectedProfile,
                 getWorkProfileUserHandle(),
+                getCloneProfileUserHandle(),
                 mMaxTargetsPerRow);
     }
 
     private int findSelectedProfile() {
         int selectedProfile = getSelectedProfileExtra();
         if (selectedProfile == -1) {
-            selectedProfile = getProfileForUser(getUser());
+            selectedProfile = getProfileForUser(getTabOwnerUserHandleForLaunch());
         }
         return selectedProfile;
     }
@@ -858,7 +862,11 @@ public class ChooserActivity extends ResolverActivity implements
         ChooserTargetActionsDialogFragment.show(
                 getSupportFragmentManager(),
                 targetList,
-                mChooserMultiProfilePagerAdapter.getCurrentUserHandle(),
+                // Adding userHandle from ResolveInfo allows the app icon in Dialog Box to be
+                // resolved correctly within the same tab.
+                getResolveInfoUserHandle(
+                        targetInfo.getResolveInfo(),
+                        mChooserMultiProfilePagerAdapter.getCurrentUserHandle()),
                 shortcutIdKey,
                 shortcutTitle,
                 isShortcutPinned,
@@ -890,11 +898,14 @@ public class ChooserActivity extends ResolverActivity implements
         if (targetInfo.isMultiDisplayResolveInfo()) {
             MultiDisplayResolveInfo mti = (MultiDisplayResolveInfo) targetInfo;
             if (!mti.hasSelected()) {
+                // Add userHandle based badge to the stackedAppDialogBox.
                 ChooserStackedAppDialogFragment.show(
                         getSupportFragmentManager(),
                         mti,
                         which,
-                        mChooserMultiProfilePagerAdapter.getCurrentUserHandle());
+                        getResolveInfoUserHandle(
+                                targetInfo.getResolveInfo(),
+                                mChooserMultiProfilePagerAdapter.getCurrentUserHandle()));
                 return;
             }
         }
@@ -1006,9 +1017,11 @@ public class ChooserActivity extends ResolverActivity implements
                         mChooserMultiProfilePagerAdapter.getActiveListAdapter();
                 if (currentListAdapter != null) {
                     sendImpressionToAppPredictor(info, currentListAdapter);
-                    currentListAdapter.updateModel(info.getResolvedComponentName());
-                    currentListAdapter.updateChooserCounts(ri.activityInfo.packageName,
-                            targetIntent.getAction());
+                    currentListAdapter.updateModel(info);
+                    currentListAdapter.updateChooserCounts(
+                            ri.activityInfo.packageName,
+                            targetIntent.getAction(),
+                            ri.userHandle);
                 }
                 if (DEBUG) {
                     Log.d(TAG, "ResolveInfo Package is " + ri.activityInfo.packageName);
@@ -1094,22 +1107,33 @@ public class ChooserActivity extends ResolverActivity implements
     @Nullable
     private AppPredictor getAppPredictor(UserHandle userHandle) {
         ProfileRecord record = getProfileRecord(userHandle);
-        return (record == null) ? null : record.appPredictor;
+        // We cannot use APS service when clone profile is present as APS service cannot sort
+        // cross profile targets as of now.
+        return (record == null || getCloneProfileUserHandle() != null) ? null : record.appPredictor;
     }
 
     /**
      * Sort intents alphabetically based on display label.
      */
     static class AzInfoComparator implements Comparator<DisplayResolveInfo> {
-        Collator mCollator;
+        Comparator<DisplayResolveInfo> mComparator;
         AzInfoComparator(Context context) {
-            mCollator = Collator.getInstance(context.getResources().getConfiguration().locale);
+            Collator collator = Collator
+                        .getInstance(context.getResources().getConfiguration().locale);
+            // Adding two stage comparator, first stage compares using displayLabel, next stage
+            //  compares using resolveInfo.userHandle
+            mComparator = Comparator.comparing(DisplayResolveInfo::getDisplayLabel, collator)
+                    .thenComparingInt(displayResolveInfo ->
+                            getResolveInfoUserHandle(
+                                    displayResolveInfo.getResolveInfo(),
+                                    // TODO: User resolveInfo.userHandle, once its available.
+                                    UserHandle.SYSTEM).getIdentifier());
         }
 
         @Override
         public int compare(
                 DisplayResolveInfo lhsp, DisplayResolveInfo rhsp) {
-            return mCollator.compare(lhsp.getDisplayLabel(), rhsp.getDisplayLabel());
+            return mComparator.compare(lhsp, rhsp);
         }
     }
 
@@ -1127,14 +1151,16 @@ public class ChooserActivity extends ResolverActivity implements
                 Intent targetIntent,
                 String referrerPackageName,
                 int launchedFromUid,
-                AbstractResolverComparator resolverComparator) {
+                AbstractResolverComparator resolverComparator,
+                UserHandle queryIntentsAsUser) {
             super(
                     context,
                     pm,
                     targetIntent,
                     referrerPackageName,
                     launchedFromUid,
-                    resolverComparator);
+                    resolverComparator,
+                    queryIntentsAsUser);
         }
 
         @Override
@@ -1253,20 +1279,24 @@ public class ChooserActivity extends ResolverActivity implements
             Intent targetIntent,
             ChooserRequestParameters chooserRequest,
             int maxTargetsPerRow) {
+        UserHandle initialIntentsUserSpace = isLaunchedAsCloneProfile()
+                && userHandle.equals(getPersonalProfileUserHandle())
+                ? getCloneProfileUserHandle() : userHandle;
         return new ChooserListAdapter(
                 context,
                 payloadIntents,
                 initialIntents,
                 rList,
                 filterLastUsed,
-                resolverListController,
+                createListController(userHandle),
                 userHandle,
                 targetIntent,
                 this,
                 context.getPackageManager(),
                 getChooserActivityLogger(),
                 chooserRequest,
-                maxTargetsPerRow);
+                maxTargetsPerRow,
+                initialIntentsUserSpace);
     }
 
     @Override
@@ -1279,8 +1309,13 @@ public class ChooserActivity extends ResolverActivity implements
                     getReferrerPackageName(), appPredictor, userHandle, getChooserActivityLogger());
         } else {
             resolverComparator =
-                    new ResolverRankerServiceResolverComparator(this, getTargetIntent(),
-                        getReferrerPackageName(), null, getChooserActivityLogger());
+                    new ResolverRankerServiceResolverComparator(
+                            this,
+                            getTargetIntent(),
+                            getReferrerPackageName(),
+                            null,
+                            getChooserActivityLogger(),
+                            getResolverRankerServiceUserHandleList(userHandle));
         }
 
         return new ChooserListController(
@@ -1289,7 +1324,8 @@ public class ChooserActivity extends ResolverActivity implements
                 getTargetIntent(),
                 getReferrerPackageName(),
                 getAnnotatedUserHandles().userIdOfCallingApp,
-                resolverComparator);
+                resolverComparator,
+                getQueryIntentsUser(userHandle));
     }
 
     @VisibleForTesting
@@ -1297,7 +1333,9 @@ public class ChooserActivity extends ResolverActivity implements
         final int cacheSize;
         if (mFeatureFlagRepository.isEnabled(Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW)) {
             float chooserWidth = getResources().getDimension(R.dimen.chooser_width);
-            float imageWidth = getResources().getDimension(R.dimen.chooser_preview_image_width);
+            // imageWidth = imagePreviewHeight / minAspectRatio (see ScrollableImagePreviewView)
+            float imageWidth =
+                    getResources().getDimension(R.dimen.chooser_preview_image_height_tall) * 5 / 2;
             cacheSize = (int) (Math.ceil(chooserWidth / imageWidth) + 2);
         } else {
             cacheSize = 3;
@@ -1506,17 +1544,16 @@ public class ChooserActivity extends ResolverActivity implements
     }
 
     /**
-     * Returns {@link #PROFILE_PERSONAL}, {@link #PROFILE_WORK}, or -1 if the given user handle
-     * does not match either the personal or work user handle.
+     * Returns {@link #PROFILE_WORK}, if the given user handle matches work user handle.
+     * Returns {@link #PROFILE_PERSONAL}, otherwise.
      **/
     private int getProfileForUser(UserHandle currentUserHandle) {
-        if (currentUserHandle.equals(getPersonalProfileUserHandle())) {
-            return PROFILE_PERSONAL;
-        } else if (currentUserHandle.equals(getWorkProfileUserHandle())) {
+        if (currentUserHandle.equals(getWorkProfileUserHandle())) {
             return PROFILE_WORK;
         }
-        Log.e(TAG, "User " + currentUserHandle + " does not belong to a personal or work profile.");
-        return -1;
+        // We return personal profile, as it is the default when there is no work profile, personal
+        // profile represents rootUser, clonedUser & secondaryUser, covering all use cases.
+        return PROFILE_PERSONAL;
     }
 
     private ViewGroup getActiveEmptyStateView() {

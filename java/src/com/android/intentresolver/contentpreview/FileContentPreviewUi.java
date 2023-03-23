@@ -45,16 +45,19 @@ class FileContentPreviewUi extends ContentPreviewUi {
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
     private final ImageLoader mImageLoader;
     private final FeatureFlagRepository mFeatureFlagRepository;
+    private final HeadlineGenerator mHeadlineGenerator;
 
     FileContentPreviewUi(
             List<FileInfo> files,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
-            FeatureFlagRepository featureFlagRepository) {
+            FeatureFlagRepository featureFlagRepository,
+            HeadlineGenerator headlineGenerator) {
         mFiles = files;
         mActionFactory = actionFactory;
         mImageLoader = imageLoader;
         mFeatureFlagRepository = featureFlagRepository;
+        mHeadlineGenerator = headlineGenerator;
     }
 
     @Override
@@ -65,7 +68,7 @@ class FileContentPreviewUi extends ContentPreviewUi {
     @Override
     public ViewGroup display(Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
         ViewGroup layout = displayInternal(resources, layoutInflater, parent);
-        displayPayloadReselectionAction(layout, mActionFactory, mFeatureFlagRepository);
+        displayModifyShareAction(layout, mActionFactory, mFeatureFlagRepository);
         return layout;
     }
 
@@ -76,6 +79,8 @@ class FileContentPreviewUi extends ContentPreviewUi {
                 R.layout.chooser_grid_preview_file, parent, false);
 
         final int uriCount = mFiles.size();
+
+        displayHeadline(contentPreviewLayout, mHeadlineGenerator.getItemsHeadline(mFiles.size()));
 
         if (uriCount == 0) {
             contentPreviewLayout.setVisibility(View.GONE);

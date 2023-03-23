@@ -20,6 +20,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.ResolveInfoFlags
+import android.os.UserHandle
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -39,6 +40,9 @@ import org.mockito.Mockito.verify
 
 @RunWith(AndroidJUnit4::class)
 class ChooserListAdapterTest {
+    private val PERSONAL_USER_HANDLE: UserHandle = InstrumentationRegistry
+            .getInstrumentation().getTargetContext().getUser()
+
     private val packageManager = mock<PackageManager> {
         whenever(
             resolveActivity(any(), any<ResolveInfoFlags>())
@@ -63,7 +67,8 @@ class ChooserListAdapterTest {
             packageManager,
             chooserActivityLogger,
             mock(),
-            0
+            0,
+            null
         ) {
             override fun createLoadDirectShareIconTask(
                 info: SelectableTargetInfo
@@ -119,7 +124,7 @@ class ChooserListAdapterTest {
         SelectableTargetInfo.newSelectableTargetInfo(
             /* sourceInfo = */ DisplayResolveInfo.newDisplayResolveInfo(
                 Intent(),
-                ResolverDataProvider.createResolveInfo(2, 0),
+                ResolverDataProvider.createResolveInfo(2, 0, PERSONAL_USER_HANDLE),
                 "label",
                 "extended info",
                 Intent(),

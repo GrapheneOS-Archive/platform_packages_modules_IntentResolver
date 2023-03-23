@@ -28,11 +28,11 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.media.MediaMetadata;
 import android.net.Uri;
-import android.os.RemoteException;
 import android.provider.DocumentsContract;
 import android.provider.Downloads;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -103,7 +103,8 @@ public final class ChooserContentPreviewUi {
             ImageLoader imageLoader,
             ActionFactory actionFactory,
             TransitionElementStatusCallback transitionElementStatusCallback,
-            FeatureFlagRepository featureFlagRepository) {
+            FeatureFlagRepository featureFlagRepository,
+            HeadlineGenerator headlineGenerator) {
 
         mContentPreviewUi = createContentPreview(
                 targetIntent,
@@ -112,7 +113,8 @@ public final class ChooserContentPreviewUi {
                 imageLoader,
                 actionFactory,
                 transitionElementStatusCallback,
-                featureFlagRepository);
+                featureFlagRepository,
+                headlineGenerator);
         if (mContentPreviewUi.getType() != CONTENT_PREVIEW_IMAGE) {
             transitionElementStatusCallback.onAllTransitionElementsReady();
         }
@@ -125,7 +127,8 @@ public final class ChooserContentPreviewUi {
             ImageLoader imageLoader,
             ActionFactory actionFactory,
             TransitionElementStatusCallback transitionElementStatusCallback,
-            FeatureFlagRepository featureFlagRepository) {
+            FeatureFlagRepository featureFlagRepository,
+            HeadlineGenerator headlineGenerator) {
 
         /* In {@link android.content.Intent#getType}, the app may specify a very general mime type
          * that broadly covers all data being shared, such as {@literal *}/* when sending an image
@@ -139,12 +142,20 @@ public final class ChooserContentPreviewUi {
         if (!(isSend || isSendMultiple)
                 || (type != null && ClipDescription.compareMimeTypes(type, "text/*"))) {
             return createTextPreview(
-                    targetIntent, actionFactory, imageLoader, featureFlagRepository);
+                    targetIntent,
+                    actionFactory,
+                    imageLoader,
+                    featureFlagRepository,
+                    headlineGenerator);
         }
         List<Uri> uris = extractContentUris(targetIntent);
         if (uris.isEmpty()) {
             return createTextPreview(
-                    targetIntent, actionFactory, imageLoader, featureFlagRepository);
+                    targetIntent,
+                    actionFactory,
+                    imageLoader,
+                    featureFlagRepository,
+                    headlineGenerator);
         }
         ArrayList<FileInfo> files = new ArrayList<>(uris.size());
         int previewCount = readFileInfo(contentResolver, typeClassifier, uris, files);
@@ -153,7 +164,8 @@ public final class ChooserContentPreviewUi {
                     files,
                     actionFactory,
                     imageLoader,
-                    featureFlagRepository);
+                    featureFlagRepository,
+                    headlineGenerator);
         }
         if (featureFlagRepository.isEnabled(Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW)) {
             return new UnifiedContentPreviewUi(
@@ -163,14 +175,16 @@ public final class ChooserContentPreviewUi {
                     imageLoader,
                     typeClassifier,
                     transitionElementStatusCallback,
-                    featureFlagRepository);
+                    featureFlagRepository,
+                    headlineGenerator);
         }
         if (previewCount < uris.size()) {
             return new FileContentPreviewUi(
                     files,
                     actionFactory,
                     imageLoader,
-                    featureFlagRepository);
+                    featureFlagRepository,
+                    headlineGenerator);
         }
         // The legacy (3-image) image preview is on it's way out and it's unlikely that we'd end up
         // here. To preserve the legacy behavior, before using it, check that all uris are images.
@@ -180,7 +194,8 @@ public final class ChooserContentPreviewUi {
                         files,
                         actionFactory,
                         imageLoader,
-                        featureFlagRepository);
+                        featureFlagRepository,
+                        headlineGenerator);
             }
         }
         return new ImageContentPreviewUi(
@@ -192,7 +207,8 @@ public final class ChooserContentPreviewUi {
                 actionFactory,
                 imageLoader,
                 transitionElementStatusCallback,
-                featureFlagRepository);
+                featureFlagRepository,
+                headlineGenerator);
     }
 
     public int getPreferredContentPreview() {
@@ -307,7 +323,8 @@ public final class ChooserContentPreviewUi {
             Intent targetIntent,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
-            FeatureFlagRepository featureFlagRepository) {
+            FeatureFlagRepository featureFlagRepository,
+            HeadlineGenerator headlineGenerator) {
         CharSequence sharingText = targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         String previewTitle = targetIntent.getStringExtra(Intent.EXTRA_TITLE);
         ClipData previewData = targetIntent.getClipData();
@@ -324,7 +341,8 @@ public final class ChooserContentPreviewUi {
                 previewThumbnail,
                 actionFactory,
                 imageLoader,
-                featureFlagRepository);
+                featureFlagRepository,
+                headlineGenerator);
     }
 
     private static List<Uri> extractContentUris(Intent targetIntent) {
@@ -351,7 +369,8 @@ public final class ChooserContentPreviewUi {
     private static String getType(ContentInterface resolver, Uri uri) {
         try {
             return resolver.getType(uri);
-        } catch (RemoteException e) {
+        } catch (Throwable t) {
+            Log.e(ContentPreviewUi.TAG, "Failed to read content type, uri: " +  uri, t);
             return null;
         }
     }
@@ -360,7 +379,8 @@ public final class ChooserContentPreviewUi {
     private static Cursor query(ContentInterface resolver, Uri uri) {
         try {
             return resolver.query(uri, null, null, null);
-        } catch (RemoteException e) {
+        } catch (Throwable t) {
+            Log.e(ContentPreviewUi.TAG, "Failed to read metadata, uri: " +  uri, t);
             return null;
         }
     }
@@ -369,7 +389,8 @@ public final class ChooserContentPreviewUi {
     private static String[] getStreamTypes(ContentInterface resolver, Uri uri) {
         try {
             return resolver.getStreamTypes(uri, "*/*");
-        } catch (RemoteException e) {
+        } catch (Throwable t) {
+            Log.e(ContentPreviewUi.TAG, "Failed to read stream types, uri: " +  uri, t);
             return null;
         }
     }

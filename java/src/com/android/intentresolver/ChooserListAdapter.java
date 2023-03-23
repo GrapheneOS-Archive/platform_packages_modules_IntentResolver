@@ -142,7 +142,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
             PackageManager packageManager,
             ChooserActivityLogger chooserActivityLogger,
             ChooserRequestParameters chooserRequest,
-            int maxRankedTargets) {
+            int maxRankedTargets,
+            UserHandle initialIntentsUserSpace) {
         // Don't send the initial intents through the shared ResolverActivity path,
         // we want to separate them into a different section.
         super(
@@ -155,7 +156,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 userHandle,
                 targetIntent,
                 resolverListCommunicator,
-                false);
+                false,
+                initialIntentsUserSpace);
 
         mChooserRequest = chooserRequest;
         mMaxRankedTargets = maxRankedTargets;
@@ -222,6 +224,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
                     ri.noResourceId = true;
                     ri.icon = 0;
                 }
+                ri.userHandle = initialIntentsUserSpace;
                 DisplayResolveInfo displayResolveInfo = DisplayResolveInfo.newDisplayResolveInfo(
                         ii, ri, ii, mPresentationFactory.makePresentationGetter(ri));
                 mCallerTargets.add(displayResolveInfo);
@@ -351,6 +354,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
                         .collect(Collectors.groupingBy(target ->
                                 target.getResolvedComponentName().getPackageName()
                                 + "#" + target.getDisplayLabel()
+                                + '#' + ResolverActivity.getResolveInfoUserHandle(
+                                        target.getResolveInfo(), getUserHandle()).getIdentifier()
                         ))
                         .values()
                         .stream()
