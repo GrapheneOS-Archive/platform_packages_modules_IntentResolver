@@ -26,14 +26,14 @@
               android:gravity="center"
               android:paddingTop="24dp"
               android:paddingBottom="12dp"
-              android:paddingLeft="12dp"
-              android:paddingRight="12dp"
+              android:paddingHorizontal="4dp"
               android:focusable="true"
               android:background="?android:attr/selectableItemBackgroundBorderless">
 
     <ImageView android:id="@android:id/icon"
                android:layout_width="@dimen/chooser_icon_size"
                android:layout_height="@dimen/chooser_icon_size"
+               android:layout_marginHorizontal="8dp"
                android:scaleType="fitCenter" />
 
     <!-- Size manually tuned to match specs -->
