@@ -67,6 +67,16 @@ public final class ChooserRefinementManager {
     }
 
     /**
+     * @return whether a refinement session has been initiated (i.e., an earlier call to
+     * {@link #maybeHandleSelection(TargetInfo)} returned true), and isn't yet complete. The session
+     * is complete if the refinement activity calls {@link ResultReceiver#onResultReceived()} (with
+     * any result), or if it's cancelled on our side by {@link ChooserRefinementManager#destroy()}.
+     */
+    public boolean isAwaitingRefinementResult() {
+        return (mRefinementResultReceiver != null);
+    }
+
+    /**
      * Delegate the user's {@code selectedTarget} to the refinement flow, if possible.
      * @return true if the selection should wait for a now-started refinement flow, or false if it
      * can proceed by the default (non-refinement) logic.

@@ -620,6 +620,15 @@ public class ChooserActivity extends ResolverActivity implements
         super.onResume();
         Log.d(TAG, "onResume: " + getComponentName().flattenToShortString());
         maybeCancelFinishAnimation();
+
+        if (mRefinementManager.isAwaitingRefinementResult()) {
+            // This can happen if the refinement activity terminates without ever sending a response
+            // to our `ResultReceiver`. We're probably not prepared to return the user into a valid
+            // Chooser session, so we'll treat it as a cancellation instead.
+            Log.w(TAG, "Chooser resumed while awaiting refinement result; aborting");
+            mRefinementManager.destroy();
+            finish();
+        }
     }
 
     @Override
