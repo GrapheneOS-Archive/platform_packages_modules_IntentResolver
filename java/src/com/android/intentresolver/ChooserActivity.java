@@ -279,10 +279,7 @@ public class ChooserActivity extends ResolverActivity implements
                         finish();
                     }
                 },
-                () -> {
-                    mRefinementManager.destroy();
-                    finish();
-                });
+                this::finish);
 
         mChooserContentPreviewUi = new ChooserContentPreviewUi(
                 mChooserRequest.getTargetIntent(),
