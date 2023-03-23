@@ -77,6 +77,13 @@ public final class ChooserRefinementManager {
         if (selectedTarget.getAllSourceIntents().isEmpty()) {
             return false;
         }
+        if (selectedTarget.isSuspended()) {
+            // We expect all launches to fail for this target, so don't make the user go through the
+            // refinement flow first. Besides, the default (non-refinement) handling displays a
+            // warning in this case and recovers the session; we won't be equipped to recover if
+            // problems only come up after refinement.
+            return false;
+        }
 
         destroy();  // Terminate any prior sessions.
         mRefinementResultReceiver = new RefinementResultReceiver(
