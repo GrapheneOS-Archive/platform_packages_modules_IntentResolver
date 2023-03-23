@@ -54,8 +54,7 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> অ্যাপ আনপিন করুন"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"এডিট করুন"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} ও আরও #টি ফাইল}one{{file_name} ও আরও #টি ফাইল}other{{file_name} ও আরও #টি ফাইল}}"</string>
-    <!-- no translation found for other_files (4501185823517473875) -->
-    <skip />
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{আরও #টি ফাইল}one{আরও #টি ফাইল}other{আরও #টি ফাইল}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"শেয়ার করার জন্য সাজেস্ট করার মতো কেউ নেই"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"অ্যাপের তালিকা"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"এই অ্যাপকে রেকর্ড করার অনুমতি দেওয়া হয়নি কিন্তু USB ডিভাইসের মাধ্যমে সেটি অডিও রেকর্ড করতে পারে।"</string>

@@ -54,8 +54,7 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"Unpin <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Edit"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # file}other{{file_name} + # files}}"</string>
-    <!-- no translation found for other_files (4501185823517473875) -->
-    <skip />
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # file}other{+ # files}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"No recommended people to share with"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Apps list"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"This app has not been granted record permission but could capture audio through this USB device."</string>

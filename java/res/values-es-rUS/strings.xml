@@ -54,8 +54,7 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"Dejar de fijar <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Editar"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} y # archivo más}many{{file_name} y # archivos más}other{{file_name} y # archivos más}}"</string>
-    <!-- no translation found for other_files (4501185823517473875) -->
-    <skip />
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # archivo}many{+ # de archivos}other{+ # archivos}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"No hay personas recomendadas con quienes compartir"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Lista de apps"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Aunque no se le otorgó permiso de grabación a esta app, puede capturar audio con este dispositivo USB."</string>

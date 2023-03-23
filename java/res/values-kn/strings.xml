@@ -17,55 +17,44 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="whichApplication" msgid="2309561338625872614">"ಇದನ್ನು ಬಳಸಿಕೊಂಡು ಕ್ರಿಯೆಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ"</string>
-    <!-- no translation found for whichApplicationNamed (8514249643796783492) -->
-    <skip />
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"<xliff:g id="APP">%1$s</xliff:g> ಬಳಸಿಕೊಂಡು ಕ್ರಿಯೆ ಪೂರ್ಣಗೊಳಿಸಿ"</string>
     <string name="whichApplicationLabel" msgid="4312929689807826793">"ಕ್ರಿಯೆಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ"</string>
     <string name="whichViewApplication" msgid="7660051361612888119">"ಇದರ ಮೂಲಕ ತೆರೆಯಿರಿ"</string>
-    <!-- no translation found for whichViewApplicationNamed (8231810543224200555) -->
-    <skip />
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"<xliff:g id="APP">%1$s</xliff:g> ಜೊತೆ ತೆರೆಯಿರಿ"</string>
     <string name="whichViewApplicationLabel" msgid="9123647023323311663">"ತೆರೆಯಿರಿ"</string>
     <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"ಇವುಗಳ ಮೂಲಕ <xliff:g id="HOST">%1$s</xliff:g> ಲಿಂಕ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ"</string>
     <string name="whichOpenLinksWith" msgid="3468042265545684416">"ಇವುಗಳ ಮೂಲಕ ಲಿಂಕ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ"</string>
     <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"<xliff:g id="APPLICATION">%1$s</xliff:g> ಮೂಲಕ ಲಿಂಕ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ"</string>
     <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"<xliff:g id="APPLICATION">%2$s</xliff:g> ಮೂಲಕ <xliff:g id="HOST">%1$s</xliff:g> ಲಿಂಕ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ"</string>
-    <!-- no translation found for whichGiveAccessToApplicationLabel (5120142857844152131) -->
-    <skip />
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"ಆ್ಯಕ್ಸೆಸ್ ನೀಡಿ"</string>
     <string name="whichEditApplication" msgid="5097563012157950614">"ಇವರ ಜೊತೆಗೆ ಎಡಿಟ್ ಮಾಡಿ"</string>
-    <!-- no translation found for whichEditApplicationNamed (3150137489226219100) -->
-    <skip />
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"<xliff:g id="APP">%1$s</xliff:g> ಮೂಲಕ ಎಡಿಟ್ ಮಾಡಿ"</string>
     <string name="whichEditApplicationLabel" msgid="5992662938338600364">"ಎಡಿಟ್"</string>
     <string name="whichSendApplication" msgid="59510564281035884">"ಹಂಚಿಕೊಳ್ಳಿ"</string>
-    <!-- no translation found for whichSendApplicationNamed (495577664218765855) -->
-    <skip />
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"<xliff:g id="APP">%1$s</xliff:g> ಜೊತೆ ಹಂಚಿಕೊಳ್ಳಿ"</string>
     <string name="whichSendApplicationLabel" msgid="2391198069286568035">"ಹಂಚಿಕೊಳ್ಳಿ"</string>
     <string name="whichSendToApplication" msgid="2724450540348806267">"ಇದನ್ನು ಬಳಸಿಕೊಂಡು ಕಳುಹಿಸಿ"</string>
-    <!-- no translation found for whichSendToApplicationNamed (1996548940365954543) -->
-    <skip />
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"<xliff:g id="APP">%1$s</xliff:g> ಬಳಸಿ ಕಳುಹಿಸಿ"</string>
     <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"ಕಳುಹಿಸು"</string>
     <string name="whichHomeApplication" msgid="8797832422254564739">"ಮುಖಪುಟ‌ ಅಪ್ಲಿಕೇಶನ್‌ ಆಯ್ಕೆಮಾಡಿ"</string>
-    <!-- no translation found for whichHomeApplicationNamed (3943122502791761387) -->
-    <skip />
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"<xliff:g id="APP">%1$s</xliff:g> ಅನ್ನು ಹೋಮ್ ಆಗಿ ಬಳಸಿ"</string>
     <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"ಚಿತ್ರ ಕ್ಯಾಪ್ಚರ್ ಮಾಡಿ"</string>
     <string name="whichImageCaptureApplication" msgid="7830965894804399333">"ಇದರ ಜೊತೆಗೆ ಚಿತ್ರ ಕ್ಯಾಪ್ಚರ್ ಮಾಡಿ"</string>
-    <!-- no translation found for whichImageCaptureApplicationNamed (5927801386307049780) -->
-    <skip />
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"<xliff:g id="APP">%1$s</xliff:g> ಮೂಲಕ ಚಿತ್ರ ಕ್ಯಾಪ್ಚರ್ ಮಾಡಿ"</string>
     <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"ಚಿತ್ರ ಕ್ಯಾಪ್ಚರ್ ಮಾಡಿ"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"ಬೇರೊಂದು ಆ್ಯಪ್ ಬಳಸಿ"</string>
-    <!-- no translation found for chooseActivity (6659724877523973446) -->
-    <skip />
+    <string name="chooseActivity" msgid="6659724877523973446">"ಕ್ರಿಯೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
     <string name="noApplications" msgid="1139487441772284671">"ಯಾವುದೇ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಈ ಕ್ರಿಯೆಗಾಗಿ ಬದ್ಧತೆ ತೋರಿಸುವುದಿಲ್ಲ."</string>
     <string name="forward_intent_to_owner" msgid="6454987608971162379">"ನಿಮ್ಮ ಕೆಲಸದ ಪ್ರೊಫೈಲ್‌ನ ಹೊರಗೆ ನೀವು ಈ ಅಪ್ಲಿಕೇಶನ್‌ ಅನ್ನು ಬಳಸುತ್ತಿರುವಿರಿ"</string>
     <string name="forward_intent_to_work" msgid="2906094223089139419">"ನಿಮ್ಮ ಕೆಲಸದ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ ನೀವು ಈ ಅಪ್ಲಿಕೇಶನ್‌ ಅನ್ನು ಬಳಸುತ್ತಿರುವಿರಿ"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"ಯಾವಾಗಲೂ"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"ಒಮ್ಮೆ ಮಾತ್ರ"</string>
-    <!-- no translation found for activity_resolver_work_profiles_support (8228711455685203580) -->
-    <skip />
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> ಉದ್ಯೋಗದ ಪ್ರೊಫೈಲ್ ಅನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ"</string>
     <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g> ಪಿನ್ ಮಾಡಿ"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> ಅನ್ನು ಅನ್‌ಪಿನ್ ಮಾಡಿ"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"ಎಡಿಟ್"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # ಫೈಲ್}one{{file_name} + # ಫೈಲ್‌ಗಳು}other{{file_name} + # ಫೈಲ್‌ಗಳು}}"</string>
-    <!-- no translation found for other_files (4501185823517473875) -->
-    <skip />
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ಫೈಲ್‌}one{+ # ಫೈಲ್‌ಗಳು}other{+ # ಫೈಲ್‌ಗಳು}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ಹಂಚಿಕೊಳ್ಳಲು ಶಿಫಾರಸು ಮಾಡಲಾದವರು ಯಾರೂ ಇಲ್ಲ"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"ಆ್ಯಪ್‌ಗಳ ಪಟ್ಟಿ"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ಈ ಆ್ಯಪ್‌ಗೆ ರೆಕಾರ್ಡ್ ಅನುಮತಿಯನ್ನು ನೀಡಲಾಗಿಲ್ಲ, ಆದರೆ ಈ USB ಸಾಧನದ ಮೂಲಕ ಆಡಿಯೊವನ್ನು ಸೆರೆಹಿಡಿಯಬಲ್ಲದು."</string>

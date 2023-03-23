@@ -54,8 +54,7 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"Soltar <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Editar"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # ficheiro}many{{file_name} + # ficheiros}other{{file_name} + # ficheiros}}"</string>
-    <!-- no translation found for other_files (4501185823517473875) -->
-    <skip />
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ficheiro}many{+ # ficheiros}other{+ # ficheiros}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Não existem pessoas recomendadas com quem partilhar"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Lista de aplicações"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Esta app não recebeu autorização de gravação, mas pode capturar áudio através deste dispositivo USB."</string>
