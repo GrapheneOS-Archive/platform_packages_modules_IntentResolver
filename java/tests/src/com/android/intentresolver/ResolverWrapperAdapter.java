@@ -41,7 +41,8 @@ public class ResolverWrapperAdapter extends ResolverListAdapter {
             ResolverListController resolverListController,
             UserHandle userHandle,
             Intent targetIntent,
-            ResolverListCommunicator resolverListCommunicator) {
+            ResolverListCommunicator resolverListCommunicator,
+            UserHandle initialIntentsUserHandle) {
         super(
                 context,
                 payloadIntents,
@@ -52,7 +53,8 @@ public class ResolverWrapperAdapter extends ResolverListAdapter {
                 userHandle,
                 targetIntent,
                 resolverListCommunicator,
-                false);
+                false,
+                initialIntentsUserHandle);
     }
 
     public CountingIdlingResource getLabelIdlingResource() {

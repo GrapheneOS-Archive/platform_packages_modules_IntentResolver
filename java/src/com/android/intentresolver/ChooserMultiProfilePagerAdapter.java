@@ -50,6 +50,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
             EmptyStateProvider emptyStateProvider,
             Supplier<Boolean> workProfileQuietModeChecker,
             UserHandle workProfileUserHandle,
+            UserHandle cloneProfileUserHandle,
             int maxTargetsPerRow) {
         this(
                 context,
@@ -59,6 +60,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
                 workProfileQuietModeChecker,
                 /* defaultProfile= */ 0,
                 workProfileUserHandle,
+                cloneProfileUserHandle,
                 new BottomPaddingOverrideSupplier(context));
     }
 
@@ -70,6 +72,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
             Supplier<Boolean> workProfileQuietModeChecker,
             @Profile int defaultProfile,
             UserHandle workProfileUserHandle,
+            UserHandle cloneProfileUserHandle,
             int maxTargetsPerRow) {
         this(
                 context,
@@ -79,6 +82,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
                 workProfileQuietModeChecker,
                 defaultProfile,
                 workProfileUserHandle,
+                cloneProfileUserHandle,
                 new BottomPaddingOverrideSupplier(context));
     }
 
@@ -90,6 +94,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
             Supplier<Boolean> workProfileQuietModeChecker,
             @Profile int defaultProfile,
             UserHandle workProfileUserHandle,
+            UserHandle cloneProfileUserHandle,
             BottomPaddingOverrideSupplier bottomPaddingOverrideSupplier) {
         super(
                 context,
@@ -100,6 +105,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
                 workProfileQuietModeChecker,
                 defaultProfile,
                 workProfileUserHandle,
+                cloneProfileUserHandle,
                         () -> makeProfileView(context),
                 bottomPaddingOverrideSupplier);
         mAdapterBinder = adapterBinder;

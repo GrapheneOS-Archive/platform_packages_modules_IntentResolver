@@ -21,10 +21,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ResolveInfo
 import android.content.pm.ShortcutInfo
+import android.os.UserHandle
 import android.service.chooser.ChooserTarget
 import com.android.intentresolver.chooser.DisplayResolveInfo
 import com.android.intentresolver.chooser.TargetInfo
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -35,6 +37,9 @@ private const val CLASS_NAME = "./MainActivity"
 
 @SmallTest
 class ShortcutSelectionLogicTest {
+    private val PERSONAL_USER_HANDLE: UserHandle = InstrumentationRegistry
+            .getInstrumentation().getTargetContext().getUser()
+
     private val packageTargets = HashMap<String, Array<ChooserTarget>>().apply {
         arrayOf(PACKAGE_A, PACKAGE_B).forEach { pkg ->
             // shortcuts in reverse priority order
@@ -52,7 +57,7 @@ class ShortcutSelectionLogicTest {
 
     private val baseDisplayInfo = DisplayResolveInfo.newDisplayResolveInfo(
             Intent(),
-            ResolverDataProvider.createResolveInfo(3, 0),
+            ResolverDataProvider.createResolveInfo(3, 0, PERSONAL_USER_HANDLE),
             "label",
             "extended info",
             Intent(),
@@ -60,7 +65,7 @@ class ShortcutSelectionLogicTest {
 
     private val otherBaseDisplayInfo = DisplayResolveInfo.newDisplayResolveInfo(
             Intent(),
-            ResolverDataProvider.createResolveInfo(4, 0),
+            ResolverDataProvider.createResolveInfo(4, 0, PERSONAL_USER_HANDLE),
             "label 2",
             "extended info 2",
             Intent(),

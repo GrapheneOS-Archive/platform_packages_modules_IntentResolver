@@ -32,11 +32,16 @@ import android.util.Log;
 import com.android.intentresolver.ChooserActivityLogger;
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.ResolverActivity;
+import com.android.intentresolver.chooser.TargetInfo;
+
+import com.google.android.collect.Lists;
 
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Used to sort resolved activities in {@link ResolverListController}.
@@ -50,8 +55,8 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
     private static final String TAG = "AbstractResolverComp";
 
     protected Runnable mAfterCompute;
-    protected final PackageManager mPm;
-    protected final UsageStatsManager mUsm;
+    protected final Map<UserHandle, PackageManager> mPmMap = new HashMap<>();
+    protected final Map<UserHandle, UsageStatsManager> mUsmMap = new HashMap<>();
     protected String[] mAnnotations;
     protected String mContentType;
 
@@ -100,14 +105,48 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
         }
     };
 
-    public AbstractResolverComparator(Context context, Intent intent) {
+    /**
+     * Constructor to initialize the comparator.
+     * @param launchedFromContext the activity calling this comparator
+     * @param intent original intent
+     * @param resolvedActivityUserSpace refers to the userSpace used by the comparator for
+     *                                  fetching activity stats and recording activity selection.
+     *                                  The latter could be different from the userSpace provided by
+     *                                  context.
+     */
+    public AbstractResolverComparator(
+            Context launchedFromContext,
+            Intent intent,
+            UserHandle resolvedActivityUserSpace) {
+        this(launchedFromContext, intent, Lists.newArrayList(resolvedActivityUserSpace));
+    }
+
+
+    /**
+     * Constructor to initialize the comparator.
+     * @param launchedFromContext the activity calling this comparator
+     * @param intent original intent
+     * @param resolvedActivityUserSpaceList refers to the userSpace(s) used by the comparator for
+     *                                      fetching activity stats and recording activity
+     *                                      selection. The latter could be different from the
+     *                                      userSpace provided by context.
+     */
+    public AbstractResolverComparator(
+            Context launchedFromContext,
+            Intent intent,
+            List<UserHandle> resolvedActivityUserSpaceList) {
         String scheme = intent.getScheme();
         mHttp = "http".equals(scheme) || "https".equals(scheme);
         mContentType = intent.getType();
         getContentAnnotations(intent);
-        mPm = context.getPackageManager();
-        mUsm = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
-        mAzComparator = new AzInfoComparator(context);
+        for (UserHandle user : resolvedActivityUserSpaceList) {
+            Context userContext = launchedFromContext.createContextAsUser(user, 0);
+            mPmMap.put(user, userContext.getPackageManager());
+            mUsmMap.put(
+                    user,
+                    (UsageStatsManager) userContext.getSystemService(Context.USAGE_STATS_SERVICE));
+        }
+        mAzComparator = new AzInfoComparator(launchedFromContext);
     }
 
     // get annotations of content from intent.
@@ -197,8 +236,8 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
 
     /**
      * Computes features for each target. This will be called before calls to {@link
-     * #getScore(ComponentName)} or {@link #compare(Object, Object)}, in order to prepare the
-     * comparator for those calls. Note that {@link #getScore(ComponentName)} uses {@link
+     * #getScore(TargetInfo)} or {@link #compare(ResolveInfo, ResolveInfo)}, in order to prepare the
+     * comparator for those calls. Note that {@link #getScore(TargetInfo)} uses {@link
      * ComponentName}, so the implementation will have to be prepared to identify a {@link
      * ResolvedComponentInfo} by {@link ComponentName}. {@link #beforeCompute()} will be called
      * before doing any computing.
@@ -215,7 +254,7 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
      * Returns the score that was calculated for the corresponding {@link ResolvedComponentInfo}
      * when {@link #compute(List)} was called before this.
      */
-    public abstract float getScore(ComponentName name);
+    public abstract float getScore(TargetInfo targetInfo);
 
     /** Handles result message sent to mHandler. */
     abstract void handleResultMessage(Message message);
@@ -223,9 +262,14 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
     /**
      * Reports to UsageStats what was chosen.
      */
-    public final void updateChooserCounts(String packageName, int userId, String action) {
-        if (mUsm != null) {
-            mUsm.reportChooserSelection(packageName, userId, mContentType, mAnnotations, action);
+    public final void updateChooserCounts(String packageName, UserHandle user, String action) {
+        if (mUsmMap.containsKey(user)) {
+            mUsmMap.get(user).reportChooserSelection(
+                    packageName,
+                    user.getIdentifier(),
+                    mContentType,
+                    mAnnotations,
+                    action);
         }
     }
 
@@ -235,9 +279,9 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
      * <p>Default implementation does nothing, as we could have simple model that does not train
      * online.
      *
-     * @param componentName the component that the user clicked
+     * * @param targetInfo the target that the user clicked.
      */
-    public void updateModel(ComponentName componentName) {
+    public void updateModel(TargetInfo targetInfo) {
     }
 
     /** Called before {@link #doCompute(List)}. Sets up 500ms timeout. */

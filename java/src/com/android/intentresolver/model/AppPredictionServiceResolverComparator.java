@@ -33,6 +33,9 @@ import android.util.Log;
 
 import com.android.intentresolver.ChooserActivityLogger;
 import com.android.intentresolver.ResolvedComponentInfo;
+import com.android.intentresolver.chooser.TargetInfo;
+
+import com.google.android.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -70,7 +73,7 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
             AppPredictor appPredictor,
             UserHandle user,
             ChooserActivityLogger chooserActivityLogger) {
-        super(context, intent);
+        super(context, intent, Lists.newArrayList(user));
         mContext = context;
         mIntent = intent;
         mAppPredictor = appPredictor;
@@ -108,9 +111,12 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
                         // APS for chooser is disabled. Fallback to resolver.
                         mResolverRankerService =
                                 new ResolverRankerServiceResolverComparator(
-                                        mContext, mIntent, mReferrerPackage,
+                                        mContext,
+                                        mIntent,
+                                        mReferrerPackage,
                                         () -> mHandler.sendEmptyMessage(RANKER_SERVICE_RESULT),
-                                        getChooserActivityLogger());
+                                        getChooserActivityLogger(),
+                                        mUser);
                         mComparatorModel = buildUpdatedModel();
                         mResolverRankerService.compute(targets);
                     } else {
@@ -167,13 +173,13 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
     }
 
     @Override
-    public float getScore(ComponentName name) {
-        return mComparatorModel.getScore(name);
+    public float getScore(TargetInfo targetInfo) {
+        return mComparatorModel.getScore(targetInfo);
     }
 
     @Override
-    public void updateModel(ComponentName componentName) {
-        mComparatorModel.notifyOnTargetSelected(componentName);
+    public void updateModel(TargetInfo targetInfo) {
+        mComparatorModel.notifyOnTargetSelected(targetInfo);
     }
 
     @Override
@@ -246,11 +252,11 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
         }
 
         @Override
-        public float getScore(ComponentName name) {
+        public float getScore(TargetInfo targetInfo) {
             if (mResolverRankerService != null) {
-                return mResolverRankerService.getScore(name);
+                return mResolverRankerService.getScore(targetInfo);
             }
-            Integer rank = mTargetRanks.get(name);
+            Integer rank = mTargetRanks.get(targetInfo.getResolvedComponentName());
             if (rank == null) {
                 Log.w(TAG, "Score requested for unknown component. Did you call compute yet?");
                 return 0f;
@@ -260,18 +266,19 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
         }
 
         @Override
-        public void notifyOnTargetSelected(ComponentName componentName) {
+        public void notifyOnTargetSelected(TargetInfo targetInfo) {
             if (mResolverRankerService != null) {
-                mResolverRankerService.updateModel(componentName);
+                mResolverRankerService.updateModel(targetInfo);
                 return;
             }
+            ComponentName targetComponent = targetInfo.getResolvedComponentName();
+            AppTargetId targetId = new AppTargetId(targetComponent.toString());
+            AppTarget appTarget =
+                    new AppTarget.Builder(targetId, targetComponent.getPackageName(), mUser)
+                            .setClassName(targetComponent.getClassName())
+                            .build();
             mAppPredictor.notifyAppTargetEvent(
-                    new AppTargetEvent.Builder(
-                        new AppTarget.Builder(
-                            new AppTargetId(componentName.toString()),
-                            componentName.getPackageName(), mUser)
-                            .setClassName(componentName.getClassName()).build(),
-                        ACTION_LAUNCH).build());
+                    new AppTargetEvent.Builder(appTarget, ACTION_LAUNCH).build());
         }
     }
 }

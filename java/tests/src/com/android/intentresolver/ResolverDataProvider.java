@@ -43,12 +43,28 @@ public class ResolverDataProvider {
                 createResolveInfo(i, UserHandle.USER_CURRENT));
     }
 
+    static ResolvedComponentInfo createResolvedComponentInfo(int i,
+            UserHandle resolvedForUser) {
+        return new ResolvedComponentInfo(
+                createComponentName(i),
+                createResolverIntent(i),
+                createResolveInfo(i, UserHandle.USER_CURRENT, resolvedForUser));
+    }
+
     static ResolvedComponentInfo createResolvedComponentInfo(
             ComponentName componentName, Intent intent) {
         return new ResolvedComponentInfo(
                 componentName,
                 intent,
                 createResolveInfo(componentName, UserHandle.USER_CURRENT));
+    }
+
+    static ResolvedComponentInfo createResolvedComponentInfo(
+            ComponentName componentName, Intent intent, UserHandle resolvedForUser) {
+        return new ResolvedComponentInfo(
+                componentName,
+                intent,
+                createResolveInfo(componentName, UserHandle.USER_CURRENT, resolvedForUser));
     }
 
     static ResolvedComponentInfo createResolvedComponentInfoWithOtherId(int i) {
@@ -58,11 +74,27 @@ public class ResolverDataProvider {
                 createResolveInfo(i, USER_SOMEONE_ELSE));
     }
 
+    static ResolvedComponentInfo createResolvedComponentInfoWithOtherId(int i,
+            UserHandle resolvedForUser) {
+        return new ResolvedComponentInfo(
+                createComponentName(i),
+                createResolverIntent(i),
+                createResolveInfo(i, USER_SOMEONE_ELSE, resolvedForUser));
+    }
+
     static ResolvedComponentInfo createResolvedComponentInfoWithOtherId(int i, int userId) {
         return new ResolvedComponentInfo(
                 createComponentName(i),
                 createResolverIntent(i),
                 createResolveInfo(i, userId));
+    }
+
+    static ResolvedComponentInfo createResolvedComponentInfoWithOtherId(int i,
+            int userId, UserHandle resolvedForUser) {
+        return new ResolvedComponentInfo(
+                createComponentName(i),
+                createResolverIntent(i),
+                createResolveInfo(i, userId, resolvedForUser));
     }
 
     public static ComponentName createComponentName(int i) {
@@ -76,11 +108,27 @@ public class ResolverDataProvider {
         resolveInfo.targetUserId = userId;
         return resolveInfo;
     }
+    public static ResolveInfo createResolveInfo(int i, int userId, UserHandle resolvedForUser) {
+        final ResolveInfo resolveInfo = new ResolveInfo();
+        resolveInfo.activityInfo = createActivityInfo(i);
+        resolveInfo.targetUserId = userId;
+        resolveInfo.userHandle = resolvedForUser;
+        return resolveInfo;
+    }
 
     public static ResolveInfo createResolveInfo(ComponentName componentName, int userId) {
         final ResolveInfo resolveInfo = new ResolveInfo();
         resolveInfo.activityInfo = createActivityInfo(componentName);
         resolveInfo.targetUserId = userId;
+        return resolveInfo;
+    }
+
+    public static ResolveInfo createResolveInfo(ComponentName componentName, int userId,
+            UserHandle resolvedForUser) {
+        final ResolveInfo resolveInfo = new ResolveInfo();
+        resolveInfo.activityInfo = createActivityInfo(componentName);
+        resolveInfo.targetUserId = userId;
+        resolveInfo.userHandle = resolvedForUser;
         return resolveInfo;
     }
 
