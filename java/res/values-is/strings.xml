@@ -16,17 +16,45 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for app_label (325107764352168045) -->
-    <skip />
+    <string name="whichApplication" msgid="2309561338625872614">"Ljúka aðgerð með"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"Ljúka aðgerð með <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"Ljúka aðgerð"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"Opna með"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"Opna með <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichViewApplicationLabel" msgid="9123647023323311663">"Opna"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"Opna <xliff:g id="HOST">%1$s</xliff:g> tengla með"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"Opna tengla með"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"Opna tengla með <xliff:g id="APPLICATION">%1$s</xliff:g>"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"Opna <xliff:g id="HOST">%1$s</xliff:g> tengla með <xliff:g id="APPLICATION">%2$s</xliff:g>"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"Veita aðgang"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"Breyta með"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"Breyta með <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"Breyta"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"Deila"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"Deila með <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"Deila"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"Senda með því að nota"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"Senda með <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"Senda"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"Veldu heimaforrit"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"Nota <xliff:g id="APP">%1$s</xliff:g> sem heimaforrit"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"Taka mynd"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"Taka mynd með"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"Taka mynd með <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"Taka mynd"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"Nota annað forrit"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"Veldu aðgerð"</string>
     <string name="noApplications" msgid="1139487441772284671">"Engin forrit geta framkvæmt þessa aðgerð."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"Þú ert að nota þetta forrit utan vinnusniðsins"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"Þú ert að nota þetta forrit á vinnusniðinu þínu"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"Alltaf"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"Bara einu sinni"</string>
-    <!-- no translation found for pin_specific_target (5057063421361441406) -->
-    <skip />
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> styður ekki vinnusnið"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"Festa <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Losa <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"Breyta"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # skrá}one{{file_name} + # skrá}other{{file_name} + # skrár}}"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # skrá}one{+ # skrá}other{+ # skrár}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Engar tillögur um fólk til að deila með"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Forritalisti"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Þetta forrit hefur ekki fengið heimild fyrir upptöku en gæti tekið upp hljóð í gegnum þetta USB-tæki."</string>
@@ -47,18 +75,8 @@
     <string name="miniresolver_open_in_work" msgid="4271638122142624693">"Opna <xliff:g id="APP">%s</xliff:g> í vinnusniðinu þínu?"</string>
     <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"Nota einkavafra"</string>
     <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"Nota vinnuvafra"</string>
-    <!-- no translation found for select_files (717427764544068086) -->
-    <skip />
-    <!-- no translation found for select_images (5564089845412362804) -->
-    <skip />
-    <!-- no translation found for select_text (7253549490440625849) -->
-    <skip />
-    <!-- no translation found for exclude_text (5508128757025928034) -->
-    <skip />
-    <!-- no translation found for include_text (642280283268536140) -->
-    <skip />
-    <!-- no translation found for exclude_link (1332778255031992228) -->
-    <skip />
-    <!-- no translation found for include_link (827855767220339802) -->
-    <skip />
+    <string name="exclude_text" msgid="5508128757025928034">"Útiloka texta"</string>
+    <string name="include_text" msgid="642280283268536140">"Hafa texta með"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"Útiloka tengil"</string>
+    <string name="include_link" msgid="827855767220339802">"Hafa tengil með"</string>
 </resources>

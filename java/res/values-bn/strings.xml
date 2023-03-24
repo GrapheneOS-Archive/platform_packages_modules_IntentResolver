@@ -16,17 +16,45 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for app_label (325107764352168045) -->
-    <skip />
+    <string name="whichApplication" msgid="2309561338625872614">"এটি ব্যবহার করে ক্রিয়াকলাপ সম্পূর্ণ করুন"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"<xliff:g id="APP">%1$s</xliff:g> ব্যবহার করে অ্যাকশন সম্পূর্ণ করুন"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"ক্রিয়াকলাপ সম্পূর্ণ করুন"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"এর মাধ্যমে খুলুন"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"<xliff:g id="APP">%1$s</xliff:g> দিয়ে খুলুন"</string>
     <string name="whichViewApplicationLabel" msgid="9123647023323311663">"খুলুন"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"এই ব্রাউজারে <xliff:g id="HOST">%1$s</xliff:g> লিঙ্কটি খুলুন"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"এই ব্রাউজারে লিঙ্কটি খুলুন"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"<xliff:g id="APPLICATION">%1$s</xliff:g>-এ লিঙ্ক খুলুন"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"<xliff:g id="APPLICATION">%2$s</xliff:g>-এ <xliff:g id="HOST">%1$s</xliff:g> লিঙ্কটি খুলুন"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"অ্যাক্সেস দিন"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"এর মাধ্যমে সম্পাদনা করুন"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"<xliff:g id="APP">%1$s</xliff:g> দিয়ে এডিট করুন"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"সম্পাদনা করুন"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"শেয়ার করুন"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"<xliff:g id="APP">%1$s</xliff:g>-এর সাথে শেয়ার করুন"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"শেয়ার করুন"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"এটি ব্যবহার করে পাঠান"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"<xliff:g id="APP">%1$s</xliff:g> ব্যবহার করে পাঠান"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"পাঠান"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"একটি হোম অ্যাপ্লিকেশন বেছে নিন"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"হোম হিসেবে <xliff:g id="APP">%1$s</xliff:g> ব্যবহার করুন"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"ছবি তুলুন"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"এই দিয়ে ছবি তুলুন"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"<xliff:g id="APP">%1$s</xliff:g> দিয়ে ছবি তুলুন"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"ছবি তুলুন"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"আলাদা কোনো অ্যাপ্লিকেশান ব্যবহার করুন"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"একটি অ্যাকশন বেছে নিন"</string>
     <string name="noApplications" msgid="1139487441772284671">"কোনো অ্যাপ্লিকেশানই এই ক্রিয়া সঞ্চালন করতে পারবে না৷"</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"আপনি এই অ্যাপ্লিকেশানটি আপনার কর্মস্থলের প্রোফাইলের বাইরে ব্যবহার করছেন"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"আপনি এই অ্যাপ্লিকেশানটি আপনার কর্মস্থলের প্রোফাইলে ব্যবহার করছেন"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"সবসময়"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"শুধু একবার"</string>
-    <!-- no translation found for pin_specific_target (5057063421361441406) -->
-    <skip />
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"অফিস প্রোফাইলে <xliff:g id="APP">%1$s</xliff:g> কাজ করে না"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g> অ্যাপ পিন করুন"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> অ্যাপ আনপিন করুন"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"এডিট করুন"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} ও আরও #টি ফাইল}one{{file_name} ও আরও #টি ফাইল}other{{file_name} ও আরও #টি ফাইল}}"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{আরও #টি ফাইল}one{আরও #টি ফাইল}other{আরও #টি ফাইল}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"শেয়ার করার জন্য সাজেস্ট করার মতো কেউ নেই"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"অ্যাপের তালিকা"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"এই অ্যাপকে রেকর্ড করার অনুমতি দেওয়া হয়নি কিন্তু USB ডিভাইসের মাধ্যমে সেটি অডিও রেকর্ড করতে পারে।"</string>
@@ -47,18 +75,8 @@
     <string name="miniresolver_open_in_work" msgid="4271638122142624693">"আপনার অফিস প্রোফাইল থেকে <xliff:g id="APP">%s</xliff:g> খুলবেন?"</string>
     <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"ব্যক্তিগত ব্রাউজার ব্যবহার করুন"</string>
     <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"অফিস ব্রাউজার ব্যবহার করুন"</string>
-    <!-- no translation found for select_files (717427764544068086) -->
-    <skip />
-    <!-- no translation found for select_images (5564089845412362804) -->
-    <skip />
-    <!-- no translation found for select_text (7253549490440625849) -->
-    <skip />
-    <!-- no translation found for exclude_text (5508128757025928034) -->
-    <skip />
-    <!-- no translation found for include_text (642280283268536140) -->
-    <skip />
-    <!-- no translation found for exclude_link (1332778255031992228) -->
-    <skip />
-    <!-- no translation found for include_link (827855767220339802) -->
-    <skip />
+    <string name="exclude_text" msgid="5508128757025928034">"টেক্সট বাদ দিন"</string>
+    <string name="include_text" msgid="642280283268536140">"টেক্সট যোগ করুন"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"লিঙ্ক বাদ দিন"</string>
+    <string name="include_link" msgid="827855767220339802">"লিঙ্ক যোগ করুন"</string>
 </resources>
