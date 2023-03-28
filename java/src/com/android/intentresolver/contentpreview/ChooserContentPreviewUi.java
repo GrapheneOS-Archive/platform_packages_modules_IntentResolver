@@ -369,30 +369,36 @@ public final class ChooserContentPreviewUi {
     private static String getType(ContentInterface resolver, Uri uri) {
         try {
             return resolver.getType(uri);
+        } catch (SecurityException e) {
+            logProviderPermissionWarning(uri, "mime type");
         } catch (Throwable t) {
             Log.e(ContentPreviewUi.TAG, "Failed to read content type, uri: " +  uri, t);
-            return null;
         }
+        return null;
     }
 
     @Nullable
     private static Cursor query(ContentInterface resolver, Uri uri) {
         try {
             return resolver.query(uri, null, null, null);
+        } catch (SecurityException e) {
+            logProviderPermissionWarning(uri, "metadata");
         } catch (Throwable t) {
             Log.e(ContentPreviewUi.TAG, "Failed to read metadata, uri: " +  uri, t);
-            return null;
         }
+        return null;
     }
 
     @Nullable
     private static String[] getStreamTypes(ContentInterface resolver, Uri uri) {
         try {
             return resolver.getStreamTypes(uri, "*/*");
+        } catch (SecurityException e) {
+            logProviderPermissionWarning(uri, "stream types");
         } catch (Throwable t) {
             Log.e(ContentPreviewUi.TAG, "Failed to read stream types, uri: " +  uri, t);
-            return null;
         }
+        return null;
     }
 
     private static String getFileName(Uri uri) {
@@ -403,5 +409,12 @@ public final class ChooserContentPreviewUi {
             fileName = fileName.substring(index + 1);
         }
         return fileName;
+    }
+
+    private static void logProviderPermissionWarning(Uri uri, String dataName) {
+        // The ContentResolver already logs the exception. Log something more informative.
+        Log.w(ContentPreviewUi.TAG, "Could not read " + uri + " " + dataName + "."
+                + " If a preview is desired, call Intent#setClipData() to ensure that the"
+                + " sharesheet is given permission.");
     }
 }
