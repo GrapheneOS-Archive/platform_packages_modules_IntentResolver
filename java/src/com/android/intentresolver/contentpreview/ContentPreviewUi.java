@@ -75,9 +75,11 @@ abstract class ContentPreviewUi {
             FeatureFlagRepository featureFlagRepository) {
         ArrayList<ActionRow.Action> actions =
                 new ArrayList<>(systemActions.size() + customActions.size());
-        actions.addAll(systemActions);
-        if (featureFlagRepository.isEnabled(Flags.SHARESHEET_CUSTOM_ACTIONS)) {
+        if (featureFlagRepository.isEnabled(Flags.SHARESHEET_CUSTOM_ACTIONS)
+                && customActions != null && !customActions.isEmpty()) {
             actions.addAll(customActions);
+        } else {
+            actions.addAll(systemActions);
         }
         return actions;
     }
