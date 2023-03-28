@@ -77,6 +77,7 @@ open class ShortcutLoader @VisibleForTesting constructor(
     private val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
     private val activeRequest = AtomicReference(NO_REQUEST)
     private val appPredictorCallback = AppPredictor.Callback { onAppPredictorCallback(it) }
+    @Volatile
     private var isDestroyed = false
 
     @MainThread
@@ -134,8 +135,14 @@ open class ShortcutLoader @VisibleForTesting constructor(
     @WorkerThread
     private fun queryDirectShareTargets(skipAppPredictionService: Boolean) {
         if (!skipAppPredictionService && appPredictor != null) {
-            appPredictor.requestPredictionUpdate()
-            return
+            try {
+                appPredictor.requestPredictionUpdate()
+                return
+            } catch (e: Throwable) {
+                // we might have been destroyed concurrently, nothing left to do
+                if (isDestroyed) return
+                Log.e(TAG, "Failed to query AppPredictor", e)
+            }
         }
         // Default to just querying ShortcutManager if AppPredictor not present.
         if (targetIntentFilter == null) return
