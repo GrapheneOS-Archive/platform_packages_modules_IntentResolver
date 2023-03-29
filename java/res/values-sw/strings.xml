@@ -55,6 +55,13 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"Badilisha"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + faili #}other{{file_name} + faili #}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ faili #}other{+ faili #}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Inashiriki maandishi"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Inashiriki kiungo"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Inashiriki picha}other{Inashiriki picha #}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Inashiriki video}other{Inashiriki video #}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Inashiriki kipengee #}other{Inashiriki vipengee #}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Inashiriki picha na maandishi"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Inashiriki picha na kiungo"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Hujapendekezewa watu wa kushiriki nao"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Orodha ya programu"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Programu hii haijapewa ruhusa ya kurekodi lakini inaweza kurekodi sauti kupitia kifaa hiki cha USB."</string>

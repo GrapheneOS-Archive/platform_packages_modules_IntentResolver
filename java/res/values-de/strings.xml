@@ -55,6 +55,13 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"Bearbeiten"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # Datei}other{{file_name} + # Dateien}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # Datei}other{+ # Dateien}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Text wird geteilt"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Link wird geteilt"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Bild wird geteilt}other{# Bilder werden geteilt}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Video wird geteilt}other{# Videos werden geteilt}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# Element wird geteilt}other{# Elemente werden geteilt}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Bild mit Text geteilt"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Bild mit Link geteilt"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Keine empfohlenen Empfänger"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Liste der Apps"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Diese App hat noch keine Berechtigung zum Aufnehmen erhalten, könnte aber Audioaufnahmen über dieses USB-Gerät machen."</string>

@@ -54,8 +54,14 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"取消將<xliff:g id="LABEL">%1$s</xliff:g>置頂"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"編輯"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{「{file_name}」和另外 # 個檔案}other{「{file_name}」和另外 # 個檔案}}"</string>
-    <!-- no translation found for other_files (4501185823517473875) -->
-    <skip />
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{和 # 個檔案}other{和 # 個檔案}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"正在分享文字"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"正在分享連結"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{正在分享圖片}other{正在分享 # 張圖片}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{正在分享影片}other{正在分享 # 部影片}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{正在分享 # 個項目}other{正在分享 # 個項目}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"正在分享圖片 (含有文字)"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"正在分享圖片 (含有連結)"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"沒有推薦的分享對象"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"應用程式清單"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"此應用程式尚未獲授予錄音權限，但可透過此 USB 裝置記錄音訊。"</string>
