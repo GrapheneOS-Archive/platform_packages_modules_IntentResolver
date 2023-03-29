@@ -55,6 +55,13 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"Upraviť"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # súbor}few{{file_name} + # súbory}many{{file_name} + # files}other{{file_name} + # súborov}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # súbor}few{+ # súbory}many{+ # files}other{+ # súborov}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Zdieľa sa textová správa"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Zdieľa sa odkaz"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Zdieľa sa obrázok}few{Zdieľajú sa # obrázky}many{Sharing # images}other{Zdieľa sa # obrázkov}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Zdieľa sa video}few{Zdieľajú sa # videá}many{Sharing # videos}other{Zdieľa sa # videí}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Zdieľa sa # položka}few{Zdieľajú sa # položky}many{Sharing # items}other{Zdieľa sa # položiek}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Zdieľa sa obr. s textom"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Zdieľa sa obr. s odkazom"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Žiadni odporúčaní príjemcovia"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Zoznam aplikácií"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Tejto aplikácii nebolo udelené povolenie na nahrávanie, ale môže nasnímať zvuk cez toto zariadenie USB."</string>

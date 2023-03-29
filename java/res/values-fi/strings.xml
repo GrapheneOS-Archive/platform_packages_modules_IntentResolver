@@ -55,6 +55,13 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"Muokkaa"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # tiedosto}other{{file_name} + # tiedostoa}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{yli # tiedosto}other{yli # tiedostoa}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Jaetaan tekstiä"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Jaetaan linkkiä"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Jaetaan kuvaa}other{Jaetaan # kuvaa}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Jaetaan videota}other{Jaetaan # videota}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Jaetaan # kohdetta}other{Jaetaan # kohdetta}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Kuvaa ja tekstiä jaetaan"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Kuvaa ja linkkiä jaetaan"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Ei suosituksia kenelle jakaa"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Sovellusluettelo"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Sovellus ei ole saanut tallennuslupaa mutta voi tallentaa ääntä tämän USB-laitteen avulla."</string>

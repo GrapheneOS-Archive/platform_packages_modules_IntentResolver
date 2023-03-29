@@ -55,6 +55,13 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"Editează"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # fișier}few{{file_name} + # fișiere}other{{file_name} + # de fișiere}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # fișier}few{+ # fișiere}other{+ # de fișiere}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Se trimite textul"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Se trimite linkul"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Se trimite imaginea}few{Se trimit # imagini}other{Se trimit # de imagini}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Se trimite videoclipul}few{Se trimit # videoclipuri}other{Se trimit # de videoclipuri}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Se trimite # element}few{Se trimit # elemente}other{Se trimit # de elemente}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Se trimite imaginea cu text"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Se trimite imaginea cu linkul"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Nu există persoane recomandate pentru permiterea accesului"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Lista de aplicații"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Permisiunea de înregistrare nu a fost acordată aplicației, dar aceasta poate să înregistreze conținut audio prin intermediul acestui dispozitiv USB."</string>

@@ -55,6 +55,13 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"എഡിറ്റ് ചെയ്യുക"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # ഫയൽ}other{{file_name} + # ഫയലുകൾ}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ഫയൽ}other{+ # ഫയലുകൾ}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"ടെക്‌സ്‌റ്റ് പങ്കിടുന്നു"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"ലിങ്ക് പങ്കിടുന്നു"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ചിത്രം പങ്കിടുന്നു}other{# ചിത്രങ്ങൾ പങ്കിടുന്നു}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{വീഡിയോ പങ്കിടുന്നു}other{# വീഡിയോകൾ പങ്കിടുന്നു}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# ഇനം പങ്കിടുന്നു}other{# ഇനങ്ങൾ പങ്കിടുന്നു}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"ടെക്സ്റ്റിനൊപ്പം ചിത്രം പങ്കിടുന്നു"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"ലിങ്കിനൊപ്പം ചിത്രം പങ്കിടുന്നു"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"പങ്കിടാൻ, നിർദ്ദേശിക്കപ്പെട്ട ആളുകളൊന്നുമില്ല"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"ആപ്പുകളുടെ ലിസ്‌റ്റ്"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ഈ ആപ്പിന് റെക്കോർഡ് അനുമതി നൽകിയിട്ടില്ല, എന്നാൽ ഈ USB ഉപകരണത്തിലൂടെ ഓഡിയോ ക്യാപ്‌ചർ ചെയ്യാനാവും."</string>
