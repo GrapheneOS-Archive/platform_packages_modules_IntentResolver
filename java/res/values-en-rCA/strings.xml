@@ -16,15 +16,52 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_label" msgid="325107764352168045">"IntentResolver"</string>
+    <string name="whichApplication" msgid="2309561338625872614">"Complete action using"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"Complete action using <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"Complete action"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"Open with"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"Open with <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichViewApplicationLabel" msgid="9123647023323311663">"Open"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"Open <xliff:g id="HOST">%1$s</xliff:g> links with"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"Open links with"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"Open links with <xliff:g id="APPLICATION">%1$s</xliff:g>"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"Open <xliff:g id="HOST">%1$s</xliff:g> links with <xliff:g id="APPLICATION">%2$s</xliff:g>"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"Give access"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"Edit with"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"Edit with <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"Edit"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"Share"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"Share with <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"Share"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"Send using"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"Send using <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"Send"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"Select a Home app"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"Use <xliff:g id="APP">%1$s</xliff:g> as Home"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"Capture image"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"Capture image with"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"Capture image with <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"Capture image"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"Use a different app"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"Choose an action"</string>
     <string name="noApplications" msgid="1139487441772284671">"No apps can perform this action."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"You\'re using this app outside of your work profile"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"You\'re using this app in your work profile"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"Always"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"Just once"</string>
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> doesn\'t support work profile"</string>
     <string name="pin_specific_target" msgid="5057063421361441406">"Pin <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Unpin <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"Edit"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # file}other{{file_name} + # files}}"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # file}other{+ # files}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Sharing text"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Sharing link"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Sharing image}other{Sharing # images}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Sharing video}other{Sharing # videos}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Sharing # item}other{Sharing # items}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Sharing image with text"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Sharing image with link"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"No recommended people to share with"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Apps list"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"This app has not been granted record permission but could capture audio through this USB device."</string>
@@ -45,9 +82,6 @@
     <string name="miniresolver_open_in_work" msgid="4271638122142624693">"Open <xliff:g id="APP">%s</xliff:g> in your work profile?"</string>
     <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"Use personal browser"</string>
     <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"Use work browser"</string>
-    <string name="select_files" msgid="717427764544068086">"Select Files"</string>
-    <string name="select_images" msgid="5564089845412362804">"Select Images"</string>
-    <string name="select_text" msgid="7253549490440625849">"Select Text"</string>
     <string name="exclude_text" msgid="5508128757025928034">"Exclude text"</string>
     <string name="include_text" msgid="642280283268536140">"Include text"</string>
     <string name="exclude_link" msgid="1332778255031992228">"Exclude link"</string>

@@ -16,17 +16,52 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for app_label (325107764352168045) -->
-    <skip />
+    <string name="whichApplication" msgid="2309561338625872614">"এয়া ব্যৱহাৰ কৰি কার্য সম্পূর্ণ কৰক"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"<xliff:g id="APP">%1$s</xliff:g>এ ব্যৱহাৰ কৰি কাৰ্য সম্পূৰ্ণ কৰক"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"কাৰ্য সম্পূৰ্ণ কৰক"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"ইয়াৰ জৰিয়তে খোলক"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"<xliff:g id="APP">%1$s</xliff:g>ৰ জৰিয়তে খোলক"</string>
     <string name="whichViewApplicationLabel" msgid="9123647023323311663">"খোলক"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"<xliff:g id="HOST">%1$s</xliff:g> লিংকসমূহ ইয়াৰ জৰিয়তে খোলক"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"লিংকসমূহ ইয়াৰ জৰিয়তে খোলক"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"লিংকসমূহ <xliff:g id="APPLICATION">%1$s</xliff:g>ৰ জৰিয়তে খোলক"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"<xliff:g id="HOST">%1$s</xliff:g> লিংকসমূহ <xliff:g id="APPLICATION">%2$s</xliff:g>ৰ জৰিয়তে খোলক"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"এক্সেছ দিয়ক"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"ইয়াৰ দ্বাৰা সম্পাদনা কৰক"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"<xliff:g id="APP">%1$s</xliff:g>ৰ জৰিয়তে সম্পাদনা কৰক"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"সম্পাদনা কৰক"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"শ্বেয়াৰ কৰক"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"<xliff:g id="APP">%1$s</xliff:g>ৰ জৰিয়তে শ্বেয়াৰ কৰক"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"শ্বেয়াৰ কৰক"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"ইয়াৰ মাধ্য়মেৰে প্ৰেৰণ কৰক"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"<xliff:g id="APP">%1$s</xliff:g> ব্যৱহাৰ কৰি পঠিয়াওক"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"প্রেৰণ কৰক"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"এটা হ\'ম এপ্ বাছনি কৰক"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"<xliff:g id="APP">%1$s</xliff:g>ক গৃহ স্ক্ৰীন হিচাপে ব্যৱহাৰ কৰক"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"প্ৰতিচ্ছবি তোলক"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"ইয়াৰ সৈতে প্ৰতিচ্ছবি তোলক"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"<xliff:g id="APP">%1$s</xliff:g>ৰ জৰিয়তে প্ৰতিচ্ছবি তোলক"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"প্ৰতিচ্ছবি তোলক"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"এটা পৃথক এপ্ ব্যৱহাৰ কৰক"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"কোনো কাৰ্য বাছনি কৰক"</string>
     <string name="noApplications" msgid="1139487441772284671">"কোনো এপে এই কাৰ্য কৰিব নোৱাৰে।"</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"আপুনি আপোনাৰ কৰ্মস্থানৰ প্ৰ\'ফাইলৰ বাহিৰত এই এপ্‌টো ব্যৱহাৰ কৰি আছে"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"আপুনি আপোনাৰ কৰ্মস্থানৰ প্ৰ\'ফাইলৰ ভিতৰত এই এপ্‌টো ব্যৱহাৰ কৰি আছে"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"সদায়"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"মাত্ৰ এবাৰ"</string>
-    <!-- no translation found for pin_specific_target (5057063421361441406) -->
-    <skip />
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g>এ কৰ্মস্থানৰ প্ৰ’ফাইল সমৰ্থন নকৰে"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g> পিন কৰক"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g>ক আনপিন কৰক"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"সম্পাদনা কৰক"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # টা ফাইল}one{{file_name} + # টা ফাইল}other{{file_name} + # টা ফাইল}}"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # টা ফাইল}one{+ # টা ফাইল}other{+ # টা ফাইল}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"পাঠ শ্বেয়াৰ কৰি থকা হৈছে"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"লিংক শ্বেয়াৰ কৰি থকা হৈছে"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{প্ৰতিচ্ছবি শ্বেয়াৰ কৰি থকা হৈছে}one{# খন প্ৰতিচ্ছবি শ্বেয়াৰ কৰি থকা হৈছে}other{# খন প্ৰতিচ্ছবি শ্বেয়াৰ কৰি থকা হৈছে}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{ভিডিঅ’ শ্বেয়াৰ কৰি থকা হৈছে}one{# টা ভিডিঅ’ শ্বেয়াৰ কৰি থকা হৈছে}other{# টা ভিডিঅ’ শ্বেয়াৰ কৰি থকা হৈছে}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# টা বস্তু শ্বেয়াৰ কৰি থকা হৈছে}one{# টা বস্তু শ্বেয়াৰ কৰি থকা হৈছে}other{# টা বস্তু শ্বেয়াৰ কৰি থকা হৈছে}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"পাঠেৰে প্ৰতিচ্ছবি শ্বেয়াৰ কৰি হৈছে"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"লিংকৰে প্ৰতিচ্ছবি শ্বেয়াৰ কৰি হৈছে"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"শ্বেয়াৰ কৰিবলৈ চুপাৰিছ কৰা কোনো লোক নাই"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"এপ্‌সমূহৰ সূচী"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"এই এপ্‌টোক ৰেকর্ড কৰাৰ অনুমতি দিয়া হোৱা নাই কিন্তু ই এই ইউএছবি ডিভাইচটোৰ জৰিয়তে অডিঅ\' ৰেকর্ড কৰিব পাৰে।"</string>
@@ -47,18 +82,8 @@
     <string name="miniresolver_open_in_work" msgid="4271638122142624693">"আপোনাৰ কর্মস্থানৰ প্ৰ\'ফাইলত <xliff:g id="APP">%s</xliff:g> খুলিবনে?"</string>
     <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"ব্যক্তিগত ব্ৰাউজাৰ ব্যৱহাৰ কৰক"</string>
     <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"কৰ্মস্থানৰ ব্ৰাউজাৰ ব্যৱহাৰ কৰক"</string>
-    <!-- no translation found for select_files (717427764544068086) -->
-    <skip />
-    <!-- no translation found for select_images (5564089845412362804) -->
-    <skip />
-    <!-- no translation found for select_text (7253549490440625849) -->
-    <skip />
-    <!-- no translation found for exclude_text (5508128757025928034) -->
-    <skip />
-    <!-- no translation found for include_text (642280283268536140) -->
-    <skip />
-    <!-- no translation found for exclude_link (1332778255031992228) -->
-    <skip />
-    <!-- no translation found for include_link (827855767220339802) -->
-    <skip />
+    <string name="exclude_text" msgid="5508128757025928034">"পাঠ বহিৰ্ভূত কৰক"</string>
+    <string name="include_text" msgid="642280283268536140">"পাঠ অন্তৰ্ভুক্ত কৰক"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"লিংক বহিৰ্ভূত কৰক"</string>
+    <string name="include_link" msgid="827855767220339802">"লিংক অন্তৰ্ভুক্ত কৰক"</string>
 </resources>

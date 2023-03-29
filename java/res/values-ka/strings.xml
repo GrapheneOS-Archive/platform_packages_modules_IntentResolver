@@ -16,17 +16,52 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for app_label (325107764352168045) -->
-    <skip />
+    <string name="whichApplication" msgid="2309561338625872614">"რა გამოვიყენოთ?"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"მოქმედების შესრულება <xliff:g id="APP">%1$s</xliff:g> აპის დახმარებით"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"მოქმედების დასრულება"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"გახსნა აპით"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"<xliff:g id="APP">%1$s</xliff:g> აპით გახსნა"</string>
     <string name="whichViewApplicationLabel" msgid="9123647023323311663">"გახსნა"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"<xliff:g id="HOST">%1$s</xliff:g> ბმულების გახსნა შემდეგით:"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"ბმულების გახსნა შემდეგით:"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"ბმულების გახსნა <xliff:g id="APPLICATION">%1$s</xliff:g>-ით"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"<xliff:g id="HOST">%1$s</xliff:g> ბმულების <xliff:g id="APPLICATION">%2$s</xliff:g>-ით გახსნა"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"წვდომის მიცემა"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"რედაქტირება აპით:"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"<xliff:g id="APP">%1$s</xliff:g> აპით რედაქტირება"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"რედაქტირება"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"გაზიარება"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"<xliff:g id="APP">%1$s</xliff:g> აპით გაზიარება"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"გაზიარება"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"გაგზავნა:"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"<xliff:g id="APP">%1$s</xliff:g> აპით გაგზავნა"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"გაგზავნა"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"აირჩიეთ Home აპი"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"<xliff:g id="APP">%1$s</xliff:g>-ის მთავარ აპად გამოყენება"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"სურათის აღბეჭდვა"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"სურათის აღბეჭდვა აპით"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"სურათის აღბეჭდვა <xliff:g id="APP">%1$s</xliff:g> აპით"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"სურათის აღბეჭდვა"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"სხვა აპის გამოყენება"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"აირჩიეთ მოქმედება"</string>
     <string name="noApplications" msgid="1139487441772284671">"ვერც ერთი აპი ვერ შეასრულებს ამ ქმედებას."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"იყენებთ ამ აპს თქვენს სამუშაო პროფილს მიღმა"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"ამ აპს თქვენს სამუშაო პროფილში იყენებთ"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"ყოველთვის"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"მხოლოდ ერთხელ"</string>
-    <!-- no translation found for pin_specific_target (5057063421361441406) -->
-    <skip />
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g>-ს არ აქვს სამსახურის პროფილის მხარდაჭერა"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g>-ის ჩამაგრება"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g>-ის ჩამაგრების მოხსნა"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"რედაქტირება"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # ფაილი}other{{file_name} + # ფაილი}}"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ფაილი}other{+ # ფაილი}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"ზიარდება ტექსტი"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"ზიარდება ბმული"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ზიარდება სურათი}other{ზიარდება # სურათი}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{ზიარდება ვიდეო}other{ზიარდება # ვიდეო}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{ზიარდება # ერთეული}other{ზიარდება # ერთეული}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"სურათი ზიარდება ტექსტით"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"სურათი ზიარდება ბმულით"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ვერ იძებნება რეკომენდებული ადამიანები, რომლებთანაც გაზიარება შეიძლება"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"აპების სია"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ამ აპს არ აქვს მინიჭებული ჩაწერის ნებართვა, მაგრამ შეუძლია ჩაიწეროს აუდიო ამ USB მოწყობილობის მეშვეობით."</string>
@@ -47,18 +82,8 @@
     <string name="miniresolver_open_in_work" msgid="4271638122142624693">"გსურთ <xliff:g id="APP">%s</xliff:g>-ის გახსნა თქვენს სამსახურის პროფილში?"</string>
     <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"პირადი ბრაუზერის გამოყენება"</string>
     <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"სამსახურის ბრაუზერის გამოყენება"</string>
-    <!-- no translation found for select_files (717427764544068086) -->
-    <skip />
-    <!-- no translation found for select_images (5564089845412362804) -->
-    <skip />
-    <!-- no translation found for select_text (7253549490440625849) -->
-    <skip />
-    <!-- no translation found for exclude_text (5508128757025928034) -->
-    <skip />
-    <!-- no translation found for include_text (642280283268536140) -->
-    <skip />
-    <!-- no translation found for exclude_link (1332778255031992228) -->
-    <skip />
-    <!-- no translation found for include_link (827855767220339802) -->
-    <skip />
+    <string name="exclude_text" msgid="5508128757025928034">"ტექსტის ამოღება"</string>
+    <string name="include_text" msgid="642280283268536140">"ტექსტის ჩასმა"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"ბმულის ამოღება"</string>
+    <string name="include_link" msgid="827855767220339802">"ბმულის დართვა"</string>
 </resources>
