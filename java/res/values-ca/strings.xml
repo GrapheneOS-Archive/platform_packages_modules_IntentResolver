@@ -16,17 +16,52 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for app_label (325107764352168045) -->
-    <skip />
+    <string name="whichApplication" msgid="2309561338625872614">"Completa l\'acció mitjançant"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"Completa l\'acció mitjançant <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"Completa l\'acció"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"Obre amb"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"Obre amb <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichViewApplicationLabel" msgid="9123647023323311663">"Obre"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"Obre els enllaços de <xliff:g id="HOST">%1$s</xliff:g> amb"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"Obre els enllaços amb"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"Obre els enllaços amb <xliff:g id="APPLICATION">%1$s</xliff:g>"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"Obre els enllaços de <xliff:g id="HOST">%1$s</xliff:g> amb <xliff:g id="APPLICATION">%2$s</xliff:g>"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"Dona accés"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"Edita amb"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"Edita a <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"Edita"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"Comparteix"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"Comparteix amb <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"Comparteix"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"Envia mitjançant"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"Envia mitjançant <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"Envia"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"Seleccionar una aplicació Inici"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"Utilitza <xliff:g id="APP">%1$s</xliff:g> com a aplicació d\'inici"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"Captura la imatge"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"Captura la imatge amb"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"Captura la imatge amb <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"Captura la imatge"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"Fes servir una altra aplicació"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"Selecciona una acció"</string>
     <string name="noApplications" msgid="1139487441772284671">"No hi ha cap aplicació que pugui fer aquesta acció."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"Estàs utilitzant aquesta aplicació fora del perfil de treball."</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"Estàs utilitzant l\'aplicació al perfil de treball."</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"Sempre"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"Només una vegada"</string>
-    <!-- no translation found for pin_specific_target (5057063421361441406) -->
-    <skip />
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> no admet perfils de treball"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"Fixa <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"No fixis <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"Edita"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} i # fitxer}many{{file_name} i # fitxers}other{{file_name} i # fitxers}}"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # fitxer}many{+ # de fitxers}other{+ # fitxers}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"S\'està compartint text"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"S\'està compartint l\'enllaç"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{S\'està compartint una imatge}many{S\'estan compartint # d\'imatges}other{S\'estan compartint # imatges}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{S\'està compartint un vídeo}many{S\'estan compartint # de vídeos}other{S\'estan compartint # vídeos}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{S\'està compartint # element}many{S\'estan compartint # d\'elements}other{S\'estan compartint # elements}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Compartint imatge amb text"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Compartint imatge i enllaç"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"No hi ha cap suggeriment de persones amb qui compartir"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Llista d\'aplicacions"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Aquesta aplicació no té permís de gravació, però pot capturar àudio a través d\'aquest dispositiu USB."</string>
@@ -47,18 +82,8 @@
     <string name="miniresolver_open_in_work" msgid="4271638122142624693">"Vols obrir <xliff:g id="APP">%s</xliff:g> al teu perfil de treball?"</string>
     <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"Utilitza el navegador personal"</string>
     <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"Utilitza el navegador de treball"</string>
-    <!-- no translation found for select_files (717427764544068086) -->
-    <skip />
-    <!-- no translation found for select_images (5564089845412362804) -->
-    <skip />
-    <!-- no translation found for select_text (7253549490440625849) -->
-    <skip />
-    <!-- no translation found for exclude_text (5508128757025928034) -->
-    <skip />
-    <!-- no translation found for include_text (642280283268536140) -->
-    <skip />
-    <!-- no translation found for exclude_link (1332778255031992228) -->
-    <skip />
-    <!-- no translation found for include_link (827855767220339802) -->
-    <skip />
+    <string name="exclude_text" msgid="5508128757025928034">"Exclou text"</string>
+    <string name="include_text" msgid="642280283268536140">"Inclou text"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"Exclou l\'enllaç"</string>
+    <string name="include_link" msgid="827855767220339802">"Inclou l\'enllaç"</string>
 </resources>

@@ -16,17 +16,52 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for app_label (325107764352168045) -->
-    <skip />
+    <string name="whichApplication" msgid="2309561338625872614">"ทำงานให้เสร็จโดยใช้"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"ดำเนินการให้เสร็จสิ้นโดยใช้ <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"ทำงานให้เสร็จสิ้น"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"เปิดด้วย"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"เปิดด้วย <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichViewApplicationLabel" msgid="9123647023323311663">"เปิด"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"เปิดลิงก์ <xliff:g id="HOST">%1$s</xliff:g> ด้วย"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"เปิดลิงก์ด้วย"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"เปิดลิงก์ด้วย <xliff:g id="APPLICATION">%1$s</xliff:g>"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"เปิดลิงก์ <xliff:g id="HOST">%1$s</xliff:g> ด้วย <xliff:g id="APPLICATION">%2$s</xliff:g>"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"ให้สิทธิ์เข้าถึง"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"แก้ไขด้วย"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"แก้ไขด้วย <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"แก้ไข"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"แชร์"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"แชร์ด้วย <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"แชร์"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"ส่งโดยใช้"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"ส่งโดยใช้ <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"ส่ง"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"เลือกแอปหน้าแรก"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"ใช้ <xliff:g id="APP">%1$s</xliff:g> เป็นหน้าแรก"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"จับภาพ"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"จับภาพด้วย"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"จับภาพด้วย <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"จับภาพ"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"ใช้แอปอื่น"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"เลือกการดำเนินการ"</string>
     <string name="noApplications" msgid="1139487441772284671">"ไม่มีแอปพลิเคชันใดทำงานนี้ได้"</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"คุณกำลังใช้แอปนี้นอกโปรไฟล์งานของคุณ"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"คุณกำลังใช้แอปนี้ในโปรไฟล์งานของคุณ"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"ทุกครั้ง"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"เฉพาะครั้งนี้"</string>
-    <!-- no translation found for pin_specific_target (5057063421361441406) -->
-    <skip />
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> ไม่รองรับโปรไฟล์งาน"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"ปักหมุด <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"เลิกปักหมุด <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"แก้ไข"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # ไฟล์}other{{file_name} + # ไฟล์}}"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{อีก # ไฟล์}other{อีก # ไฟล์}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"กำลังแชร์ข้อความ"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"กำลังแชร์ลิงก์"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{กำลังแชร์รูปภาพ}other{กำลังแชร์รูปภาพ # รายการ}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{กำลังแชร์วิดีโอ}other{กำลังแชร์วิดีโอ # รายการ}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{กำลังแชร์ # รายการ}other{กำลังแชร์ # รายการ}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"กำลังแชร์รูปภาพพร้อมข้อความ"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"กำลังแชร์รูปภาพพร้อมลิงก์"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ไม่พบใครที่แนะนำให้แชร์ด้วย"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"รายชื่อแอป"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"แอปนี้ไม่ได้รับอนุญาตให้บันทึกเสียงแต่อาจเก็บเสียงผ่านอุปกรณ์ USB นี้ได้"</string>
@@ -47,18 +82,8 @@
     <string name="miniresolver_open_in_work" msgid="4271638122142624693">"เปิด <xliff:g id="APP">%s</xliff:g> ในโปรไฟล์งานไหม"</string>
     <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"ใช้เบราว์เซอร์ส่วนตัว"</string>
     <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"ใช้เบราว์เซอร์งาน"</string>
-    <!-- no translation found for select_files (717427764544068086) -->
-    <skip />
-    <!-- no translation found for select_images (5564089845412362804) -->
-    <skip />
-    <!-- no translation found for select_text (7253549490440625849) -->
-    <skip />
-    <!-- no translation found for exclude_text (5508128757025928034) -->
-    <skip />
-    <!-- no translation found for include_text (642280283268536140) -->
-    <skip />
-    <!-- no translation found for exclude_link (1332778255031992228) -->
-    <skip />
-    <!-- no translation found for include_link (827855767220339802) -->
-    <skip />
+    <string name="exclude_text" msgid="5508128757025928034">"ไม่รวมข้อความ"</string>
+    <string name="include_text" msgid="642280283268536140">"รวมข้อความ"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"ไม่รวมลิงก์"</string>
+    <string name="include_link" msgid="827855767220339802">"รวมลิงก์"</string>
 </resources>

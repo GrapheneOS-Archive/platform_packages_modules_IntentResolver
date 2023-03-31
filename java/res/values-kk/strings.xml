@@ -16,17 +16,52 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for app_label (325107764352168045) -->
-    <skip />
+    <string name="whichApplication" msgid="2309561338625872614">"Әрекетті аяқтау"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"<xliff:g id="APP">%1$s</xliff:g> көмегімен әрекетті орындау"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"Әрекетті аяқтау"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"Басқаша ашу"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"<xliff:g id="APP">%1$s</xliff:g> арқылы ашу"</string>
     <string name="whichViewApplicationLabel" msgid="9123647023323311663">"Ашу"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"<xliff:g id="HOST">%1$s</xliff:g> сілтемелерін келесімен ашу:"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"Сілтемелерді келесімен ашу:"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"Сілтемелерді <xliff:g id="APPLICATION">%1$s</xliff:g> браузерімен ашу"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"<xliff:g id="HOST">%1$s</xliff:g> сілтемелерін <xliff:g id="APPLICATION">%2$s</xliff:g> браузерімен ашу"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"Рұқсат беру"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"Келесімен өңдеу"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"<xliff:g id="APP">%1$s</xliff:g> арқылы өзгерту"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"Өңдеу"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"Бөлісу"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"<xliff:g id="APP">%1$s</xliff:g> арқылы бөлісу"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"Бөлісу"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"Келесі арқылы жіберу"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"<xliff:g id="APP">%1$s</xliff:g> көмегімен жіберу"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"Жіберу"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"«Негізгі» қолданбасын таңдау"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"<xliff:g id="APP">%1$s</xliff:g> қолданбасын Үй қолданбасы ретінде пайдалану"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"Кескін түсіру"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"Кескінді түсіру қолданбасы"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"<xliff:g id="APP">%1$s</xliff:g> арқылы суретке түсіру"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"Кескін түсіру"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"Басқа қолданбаны пайдалану"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"Әрекет таңдау"</string>
     <string name="noApplications" msgid="1139487441772284671">"Бұл әрекетті ешбір қолданба орындай алмайды."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"Осы қолданбаны жұмыс профиліңізден тыс пайдаланып жатырсыз"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"Осы қолданбаны жұмыс профиліңізде пайдаланып жатырсыз"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"Әрқашан"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"Бір рет қана"</string>
-    <!-- no translation found for pin_specific_target (5057063421361441406) -->
-    <skip />
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> жұмыс профиліне қолдау көрсетпейді."</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g> бекіту"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> босату"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"Өзгерту"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # файл}other{{file_name} + # файл}}"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # файл}other{+ # файл}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Мәтін бөлісіліп жатыр"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Сілтеме бөлісіліп жатыр"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Сурет бөлісіліп жатыр}other{# сурет бөлісіліп жатыр}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Бейне бөлісіліп жатыр}other{# бейне бөлісіліп жатыр}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# элемент бөлісіліп жатыр}other{# элемент бөлісіліп жатыр}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Сурет мәтінімен бөлісіліп жатыр"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Сурет сілтемесімен бөлісіліп жатыр"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Бөлісу үшін ұсынылатын адамдар жоқ."</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Қолданбалар тізімі"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Қолданбаға жазу рұқсаты берілмеді, бірақ ол осы USB құрылғысы арқылы дыбыс жаза алады."</string>
@@ -47,18 +82,8 @@
     <string name="miniresolver_open_in_work" msgid="4271638122142624693">"<xliff:g id="APP">%s</xliff:g> қолданбасын жұмыс профиліңізде ашу керек пе?"</string>
     <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"Жеке браузерді пайдалану"</string>
     <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"Жұмыс браузерін пайдалану"</string>
-    <!-- no translation found for select_files (717427764544068086) -->
-    <skip />
-    <!-- no translation found for select_images (5564089845412362804) -->
-    <skip />
-    <!-- no translation found for select_text (7253549490440625849) -->
-    <skip />
-    <!-- no translation found for exclude_text (5508128757025928034) -->
-    <skip />
-    <!-- no translation found for include_text (642280283268536140) -->
-    <skip />
-    <!-- no translation found for exclude_link (1332778255031992228) -->
-    <skip />
-    <!-- no translation found for include_link (827855767220339802) -->
-    <skip />
+    <string name="exclude_text" msgid="5508128757025928034">"Мәтінді шығару"</string>
+    <string name="include_text" msgid="642280283268536140">"Мәтін қосу"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"Сілтемені шығару"</string>
+    <string name="include_link" msgid="827855767220339802">"Сілтеме қосу"</string>
 </resources>
