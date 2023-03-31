@@ -55,6 +55,13 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"တည်းဖြတ်ရန်"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # ဖိုင်}other{{file_name} + # ဖိုင်}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ဖိုင်}other{+ # ဖိုင်}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"စာသား မျှဝေနေသည်"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"လင့်ခ် မျှဝေနေသည်"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ပုံ မျှဝေနေသည်}other{ပုံ # ပုံ မျှဝေနေသည်}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{ဗီဒီယို မျှဝေနေသည်}other{ဗီဒီယို # ခု မျှဝေနေသည်}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# ခု မျှဝေနေသည်}other{# ခု မျှဝေနေသည်}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"စာပါသောပုံ မျှဝေနေသည်"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"လင့်ခ်ပါသောပုံ မျှဝေနေသည်"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"မျှဝေရန် အကြံပြုထားသူများ မရှိပါ"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"အက်ပ်စာရင်း"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ဤအက်ပ်ကို အသံဖမ်းခွင့် ပေးမထားသော်လည်း ၎င်းသည် ဤ USB စက်ပစ္စည်းမှတစ်ဆင့် အသံများကို ဖမ်းယူနိုင်ပါသည်။"</string>
