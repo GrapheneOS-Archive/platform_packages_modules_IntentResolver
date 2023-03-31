@@ -55,6 +55,13 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"Uredi"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} i # datoteka}one{{file_name} i # datoteka}few{{file_name} i # datoteke}other{{file_name} i # datoteka}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # datoteka}one{+ # datoteka}few{+ # datoteke}other{+ # datoteka}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Dijeli se tekst"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Dijeli se veza"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Dijeli se slika}one{Dijeli se # slika}few{Dijele se # slike}other{Dijeli se # slika}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Dijeli se videozapis}one{Dijeli se # videozapis}few{Dijele se # videozapisa}other{Dijeli se # videozapisa}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Dijeli se # stavka}one{Dijeli se # stavka}few{Dijele se # stavke}other{Dijeli se # stavki}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Dijeli se slika s tekstom"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Dijeli se slika s vezom"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Nema preporučenih osoba za dijeljenje"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Popis aplikacija"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Ta aplikacija nema dopuštenje za snimanje, no mogla bi primati zvuk putem ovog USB uređaja."</string>

@@ -55,6 +55,13 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"Breyta"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # skrá}one{{file_name} + # skrá}other{{file_name} + # skrár}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # skrá}one{+ # skrá}other{+ # skrár}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Deilir texta"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Deilir tengli"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Deilir mynd}one{Deilir # mynd}other{Deilir # myndum}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Deilir myndskeiði}one{Deilir # myndskeiði}other{Deilir # myndskeiðum}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Deilir # atriði}one{Deilir # atriði}other{Deilir # atriðum}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Deilir mynd með texta"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Deilir mynd með tengli"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Engar tillögur um fólk til að deila með"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Forritalisti"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Þetta forrit hefur ekki fengið heimild fyrir upptöku en gæti tekið upp hljóð í gegnum þetta USB-tæki."</string>

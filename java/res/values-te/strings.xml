@@ -55,6 +55,13 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"ఎడిట్ చేయండి"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # ఫైల్}other{{file_name} + # ఫైల్స్}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ఫైల్}other{+ # ఫైల్స్}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"టెక్స్ట్‌ను షేర్ చేయడం"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"లింక్‌ను షేర్ చేయడం"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ఇమేజ్‌ను షేర్ చేయడం}other{# ఇమేజ్‌లను షేర్ చేయడం}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{వీడియోను షేర్ చేయడం}other{# వీడియోలను షేర్ చేయడం}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# ఐటెమ్‌ను షేర్ చేయడం}other{# ఐటెమ్‌లను షేర్ చేయడం}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"టెక్స్ట్‌తో ఇమేజ్‌ను షేర్ చేయడం"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"లింక్‌తో ఇమేజ్‌ను షేర్ చేయడం"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ఎవరికి షేర్ చేయాలనే దానికి సంబంధించి సిఫార్సులేవీ లేవు"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"యాప్‌ల లిస్ట్‌"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ఈ యాప్‌కు రికార్డ్ చేసే అనుమతి మంజూరు కాలేదు, అయినా ఈ USB పరికరం ద్వారా ఆడియోను క్యాప్చర్ చేయగలదు."</string>
