@@ -54,8 +54,14 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"Sblocca <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Modifica"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # file}many{{file_name} + # file}other{{file_name} + # file}}"</string>
-    <!-- no translation found for other_files (4501185823517473875) -->
-    <skip />
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # file}many{+ # file}other{+ # file}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Condivisione del testo…"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Condivisione del link…"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Condivisione immagine…}many{Condivis. di # immagini…}other{Condivis. di # immagini…}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Condivisione del video…}many{Condivisione di # video…}other{Condivisione di # video…}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Condivis. di # elemento…}many{Condivis. di # elementi…}other{Condivis. di # elementi…}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Condivis. img con testo…"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Condivis. img con link…"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Nessuna persona consigliata per la condivisione"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Elenco di app"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"A questa app non è stata concessa l\'autorizzazione di registrazione, ma l\'app potrebbe acquisire l\'audio tramite questo dispositivo USB."</string>

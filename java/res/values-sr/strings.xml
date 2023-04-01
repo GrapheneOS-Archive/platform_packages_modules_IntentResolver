@@ -55,6 +55,13 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"Измени"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # фајл}one{{file_name} + # фајл}few{{file_name} + # фајла}other{{file_name} + # фајлова}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{и још # фајл}one{и још # фајл}few{и још # фајла}other{и још # фајлова}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Дели се текст"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Дели се линк"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Дели се слика}one{Дели се # слика}few{Деле се # слике}other{Дели се # слика}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Дели се видео}one{Дели се # видео}few{Деле се # видео снимка}other{Дели се # видео снимака}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Дели се # ставка}one{Дели се # ставка}few{Деле се # ставке}other{Дели се # ставки}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Дели се слика са текстом"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Дели се слика са линком"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Нема препоручених људи за дељење"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Листа апликација"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Ова апликација нема дозволу за снимање, али би могла да снима звук помоћу овог USB уређаја."</string>

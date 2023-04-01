@@ -55,6 +55,13 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"সম্পাদনা কৰক"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # টা ফাইল}one{{file_name} + # টা ফাইল}other{{file_name} + # টা ফাইল}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # টা ফাইল}one{+ # টা ফাইল}other{+ # টা ফাইল}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"পাঠ শ্বেয়াৰ কৰি থকা হৈছে"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"লিংক শ্বেয়াৰ কৰি থকা হৈছে"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{প্ৰতিচ্ছবি শ্বেয়াৰ কৰি থকা হৈছে}one{# খন প্ৰতিচ্ছবি শ্বেয়াৰ কৰি থকা হৈছে}other{# খন প্ৰতিচ্ছবি শ্বেয়াৰ কৰি থকা হৈছে}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{ভিডিঅ’ শ্বেয়াৰ কৰি থকা হৈছে}one{# টা ভিডিঅ’ শ্বেয়াৰ কৰি থকা হৈছে}other{# টা ভিডিঅ’ শ্বেয়াৰ কৰি থকা হৈছে}}"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# টা বস্তু শ্বেয়াৰ কৰি থকা হৈছে}one{# টা বস্তু শ্বেয়াৰ কৰি থকা হৈছে}other{# টা বস্তু শ্বেয়াৰ কৰি থকা হৈছে}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"পাঠেৰে প্ৰতিচ্ছবি শ্বেয়াৰ কৰি হৈছে"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"লিংকৰে প্ৰতিচ্ছবি শ্বেয়াৰ কৰি হৈছে"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"শ্বেয়াৰ কৰিবলৈ চুপাৰিছ কৰা কোনো লোক নাই"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"এপ্‌সমূহৰ সূচী"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"এই এপ্‌টোক ৰেকর্ড কৰাৰ অনুমতি দিয়া হোৱা নাই কিন্তু ই এই ইউএছবি ডিভাইচটোৰ জৰিয়তে অডিঅ\' ৰেকর্ড কৰিব পাৰে।"</string>
