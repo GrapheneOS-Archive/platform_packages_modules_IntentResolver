@@ -15,9 +15,10 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingHorizontal="@dimen/chooser_edge_margin_normal"
@@ -27,18 +28,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:layout_alignParentStart="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/barrier"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constrainedWidth="true"
         android:textColor="?android:attr/textColorPrimary"
         android:fontFamily="@androidprv:string/config_headlineFontFamily"
         android:textSize="18sp"
         android:paddingBottom="16dp"
         />
 
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="start"
+        app:constraint_referenced_ids="reselection_action,include_text_action" />
+
     <TextView
         android:id="@+id/reselection_action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
+        app:layout_constraintEnd_toEndOf="parent"
         android:visibility="gone"
         android:paddingBottom="16dp"
         style="@style/ReselectionAction" />
@@ -49,9 +60,9 @@
         android:id="@+id/include_text_action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@id/reselection_action"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/reselection_action"
         android:layout_alignWithParentIfMissing="true"
         android:visibility="gone" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
