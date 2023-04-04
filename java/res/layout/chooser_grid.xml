@@ -38,7 +38,7 @@
 
         <ImageView
             android:id="@androidprv:id/drag"
-            android:layout_width="24dp"
+            android:layout_width="64dp"
             android:layout_height="4dp"
             android:src="@drawable/ic_drag_handle"
             android:layout_marginTop="@dimen/chooser_edge_margin_thin"
