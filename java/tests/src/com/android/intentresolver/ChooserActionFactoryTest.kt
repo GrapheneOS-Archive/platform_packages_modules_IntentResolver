@@ -71,7 +71,6 @@ class ChooserActionFactoryTest {
 
     @Before
     fun setup() {
-        whenever(flags.isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)).thenReturn(true)
         context.registerReceiver(testReceiver, IntentFilter(testAction))
     }
 
@@ -101,14 +100,6 @@ class ChooserActionFactoryTest {
     @Test
     fun testNoModifyShareAction() {
         val factory = createFactory(includeModifyShare = false)
-
-        assertThat(factory.modifyShareAction).isNull()
-    }
-
-    @Test
-    fun testNoModifyShareAction_flagDisabled() {
-        whenever(flags.isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)).thenReturn(false)
-        val factory = createFactory(includeModifyShare = true)
 
         assertThat(factory.modifyShareAction).isNull()
     }

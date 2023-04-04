@@ -37,8 +37,6 @@ import android.widget.TextView;
 import androidx.annotation.LayoutRes;
 
 import com.android.intentresolver.R;
-import com.android.intentresolver.flags.FeatureFlagRepository;
-import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.widget.ActionRow;
 
 import java.util.ArrayList;
@@ -129,11 +127,9 @@ abstract class ContentPreviewUi {
 
     protected static void displayModifyShareAction(
             ViewGroup layout,
-            ChooserContentPreviewUi.ActionFactory actionFactory,
-            FeatureFlagRepository featureFlagRepository) {
+            ChooserContentPreviewUi.ActionFactory actionFactory) {
         ActionRow.Action modifyShareAction = actionFactory.getModifyShareAction();
-        if (modifyShareAction != null && layout != null
-                && featureFlagRepository.isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)) {
+        if (modifyShareAction != null && layout != null) {
             TextView modifyShareView = layout.findViewById(R.id.reselection_action);
             if (modifyShareView != null) {
                 modifyShareView.setText(modifyShareAction.getLabel());

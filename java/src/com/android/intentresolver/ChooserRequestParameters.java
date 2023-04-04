@@ -33,7 +33,6 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.android.intentresolver.flags.FeatureFlagRepository;
-import com.android.intentresolver.flags.Flags;
 
 import com.google.common.collect.ImmutableList;
 
@@ -147,9 +146,7 @@ public class ChooserRequestParameters {
         mTargetIntentFilter = getTargetIntentFilter(mTarget);
 
         mChooserActions = getChooserActions(clientIntent);
-        mModifyShareAction = featureFlags.isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)
-                ? getModifyShareAction(clientIntent)
-                : null;
+        mModifyShareAction = getModifyShareAction(clientIntent);
     }
 
     public Intent getTargetIntent() {

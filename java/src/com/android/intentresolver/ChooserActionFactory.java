@@ -41,7 +41,6 @@ import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi;
 import com.android.intentresolver.flags.FeatureFlagRepository;
-import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -161,9 +160,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
                         finishCallback,
                         logger),
                 chooserRequest.getChooserActions(),
-                (featureFlagRepository.isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)
-                        ? chooserRequest.getModifyShareAction()
-                        : null),
+                chooserRequest.getModifyShareAction(),
                 onUpdateSharedTextIsExcluded,
                 logger,
                 finishCallback);
