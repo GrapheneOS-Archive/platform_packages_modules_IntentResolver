@@ -49,9 +49,4 @@
 
     <style name="TextAppearance.ChooserDefault"
             parent="@android:style/TextAppearance.DeviceDefault" />
-
-    <style name="ReselectionAction" parent="TextAppearance.ChooserDefault">
-        <item name="android:paddingTop">5dp</item>
-        <item name="android:paddingBottom">5dp</item>
-    </style>
 </resources>

@@ -32,7 +32,7 @@
         app:layout_constraintEnd_toStartOf="@id/barrier"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constrainedWidth="true"
-        android:textColor="?android:attr/textColorPrimary"
+        style="@style/TextAppearance.ChooserDefault"
         android:fontFamily="@androidprv:string/config_headlineFontFamily"
         android:textSize="18sp"
         android:paddingBottom="16dp"
@@ -51,8 +51,11 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         android:visibility="gone"
+        android:paddingTop="3dp"
         android:paddingBottom="16dp"
-        style="@style/ReselectionAction" />
+        style="@style/TextAppearance.ChooserDefault"
+        android:drawableEnd="@drawable/chevron_right"
+        />
 
     <!-- This is only relevant for image+text preview, but needs to be in this layout so it can
          stay at the top if there's no reselection action. -->
