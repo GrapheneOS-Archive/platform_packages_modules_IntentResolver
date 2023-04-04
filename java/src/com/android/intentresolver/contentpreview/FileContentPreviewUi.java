@@ -74,7 +74,7 @@ class FileContentPreviewUi extends ContentPreviewUi {
 
     private ViewGroup displayInternal(
             Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
-        @LayoutRes int actionRowLayout = getActionRowLayout(mFeatureFlagRepository);
+        @LayoutRes int actionRowLayout = getActionRowLayout();
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_file, parent, false);
 
@@ -119,8 +119,7 @@ class FileContentPreviewUi extends ContentPreviewUi {
             actionRow.setActions(
                     createActions(
                             createFilePreviewActions(),
-                            mActionFactory.createCustomActions(),
-                            mFeatureFlagRepository));
+                            mActionFactory.createCustomActions()));
         }
 
         return contentPreviewLayout;

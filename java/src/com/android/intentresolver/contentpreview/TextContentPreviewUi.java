@@ -80,7 +80,7 @@ class TextContentPreviewUi extends ContentPreviewUi {
     private ViewGroup displayInternal(
             LayoutInflater layoutInflater,
             ViewGroup parent) {
-        @LayoutRes int actionRowLayout = getActionRowLayout(mFeatureFlagRepository);
+        @LayoutRes int actionRowLayout = getActionRowLayout();
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_text, parent, false);
 
@@ -89,8 +89,7 @@ class TextContentPreviewUi extends ContentPreviewUi {
             actionRow.setActions(
                     createActions(
                             createTextPreviewActions(),
-                            mActionFactory.createCustomActions(),
-                            mFeatureFlagRepository));
+                            mActionFactory.createCustomActions()));
         }
 
         if (mSharingText == null) {

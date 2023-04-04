@@ -88,7 +88,7 @@ class ImageContentPreviewUi extends ContentPreviewUi {
     }
 
     private ViewGroup displayInternal(LayoutInflater layoutInflater, ViewGroup parent) {
-        @LayoutRes int actionRowLayout = getActionRowLayout(mFeatureFlagRepository);
+        @LayoutRes int actionRowLayout = getActionRowLayout();
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_image, parent, false);
         ChooserImagePreviewView imagePreview = inflateImagePreviewView(contentPreviewLayout);
@@ -98,8 +98,7 @@ class ImageContentPreviewUi extends ContentPreviewUi {
             actionRow.setActions(
                     createActions(
                             createImagePreviewActions(),
-                            mActionFactory.createCustomActions(),
-                            mFeatureFlagRepository));
+                            mActionFactory.createCustomActions()));
         }
 
         if (mImageUris.size() == 0) {

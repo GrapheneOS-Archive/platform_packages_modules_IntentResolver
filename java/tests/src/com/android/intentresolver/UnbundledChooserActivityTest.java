@@ -169,7 +169,6 @@ public class UnbundledChooserActivityTest {
 
     private static final List<BooleanFlag> ALL_FLAGS =
             Arrays.asList(
-                    Flags.SHARESHEET_CUSTOM_ACTIONS,
                     Flags.SHARESHEET_RESELECTION_ACTION,
                     Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW,
                     Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW);
@@ -1719,9 +1718,6 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_CUSTOM_ACTIONS_NAME },
-            values = { true })
     public void testLaunchWithCustomAction() throws InterruptedException {
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
         setupResolverControllers(resolvedComponentInfos);

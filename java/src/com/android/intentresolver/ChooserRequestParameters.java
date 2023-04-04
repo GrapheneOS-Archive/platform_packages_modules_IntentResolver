@@ -146,9 +146,7 @@ public class ChooserRequestParameters {
 
         mTargetIntentFilter = getTargetIntentFilter(mTarget);
 
-        mChooserActions = featureFlags.isEnabled(Flags.SHARESHEET_CUSTOM_ACTIONS)
-                ? getChooserActions(clientIntent)
-                : ImmutableList.of();
+        mChooserActions = getChooserActions(clientIntent);
         mModifyShareAction = featureFlags.isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)
                 ? getModifyShareAction(clientIntent)
                 : null;
