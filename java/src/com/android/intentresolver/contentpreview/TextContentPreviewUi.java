@@ -30,7 +30,6 @@ import androidx.annotation.Nullable;
 
 import com.android.intentresolver.ImageLoader;
 import com.android.intentresolver.R;
-import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.widget.ActionRow;
 
 import java.util.ArrayList;
@@ -45,7 +44,6 @@ class TextContentPreviewUi extends ContentPreviewUi {
     private final Uri mPreviewThumbnail;
     private final ImageLoader mImageLoader;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
-    private final FeatureFlagRepository mFeatureFlagRepository;
     private final HeadlineGenerator mHeadlineGenerator;
 
     TextContentPreviewUi(
@@ -54,14 +52,12 @@ class TextContentPreviewUi extends ContentPreviewUi {
             @Nullable Uri previewThumbnail,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
-            FeatureFlagRepository featureFlagRepository,
             HeadlineGenerator headlineGenerator) {
         mSharingText = sharingText;
         mPreviewTitle = previewTitle;
         mPreviewThumbnail = previewThumbnail;
         mImageLoader = imageLoader;
         mActionFactory = actionFactory;
-        mFeatureFlagRepository = featureFlagRepository;
         mHeadlineGenerator = headlineGenerator;
     }
 

@@ -35,7 +35,6 @@ import androidx.annotation.Nullable;
 
 import com.android.intentresolver.ImageLoader;
 import com.android.intentresolver.R;
-import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;
 import com.android.intentresolver.widget.ScrollableImagePreviewView;
@@ -53,7 +52,6 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
     private final ImageLoader mImageLoader;
     private final MimeTypeClassifier mTypeClassifier;
     private final TransitionElementStatusCallback mTransitionElementStatusCallback;
-    private final FeatureFlagRepository mFeatureFlagRepository;
     private final HeadlineGenerator mHeadlineGenerator;
 
     UnifiedContentPreviewUi(
@@ -63,7 +61,6 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
             ImageLoader imageLoader,
             MimeTypeClassifier typeClassifier,
             TransitionElementStatusCallback transitionElementStatusCallback,
-            FeatureFlagRepository featureFlagRepository,
             HeadlineGenerator headlineGenerator) {
         mFiles = files;
         mText = text;
@@ -71,7 +68,6 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
         mImageLoader = imageLoader;
         mTypeClassifier = typeClassifier;
         mTransitionElementStatusCallback = transitionElementStatusCallback;
-        mFeatureFlagRepository = featureFlagRepository;
         mHeadlineGenerator = headlineGenerator;
 
         mImageLoader.prePopulate(mFiles.stream()

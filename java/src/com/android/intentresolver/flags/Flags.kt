@@ -21,15 +21,8 @@ import com.android.systemui.flags.UnreleasedFlag
 
 // Flag id, name and namespace should be kept in sync with [com.android.systemui.flags.Flags] to
 // make the flags available in the flag flipper app (see go/sysui-flags).
+// All flags added should be included in UnbundledChooserActivityTest.ALL_FLAGS.
 object Flags {
-    const val SHARESHEET_SCROLLABLE_IMAGE_PREVIEW_NAME = "sharesheet_scrollable_image_preview"
-
-    // TODO(b/267355521) Tracking Bug
-    @JvmField
-    val SHARESHEET_SCROLLABLE_IMAGE_PREVIEW = releasedFlag(
-        1504, SHARESHEET_SCROLLABLE_IMAGE_PREVIEW_NAME
-    )
-
     private fun releasedFlag(id: Int, name: String) =
         ReleasedFlag(id, name, "systemui")
 

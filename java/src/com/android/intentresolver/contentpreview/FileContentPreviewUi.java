@@ -29,7 +29,6 @@ import androidx.annotation.LayoutRes;
 
 import com.android.intentresolver.ImageLoader;
 import com.android.intentresolver.R;
-import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.widget.ActionRow;
 
 import java.util.ArrayList;
@@ -44,19 +43,16 @@ class FileContentPreviewUi extends ContentPreviewUi {
     private final List<FileInfo> mFiles;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
     private final ImageLoader mImageLoader;
-    private final FeatureFlagRepository mFeatureFlagRepository;
     private final HeadlineGenerator mHeadlineGenerator;
 
     FileContentPreviewUi(
             List<FileInfo> files,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
-            FeatureFlagRepository featureFlagRepository,
             HeadlineGenerator headlineGenerator) {
         mFiles = files;
         mActionFactory = actionFactory;
         mImageLoader = imageLoader;
-        mFeatureFlagRepository = featureFlagRepository;
         mHeadlineGenerator = headlineGenerator;
     }
 

@@ -22,11 +22,9 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import com.android.intentresolver.ImageLoader
-import com.android.intentresolver.TestFeatureFlagRepository
 import com.android.intentresolver.any
 import com.android.intentresolver.anyOrNull
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
-import com.android.intentresolver.flags.Flags
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
 import com.android.intentresolver.widget.ActionRow
@@ -61,11 +59,6 @@ class ChooserContentPreviewUiTest {
         override fun getExcludeSharedTextAction(): Consumer<Boolean> = Consumer<Boolean> {}
     }
     private val transitionCallback = mock<ImagePreviewView.TransitionElementStatusCallback>()
-    private val featureFlagRepository = TestFeatureFlagRepository(
-        mapOf(
-            Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW to true
-        )
-    )
 
     @Test
     fun test_ChooserContentPreview_non_send_intent_action_to_text_preview() {
@@ -77,7 +70,6 @@ class ChooserContentPreviewUiTest {
             imageLoader,
             actionFactory,
             transitionCallback,
-            featureFlagRepository,
             headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
@@ -98,7 +90,6 @@ class ChooserContentPreviewUiTest {
             imageLoader,
             actionFactory,
             transitionCallback,
-            featureFlagRepository,
             headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
@@ -120,7 +111,6 @@ class ChooserContentPreviewUiTest {
             imageLoader,
             actionFactory,
             transitionCallback,
-            featureFlagRepository,
             headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
@@ -142,7 +132,6 @@ class ChooserContentPreviewUiTest {
             imageLoader,
             actionFactory,
             transitionCallback,
-            featureFlagRepository,
             headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
@@ -165,7 +154,6 @@ class ChooserContentPreviewUiTest {
                 imageLoader,
                 actionFactory,
                 transitionCallback,
-                featureFlagRepository,
                 headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
@@ -191,7 +179,6 @@ class ChooserContentPreviewUiTest {
                 imageLoader,
                 actionFactory,
                 transitionCallback,
-                featureFlagRepository,
                 headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
@@ -215,7 +202,6 @@ class ChooserContentPreviewUiTest {
                 imageLoader,
                 actionFactory,
                 transitionCallback,
-                featureFlagRepository,
                 headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
@@ -245,7 +231,6 @@ class ChooserContentPreviewUiTest {
             imageLoader,
             actionFactory,
             transitionCallback,
-            featureFlagRepository,
             headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
@@ -275,7 +260,6 @@ class ChooserContentPreviewUiTest {
             imageLoader,
             actionFactory,
             transitionCallback,
-            featureFlagRepository,
             headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
@@ -307,7 +291,6 @@ class ChooserContentPreviewUiTest {
                 imageLoader,
                 actionFactory,
                 transitionCallback,
-                featureFlagRepository,
                 headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
@@ -337,7 +320,6 @@ class ChooserContentPreviewUiTest {
                 imageLoader,
                 actionFactory,
                 transitionCallback,
-                featureFlagRepository,
                 headlineGenerator
         )
         assertThat(testSubject.preferredContentPreview)
