@@ -169,7 +169,6 @@ public class UnbundledChooserActivityTest {
 
     private static final List<BooleanFlag> ALL_FLAGS =
             Arrays.asList(
-                    Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW,
                     Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW);
 
     private static final Map<BooleanFlag, Boolean> ALL_FLAGS_OFF =
@@ -682,9 +681,6 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
-            values = { true })
     public void testImagePlusTextSharing_ExcludeText() {
         Intent sendIntent = createSendImageIntent(
                 Uri.parse("android.resource://com.android.frameworks.coretests/"
@@ -725,9 +721,6 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
-            values = { true })
     public void testImagePlusTextSharing_RemoveAndAddBackText() {
         Intent sendIntent = createSendImageIntent(
                 Uri.parse("android.resource://com.android.frameworks.coretests/"
@@ -772,9 +765,6 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
-            values = { true })
     public void testImagePlusTextSharing_TextExclusionDoesNotAffectAlternativeIntent() {
         Intent sendIntent = createSendImageIntent(
                 Uri.parse("android.resource://com.android.frameworks.coretests/"
@@ -1048,9 +1038,6 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
-            values = { true })
     public void testImageAndTextPreview() {
         final Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
                 + R.drawable.test320x240);
@@ -1074,9 +1061,6 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
-            values = { true })
     public void testNoTextPreviewWhenTextIsSharedWithMultipleImages() {
         final Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
                 + R.drawable.test320x240);

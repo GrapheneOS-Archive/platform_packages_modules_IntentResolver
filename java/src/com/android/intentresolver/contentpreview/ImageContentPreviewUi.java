@@ -37,7 +37,6 @@ import androidx.annotation.Nullable;
 import com.android.intentresolver.ImageLoader;
 import com.android.intentresolver.R;
 import com.android.intentresolver.flags.FeatureFlagRepository;
-import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ChooserImagePreviewView;
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;
@@ -157,10 +156,7 @@ class ImageContentPreviewUi extends ContentPreviewUi {
 
     private void setTextInImagePreviewVisibility(
             ViewGroup contentPreview, ChooserContentPreviewUi.ActionFactory actionFactory) {
-        int visibility = mFeatureFlagRepository.isEnabled(Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW)
-                && !TextUtils.isEmpty(mText)
-                ? View.VISIBLE
-                : View.GONE;
+        int visibility = !TextUtils.isEmpty(mText) ? View.VISIBLE : View.GONE;
 
         final TextView textView = contentPreview
                 .requireViewById(com.android.internal.R.id.content_preview_text);

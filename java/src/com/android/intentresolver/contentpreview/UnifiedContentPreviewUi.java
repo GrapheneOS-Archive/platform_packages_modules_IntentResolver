@@ -36,7 +36,6 @@ import androidx.annotation.Nullable;
 import com.android.intentresolver.ImageLoader;
 import com.android.intentresolver.R;
 import com.android.intentresolver.flags.FeatureFlagRepository;
-import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;
 import com.android.intentresolver.widget.ScrollableImagePreviewView;
@@ -139,10 +138,7 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
                 mFiles.size() - previews.size(),
                 mImageLoader);
 
-        if (mFeatureFlagRepository.isEnabled(Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW)
-                && !TextUtils.isEmpty(mText)
-                && mFiles.size() == 1
-                && allImages) {
+        if (!TextUtils.isEmpty(mText) && mFiles.size() == 1 && allImages) {
             setTextInImagePreviewVisibility(contentPreviewLayout, mActionFactory);
             updateTextWithImageHeadline(contentPreviewLayout);
         } else {
