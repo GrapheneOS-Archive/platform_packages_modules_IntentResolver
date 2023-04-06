@@ -29,12 +29,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import androidx.annotation.LayoutRes;
 
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
@@ -51,19 +48,6 @@ abstract class ContentPreviewUi {
 
     public abstract ViewGroup display(
             Resources resources, LayoutInflater layoutInflater, ViewGroup parent);
-
-    protected static int getActionRowLayout() {
-        return R.layout.scrollable_chooser_action_row;
-    }
-
-    protected static ActionRow inflateActionRow(ViewGroup parent, @LayoutRes int actionRowLayout) {
-        final ViewStub stub = parent.findViewById(com.android.intentresolver.R.id.action_row_stub);
-        if (stub != null) {
-            stub.setLayoutResource(actionRowLayout);
-            stub.inflate();
-        }
-        return parent.findViewById(com.android.internal.R.id.chooser_action_row);
-    }
 
     protected static List<ActionRow.Action> createActions(
             List<ActionRow.Action> systemActions,

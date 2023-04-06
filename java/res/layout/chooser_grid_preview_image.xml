@@ -19,6 +19,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -33,11 +34,16 @@
       android:gravity="center_horizontal"
       android:layout_marginBottom="@dimen/chooser_view_spacing">
 
-      <ViewStub
-          android:id="@+id/image_preview_stub"
-          android:inflatedId="@androidprv:id/content_preview_image_area"
+      <com.android.intentresolver.widget.ScrollableImagePreviewView
+          android:id="@+id/scrollable_image_preview"
           android:layout_width="wrap_content"
-          android:layout_height="wrap_content" />
+          android:layout_height="@dimen/chooser_preview_image_height_tall"
+          android:layout_gravity="center_horizontal"
+          android:layout_marginBottom="@dimen/chooser_view_spacing"
+          android:background="?android:attr/colorBackground"
+          app:itemInnerSpacing="3dp"
+          app:itemOuterSpacing="@dimen/chooser_edge_margin_normal"
+          app:maxWidthHint="@dimen/chooser_width" />
 
       <TextView
           android:id="@androidprv:id/content_preview_text"
@@ -53,9 +59,11 @@
           android:textAppearance="@style/TextAppearance.ChooserDefault" />
   </LinearLayout>
 
-  <ViewStub
-      android:id="@+id/action_row_stub"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content" />
+  <com.android.intentresolver.widget.ScrollableActionRow
+      android:id="@androidprv:id/chooser_action_row"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center_horizontal"
+      android:gravity="center" />
 
 </LinearLayout>
