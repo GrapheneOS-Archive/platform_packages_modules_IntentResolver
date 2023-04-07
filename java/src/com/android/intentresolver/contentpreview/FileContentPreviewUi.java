@@ -29,7 +29,6 @@ import androidx.annotation.LayoutRes;
 
 import com.android.intentresolver.ImageLoader;
 import com.android.intentresolver.R;
-import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.widget.ActionRow;
 
 import java.util.ArrayList;
@@ -44,19 +43,16 @@ class FileContentPreviewUi extends ContentPreviewUi {
     private final List<FileInfo> mFiles;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
     private final ImageLoader mImageLoader;
-    private final FeatureFlagRepository mFeatureFlagRepository;
     private final HeadlineGenerator mHeadlineGenerator;
 
     FileContentPreviewUi(
             List<FileInfo> files,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
-            FeatureFlagRepository featureFlagRepository,
             HeadlineGenerator headlineGenerator) {
         mFiles = files;
         mActionFactory = actionFactory;
         mImageLoader = imageLoader;
-        mFeatureFlagRepository = featureFlagRepository;
         mHeadlineGenerator = headlineGenerator;
     }
 
@@ -68,13 +64,13 @@ class FileContentPreviewUi extends ContentPreviewUi {
     @Override
     public ViewGroup display(Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
         ViewGroup layout = displayInternal(resources, layoutInflater, parent);
-        displayModifyShareAction(layout, mActionFactory, mFeatureFlagRepository);
+        displayModifyShareAction(layout, mActionFactory);
         return layout;
     }
 
     private ViewGroup displayInternal(
             Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
-        @LayoutRes int actionRowLayout = getActionRowLayout(mFeatureFlagRepository);
+        @LayoutRes int actionRowLayout = getActionRowLayout();
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_file, parent, false);
 
@@ -119,8 +115,7 @@ class FileContentPreviewUi extends ContentPreviewUi {
             actionRow.setActions(
                     createActions(
                             createFilePreviewActions(),
-                            mActionFactory.createCustomActions(),
-                            mFeatureFlagRepository));
+                            mActionFactory.createCustomActions()));
         }
 
         return contentPreviewLayout;
