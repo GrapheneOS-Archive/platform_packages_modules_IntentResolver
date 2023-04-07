@@ -26,11 +26,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 
 import com.android.intentresolver.ImageLoader;
@@ -89,18 +87,17 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
     }
 
     private ViewGroup displayInternal(LayoutInflater layoutInflater, ViewGroup parent) {
-        @LayoutRes int actionRowLayout = getActionRowLayout();
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_image, parent, false);
-        ScrollableImagePreviewView imagePreview = inflateImagePreviewView(contentPreviewLayout);
+        ScrollableImagePreviewView imagePreview =
+                contentPreviewLayout.findViewById(R.id.scrollable_image_preview);
 
-        final ActionRow actionRow = inflateActionRow(contentPreviewLayout, actionRowLayout);
-        if (actionRow != null) {
-            actionRow.setActions(
-                    createActions(
-                            createImagePreviewActions(),
-                            mActionFactory.createCustomActions()));
-        }
+        final ActionRow actionRow =
+                contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
+        actionRow.setActions(
+                createActions(
+                        createImagePreviewActions(),
+                        mActionFactory.createCustomActions()));
 
         if (mFiles.size() == 0) {
             Log.i(
@@ -165,15 +162,6 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
             actions.add(action);
         }
         return actions;
-    }
-
-    private ScrollableImagePreviewView inflateImagePreviewView(ViewGroup previewLayout) {
-        ViewStub stub = previewLayout.findViewById(R.id.image_preview_stub);
-        if (stub != null) {
-            stub.setLayoutResource(R.layout.scrollable_image_preview_view);
-            stub.inflate();
-        }
-        return previewLayout.findViewById(R.id.scrollable_image_preview);
     }
 
     private void updateTextWithImageHeadline(ViewGroup contentPreview) {
