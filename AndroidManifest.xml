@@ -22,6 +22,7 @@
         android:versionName="2021-11"
         coreApp="true">
 
+
     <uses-permission android:name="android.permission.ACCESS_SHORTCUTS" />
     <uses-permission android:name="android.permission.BIND_RESOLVER_RANKER_SERVICE" />
     <uses-permission android:name="android.permission.GET_ANY_PROVIDER_TYPE" />
@@ -31,7 +32,6 @@
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="android.permission.READ_DEVICE_CONFIG" />
-    <uses-permission android:name="android.permission.RECEIVE_CHOOSER_PIN_MIGRATION" />
     <uses-permission android:name="android.permission.SET_CLIP_SOURCE" />
     <uses-permission android:name="android.permission.START_ACTIVITY_AS_CALLER" />
     <uses-permission android:name="android.permission.UNLIMITED_SHORTCUTS_API_CALLS" />
@@ -71,14 +71,6 @@
                 <category android:name="android.intent.category.VOICE" />
             </intent-filter>
         </activity>
-
-        <receiver android:name=".ChooserPinMigrationReceiver"
-                  android:exported="true"
-                  android:permission="android.permission.ADD_CHOOSER_PINS">
-            <intent-filter>
-                <action android:name="android.intent.action.CHOOSER_PIN_MIGRATION" />
-            </intent-filter>
-        </receiver>
 
     </application>
 
