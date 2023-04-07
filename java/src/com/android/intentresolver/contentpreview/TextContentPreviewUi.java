@@ -25,7 +25,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 
 import com.android.intentresolver.ImageLoader;
@@ -76,17 +75,15 @@ class TextContentPreviewUi extends ContentPreviewUi {
     private ViewGroup displayInternal(
             LayoutInflater layoutInflater,
             ViewGroup parent) {
-        @LayoutRes int actionRowLayout = getActionRowLayout();
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_text, parent, false);
 
-        final ActionRow actionRow = inflateActionRow(contentPreviewLayout, actionRowLayout);
-        if (actionRow != null) {
-            actionRow.setActions(
-                    createActions(
-                            createTextPreviewActions(),
-                            mActionFactory.createCustomActions()));
-        }
+        final ActionRow actionRow =
+                contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
+        actionRow.setActions(
+                createActions(
+                        createTextPreviewActions(),
+                        mActionFactory.createCustomActions()));
 
         if (mSharingText == null) {
             contentPreviewLayout

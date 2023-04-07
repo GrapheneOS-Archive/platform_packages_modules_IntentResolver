@@ -91,7 +91,6 @@ import android.util.HashedStringCache;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -919,23 +918,17 @@ public class UnbundledChooserActivityTest {
         setupResolverControllers(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_image_area))
+        onView(withId(R.id.scrollable_image_preview))
                 .check((view, exception) -> {
                     if (exception != null) {
                         throw exception;
                     }
-                    ViewGroup parent = (ViewGroup) view;
-                    ArrayList<View> visibleViews = new ArrayList<>();
-                    for (int i = 0, count = parent.getChildCount(); i < count; i++) {
-                        View child = parent.getChildAt(i);
-                        if (child.getVisibility() == View.VISIBLE) {
-                            visibleViews.add(child);
-                        }
-                    }
-                    assertThat(visibleViews.size(), is(1));
+                    RecyclerView recyclerView = (RecyclerView) view;
+                    assertThat(recyclerView.getAdapter().getItemCount(), is(1));
+                    assertThat(recyclerView.getChildCount(), is(1));
                     assertThat(
                             "image preview view is fully visible",
-                            isDisplayed().matches(visibleViews.get(0)));
+                            isDisplayed().matches(recyclerView.getChildAt(0)));
                 });
     }
 
