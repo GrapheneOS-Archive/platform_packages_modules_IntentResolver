@@ -39,15 +39,6 @@
       android:layout_marginBottom="@dimen/chooser_view_spacing"
       android:id="@androidprv:id/content_preview_file_layout">
 
-    <com.android.intentresolver.widget.RoundedRectImageView
-          android:id="@androidprv:id/content_preview_file_thumbnail"
-          android:layout_width="75dp"
-          android:layout_height="75dp"
-          android:layout_marginRight="16dp"
-          android:adjustViewBounds="true"
-          android:layout_gravity="center_vertical"
-          android:gravity="center"
-          android:scaleType="centerCrop"/>
     <ImageView
         android:id="@androidprv:id/content_preview_file_icon"
         android:layout_width="36dp"
@@ -56,8 +47,7 @@
         android:adjustViewBounds="true"
         android:layout_gravity="center_vertical"
         android:gravity="center"
-        android:scaleType="fitCenter"
-        android:visibility="gone"/>
+        android:scaleType="fitCenter" />
     <TextView
         android:id="@androidprv:id/content_preview_filename"
         android:layout_width="0dp"
