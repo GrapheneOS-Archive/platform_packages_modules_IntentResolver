@@ -87,7 +87,6 @@ import com.android.intentresolver.contentpreview.ChooserContentPreviewUi;
 import com.android.intentresolver.contentpreview.HeadlineGeneratorImpl;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.flags.FeatureFlagRepositoryFactory;
-import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.grid.DirectShareViewHolder;
 import com.android.intentresolver.model.AbstractResolverComparator;
@@ -293,7 +292,6 @@ public class ChooserActivity extends ResolverActivity implements
                 createPreviewImageLoader(),
                 createChooserActionFactory(),
                 mEnterTransitionAnimationDelegate,
-                mFeatureFlagRepository,
                 new HeadlineGeneratorImpl(this));
 
         setAdditionalTargets(mChooserRequest.getAdditionalTargets());
@@ -1341,15 +1339,11 @@ public class ChooserActivity extends ResolverActivity implements
     @VisibleForTesting
     protected ImageLoader createPreviewImageLoader() {
         final int cacheSize;
-        if (mFeatureFlagRepository.isEnabled(Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW)) {
-            float chooserWidth = getResources().getDimension(R.dimen.chooser_width);
-            // imageWidth = imagePreviewHeight / minAspectRatio (see ScrollableImagePreviewView)
-            float imageWidth =
-                    getResources().getDimension(R.dimen.chooser_preview_image_height_tall) * 5 / 2;
-            cacheSize = (int) (Math.ceil(chooserWidth / imageWidth) + 2);
-        } else {
-            cacheSize = 3;
-        }
+        float chooserWidth = getResources().getDimension(R.dimen.chooser_width);
+        // imageWidth = imagePreviewHeight / minAspectRatio (see ScrollableImagePreviewView)
+        float imageWidth =
+                getResources().getDimension(R.dimen.chooser_preview_image_height_tall) * 5 / 2;
+        cacheSize = (int) (Math.ceil(chooserWidth / imageWidth) + 2);
         return new ImagePreviewImageLoader(this, getLifecycle(), cacheSize);
     }
 
