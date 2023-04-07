@@ -30,7 +30,6 @@ import androidx.annotation.Nullable;
 
 import com.android.intentresolver.ImageLoader;
 import com.android.intentresolver.R;
-import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.widget.ActionRow;
 
 import java.util.ArrayList;
@@ -45,7 +44,6 @@ class TextContentPreviewUi extends ContentPreviewUi {
     private final Uri mPreviewThumbnail;
     private final ImageLoader mImageLoader;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
-    private final FeatureFlagRepository mFeatureFlagRepository;
     private final HeadlineGenerator mHeadlineGenerator;
 
     TextContentPreviewUi(
@@ -54,14 +52,12 @@ class TextContentPreviewUi extends ContentPreviewUi {
             @Nullable Uri previewThumbnail,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
-            FeatureFlagRepository featureFlagRepository,
             HeadlineGenerator headlineGenerator) {
         mSharingText = sharingText;
         mPreviewTitle = previewTitle;
         mPreviewThumbnail = previewThumbnail;
         mImageLoader = imageLoader;
         mActionFactory = actionFactory;
-        mFeatureFlagRepository = featureFlagRepository;
         mHeadlineGenerator = headlineGenerator;
     }
 
@@ -73,14 +69,14 @@ class TextContentPreviewUi extends ContentPreviewUi {
     @Override
     public ViewGroup display(Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
         ViewGroup layout = displayInternal(layoutInflater, parent);
-        displayModifyShareAction(layout, mActionFactory, mFeatureFlagRepository);
+        displayModifyShareAction(layout, mActionFactory);
         return layout;
     }
 
     private ViewGroup displayInternal(
             LayoutInflater layoutInflater,
             ViewGroup parent) {
-        @LayoutRes int actionRowLayout = getActionRowLayout(mFeatureFlagRepository);
+        @LayoutRes int actionRowLayout = getActionRowLayout();
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_text, parent, false);
 
@@ -89,8 +85,7 @@ class TextContentPreviewUi extends ContentPreviewUi {
             actionRow.setActions(
                     createActions(
                             createTextPreviewActions(),
-                            mActionFactory.createCustomActions(),
-                            mFeatureFlagRepository));
+                            mActionFactory.createCustomActions()));
         }
 
         if (mSharingText == null) {
