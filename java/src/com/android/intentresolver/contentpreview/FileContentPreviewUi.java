@@ -25,8 +25,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.LayoutRes;
-
 import com.android.intentresolver.ImageLoader;
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
@@ -70,7 +68,6 @@ class FileContentPreviewUi extends ContentPreviewUi {
 
     private ViewGroup displayInternal(
             Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
-        @LayoutRes int actionRowLayout = getActionRowLayout();
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_file, parent, false);
 
@@ -110,13 +107,12 @@ class FileContentPreviewUi extends ContentPreviewUi {
             fileIconView.setImageResource(R.drawable.ic_file_copy);
         }
 
-        final ActionRow actionRow = inflateActionRow(contentPreviewLayout, actionRowLayout);
-        if (actionRow != null) {
-            actionRow.setActions(
-                    createActions(
-                            createFilePreviewActions(),
-                            mActionFactory.createCustomActions()));
-        }
+        final ActionRow actionRow =
+                contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
+        actionRow.setActions(
+                createActions(
+                        createFilePreviewActions(),
+                        mActionFactory.createCustomActions()));
 
         return contentPreviewLayout;
     }
