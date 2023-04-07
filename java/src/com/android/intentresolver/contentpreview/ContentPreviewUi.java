@@ -37,8 +37,6 @@ import android.widget.TextView;
 import androidx.annotation.LayoutRes;
 
 import com.android.intentresolver.R;
-import com.android.intentresolver.flags.FeatureFlagRepository;
-import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.widget.ActionRow;
 
 import java.util.ArrayList;
@@ -54,10 +52,8 @@ abstract class ContentPreviewUi {
     public abstract ViewGroup display(
             Resources resources, LayoutInflater layoutInflater, ViewGroup parent);
 
-    protected static int getActionRowLayout(FeatureFlagRepository featureFlagRepository) {
-        return featureFlagRepository.isEnabled(Flags.SHARESHEET_CUSTOM_ACTIONS)
-                ? R.layout.scrollable_chooser_action_row
-                : R.layout.chooser_action_row;
+    protected static int getActionRowLayout() {
+        return R.layout.scrollable_chooser_action_row;
     }
 
     protected static ActionRow inflateActionRow(ViewGroup parent, @LayoutRes int actionRowLayout) {
@@ -71,12 +67,10 @@ abstract class ContentPreviewUi {
 
     protected static List<ActionRow.Action> createActions(
             List<ActionRow.Action> systemActions,
-            List<ActionRow.Action> customActions,
-            FeatureFlagRepository featureFlagRepository) {
+            List<ActionRow.Action> customActions) {
         ArrayList<ActionRow.Action> actions =
                 new ArrayList<>(systemActions.size() + customActions.size());
-        if (featureFlagRepository.isEnabled(Flags.SHARESHEET_CUSTOM_ACTIONS)
-                && customActions != null && !customActions.isEmpty()) {
+        if (customActions != null && !customActions.isEmpty()) {
             actions.addAll(customActions);
         } else {
             actions.addAll(systemActions);
@@ -133,11 +127,9 @@ abstract class ContentPreviewUi {
 
     protected static void displayModifyShareAction(
             ViewGroup layout,
-            ChooserContentPreviewUi.ActionFactory actionFactory,
-            FeatureFlagRepository featureFlagRepository) {
+            ChooserContentPreviewUi.ActionFactory actionFactory) {
         ActionRow.Action modifyShareAction = actionFactory.getModifyShareAction();
-        if (modifyShareAction != null && layout != null
-                && featureFlagRepository.isEnabled(Flags.SHARESHEET_RESELECTION_ACTION)) {
+        if (modifyShareAction != null && layout != null) {
             TextView modifyShareView = layout.findViewById(R.id.reselection_action);
             if (modifyShareView != null) {
                 modifyShareView.setText(modifyShareAction.getLabel());

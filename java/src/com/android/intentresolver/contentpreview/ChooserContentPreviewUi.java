@@ -39,14 +39,11 @@ import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 
 import com.android.intentresolver.ImageLoader;
-import com.android.intentresolver.flags.FeatureFlagRepository;
-import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -103,7 +100,6 @@ public final class ChooserContentPreviewUi {
             ImageLoader imageLoader,
             ActionFactory actionFactory,
             TransitionElementStatusCallback transitionElementStatusCallback,
-            FeatureFlagRepository featureFlagRepository,
             HeadlineGenerator headlineGenerator) {
 
         mContentPreviewUi = createContentPreview(
@@ -113,7 +109,6 @@ public final class ChooserContentPreviewUi {
                 imageLoader,
                 actionFactory,
                 transitionElementStatusCallback,
-                featureFlagRepository,
                 headlineGenerator);
         if (mContentPreviewUi.getType() != CONTENT_PREVIEW_IMAGE) {
             transitionElementStatusCallback.onAllTransitionElementsReady();
@@ -127,7 +122,6 @@ public final class ChooserContentPreviewUi {
             ImageLoader imageLoader,
             ActionFactory actionFactory,
             TransitionElementStatusCallback transitionElementStatusCallback,
-            FeatureFlagRepository featureFlagRepository,
             HeadlineGenerator headlineGenerator) {
 
         /* In {@link android.content.Intent#getType}, the app may specify a very general mime type
@@ -145,7 +139,6 @@ public final class ChooserContentPreviewUi {
                     targetIntent,
                     actionFactory,
                     imageLoader,
-                    featureFlagRepository,
                     headlineGenerator);
         }
         List<Uri> uris = extractContentUris(targetIntent);
@@ -154,7 +147,6 @@ public final class ChooserContentPreviewUi {
                     targetIntent,
                     actionFactory,
                     imageLoader,
-                    featureFlagRepository,
                     headlineGenerator);
         }
         ArrayList<FileInfo> files = new ArrayList<>(uris.size());
@@ -164,50 +156,15 @@ public final class ChooserContentPreviewUi {
                     files,
                     actionFactory,
                     imageLoader,
-                    featureFlagRepository,
                     headlineGenerator);
         }
-        if (featureFlagRepository.isEnabled(Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW)) {
-            return new UnifiedContentPreviewUi(
-                    files,
-                    targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT),
-                    actionFactory,
-                    imageLoader,
-                    typeClassifier,
-                    transitionElementStatusCallback,
-                    featureFlagRepository,
-                    headlineGenerator);
-        }
-        if (previewCount < uris.size()) {
-            return new FileContentPreviewUi(
-                    files,
-                    actionFactory,
-                    imageLoader,
-                    featureFlagRepository,
-                    headlineGenerator);
-        }
-        // The legacy (3-image) image preview is on it's way out and it's unlikely that we'd end up
-        // here. To preserve the legacy behavior, before using it, check that all uris are images.
-        for (FileInfo fileInfo: files) {
-            if (!typeClassifier.isImageType(fileInfo.getMimeType())) {
-                return new FileContentPreviewUi(
-                        files,
-                        actionFactory,
-                        imageLoader,
-                        featureFlagRepository,
-                        headlineGenerator);
-            }
-        }
-        return new ImageContentPreviewUi(
-                files.stream()
-                        .map(FileInfo::getPreviewUri)
-                        .filter(Objects::nonNull)
-                        .toList(),
+        return new UnifiedContentPreviewUi(
+                files,
                 targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT),
                 actionFactory,
                 imageLoader,
+                typeClassifier,
                 transitionElementStatusCallback,
-                featureFlagRepository,
                 headlineGenerator);
     }
 
@@ -323,7 +280,6 @@ public final class ChooserContentPreviewUi {
             Intent targetIntent,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
-            FeatureFlagRepository featureFlagRepository,
             HeadlineGenerator headlineGenerator) {
         CharSequence sharingText = targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         String previewTitle = targetIntent.getStringExtra(Intent.EXTRA_TITLE);
@@ -341,7 +297,6 @@ public final class ChooserContentPreviewUi {
                 previewThumbnail,
                 actionFactory,
                 imageLoader,
-                featureFlagRepository,
                 headlineGenerator);
     }
 
