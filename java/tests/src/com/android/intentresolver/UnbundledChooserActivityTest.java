@@ -91,7 +91,6 @@ import android.util.HashedStringCache;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -104,7 +103,6 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
-import com.android.intentresolver.flags.Flags;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
@@ -168,11 +166,7 @@ public class UnbundledChooserActivityTest {
             };
 
     private static final List<BooleanFlag> ALL_FLAGS =
-            Arrays.asList(
-                    Flags.SHARESHEET_CUSTOM_ACTIONS,
-                    Flags.SHARESHEET_RESELECTION_ACTION,
-                    Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW,
-                    Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW);
+            Arrays.asList();
 
     private static final Map<BooleanFlag, Boolean> ALL_FLAGS_OFF =
             createAllFlagsOverride(false);
@@ -181,6 +175,15 @@ public class UnbundledChooserActivityTest {
 
     @Parameterized.Parameters
     public static Collection packageManagers() {
+        if (ALL_FLAGS.isEmpty()) {
+            // No flags to toggle between, so just two configurations.
+            return Arrays.asList(new Object[][] {
+                    // Default PackageManager and all flags off
+                    { DEFAULT_PM, ALL_FLAGS_OFF},
+                    // No App Prediction Service and all flags off
+                    { NO_APP_PREDICTION_SERVICE_PM, ALL_FLAGS_OFF },
+            });
+        }
         return Arrays.asList(new Object[][] {
                 // Default PackageManager and all flags off
                 { DEFAULT_PM, ALL_FLAGS_OFF},
@@ -684,9 +687,6 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
-            values = { true })
     public void testImagePlusTextSharing_ExcludeText() {
         Intent sendIntent = createSendImageIntent(
                 Uri.parse("android.resource://com.android.frameworks.coretests/"
@@ -727,9 +727,6 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
-            values = { true })
     public void testImagePlusTextSharing_RemoveAndAddBackText() {
         Intent sendIntent = createSendImageIntent(
                 Uri.parse("android.resource://com.android.frameworks.coretests/"
@@ -774,9 +771,6 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
-            values = { true })
     public void testImagePlusTextSharing_TextExclusionDoesNotAffectAlternativeIntent() {
         Intent sendIntent = createSendImageIntent(
                 Uri.parse("android.resource://com.android.frameworks.coretests/"
@@ -924,95 +918,21 @@ public class UnbundledChooserActivityTest {
         setupResolverControllers(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_image_area))
+        onView(withId(R.id.scrollable_image_preview))
                 .check((view, exception) -> {
                     if (exception != null) {
                         throw exception;
                     }
-                    ViewGroup parent = (ViewGroup) view;
-                    ArrayList<View> visibleViews = new ArrayList<>();
-                    for (int i = 0, count = parent.getChildCount(); i < count; i++) {
-                        View child = parent.getChildAt(i);
-                        if (child.getVisibility() == View.VISIBLE) {
-                            visibleViews.add(child);
-                        }
-                    }
-                    assertThat(visibleViews.size(), is(1));
+                    RecyclerView recyclerView = (RecyclerView) view;
+                    assertThat(recyclerView.getAdapter().getItemCount(), is(1));
+                    assertThat(recyclerView.getChildCount(), is(1));
                     assertThat(
                             "image preview view is fully visible",
-                            isDisplayed().matches(visibleViews.get(0)));
+                            isDisplayed().matches(recyclerView.getChildAt(0)));
                 });
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW_NAME },
-            values = { false })
-    public void twoVisibleImagePreview() {
-        Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
-                + R.drawable.test320x240);
-
-        ArrayList<Uri> uris = new ArrayList<>();
-        uris.add(uri);
-        uris.add(uri);
-
-        Intent sendIntent = createSendUriIntentWithPreview(uris);
-        ChooserActivityOverrideData.getInstance().previewThumbnail = createBitmap();
-        ChooserActivityOverrideData.getInstance().isImageType = true;
-
-        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
-
-        setupResolverControllers(resolvedComponentInfos);
-        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
-        waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_image_1_large))
-                .check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.content_preview_image_2_large))
-                .check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.content_preview_image_2_small))
-                .check(matches(not(isDisplayed())));
-        onView(withId(com.android.internal.R.id.content_preview_image_3_small))
-                .check(matches(not(isDisplayed())));
-    }
-
-    @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW_NAME },
-            values = { false })
-    public void threeOrMoreVisibleImagePreview() {
-        Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
-                + R.drawable.test320x240);
-
-        ArrayList<Uri> uris = new ArrayList<>();
-        uris.add(uri);
-        uris.add(uri);
-        uris.add(uri);
-        uris.add(uri);
-        uris.add(uri);
-
-        Intent sendIntent = createSendUriIntentWithPreview(uris);
-        ChooserActivityOverrideData.getInstance().previewThumbnail = createBitmap();
-        ChooserActivityOverrideData.getInstance().isImageType = true;
-
-        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
-
-        setupResolverControllers(resolvedComponentInfos);
-        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
-        waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_image_1_large))
-                .check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.content_preview_image_2_large))
-                .check(matches(not(isDisplayed())));
-        onView(withId(com.android.internal.R.id.content_preview_image_2_small))
-                .check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.content_preview_image_3_small))
-                .check(matches(isDisplayed()));
-    }
-
-    @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_SCROLLABLE_IMAGE_PREVIEW_NAME },
-            values = { true })
     public void testManyVisibleImagePreview_ScrollableImagePreview() {
         Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
                 + R.drawable.test320x240);
@@ -1050,9 +970,6 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
-            values = { true })
     public void testImageAndTextPreview() {
         final Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
                 + R.drawable.test320x240);
@@ -1076,9 +993,6 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_IMAGE_AND_TEXT_PREVIEW_NAME },
-            values = { true })
     public void testNoTextPreviewWhenTextIsSharedWithMultipleImages() {
         final Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
                 + R.drawable.test320x240);
@@ -1719,9 +1633,6 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_CUSTOM_ACTIONS_NAME },
-            values = { true })
     public void testLaunchWithCustomAction() throws InterruptedException {
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
         setupResolverControllers(resolvedComponentInfos);
@@ -1765,9 +1676,6 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    @RequireFeatureFlags(
-            flags = { Flags.SHARESHEET_RESELECTION_ACTION_NAME },
-            values = { true })
     public void testLaunchWithShareModification() throws InterruptedException {
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
         setupResolverControllers(resolvedComponentInfos);
