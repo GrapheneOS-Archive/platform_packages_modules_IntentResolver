@@ -40,6 +40,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -129,12 +130,17 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
             imageLoader,
             previews,
             otherItemCount,
-        ).apply {
+        ) {
+            onNoPreviewCallback?.run()
+        }
+        .apply {
             if (isMeasured) {
                 loadAspectRatios(getMaxWidth(), this@ScrollableImagePreviewView::calcPreviewWidth)
             }
         }
     }
+
+    var onNoPreviewCallback: Runnable? = null
 
     private fun getMaxWidth(): Int =
         when {
@@ -187,6 +193,7 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         private var totalItemCount: Int = 0
 
         private val hasOtherItem get() = previews.size < totalItemCount
+        val hasPreviews: Boolean get() = previews.isNotEmpty()
 
         var transitionStatusElementCallback: TransitionElementStatusCallback? = null
 
@@ -369,6 +376,7 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         private val imageLoader: ImageLoader,
         previews: List<Preview>,
         otherItemCount: Int,
+        private val onNoPreviewCallback: (() -> Unit)
     ) {
         private val pendingPreviews = ArrayDeque<Preview>(previews)
         private val totalItemCount = previews.size + otherItemCount
@@ -393,6 +401,11 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
                 reportFlow
                     .takeWhile { it !== completedEvent }
                     .throttle(ADAPTER_UPDATE_INTERVAL_MS)
+                    .onCompletion { cause ->
+                        if (cause == null && !adapter.hasPreviews) {
+                            onNoPreviewCallback()
+                        }
+                    }
                     .collect {
                         if (isFirstUpdate) {
                             isFirstUpdate = false
