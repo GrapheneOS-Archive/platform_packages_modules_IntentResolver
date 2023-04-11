@@ -24,7 +24,6 @@ import static org.mockito.Mockito.when;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.os.UserHandle;
 
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
@@ -64,7 +63,7 @@ public class ChooserActivityOverrideData {
     public boolean isImageType;
     public Cursor resolverCursor;
     public boolean resolverForceException;
-    public Bitmap previewThumbnail;
+    public ImageLoader imageLoader;
     public ChooserActivityLogger chooserActivityLogger;
     public int alternateProfileSetting;
     public Resources resources;
@@ -83,7 +82,7 @@ public class ChooserActivityOverrideData {
         onSafelyStartInternalCallback = null;
         isVoiceInteraction = null;
         createPackageManager = null;
-        previewThumbnail = null;
+        imageLoader = null;
         isImageType = false;
         resolverCursor = null;
         resolverForceException = false;
