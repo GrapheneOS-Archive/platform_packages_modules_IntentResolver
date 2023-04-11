@@ -91,6 +91,7 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
                 R.layout.chooser_grid_preview_image, parent, false);
         ScrollableImagePreviewView imagePreview =
                 contentPreviewLayout.findViewById(R.id.scrollable_image_preview);
+        imagePreview.setOnNoPreviewCallback(() -> imagePreview.setVisibility(View.GONE));
 
         final ActionRow actionRow =
                 contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
@@ -132,7 +133,7 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
                 mImageLoader);
 
         if (!TextUtils.isEmpty(mText) && mFiles.size() == 1 && allImages) {
-            setTextInImagePreviewVisibility(contentPreviewLayout, mActionFactory);
+            setTextInImagePreviewVisibility(contentPreviewLayout, imagePreview, mActionFactory);
             updateTextWithImageHeadline(contentPreviewLayout);
         } else {
             if (allImages) {
@@ -175,7 +176,9 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
     }
 
     private void setTextInImagePreviewVisibility(
-            ViewGroup contentPreview, ChooserContentPreviewUi.ActionFactory actionFactory) {
+            ViewGroup contentPreview,
+            ScrollableImagePreviewView imagePreview,
+            ChooserContentPreviewUi.ActionFactory actionFactory) {
         final TextView textView = contentPreview
                 .requireViewById(com.android.internal.R.id.content_preview_text);
         CheckBox actionView = contentPreview
@@ -194,8 +197,12 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
         shareTextAction.accept(false);
         actionView.setOnCheckedChangeListener((view, isChecked) -> {
             view.setText(actionLabels[isChecked ? 1 : 0]);
-            TransitionManager.beginDelayedTransition((ViewGroup) textView.getParent());
-            textView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            textView.setEnabled(isChecked);
+            if (imagePreview.getVisibility() == View.VISIBLE) {
+                // animate only only if we have preview
+                TransitionManager.beginDelayedTransition((ViewGroup) textView.getParent());
+                textView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            }
             shareTextAction.accept(!isChecked);
             updateTextWithImageHeadline(contentPreview);
         });
