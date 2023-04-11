@@ -194,9 +194,9 @@ public class ChooserWrapperActivity
 
     @Override
     protected ImageLoader createPreviewImageLoader() {
-        return new TestPreviewImageLoader(
-                super.createPreviewImageLoader(),
-                () -> sOverrides.previewThumbnail);
+        return sOverrides.imageLoader == null
+                ? super.createPreviewImageLoader()
+                : sOverrides.imageLoader;
     }
 
     @Override
