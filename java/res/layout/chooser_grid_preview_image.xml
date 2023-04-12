@@ -41,7 +41,6 @@
           android:layout_width="wrap_content"
           android:layout_height="@dimen/chooser_preview_image_height_tall"
           android:layout_gravity="center_horizontal"
-          android:layout_marginBottom="@dimen/chooser_view_spacing"
           android:background="?android:attr/colorBackground"
           app:itemInnerSpacing="3dp"
           app:itemOuterSpacing="@dimen/chooser_edge_margin_normal_half"
