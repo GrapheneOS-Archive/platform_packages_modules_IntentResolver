@@ -581,7 +581,7 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
     }
 
     /** Only expand direct share area if there is a minimum number of targets. */
-    private boolean canExpandDirectShare() {
+    public boolean canExpandDirectShare() {
         // Do not enable until we have confirmed more apps are using sharing shortcuts
         // Check git history for enablement logic
         return false;

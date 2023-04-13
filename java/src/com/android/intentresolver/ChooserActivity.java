@@ -1512,11 +1512,12 @@ public class ChooserActivity extends ResolverActivity implements
                 rowsToShow--;
             }
 
-            boolean isExpandable = getResources().getConfiguration().orientation
-                    == Configuration.ORIENTATION_PORTRAIT && !isInMultiWindowMode();
-            if (directShareHeight != 0 && shouldShowContentPreview()
-                    && isExpandable) {
-                // make sure to leave room for direct share 4->8 expansion
+            boolean isPortrait = getResources().getConfiguration().orientation
+                    == Configuration.ORIENTATION_PORTRAIT;
+            boolean isExpandable = isPortrait && !isInMultiWindowMode()
+                    && gridAdapter.canExpandDirectShare();
+            if (directShareHeight != 0 && shouldShowContentPreview() && isExpandable) {
+                // make sure to leave room for direct share 4->8 expansion, if enabled
                 int requiredExpansionHeight =
                         (int) (directShareHeight / DIRECT_SHARE_EXPANSION_RATE);
                 int topInset = mSystemWindowInsets != null ? mSystemWindowInsets.top : 0;
