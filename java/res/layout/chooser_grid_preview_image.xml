@@ -18,47 +18,24 @@
 -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="?android:attr/colorBackground">
 
-    <include layout="@layout/chooser_headline_row" />
+    <include layout="@layout/chooser_headline_row"/>
 
-  <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:orientation="horizontal"
-      android:gravity="center_horizontal"
-      android:layout_marginBottom="@dimen/chooser_view_spacing"
-      android:paddingStart="@dimen/chooser_edge_margin_normal_half"
-      android:paddingEnd="@dimen/chooser_edge_margin_normal_half">
+    <com.android.intentresolver.widget.ScrollableImagePreviewView
+        android:id="@+id/scrollable_image_preview"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/chooser_preview_image_height_tall"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/chooser_view_spacing"
+        android:layout_marginHorizontal="@dimen/chooser_edge_margin_normal_half"
+        android:background="?android:attr/colorBackground"
+        app:itemInnerSpacing="3dp"
+        app:itemOuterSpacing="@dimen/chooser_edge_margin_normal_half"/>
 
-      <com.android.intentresolver.widget.ScrollableImagePreviewView
-          android:id="@+id/scrollable_image_preview"
-          android:layout_width="wrap_content"
-          android:layout_height="@dimen/chooser_preview_image_height_tall"
-          android:layout_gravity="center_horizontal"
-          android:background="?android:attr/colorBackground"
-          app:itemInnerSpacing="3dp"
-          app:itemOuterSpacing="@dimen/chooser_edge_margin_normal_half" />
-
-      <TextView
-          android:id="@androidprv:id/content_preview_text"
-          android:layout_width="0dp"
-          android:layout_height="wrap_content"
-          android:layout_weight="1"
-          android:layout_gravity="center_vertical"
-          android:layout_marginStart="@dimen/chooser_edge_margin_normal_half"
-          android:layout_marginEnd="@dimen/chooser_edge_margin_normal_half"
-          android:maxLines="@integer/text_preview_lines"
-          android:ellipsize="end"
-          android:linksClickable="false"
-          android:visibility="gone"
-          android:textAppearance="@style/TextAppearance.ChooserDefault" />
-  </LinearLayout>
-
-  <include layout="@layout/chooser_action_row" />
+    <include layout="@layout/chooser_action_row"/>
 </LinearLayout>

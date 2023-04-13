@@ -19,15 +19,10 @@ package com.android.intentresolver.contentpreview;
 import static com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_IMAGE;
 
 import android.content.res.Resources;
-import android.text.TextUtils;
-import android.text.util.Linkify;
-import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
@@ -39,12 +34,10 @@ import com.android.intentresolver.widget.ScrollableImagePreviewView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 class UnifiedContentPreviewUi extends ContentPreviewUi {
     private final List<FileInfo> mFiles;
     @Nullable
-    private final CharSequence mText;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
     private final ImageLoader mImageLoader;
     private final MimeTypeClassifier mTypeClassifier;
@@ -53,14 +46,12 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
 
     UnifiedContentPreviewUi(
             List<FileInfo> files,
-            @Nullable CharSequence text,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
             MimeTypeClassifier typeClassifier,
             TransitionElementStatusCallback transitionElementStatusCallback,
             HeadlineGenerator headlineGenerator) {
         mFiles = files;
-        mText = text;
         mActionFactory = actionFactory;
         mImageLoader = imageLoader;
         mTypeClassifier = typeClassifier;
@@ -131,20 +122,15 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
                 mFiles.size() - previews.size(),
                 mImageLoader);
 
-        if (!TextUtils.isEmpty(mText) && mFiles.size() == 1 && allImages) {
-            setTextInImagePreviewVisibility(contentPreviewLayout, imagePreview, mActionFactory);
-            updateTextWithImageHeadline(contentPreviewLayout);
+        if (allImages) {
+            displayHeadline(
+                    contentPreviewLayout, mHeadlineGenerator.getImagesHeadline(mFiles.size()));
+        } else if (allVideos) {
+            displayHeadline(
+                    contentPreviewLayout, mHeadlineGenerator.getVideosHeadline(mFiles.size()));
         } else {
-            if (allImages) {
-                displayHeadline(
-                        contentPreviewLayout, mHeadlineGenerator.getImagesHeadline(mFiles.size()));
-            } else if (allVideos) {
-                displayHeadline(
-                        contentPreviewLayout, mHeadlineGenerator.getVideosHeadline(mFiles.size()));
-            } else {
-                displayHeadline(
-                        contentPreviewLayout, mHeadlineGenerator.getItemsHeadline(mFiles.size()));
-            }
+            displayHeadline(
+                    contentPreviewLayout, mHeadlineGenerator.getItemsHeadline(mFiles.size()));
         }
 
         return contentPreviewLayout;
@@ -164,50 +150,6 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
             }
         }
         return actions;
-    }
-
-    private void updateTextWithImageHeadline(ViewGroup contentPreview) {
-        CheckBox actionView = contentPreview.requireViewById(R.id.include_text_action);
-        if (actionView.getVisibility() == View.VISIBLE && actionView.isChecked()) {
-            displayHeadline(contentPreview, mHeadlineGenerator.getImageWithTextHeadline(mText));
-        } else {
-            displayHeadline(
-                    contentPreview, mHeadlineGenerator.getImagesHeadline(mFiles.size()));
-        }
-    }
-
-    private void setTextInImagePreviewVisibility(
-            ViewGroup contentPreview,
-            ScrollableImagePreviewView imagePreview,
-            ChooserContentPreviewUi.ActionFactory actionFactory) {
-        final TextView textView = contentPreview
-                .requireViewById(com.android.internal.R.id.content_preview_text);
-        CheckBox actionView = contentPreview
-                .requireViewById(R.id.include_text_action);
-        textView.setVisibility(View.VISIBLE);
-        boolean isLink = HttpUriMatcher.isHttpUri(mText.toString());
-        textView.setAutoLinkMask(isLink ? Linkify.WEB_URLS : 0);
-        textView.setText(mText);
-
-        final int[] actionLabels = isLink
-                ? new int[] { R.string.include_link, R.string.exclude_link }
-                : new int[] { R.string.include_text, R.string.exclude_text };
-        final Consumer<Boolean> shareTextAction = actionFactory.getExcludeSharedTextAction();
-        actionView.setChecked(true);
-        actionView.setText(actionLabels[1]);
-        shareTextAction.accept(false);
-        actionView.setOnCheckedChangeListener((view, isChecked) -> {
-            view.setText(actionLabels[isChecked ? 1 : 0]);
-            textView.setEnabled(isChecked);
-            if (imagePreview.getVisibility() == View.VISIBLE) {
-                // animate only only if we have preview
-                TransitionManager.beginDelayedTransition((ViewGroup) textView.getParent());
-                textView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-            }
-            shareTextAction.accept(!isChecked);
-            updateTextWithImageHeadline(contentPreview);
-        });
-        actionView.setVisibility(View.VISIBLE);
     }
 
     private ScrollableImagePreviewView.PreviewType getPreviewType(String mimeType) {
