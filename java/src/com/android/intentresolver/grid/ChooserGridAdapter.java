@@ -89,26 +89,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
          * behaviors on this view.
          */
         void updateProfileViewButton(View newButtonFromProfileRow);
-
-        /**
-         * @return the number of "valid" targets in the active list adapter.
-         * TODO: define "valid."
-         */
-        int getValidTargetCount();
-
-        /**
-         * Request that the client update our {@code directShareGroup} to match their desired
-         * state for the "expansion" UI.
-         */
-        void updateDirectShareExpansion(DirectShareViewHolder directShareGroup);
-
-        /**
-         * Request that the client handle a scroll event that should be taken as expanding the
-         * provided {@code directShareGroup}. Note that this currently never happens due to a
-         * hard-coded condition in {@link #canExpandDirectShare()}.
-         */
-        void handleScrollToExpandDirectShare(
-                DirectShareViewHolder directShareGroup, int y, int oldy);
     }
 
     private static final int VIEW_TYPE_DIRECT_SHARE = 0;
@@ -131,7 +111,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
     private final int mChooserRowTextOptionTranslatePixelSize;
     private final boolean mShowAzLabelIfPoss;
 
-    private DirectShareViewHolder mDirectShareViewHolder;
     private int mChooserTargetWidth = 0;
 
     private int mFooterHeight = 0;
@@ -190,8 +169,7 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
         }
 
         // Limit width to the maximum width of the chooser activity
-        int maxWidth = mChooserWidthPixels;
-        width = Math.min(maxWidth, width);
+        width = Math.min(mChooserWidthPixels, width);
 
         int newWidth = width / mMaxTargetsPerRow;
         if (newWidth != mChooserTargetWidth) {
@@ -270,15 +248,13 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public int getItemCount() {
-        return (int) (
-                getSystemRowCount()
-                        + getProfileRowCount()
-                        + getServiceTargetRowCount()
-                        + getCallerAndRankedTargetRowCount()
-                        + getAzLabelRowCount()
-                        + mChooserListAdapter.getAlphaTargetCount()
-                        + getFooterRowCount()
-            );
+        return getSystemRowCount()
+                + getProfileRowCount()
+                + getServiceTargetRowCount()
+                + getCallerAndRankedTargetRowCount()
+                + getAzLabelRowCount()
+                + mChooserListAdapter.getAlphaTargetCount()
+                + getFooterRowCount();
     }
 
     @Override
@@ -453,12 +429,11 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
             parentGroup.addView(row1);
             parentGroup.addView(row2);
 
-            mDirectShareViewHolder = new DirectShareViewHolder(parentGroup,
-                    Lists.newArrayList(row1, row2), mMaxTargetsPerRow, viewType,
-                    mChooserActivityDelegate::getValidTargetCount);
-            loadViewsIntoGroup(mDirectShareViewHolder);
+            DirectShareViewHolder directShareViewHolder = new DirectShareViewHolder(parentGroup,
+                    Lists.newArrayList(row1, row2), mMaxTargetsPerRow, viewType);
+            loadViewsIntoGroup(directShareViewHolder);
 
-            return mDirectShareViewHolder;
+            return directShareViewHolder;
         } else {
             ViewGroup row = (ViewGroup) mLayoutInflater.inflate(
                     R.layout.chooser_row, parent, false);
@@ -572,33 +547,11 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
         return callerAndRankedCount + serviceCount + position;
     }
 
-    public void handleScroll(View v, int y, int oldy) {
-        boolean canExpandDirectShare = canExpandDirectShare();
-        if (mDirectShareViewHolder != null && canExpandDirectShare) {
-            mChooserActivityDelegate.handleScrollToExpandDirectShare(
-                    mDirectShareViewHolder, y, oldy);
-        }
-    }
-
-    /** Only expand direct share area if there is a minimum number of targets. */
-    private boolean canExpandDirectShare() {
-        // Do not enable until we have confirmed more apps are using sharing shortcuts
-        // Check git history for enablement logic
-        return false;
-    }
-
     public ChooserListAdapter getListAdapter() {
         return mChooserListAdapter;
     }
 
     public boolean shouldCellSpan(int position) {
         return getItemViewType(position) == VIEW_TYPE_NORMAL;
-    }
-
-    public void updateDirectShareExpansion() {
-        if (mDirectShareViewHolder == null || !canExpandDirectShare()) {
-            return;
-        }
-        mChooserActivityDelegate.updateDirectShareExpansion(mDirectShareViewHolder);
     }
 }
