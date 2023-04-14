@@ -122,6 +122,15 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         previewAdapter.transitionStatusElementCallback = callback
     }
 
+    override fun getTransitionView(): View? {
+        for (i in 0 until childCount) {
+            val child = getChildAt(i)
+            val vh = getChildViewHolder(child)
+            if (vh is PreviewViewHolder && vh.image.transitionName != null) return child
+        }
+        return null
+    }
+
     fun setPreviews(previews: List<Preview>, otherItemCount: Int, imageLoader: ImageLoader) {
         previewAdapter.reset(0, imageLoader)
         batchLoader?.cancel()
@@ -250,7 +259,8 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
                 is PreviewViewHolder -> vh.bind(
                     previews[position],
                     imageLoader ?: error("ImageLoader is missing"),
-                    if (position == firstImagePos && transitionStatusElementCallback != null) {
+                    isSharedTransitionElement = position == firstImagePos,
+                    previewReadyCallback = if (position == firstImagePos && transitionStatusElementCallback != null) {
                         this::onTransitionElementReady
                     } else {
                         null
@@ -282,7 +292,7 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
     }
 
     private class PreviewViewHolder(view: View) : ViewHolder(view) {
-        private val image = view.requireViewById<ImageView>(R.id.image)
+        val image = view.requireViewById<ImageView>(R.id.image)
         private val badgeFrame = view.requireViewById<View>(R.id.badge_frame)
         private val badge = view.requireViewById<ImageView>(R.id.badge)
         private var scope: CoroutineScope? = null
@@ -290,13 +300,14 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         fun bind(
             preview: Preview,
             imageLoader: ImageLoader,
+            isSharedTransitionElement: Boolean,
             previewReadyCallback: ((String) -> Unit)?
         ) {
             image.setImageDrawable(null)
             (image.layoutParams as? ConstraintLayout.LayoutParams)?.let { params ->
                 params.dimensionRatio = preview.aspectRatioString
             }
-            image.transitionName = if (previewReadyCallback != null) {
+            image.transitionName = if (isSharedTransitionElement) {
                 TRANSITION_NAME
             } else {
                 null
