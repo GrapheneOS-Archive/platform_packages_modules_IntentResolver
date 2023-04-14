@@ -43,8 +43,7 @@
           android:layout_gravity="center_horizontal"
           android:background="?android:attr/colorBackground"
           app:itemInnerSpacing="3dp"
-          app:itemOuterSpacing="@dimen/chooser_edge_margin_normal_half"
-          app:maxWidthHint="@dimen/chooser_width" />
+          app:itemOuterSpacing="@dimen/chooser_edge_margin_normal_half" />
 
       <TextView
           android:id="@androidprv:id/content_preview_text"
