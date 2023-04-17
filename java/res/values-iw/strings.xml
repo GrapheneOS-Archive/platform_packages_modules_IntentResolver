@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="whichApplication" msgid="2309561338625872614">"השלמת הפעולה באמצעות"</string>
+    <string name="whichApplication" msgid="2309561338625872614">"השלמת הפעולה עם"</string>
     <string name="whichApplicationNamed" msgid="8514249643796783492">"השלמת הפעולה באמצעות <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichApplicationLabel" msgid="4312929689807826793">"להשלמת הפעולה"</string>
     <string name="whichViewApplication" msgid="7660051361612888119">"פתיחה באמצעות"</string>
