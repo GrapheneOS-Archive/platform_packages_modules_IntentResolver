@@ -25,7 +25,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.intentresolver.ImageLoader;
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
 
@@ -40,17 +39,14 @@ class FileContentPreviewUi extends ContentPreviewUi {
 
     private final List<FileInfo> mFiles;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
-    private final ImageLoader mImageLoader;
     private final HeadlineGenerator mHeadlineGenerator;
 
     FileContentPreviewUi(
             List<FileInfo> files,
             ChooserContentPreviewUi.ActionFactory actionFactory,
-            ImageLoader imageLoader,
             HeadlineGenerator headlineGenerator) {
         mFiles = files;
         mActionFactory = actionFactory;
-        mImageLoader = imageLoader;
         mHeadlineGenerator = headlineGenerator;
     }
 
@@ -82,30 +78,27 @@ class FileContentPreviewUi extends ContentPreviewUi {
             return contentPreviewLayout;
         }
 
+        FileInfo fileInfo = mFiles.get(0);
+        final CharSequence fileName;
+        final int iconId;
         if (uriCount == 1) {
-            loadFileUriIntoView(mFiles.get(0), contentPreviewLayout, mImageLoader);
+            fileName = fileInfo.getName();
+            iconId = R.drawable.chooser_file_generic;
         } else {
-            FileInfo fileInfo = mFiles.get(0);
             int remUriCount = uriCount - 1;
             Map<String, Object> arguments = new HashMap<>();
             arguments.put(PLURALS_COUNT, remUriCount);
             arguments.put(PLURALS_FILE_NAME, fileInfo.getName());
-            String fileName =
-                    PluralsMessageFormatter.format(resources, arguments, R.string.file_count);
-
-            TextView fileNameView = contentPreviewLayout.findViewById(
-                    com.android.internal.R.id.content_preview_filename);
-            fileNameView.setText(fileName);
-
-            View thumbnailView = contentPreviewLayout.findViewById(
-                    com.android.internal.R.id.content_preview_file_thumbnail);
-            thumbnailView.setVisibility(View.GONE);
-
-            ImageView fileIconView = contentPreviewLayout.findViewById(
-                    com.android.internal.R.id.content_preview_file_icon);
-            fileIconView.setVisibility(View.VISIBLE);
-            fileIconView.setImageResource(R.drawable.ic_file_copy);
+            fileName = PluralsMessageFormatter.format(resources, arguments, R.string.file_count);
+            iconId = R.drawable.ic_file_copy;
         }
+        TextView fileNameView = contentPreviewLayout.findViewById(
+                com.android.internal.R.id.content_preview_filename);
+        fileNameView.setText(fileName);
+
+        ImageView fileIconView = contentPreviewLayout.findViewById(
+                com.android.internal.R.id.content_preview_file_icon);
+        fileIconView.setImageResource(iconId);
 
         final ActionRow actionRow =
                 contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
@@ -126,32 +119,5 @@ class FileContentPreviewUi extends ContentPreviewUi {
             actions.add(action);
         }
         return actions;
-    }
-
-    private static void loadFileUriIntoView(
-            final FileInfo fileInfo,
-            final View parent,
-            final ImageLoader imageLoader) {
-        TextView fileNameView = parent.findViewById(
-                com.android.internal.R.id.content_preview_filename);
-        fileNameView.setText(fileInfo.getName());
-
-        if (fileInfo.getPreviewUri() != null) {
-            imageLoader.loadImage(
-                    fileInfo.getPreviewUri(),
-                    (bitmap) -> updateViewWithImage(
-                            parent.findViewById(
-                                    com.android.internal.R.id.content_preview_file_thumbnail),
-                            bitmap));
-        } else {
-            View thumbnailView = parent.findViewById(
-                    com.android.internal.R.id.content_preview_file_thumbnail);
-            thumbnailView.setVisibility(View.GONE);
-
-            ImageView fileIconView = parent.findViewById(
-                    com.android.internal.R.id.content_preview_file_icon);
-            fileIconView.setVisibility(View.VISIBLE);
-            fileIconView.setImageResource(R.drawable.chooser_file_generic);
-        }
     }
 }
