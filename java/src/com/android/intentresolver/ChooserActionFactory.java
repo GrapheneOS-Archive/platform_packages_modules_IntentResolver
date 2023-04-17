@@ -40,7 +40,6 @@ import android.view.View;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi;
-import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -104,7 +103,6 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
     /**
      * @param context
      * @param chooserRequest data about the invocation of the current Sharesheet session.
-     * @param featureFlagRepository feature flags that may control the eligibility of some actions.
      * @param integratedDeviceComponents info about other components that are available on this
      * device to implement the supported action types.
      * @param onUpdateSharedTextIsExcluded a delegate to be invoked when the "exclude shared text"
@@ -118,7 +116,6 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
     public ChooserActionFactory(
             Context context,
             ChooserRequestParameters chooserRequest,
-            FeatureFlagRepository featureFlagRepository,
             ChooserIntegratedDeviceComponents integratedDeviceComponents,
             ChooserActivityLogger logger,
             Consumer<Boolean> onUpdateSharedTextIsExcluded,

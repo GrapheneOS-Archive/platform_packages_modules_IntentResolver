@@ -29,11 +29,9 @@ import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.intentresolver.flags.FeatureFlagRepository
-import com.android.intentresolver.flags.Flags
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
-import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -142,7 +140,6 @@ class ChooserActionFactoryTest {
         return ChooserActionFactory(
             context,
             chooserRequest,
-            flags,
             mock<ChooserIntegratedDeviceComponents>(),
             logger,
             Consumer<Boolean>{},
