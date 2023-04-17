@@ -92,6 +92,7 @@ import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
+import com.android.intentresolver.widget.ImagePreviewView;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.content.PackageMonitor;
@@ -682,8 +683,10 @@ public class ChooserActivity extends ResolverActivity implements
 
     @Nullable
     private View getFirstVisibleImgPreviewView() {
-        View firstImage = findViewById(com.android.internal.R.id.content_preview_image_1_large);
-        return firstImage != null && firstImage.isVisibleToUser() ? firstImage : null;
+        View imagePreview = findViewById(R.id.scrollable_image_preview);
+        return imagePreview instanceof ImagePreviewView
+                ? ((ImagePreviewView) imagePreview).getTransitionView()
+                : null;
     }
 
     /**
@@ -1295,7 +1298,6 @@ public class ChooserActivity extends ResolverActivity implements
         return new ChooserActionFactory(
                 this,
                 mChooserRequest,
-                mFeatureFlagRepository,
                 mIntegratedDeviceComponents,
                 getChooserActivityLogger(),
                 (isExcluded) -> mExcludeSharedText = isExcluded,
