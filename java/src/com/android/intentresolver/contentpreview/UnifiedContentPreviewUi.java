@@ -31,7 +31,6 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-import com.android.intentresolver.ImageLoader;
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;

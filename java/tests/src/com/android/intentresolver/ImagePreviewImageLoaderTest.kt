@@ -19,11 +19,18 @@ package com.android.intentresolver
 import android.content.ContentResolver
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Size
 import androidx.lifecycle.Lifecycle
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart.UNDISPATCHED
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -41,7 +48,10 @@ class ImagePreviewImageLoaderTest {
     private val imageSize = Size(300, 300)
     private val uriOne = Uri.parse("content://org.package.app/image-1.png")
     private val uriTwo = Uri.parse("content://org.package.app/image-2.png")
-    private val contentResolver = mock<ContentResolver>()
+    private val bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+    private val contentResolver = mock<ContentResolver> {
+        whenever(loadThumbnail(any(), any(), anyOrNull())).thenReturn(bitmap)
+    }
     private val resources = mock<Resources> {
         whenever(getDimensionPixelSize(R.dimen.chooser_preview_image_max_dimen))
             .thenReturn(imageSize.width)
@@ -70,7 +80,7 @@ class ImagePreviewImageLoaderTest {
     }
 
     @Test
-    fun test_prePopulate() = runTest {
+    fun prePopulate_cachesImagesUpToTheCacheSize() = runTest {
         testSubject.prePopulate(listOf(uriOne, uriTwo))
 
         verify(contentResolver, times(1)).loadThumbnail(uriOne, imageSize, null)
@@ -81,7 +91,7 @@ class ImagePreviewImageLoaderTest {
     }
 
     @Test
-    fun test_invoke_return_cached_image() = runTest {
+    fun invoke_returnCachedImageWhenCalledTwice() = runTest {
         testSubject(uriOne)
         testSubject(uriOne)
 
@@ -89,7 +99,33 @@ class ImagePreviewImageLoaderTest {
     }
 
     @Test
-    fun test_invoke_old_records_evicted_from_the_cache() = runTest {
+    fun invoke_whenInstructed_doesNotCache() = runTest {
+        testSubject(uriOne, false)
+        testSubject(uriOne, false)
+
+        verify(contentResolver, times(2)).loadThumbnail(any(), any(), anyOrNull())
+    }
+
+    @Test
+    fun invoke_overlappedRequests_Deduplicate() = runTest {
+        val scheduler = TestCoroutineScheduler()
+        val dispatcher = StandardTestDispatcher(scheduler)
+        val testSubject = ImagePreviewImageLoader(context, lifecycleOwner.lifecycle, 1, dispatcher)
+        coroutineScope {
+            launch(start = UNDISPATCHED) {
+                testSubject(uriOne, false)
+            }
+            launch(start = UNDISPATCHED) {
+                testSubject(uriOne, false)
+            }
+            scheduler.advanceUntilIdle()
+        }
+
+        verify(contentResolver, times(1)).loadThumbnail(any(), any(), anyOrNull())
+    }
+
+    @Test
+    fun invoke_oldRecordsEvictedFromTheCache() = runTest {
         testSubject(uriOne)
         testSubject(uriTwo)
         testSubject(uriTwo)
@@ -97,5 +133,54 @@ class ImagePreviewImageLoaderTest {
 
         verify(contentResolver, times(2)).loadThumbnail(uriOne, imageSize, null)
         verify(contentResolver, times(1)).loadThumbnail(uriTwo, imageSize, null)
+    }
+
+    @Test
+    fun invoke_doNotCacheNulls() = runTest {
+        whenever(contentResolver.loadThumbnail(any(), any(), anyOrNull())).thenReturn(null)
+        testSubject(uriOne)
+        testSubject(uriOne)
+
+        verify(contentResolver, times(2)).loadThumbnail(uriOne, imageSize, null)
+    }
+
+    @Test(expected = CancellationException::class)
+    fun invoke_onClosedImageLoaderScope_throwsCancellationException() = runTest {
+        lifecycleOwner.state = Lifecycle.State.DESTROYED
+        testSubject(uriOne)
+    }
+
+    @Test(expected = CancellationException::class)
+    fun invoke_imageLoaderScopeClosedMidflight_throwsCancellationException() = runTest {
+        val scheduler = TestCoroutineScheduler()
+        val dispatcher = StandardTestDispatcher(scheduler)
+        val testSubject = ImagePreviewImageLoader(context, lifecycleOwner.lifecycle, 1, dispatcher)
+        coroutineScope {
+            val deferred = async(start = UNDISPATCHED) {
+                testSubject(uriOne, false)
+            }
+            lifecycleOwner.state = Lifecycle.State.DESTROYED
+            scheduler.advanceUntilIdle()
+            deferred.await()
+        }
+    }
+
+    @Test
+    fun invoke_multipleCallsWithDifferentCacheInstructions_cachingPrevails() = runTest {
+        val scheduler = TestCoroutineScheduler()
+        val dispatcher = StandardTestDispatcher(scheduler)
+        val testSubject = ImagePreviewImageLoader(context, lifecycleOwner.lifecycle, 1, dispatcher)
+        coroutineScope {
+            launch(start = UNDISPATCHED) {
+                testSubject(uriOne, false)
+            }
+            launch(start = UNDISPATCHED) {
+                testSubject(uriOne, true)
+            }
+            scheduler.advanceUntilIdle()
+        }
+        testSubject(uriOne, true)
+
+        verify(contentResolver, times(1)).loadThumbnail(uriOne, imageSize, null)
     }
 }
