@@ -155,7 +155,6 @@ public final class ChooserContentPreviewUi {
             return new FileContentPreviewUi(
                     files,
                     actionFactory,
-                    imageLoader,
                     headlineGenerator);
         }
         return new UnifiedContentPreviewUi(
