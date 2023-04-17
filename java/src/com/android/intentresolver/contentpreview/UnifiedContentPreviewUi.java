@@ -158,9 +158,11 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
         if (action != null) {
             actions.add(action);
         }
-        action = mActionFactory.createEditButton();
-        if (action != null) {
-            actions.add(action);
+        if (mFiles.size() == 1 && mTypeClassifier.isImageType(mFiles.get(0).getMimeType())) {
+            action = mActionFactory.createEditButton();
+            if (action != null) {
+                actions.add(action);
+            }
         }
         return actions;
     }
