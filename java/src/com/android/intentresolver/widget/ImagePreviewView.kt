@@ -18,11 +18,13 @@ package com.android.intentresolver.widget
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.view.View
 
 internal typealias ImageLoader = suspend (Uri) -> Bitmap?
 
 interface ImagePreviewView {
     fun setTransitionElementStatusCallback(callback: TransitionElementStatusCallback?)
+    fun getTransitionView(): View?
 
     /**
      * [ImagePreviewView] progressively prepares views for shared element transition and reports
