@@ -124,10 +124,6 @@ class TextContentPreviewUi extends ContentPreviewUi {
     private List<ActionRow.Action> createTextPreviewActions() {
         ArrayList<ActionRow.Action> actions = new ArrayList<>(2);
         actions.add(mActionFactory.createCopyButton());
-        ActionRow.Action nearbyAction = mActionFactory.createNearbyButton();
-        if (nearbyAction != null) {
-            actions.add(nearbyAction);
-        }
         return actions;
     }
 }
