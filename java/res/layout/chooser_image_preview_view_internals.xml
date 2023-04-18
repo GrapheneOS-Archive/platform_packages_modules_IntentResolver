@@ -25,8 +25,9 @@
 
     <com.android.intentresolver.widget.RoundedRectImageView
         android:id="@androidprv:id/content_preview_image_1_large"
-        android:layout_width="120dp"
-        android:layout_height="104dp"
+        android:transitionName="screenshot_preview_image"
+        android:layout_width="@dimen/chooser_preview_image_width"
+        android:layout_height="@dimen/chooser_preview_image_height"
         android:layout_alignParentTop="true"
         android:adjustViewBounds="true"
         android:gravity="center"
@@ -35,8 +36,8 @@
     <com.android.intentresolver.widget.RoundedRectImageView
         android:id="@androidprv:id/content_preview_image_2_large"
         android:visibility="gone"
-        android:layout_width="120dp"
-        android:layout_height="104dp"
+        android:layout_width="@dimen/chooser_preview_image_width"
+        android:layout_height="@dimen/chooser_preview_image_height"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@androidprv:id/content_preview_image_1_large"
         android:layout_marginLeft="10dp"
@@ -47,7 +48,7 @@
     <com.android.intentresolver.widget.RoundedRectImageView
         android:id="@androidprv:id/content_preview_image_2_small"
         android:visibility="gone"
-        android:layout_width="120dp"
+        android:layout_width="@dimen/chooser_preview_image_width"
         android:layout_height="65dp"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@androidprv:id/content_preview_image_1_large"
@@ -59,7 +60,7 @@
     <com.android.intentresolver.widget.RoundedRectImageView
         android:id="@androidprv:id/content_preview_image_3_small"
         android:visibility="gone"
-        android:layout_width="120dp"
+        android:layout_width="@dimen/chooser_preview_image_width"
         android:layout_height="65dp"
         android:layout_below="@androidprv:id/content_preview_image_2_small"
         android:layout_toRightOf="@androidprv:id/content_preview_image_1_large"

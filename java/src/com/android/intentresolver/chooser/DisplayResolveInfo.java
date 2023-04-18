@@ -27,7 +27,6 @@ import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.UserHandle;
 
-import com.android.intentresolver.ResolverActivity;
 import com.android.intentresolver.TargetPresentationGetter;
 
 import java.util.ArrayList;
@@ -97,25 +96,22 @@ public class DisplayResolveInfo implements TargetInfo {
         final ActivityInfo ai = mResolveInfo.activityInfo;
         mIsSuspended = (ai.applicationInfo.flags & ApplicationInfo.FLAG_SUSPENDED) != 0;
 
-        final Intent intent = new Intent(resolvedIntent);
-        intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT
-                | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-        intent.setComponent(new ComponentName(ai.applicationInfo.packageName, ai.name));
-        mResolvedIntent = intent;
+        mResolvedIntent = createResolvedIntent(resolvedIntent, ai);
     }
 
     private DisplayResolveInfo(
             DisplayResolveInfo other,
-            Intent fillInIntent,
-            int flags,
+            @Nullable Intent baseIntentToSend,
             TargetPresentationGetter presentationGetter) {
         mSourceIntents.addAll(other.getAllSourceIntents());
         mResolveInfo = other.mResolveInfo;
         mIsSuspended = other.mIsSuspended;
         mDisplayLabel = other.mDisplayLabel;
         mExtendedInfo = other.mExtendedInfo;
-        mResolvedIntent = new Intent(other.mResolvedIntent);
-        mResolvedIntent.fillIn(fillInIntent, flags);
+
+        mResolvedIntent = createResolvedIntent(
+                baseIntentToSend == null ? other.mResolvedIntent : baseIntentToSend,
+                mResolveInfo.activityInfo);
         mPresentationGetter = presentationGetter;
 
         mDisplayIconHolder.setDisplayIcon(other.mDisplayIconHolder.getDisplayIcon());
@@ -131,6 +127,14 @@ public class DisplayResolveInfo implements TargetInfo {
         mPresentationGetter = other.mPresentationGetter;
 
         mDisplayIconHolder.setDisplayIcon(other.mDisplayIconHolder.getDisplayIcon());
+    }
+
+    private static Intent createResolvedIntent(Intent resolvedIntent, ActivityInfo ai) {
+        final Intent result = new Intent(resolvedIntent);
+        result.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT
+                | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        result.setComponent(new ComponentName(ai.applicationInfo.packageName, ai.name));
+        return result;
     }
 
     @Override
@@ -168,8 +172,21 @@ public class DisplayResolveInfo implements TargetInfo {
     }
 
     @Override
-    public TargetInfo cloneFilledIn(Intent fillInIntent, int flags) {
-        return new DisplayResolveInfo(this, fillInIntent, flags, mPresentationGetter);
+    @Nullable
+    public DisplayResolveInfo tryToCloneWithAppliedRefinement(Intent proposedRefinement) {
+        Intent matchingBase =
+                getAllSourceIntents()
+                        .stream()
+                        .filter(i -> i.filterEquals(proposedRefinement))
+                        .findFirst()
+                        .orElse(null);
+        if (matchingBase == null) {
+            return null;
+        }
+
+        Intent merged = new Intent(matchingBase);
+        merged.fillIn(proposedRefinement, 0);
+        return new DisplayResolveInfo(this, merged, mPresentationGetter);
     }
 
     @Override
@@ -201,13 +218,7 @@ public class DisplayResolveInfo implements TargetInfo {
     }
 
     @Override
-    public boolean start(Activity activity, Bundle options) {
-        activity.startActivity(mResolvedIntent, options);
-        return true;
-    }
-
-    @Override
-    public boolean startAsCaller(ResolverActivity activity, Bundle options, int userId) {
+    public boolean startAsCaller(Activity activity, Bundle options, int userId) {
         TargetInfo.prepareIntentForCrossProfileLaunch(mResolvedIntent, userId);
         activity.startActivityAsCaller(mResolvedIntent, options, false, userId);
         return true;
@@ -216,8 +227,19 @@ public class DisplayResolveInfo implements TargetInfo {
     @Override
     public boolean startAsUser(Activity activity, Bundle options, UserHandle user) {
         TargetInfo.prepareIntentForCrossProfileLaunch(mResolvedIntent, user.getIdentifier());
+        // TODO: is this equivalent to `startActivityAsCaller` with `ignoreTargetSecurity=true`? If
+        // so, we can consolidate on the one API method to show that this flag is the only
+        // distinction between `startAsCaller` and `startAsUser`. We can even bake that flag into
+        // the `TargetActivityStarter` upfront since it just reflects our "safe forwarding mode" --
+        // which is constant for the duration of our lifecycle, leaving clients no other
+        // responsibilities in this logic.
         activity.startActivityAsUser(mResolvedIntent, options, user);
         return false;
+    }
+
+    @Override
+    public Intent getTargetIntent() {
+        return mResolvedIntent;
     }
 
     public boolean isSuspended() {

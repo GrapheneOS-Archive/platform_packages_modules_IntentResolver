@@ -40,6 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Skeletal {@link PagerAdapter} implementation of a work or personal profile page for
@@ -61,22 +62,20 @@ public abstract class AbstractMultiProfilePagerAdapter extends PagerAdapter {
     private Set<Integer> mLoadedPages;
     private final EmptyStateProvider mEmptyStateProvider;
     private final UserHandle mWorkProfileUserHandle;
-    private final QuietModeManager mQuietModeManager;
+    private final Supplier<Boolean> mWorkProfileQuietModeChecker;  // True when work is quiet.
 
-    AbstractMultiProfilePagerAdapter(Context context, int currentPage,
+    AbstractMultiProfilePagerAdapter(
+            Context context,
+            int currentPage,
             EmptyStateProvider emptyStateProvider,
-            QuietModeManager quietModeManager,
+            Supplier<Boolean> workProfileQuietModeChecker,
             UserHandle workProfileUserHandle) {
         mContext = Objects.requireNonNull(context);
         mCurrentPage = currentPage;
         mLoadedPages = new HashSet<>();
         mWorkProfileUserHandle = workProfileUserHandle;
         mEmptyStateProvider = emptyStateProvider;
-        mQuietModeManager = quietModeManager;
-    }
-
-    private boolean isQuietModeEnabled(UserHandle workProfileUserHandle) {
-        return mQuietModeManager.isQuietModeEnabled(workProfileUserHandle);
+        mWorkProfileQuietModeChecker = workProfileQuietModeChecker;
     }
 
     void setOnProfileSelectedListener(OnProfileSelectedListener listener) {
@@ -433,7 +432,7 @@ public abstract class AbstractMultiProfilePagerAdapter extends PagerAdapter {
         int count = listAdapter.getUnfilteredCount();
         return (count == 0 && listAdapter.getPlaceholderCount() == 0)
                 || (listAdapter.getUserHandle().equals(mWorkProfileUserHandle)
-                    && isQuietModeEnabled(mWorkProfileUserHandle));
+                    && mWorkProfileQuietModeChecker.get());
     }
 
     protected static class ProfileDescriptor {
@@ -572,30 +571,5 @@ public abstract class AbstractMultiProfilePagerAdapter extends PagerAdapter {
          * Callback for when the user switches on the work profile from the work tab.
          */
         void onSwitchOnWorkSelected();
-    }
-
-    /**
-     * Describes an injector to be used for cross profile functionality. Overridable for testing.
-     */
-    public interface QuietModeManager {
-        /**
-         * Returns whether the given profile is in quiet mode or not.
-         */
-        boolean isQuietModeEnabled(UserHandle workProfileUserHandle);
-
-        /**
-         * Enables or disables quiet mode for a managed profile.
-         */
-        void requestQuietModeEnabled(boolean enabled, UserHandle workProfileUserHandle);
-
-        /**
-         * Should be called when the work profile enabled broadcast received
-         */
-        void markWorkProfileEnabledBroadcastReceived();
-
-        /**
-         * Returns true if enabling of work profile is in progress
-         */
-        boolean isWaitingToEnableWorkProfile();
     }
 }

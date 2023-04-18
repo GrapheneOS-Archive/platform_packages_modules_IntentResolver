@@ -65,8 +65,18 @@
         android:ellipsize="middle"
         android:gravity="start|top"
         android:paddingRight="24dp"
-        android:singleLine="true"/>
+        android:singleLine="true"
+        android:textAppearance="@style/TextAppearance.ChooserDefault" />
   </LinearLayout>
+
+  <TextView
+      android:id="@+id/reselection_action"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:visibility="gone"
+      android:text="@string/select_files"
+      android:gravity="center"
+      style="@style/ReselectionAction" />
 
   <ViewStub
       android:id="@+id/action_row_stub"

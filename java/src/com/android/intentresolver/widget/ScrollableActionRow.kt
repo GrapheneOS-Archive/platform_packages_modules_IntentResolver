@@ -50,21 +50,6 @@ class ScrollableActionRow : RecyclerView, ActionRow {
         )
     }
 
-    private val areAllChildrenVisible: Boolean
-        get() {
-            val count = getChildCount()
-            if (count == 0) return true
-            val first = getChildAt(0)
-            val last = getChildAt(count - 1)
-            return getChildAdapterPosition(first) == 0
-                && getChildAdapterPosition(last) == actionsAdapter.itemCount - 1
-                && isFullyVisible(first)
-                && isFullyVisible(last)
-        }
-
-    private fun isFullyVisible(view: View): Boolean =
-        view.left >= paddingLeft && view.right <= width - paddingRight
-
     private class Adapter(private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
         private val iconSize: Int =
             context.resources.getDimensionPixelSize(R.dimen.chooser_action_view_icon_size)
@@ -103,11 +88,12 @@ class ScrollableActionRow : RecyclerView, ActionRow {
     ) : RecyclerView.ViewHolder(view) {
 
         fun bind(action: ActionRow.Action) {
-            if (action.icon != null) {
-                action.icon.setBounds(0, 0, iconSize, iconSize)
+            action.icon?.let { icon ->
+                icon.setBounds(0, 0, iconSize, iconSize)
                 // some drawables (edit) does not gets tinted when set to the top of the text
                 // with TextView#setCompoundDrawableRelative
-                view.setCompoundDrawablesRelative(null, action.icon, null, null)
+                tintIcon(icon, view)
+                view.setCompoundDrawablesRelative(null, icon, null, null)
             }
             view.text = action.label ?: ""
             view.setOnClickListener {

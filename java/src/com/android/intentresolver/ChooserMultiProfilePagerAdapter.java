@@ -48,7 +48,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
             Context context,
             ChooserGridAdapter adapter,
             EmptyStateProvider emptyStateProvider,
-            QuietModeManager quietModeManager,
+            Supplier<Boolean> workProfileQuietModeChecker,
             UserHandle workProfileUserHandle,
             int maxTargetsPerRow) {
         this(
@@ -56,7 +56,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
                 new ChooserProfileAdapterBinder(maxTargetsPerRow),
                 ImmutableList.of(adapter),
                 emptyStateProvider,
-                quietModeManager,
+                workProfileQuietModeChecker,
                 /* defaultProfile= */ 0,
                 workProfileUserHandle,
                 new BottomPaddingOverrideSupplier(context));
@@ -67,7 +67,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
             ChooserGridAdapter personalAdapter,
             ChooserGridAdapter workAdapter,
             EmptyStateProvider emptyStateProvider,
-            QuietModeManager quietModeManager,
+            Supplier<Boolean> workProfileQuietModeChecker,
             @Profile int defaultProfile,
             UserHandle workProfileUserHandle,
             int maxTargetsPerRow) {
@@ -76,7 +76,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
                 new ChooserProfileAdapterBinder(maxTargetsPerRow),
                 ImmutableList.of(personalAdapter, workAdapter),
                 emptyStateProvider,
-                quietModeManager,
+                workProfileQuietModeChecker,
                 defaultProfile,
                 workProfileUserHandle,
                 new BottomPaddingOverrideSupplier(context));
@@ -87,7 +87,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
             ChooserProfileAdapterBinder adapterBinder,
             ImmutableList<ChooserGridAdapter> gridAdapters,
             EmptyStateProvider emptyStateProvider,
-            QuietModeManager quietModeManager,
+            Supplier<Boolean> workProfileQuietModeChecker,
             @Profile int defaultProfile,
             UserHandle workProfileUserHandle,
             BottomPaddingOverrideSupplier bottomPaddingOverrideSupplier) {
@@ -97,7 +97,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
                 adapterBinder,
                 gridAdapters,
                 emptyStateProvider,
-                quietModeManager,
+                workProfileQuietModeChecker,
                 defaultProfile,
                 workProfileUserHandle,
                         () -> makeProfileView(context),

@@ -17,12 +17,14 @@
 package com.android.intentresolver.chooser;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.UserHandle;
 
-import com.android.intentresolver.ResolverActivity;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,7 +32,7 @@ import java.util.List;
  */
 public class MultiDisplayResolveInfo extends DisplayResolveInfo {
 
-    ArrayList<DisplayResolveInfo> mTargetInfos = new ArrayList<>();
+    final ArrayList<DisplayResolveInfo> mTargetInfos;
 
     // Index of selected target
     private int mSelected = -1;
@@ -66,8 +68,9 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
 
     /**
      * List of all {@link DisplayResolveInfo}s included in this target.
-     * TODO: provide as a generic {@code List<DisplayResolveInfo>} once {@link ChooserActivity}
-     * stops requiring the signature to match that of the other "lists" it builds up.
+     * TODO: provide as a generic {@code List<DisplayResolveInfo>} once
+     *  {@link com.android.intentresolver.ChooserActivity} stops requiring the signature to match
+     *  that of the other "lists" it builds up.
      */
     @Override
     public ArrayList<DisplayResolveInfo> getAllDisplayTargets() {
@@ -93,17 +96,44 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
     }
 
     @Override
-    public boolean start(Activity activity, Bundle options) {
-        return mTargetInfos.get(mSelected).start(activity, options);
+    @Nullable
+    public MultiDisplayResolveInfo tryToCloneWithAppliedRefinement(Intent proposedRefinement) {
+        final int size = mTargetInfos.size();
+        ArrayList<DisplayResolveInfo> targetInfos = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            DisplayResolveInfo target = mTargetInfos.get(i);
+            DisplayResolveInfo targetClone = (i == mSelected)
+                    ? target.tryToCloneWithAppliedRefinement(proposedRefinement)
+                    : new DisplayResolveInfo(target);
+            if (targetClone == null) {
+                return null;
+            }
+            targetInfos.add(targetClone);
+        }
+        MultiDisplayResolveInfo clone = new MultiDisplayResolveInfo(targetInfos);
+        clone.mSelected = mSelected;
+        return clone;
     }
 
     @Override
-    public boolean startAsCaller(ResolverActivity activity, Bundle options, int userId) {
+    public boolean startAsCaller(Activity activity, Bundle options, int userId) {
         return mTargetInfos.get(mSelected).startAsCaller(activity, options, userId);
     }
 
     @Override
     public boolean startAsUser(Activity activity, Bundle options, UserHandle user) {
         return mTargetInfos.get(mSelected).startAsUser(activity, options, user);
+    }
+
+    @Override
+    public Intent getTargetIntent() {
+        return mTargetInfos.get(mSelected).getTargetIntent();
+    }
+
+    @Override
+    public List<Intent> getAllSourceIntents() {
+        return hasSelected()
+                ? mTargetInfos.get(mSelected).getAllSourceIntents()
+                : Collections.emptyList();
     }
 }

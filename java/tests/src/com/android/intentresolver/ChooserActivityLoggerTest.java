@@ -36,6 +36,7 @@ import com.android.intentresolver.ChooserActivityLogger.FrameworkStatsLogger;
 import com.android.intentresolver.ChooserActivityLogger.SharesheetStandardEvent;
 import com.android.intentresolver.ChooserActivityLogger.SharesheetStartedEvent;
 import com.android.intentresolver.ChooserActivityLogger.SharesheetTargetSelectedEvent;
+import com.android.intentresolver.contentpreview.ContentPreviewType;
 import com.android.internal.logging.InstanceId;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.UiEventLogger;
@@ -112,24 +113,26 @@ public final class ChooserActivityLoggerTest {
 
     @Test
     public void testLogShareStarted() {
-        final int eventId = -1;  // Passed-in eventId is unused. TODO: remove from method signature.
         final String packageName = "com.test.foo";
         final String mimeType = "text/plain";
         final int appProvidedDirectTargets = 123;
         final int appProvidedAppTargets = 456;
         final boolean workProfile = true;
-        final int previewType = ChooserContentPreviewUi.CONTENT_PREVIEW_FILE;
+        final int previewType = ContentPreviewType.CONTENT_PREVIEW_FILE;
         final String intentAction = Intent.ACTION_SENDTO;
+        final int numCustomActions = 3;
+        final boolean modifyShareProvided = true;
 
         mChooserLogger.logShareStarted(
-                eventId,
                 packageName,
                 mimeType,
                 appProvidedDirectTargets,
                 appProvidedAppTargets,
                 workProfile,
                 previewType,
-                intentAction);
+                intentAction,
+                numCustomActions,
+                modifyShareProvided);
 
         verify(mFrameworkLog).write(
                 eq(FrameworkStatsLog.SHARESHEET_STARTED),
@@ -141,7 +144,9 @@ public final class ChooserActivityLoggerTest {
                 eq(appProvidedAppTargets),
                 eq(workProfile),
                 eq(FrameworkStatsLog.SHARESHEET_STARTED__PREVIEW_TYPE__CONTENT_PREVIEW_FILE),
-                eq(FrameworkStatsLog.SHARESHEET_STARTED__INTENT_TYPE__INTENT_ACTION_SENDTO));
+                eq(FrameworkStatsLog.SHARESHEET_STARTED__INTENT_TYPE__INTENT_ACTION_SENDTO),
+                /* custom actions provided */ eq(numCustomActions),
+                /* reselection action provided */ eq(modifyShareProvided));
     }
 
     @Test
@@ -203,6 +208,17 @@ public final class ChooserActivityLoggerTest {
     }
 
     @Test
+    public void testLogCustomActionSelected() {
+        final int position = 4;
+        mChooserLogger.logCustomActionSelected(position);
+
+        verify(mFrameworkLog).write(
+                eq(FrameworkStatsLog.RANKING_SELECTED),
+                eq(SharesheetTargetSelectedEvent.SHARESHEET_CUSTOM_ACTION_SELECTED.getId()),
+                any(), anyInt(), eq(position), eq(false));
+    }
+
+    @Test
     public void testLogDirectShareTargetReceived() {
         final int category = MetricsEvent.ACTION_DIRECT_SHARE_TARGETS_LOADED_SHORTCUT_MANAGER;
         final int latency = 123;
@@ -218,7 +234,7 @@ public final class ChooserActivityLoggerTest {
 
     @Test
     public void testLogActionShareWithPreview() {
-        final int previewType = ChooserContentPreviewUi.CONTENT_PREVIEW_TEXT;
+        final int previewType = ContentPreviewType.CONTENT_PREVIEW_TEXT;
 
         mChooserLogger.logActionShareWithPreview(previewType);
 

@@ -48,7 +48,6 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.rule.ActivityTestRule;
 
-import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
 import com.android.intentresolver.UnbundledChooserActivityWorkProfileTest.TestCase.Tab;
 import com.android.internal.R;
 
@@ -274,21 +273,27 @@ public class UnbundledChooserActivityWorkProfileTest {
     private void setupResolverControllers(
             List<ResolvedComponentInfo> personalResolvedComponentInfos,
             List<ResolvedComponentInfo> workResolvedComponentInfos) {
-        when(sOverrides.resolverListController.getResolversForIntent(Mockito.anyBoolean(),
+        when(sOverrides.resolverListController.getResolversForIntentAsUser(
                 Mockito.anyBoolean(),
-                Mockito.anyBoolean(),
-                Mockito.isA(List.class)))
-                .thenReturn(new ArrayList<>(personalResolvedComponentInfos));
-        when(sOverrides.workResolverListController.getResolversForIntent(Mockito.anyBoolean(),
-                Mockito.anyBoolean(),
-                Mockito.anyBoolean(),
-                Mockito.isA(List.class))).thenReturn(workResolvedComponentInfos);
-        when(sOverrides.workResolverListController.getResolversForIntentAsUser(Mockito.anyBoolean(),
                 Mockito.anyBoolean(),
                 Mockito.anyBoolean(),
                 Mockito.isA(List.class),
                 eq(UserHandle.SYSTEM)))
-                .thenReturn(new ArrayList<>(personalResolvedComponentInfos));
+                        .thenReturn(new ArrayList<>(personalResolvedComponentInfos));
+        when(sOverrides.workResolverListController.getResolversForIntentAsUser(
+                Mockito.anyBoolean(),
+                Mockito.anyBoolean(),
+                Mockito.anyBoolean(),
+                Mockito.isA(List.class),
+                eq(UserHandle.SYSTEM)))
+                        .thenReturn(new ArrayList<>(personalResolvedComponentInfos));
+        when(sOverrides.workResolverListController.getResolversForIntentAsUser(
+                Mockito.anyBoolean(),
+                Mockito.anyBoolean(),
+                Mockito.anyBoolean(),
+                Mockito.isA(List.class),
+                eq(WORK_USER_HANDLE)))
+                        .thenReturn(new ArrayList<>(workResolvedComponentInfos));
     }
 
     private void waitForIdle() {
