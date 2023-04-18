@@ -38,7 +38,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 
-import com.android.intentresolver.ImageLoader;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;
 
@@ -155,7 +154,6 @@ public final class ChooserContentPreviewUi {
             return new FileContentPreviewUi(
                     files,
                     actionFactory,
-                    imageLoader,
                     headlineGenerator);
         }
         return new UnifiedContentPreviewUi(

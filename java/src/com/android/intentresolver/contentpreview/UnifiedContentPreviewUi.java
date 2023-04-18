@@ -31,7 +31,6 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-import com.android.intentresolver.ImageLoader;
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;
@@ -158,9 +157,11 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
         if (action != null) {
             actions.add(action);
         }
-        action = mActionFactory.createEditButton();
-        if (action != null) {
-            actions.add(action);
+        if (mFiles.size() == 1 && mTypeClassifier.isImageType(mFiles.get(0).getMimeType())) {
+            action = mActionFactory.createEditButton();
+            if (action != null) {
+                actions.add(action);
+            }
         }
         return actions;
     }
