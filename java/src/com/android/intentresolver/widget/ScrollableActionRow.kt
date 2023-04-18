@@ -35,9 +35,16 @@ class ScrollableActionRow : RecyclerView, ActionRow {
     ) : super(context, attrs, defStyleAttr) {
         layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         adapter = Adapter(context)
+
+        context.obtainStyledAttributes(
+            attrs, R.styleable.ScrollableActionRow, defStyleAttr, 0
+        ).use { a ->
+            horizontalActions = a.getBoolean(R.styleable.ScrollableActionRow_horizontalActions, false)
+        }
     }
 
     private val actionsAdapter get() = adapter as Adapter
+    private val horizontalActions: Boolean
 
     override fun setActions(actions: List<ActionRow.Action>) {
         actionsAdapter.setActions(actions)
@@ -50,7 +57,7 @@ class ScrollableActionRow : RecyclerView, ActionRow {
         )
     }
 
-    private class Adapter(private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
+    private inner class Adapter(private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
         private val iconSize: Int =
             context.resources.getDimensionPixelSize(R.dimen.chooser_action_view_icon_size)
         private val itemLayout = R.layout.chooser_action_view
@@ -59,7 +66,7 @@ class ScrollableActionRow : RecyclerView, ActionRow {
         override fun onCreateViewHolder(parent: ViewGroup, type: Int): ViewHolder =
             ViewHolder(
                 LayoutInflater.from(context).inflate(itemLayout, null) as TextView,
-                iconSize
+                iconSize,
             )
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -83,8 +90,8 @@ class ScrollableActionRow : RecyclerView, ActionRow {
         }
     }
 
-    private class ViewHolder(
-        private val view: TextView, private val iconSize: Int
+    private inner class ViewHolder(
+        private val view: TextView, private val iconSize: Int,
     ) : RecyclerView.ViewHolder(view) {
 
         fun bind(action: ActionRow.Action) {
@@ -93,7 +100,11 @@ class ScrollableActionRow : RecyclerView, ActionRow {
                 // some drawables (edit) does not gets tinted when set to the top of the text
                 // with TextView#setCompoundDrawableRelative
                 tintIcon(icon, view)
-                view.setCompoundDrawablesRelative(null, icon, null, null)
+                if (horizontalActions) {
+                    view.setCompoundDrawablesRelative(icon, null, null, null)
+                } else {
+                    view.setCompoundDrawablesRelative(null, icon, null, null)
+                }
             }
             view.text = action.label ?: ""
             view.setOnClickListener {
