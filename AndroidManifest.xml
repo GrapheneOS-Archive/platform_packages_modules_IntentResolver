@@ -56,7 +56,7 @@
                 android:excludeFromRecents="true"
                 android:documentLaunchMode="never"
                 android:relinquishTaskIdentity="true"
-                android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden"
+                android:configChanges="screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden"
                 android:visibleToInstantApps="true"
                 android:exported="true"
                 android:enabled="false">

@@ -15,5 +15,5 @@
 -->
 
 <resources>
-  <bool name="resolver_landscape_phone">@*android:bool/resolver_landscape_phone</bool>
+  <bool name="horizontal_actions">false</bool>
 </resources>

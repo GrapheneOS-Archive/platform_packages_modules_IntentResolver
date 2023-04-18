@@ -1624,8 +1624,7 @@ public class ChooserActivity extends ResolverActivity implements
      * we instead show the content preview as a regular list item.
      */
     private boolean shouldShowStickyContentPreview() {
-        return shouldShowStickyContentPreviewNoOrientationCheck()
-                && !getResources().getBoolean(R.bool.resolver_landscape_phone);
+        return shouldShowStickyContentPreviewNoOrientationCheck();
     }
 
     private boolean shouldShowStickyContentPreviewNoOrientationCheck() {
