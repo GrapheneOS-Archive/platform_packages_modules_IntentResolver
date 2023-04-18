@@ -80,7 +80,7 @@
         android:textColor="?android:attr/textColorPrimary"
         android:textAlignment="gravity"
         android:textDirection="locale"
-        android:maxLines="3"
+        android:maxLines="@integer/text_preview_lines"
         android:focusable="true"/>
   </RelativeLayout>
 

@@ -51,4 +51,8 @@
         <attr name="itemOuterSpacing" format="dimension" />
         <attr name="maxWidthHint" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="ScrollableActionRow">
+        <attr name="horizontalActions" format="boolean" />
+    </declare-styleable>
 </resources>
