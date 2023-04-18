@@ -28,7 +28,6 @@
     <dimen name="chooser_preview_image_font_size">20sp</dimen>
     <dimen name="chooser_preview_image_border">1dp</dimen>
     <dimen name="chooser_preview_image_width">120dp</dimen>
-    <dimen name="chooser_preview_image_height">104dp</dimen>
     <dimen name="chooser_preview_image_height_tall">192dp</dimen>
     <dimen name="chooser_preview_image_max_dimen">200dp</dimen>
     <dimen name="chooser_preview_width">-1px</dimen>
@@ -54,7 +53,6 @@
     <dimen name="resolver_empty_state_container_padding_bottom">8dp</dimen>
     <dimen name="resolver_profile_tab_margin">4dp</dimen>
 
-    <dimen name="chooser_action_button_icon_size">18dp</dimen>
     <dimen name="chooser_action_view_icon_size">22dp</dimen>
     <dimen name="chooser_action_margin">0dp</dimen>
 </resources>
