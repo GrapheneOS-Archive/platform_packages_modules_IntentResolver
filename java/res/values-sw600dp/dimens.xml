@@ -20,5 +20,8 @@
 <resources>
 
     <dimen name="chooser_width">624dp</dimen>
-
+    <dimen name="chooser_preview_image_height_tall">192dp</dimen>
+    <dimen name="chooser_view_spacing">18dp</dimen>
+    <integer name="text_preview_lines">3</integer>
+    <bool name="horizontal_actions">false</bool>
 </resources>

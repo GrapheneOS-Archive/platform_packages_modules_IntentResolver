@@ -43,8 +43,7 @@
           android:layout_gravity="center_horizontal"
           android:background="?android:attr/colorBackground"
           app:itemInnerSpacing="3dp"
-          app:itemOuterSpacing="@dimen/chooser_edge_margin_normal_half"
-          app:maxWidthHint="@dimen/chooser_width" />
+          app:itemOuterSpacing="@dimen/chooser_edge_margin_normal_half" />
 
       <TextView
           android:id="@androidprv:id/content_preview_text"
@@ -54,7 +53,7 @@
           android:layout_gravity="center_vertical"
           android:layout_marginStart="@dimen/chooser_edge_margin_normal_half"
           android:layout_marginEnd="@dimen/chooser_edge_margin_normal_half"
-          android:maxLines="6"
+          android:maxLines="@integer/text_preview_lines"
           android:ellipsize="end"
           android:linksClickable="false"
           android:visibility="gone"
