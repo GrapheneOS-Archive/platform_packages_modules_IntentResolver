@@ -52,6 +52,7 @@ class ChooserContentPreviewUiTest {
     private val actionFactory = object : ActionFactory {
         override fun createCopyButton() = ActionRow.Action(label = "Copy", icon = null) {}
         override fun createEditButton(): ActionRow.Action? = null
+        override fun createNearbyButton(): ActionRow.Action? = null
         override fun createCustomActions(): List<ActionRow.Action> = emptyList()
         override fun getModifyShareAction(): ActionRow.Action? = null
         override fun getExcludeSharedTextAction(): Consumer<Boolean> = Consumer<Boolean> {}
