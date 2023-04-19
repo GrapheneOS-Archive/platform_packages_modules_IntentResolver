@@ -184,9 +184,10 @@ public class DisplayResolveInfo implements TargetInfo {
             return null;
         }
 
-        Intent merged = new Intent(matchingBase);
-        merged.fillIn(proposedRefinement, 0);
-        return new DisplayResolveInfo(this, merged, mPresentationGetter);
+        return new DisplayResolveInfo(
+                this,
+                TargetInfo.mergeRefinementIntoMatchingBaseIntent(matchingBase, proposedRefinement),
+                mPresentationGetter);
     }
 
     @Override
