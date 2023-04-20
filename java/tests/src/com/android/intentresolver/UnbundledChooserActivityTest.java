@@ -857,9 +857,9 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        onView(withId(R.id.scrollable_image_preview))
+        onView(withId(R.id.image_view))
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-        onView(withId(com.android.internal.R.id.content_preview_text))
+        onView(withId(R.id.content_preview_text))
                 .check(matches(allOf(isDisplayed(), not(isEnabled()))));
     }
 
@@ -1074,7 +1074,7 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    public void testNoTextPreviewWhenTextIsSharedWithMultipleImages() {
+    public void testTextPreviewWhenTextIsSharedWithMultipleImages() {
         final Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
                 + R.drawable.test320x240);
         final String sharedText = "text-" + System.currentTimeMillis();
@@ -1104,8 +1104,7 @@ public class UnbundledChooserActivityTest {
                 .thenReturn(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_text))
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        onView(withText(sharedText)).check(matches(isDisplayed()));
     }
 
     @Test
