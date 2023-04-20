@@ -21,7 +21,8 @@
     <dimen name="resolver_title_padding_bottom">@dimen/resolver_edge_margin</dimen>
     <dimen name="resolver_button_bar_spacing">8dp</dimen>
 
-    <dimen name="chooser_preview_image_height_tall">192dp</dimen>
     <dimen name="chooser_preview_width">-1px</dimen>
     <dimen name="chooser_view_spacing">18dp</dimen>
+    <dimen name="chooser_action_max_width">80dp</dimen>
+    <dimen name="width_text_image_preview_size">100dp</dimen>
 </resources>

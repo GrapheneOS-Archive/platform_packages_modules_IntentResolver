@@ -81,7 +81,7 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
                 R.layout.chooser_grid_preview_image, parent, false);
         ScrollableImagePreviewView imagePreview =
                 contentPreviewLayout.findViewById(R.id.scrollable_image_preview);
-        imagePreview.setOnNoPreviewCallback(() -> imagePreview.setVisibility(View.GONE));
+        boolean showImages = !parent.getContext().getResources().getBoolean(R.bool.minimal_preview);
 
         final ActionRow actionRow =
                 contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
@@ -100,8 +100,6 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
             return contentPreviewLayout;
         }
 
-        imagePreview.setTransitionElementStatusCallback(mTransitionElementStatusCallback);
-
         List<ScrollableImagePreviewView.Preview> previews = new ArrayList<>();
         boolean allImages = !mFiles.isEmpty();
         boolean allVideos = !mFiles.isEmpty();
@@ -111,16 +109,24 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
             allImages = allImages && previewType == ScrollableImagePreviewView.PreviewType.Image;
             allVideos = allVideos && previewType == ScrollableImagePreviewView.PreviewType.Video;
 
-            if (fileInfo.getPreviewUri() != null) {
+            if (showImages && fileInfo.getPreviewUri() != null) {
                 previews.add(new ScrollableImagePreviewView.Preview(
                         previewType,
                         fileInfo.getPreviewUri()));
             }
         }
-        imagePreview.setPreviews(
-                previews,
-                mFiles.size() - previews.size(),
-                mImageLoader);
+
+        if (showImages) {
+            imagePreview.setOnNoPreviewCallback(() -> imagePreview.setVisibility(View.GONE));
+            imagePreview.setTransitionElementStatusCallback(mTransitionElementStatusCallback);
+            imagePreview.setPreviews(
+                    previews,
+                    mFiles.size() - previews.size(),
+                    mImageLoader);
+        } else {
+            imagePreview.setVisibility(View.GONE);
+            mTransitionElementStatusCallback.onAllTransitionElementsReady();
+        }
 
         if (allImages) {
             displayHeadline(

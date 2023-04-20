@@ -17,4 +17,5 @@
 
 <resources>
     <bool name="horizontal_actions">false</bool>
+    <bool name="minimal_preview">false</bool>
 </resources>

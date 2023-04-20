@@ -49,14 +49,15 @@
     <dimen name="resolver_empty_state_container_padding_top">48dp</dimen>
     <dimen name="resolver_empty_state_container_padding_bottom">8dp</dimen>
     <dimen name="resolver_profile_tab_margin">4dp</dimen>
-
+    <dimen name="chooser_preview_image_height_tall">192dp</dimen>
     <dimen name="chooser_action_view_icon_size">22dp</dimen>
     <dimen name="chooser_action_margin">0dp</dimen>
 
     <!-- Note that the values in this section are for landscape phones. For screen configs taller
          than 480dp, the values are set in values-h480dp/dimens.xml -->
     <dimen name="chooser_preview_width">412dp</dimen>
-    <dimen name="chooser_preview_image_height_tall">64dp</dimen>
     <dimen name="chooser_view_spacing">8dp</dimen>
+    <dimen name="chooser_action_max_width">120dp</dimen>
+    <dimen name="width_text_image_preview_size">32dp</dimen>
     <!-- END SECTION -->
 </resources>
