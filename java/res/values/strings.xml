@@ -160,12 +160,41 @@
         other {Sharing # items}
         }
     </string>
-    <!-- Title atop a sharing UI indicating that an image is being shared with text attached.
-         [CHAR_LIMIT=50] -->
-    <string name="sharing_image_with_text">Sharing image with text</string>
-    <!-- Title atop a sharing UI indicating that an image is being shared with a link (URL)
-         attached. [CHAR_LIMIT=50] -->
-    <string name="sharing_image_with_link">Sharing image with link</string>
+    <string name="sharing_images_with_text">{count, plural,
+        =1    {Sharing image with text}
+        other {Sharing # images with text}
+        }
+    </string>
+
+    <string name="sharing_images_with_link">{count, plural,
+        =1    {Sharing image with link}
+        other {Sharing # images with link}
+        }
+    </string>
+
+    <string name="sharing_videos_with_text">{count, plural,
+        =1    {Sharing video with text}
+        other {Sharing # videos with text}
+        }
+    </string>
+
+    <string name="sharing_videos_with_link">{count, plural,
+        =1    {Sharing video with link}
+        other {Sharing # videos with link}
+        }
+    </string>
+
+    <string name="sharing_files_with_text">{count, plural,
+        =1    {Sharing file with text}
+        other {Sharing # files with text}
+        }
+    </string>
+
+    <string name="sharing_files_with_link">{count, plural,
+        =1    {Sharing file with link}
+        other {Sharing # files with link}
+        }
+    </string>
 
     <!-- ChooserActivity - No direct share targets are available. [CHAR LIMIT=NONE] -->
     <string name="chooser_no_direct_share_targets">No recommended people to share with</string>

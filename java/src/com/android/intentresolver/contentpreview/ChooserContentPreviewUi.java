@@ -65,10 +65,6 @@ public final class ChooserContentPreviewUi {
         @Nullable
         ActionRow.Action createEditButton();
 
-        /** Create an "Share to Nearby" action. */
-        @Nullable
-        ActionRow.Action createNearbyButton();
-
         /** Create custom actions */
         List<ActionRow.Action> createCustomActions();
 
@@ -150,6 +146,15 @@ public final class ChooserContentPreviewUi {
         }
         ArrayList<FileInfo> files = new ArrayList<>(uris.size());
         int previewCount = readFileInfo(contentResolver, typeClassifier, uris, files);
+        CharSequence text = targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+        if (!TextUtils.isEmpty(text)) {
+            return new FilesPlusTextContentPreviewUi(files,
+                    targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT),
+                    actionFactory,
+                    imageLoader,
+                    typeClassifier,
+                    headlineGenerator);
+        }
         if (previewCount == 0) {
             return new FileContentPreviewUi(
                     files,
@@ -158,7 +163,6 @@ public final class ChooserContentPreviewUi {
         }
         return new UnifiedContentPreviewUi(
                 files,
-                targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT),
                 actionFactory,
                 imageLoader,
                 typeClassifier,
