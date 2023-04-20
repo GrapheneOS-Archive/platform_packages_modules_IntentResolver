@@ -25,7 +25,11 @@ private const val PLURALS_COUNT = "count"
 interface HeadlineGenerator {
     fun getTextHeadline(text: CharSequence): String
 
-    fun getImageWithTextHeadline(text: CharSequence): String
+    fun getImagesWithTextHeadline(text: CharSequence, count: Int): String
+
+    fun getVideosWithTextHeadline(text: CharSequence, count: Int): String
+
+    fun getFilesWithTextHeadline(text: CharSequence, count: Int): String
 
     fun getImagesHeadline(count: Int): String
 

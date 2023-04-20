@@ -28,14 +28,26 @@ class HeadlineGeneratorImplTest {
     fun testHeadlineGeneration() {
         val generator = HeadlineGeneratorImpl(
             InstrumentationRegistry.getInstrumentation().getTargetContext())
-        val str = "Some sting"
+        val str = "Some string"
         val url = "http://www.google.com"
 
         assertThat(generator.getTextHeadline(str)).isEqualTo("Sharing text")
         assertThat(generator.getTextHeadline(url)).isEqualTo("Sharing link")
 
-        assertThat(generator.getImageWithTextHeadline(str)).isEqualTo("Sharing image with text")
-        assertThat(generator.getImageWithTextHeadline(url)).isEqualTo("Sharing image with link")
+        assertThat(generator.getImagesWithTextHeadline(str, 1)).isEqualTo("Sharing image with text")
+        assertThat(generator.getImagesWithTextHeadline(url, 1)).isEqualTo("Sharing image with link")
+        assertThat(generator.getImagesWithTextHeadline(str, 5)).isEqualTo("Sharing 5 images with text")
+        assertThat(generator.getImagesWithTextHeadline(url, 5)).isEqualTo("Sharing 5 images with link")
+
+        assertThat(generator.getVideosWithTextHeadline(str, 1)).isEqualTo("Sharing video with text")
+        assertThat(generator.getVideosWithTextHeadline(url, 1)).isEqualTo("Sharing video with link")
+        assertThat(generator.getVideosWithTextHeadline(str, 5)).isEqualTo("Sharing 5 videos with text")
+        assertThat(generator.getVideosWithTextHeadline(url, 5)).isEqualTo("Sharing 5 videos with link")
+
+        assertThat(generator.getFilesWithTextHeadline(str, 1)).isEqualTo("Sharing file with text")
+        assertThat(generator.getFilesWithTextHeadline(url, 1)).isEqualTo("Sharing file with link")
+        assertThat(generator.getFilesWithTextHeadline(str, 5)).isEqualTo("Sharing 5 files with text")
+        assertThat(generator.getFilesWithTextHeadline(url, 5)).isEqualTo("Sharing 5 files with link")
 
         assertThat(generator.getImagesHeadline(1)).isEqualTo("Sharing image")
         assertThat(generator.getImagesHeadline(4)).isEqualTo("Sharing 4 images")

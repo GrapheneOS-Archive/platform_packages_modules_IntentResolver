@@ -16,6 +16,7 @@
 
 package com.android.intentresolver.contentpreview
 
+import android.annotation.StringRes
 import android.content.Context
 import com.android.intentresolver.R
 import android.util.PluralsMessageFormatter
@@ -28,40 +29,49 @@ private const val PLURALS_COUNT = "count"
  */
 class HeadlineGeneratorImpl(private val context: Context) : HeadlineGenerator {
     override fun getTextHeadline(text: CharSequence): String {
-        if (text.toString().isHttpUri()) {
-            return context.getString(R.string.sharing_link)
-        }
-        return context.getString(R.string.sharing_text)
+        return context.getString(
+            getTemplateResource(text, R.string.sharing_link, R.string.sharing_text))
     }
 
-    override fun getImageWithTextHeadline(text: CharSequence): String {
-        if (text.toString().isHttpUri()) {
-            return context.getString(R.string.sharing_image_with_link)
-        }
-        return context.getString(R.string.sharing_image_with_text)
+    override fun getImagesWithTextHeadline(text: CharSequence, count: Int): String {
+        return getPluralString(getTemplateResource(
+            text, R.string.sharing_images_with_link, R.string.sharing_images_with_text), count)
+    }
+
+    override fun getVideosWithTextHeadline(text: CharSequence, count: Int): String {
+        return getPluralString(getTemplateResource(
+            text, R.string.sharing_videos_with_link, R.string.sharing_videos_with_text), count)
+    }
+
+    override fun getFilesWithTextHeadline(text: CharSequence, count: Int): String {
+        return getPluralString(getTemplateResource(
+            text, R.string.sharing_files_with_link, R.string.sharing_files_with_text), count)
     }
 
     override fun getImagesHeadline(count: Int): String {
-        return PluralsMessageFormatter.format(
-            context.resources,
-            mapOf(PLURALS_COUNT to count),
-            R.string.sharing_images
-        )
+        return getPluralString(R.string.sharing_images, count)
     }
 
     override fun getVideosHeadline(count: Int): String {
-        return PluralsMessageFormatter.format(
-            context.resources,
-            mapOf(PLURALS_COUNT to count),
-            R.string.sharing_videos
-        )
+        return getPluralString(R.string.sharing_videos, count)
     }
 
     override fun getItemsHeadline(count: Int): String {
+        return getPluralString(R.string.sharing_items, count)
+    }
+
+    private fun getPluralString(@StringRes templateResource: Int, count: Int): String {
         return PluralsMessageFormatter.format(
             context.resources,
             mapOf(PLURALS_COUNT to count),
-            R.string.sharing_items
+            templateResource
         )
+    }
+
+    @StringRes
+    private fun getTemplateResource(
+        text: CharSequence, @StringRes linkResource: Int, @StringRes nonLinkResource: Int
+    ): Int {
+        return if (text.toString().isHttpUri()) linkResource else nonLinkResource
     }
 }
