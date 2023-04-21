@@ -1203,12 +1203,9 @@ public class UnbundledChooserActivityTest {
         setupResolverControllers(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(withText("app.pdf")));
-        onView(withId(com.android.internal.R.id.content_preview_file_icon))
-                .check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(withText("app.pdf")));
+        onView(withId(R.id.content_preview_file_icon)).check(matches(isDisplayed()));
     }
 
 
@@ -1228,12 +1225,11 @@ public class UnbundledChooserActivityTest {
         setupResolverControllers(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(withText("app.pdf + 2 files")));
-        onView(withId(com.android.internal.R.id.content_preview_file_icon))
-                .check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(withText("app.pdf")));
+        onView(withId(R.id.content_preview_more_files)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_more_files)).check(matches(withText("+ 2 more files")));
+        onView(withId(R.id.content_preview_file_icon)).check(matches(isDisplayed()));
     }
 
     @Test
@@ -1252,12 +1248,9 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(withText("app.pdf")));
-        onView(withId(com.android.internal.R.id.content_preview_file_icon))
-                .check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(withText("app.pdf")));
+        onView(withId(R.id.content_preview_file_icon)).check(matches(isDisplayed()));
     }
 
     @Test
@@ -1283,12 +1276,11 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(withText("app.pdf + 1 file")));
-        onView(withId(com.android.internal.R.id.content_preview_file_icon))
-                .check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(withText("app.pdf")));
+        onView(withId(R.id.content_preview_more_files)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_more_files)).check(matches(withText("+ 1 more file")));
+        onView(withId(R.id.content_preview_file_icon)).check(matches(isDisplayed()));
     }
 
     @Test
