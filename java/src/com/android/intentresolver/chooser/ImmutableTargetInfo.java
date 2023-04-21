@@ -427,8 +427,8 @@ public final class ImmutableTargetInfo implements TargetInfo {
             return null;
         }
 
-        Intent merged = new Intent(matchingBase);
-        merged.fillIn(proposedRefinement, 0);
+        Intent merged = TargetInfo.mergeRefinementIntoMatchingBaseIntent(
+                matchingBase, proposedRefinement);
         return toBuilder().setBaseIntentToSend(merged).build();
     }
 
