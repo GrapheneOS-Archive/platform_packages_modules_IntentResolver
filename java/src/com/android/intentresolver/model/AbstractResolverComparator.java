@@ -16,7 +16,6 @@
 
 package com.android.intentresolver.model;
 
-import android.annotation.Nullable;
 import android.app.usage.UsageStatsManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -34,6 +33,8 @@ import com.android.intentresolver.ChooserActivityLogger;
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.ResolverActivity;
 import com.android.intentresolver.chooser.TargetInfo;
+
+import com.google.android.collect.Lists;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -58,7 +59,6 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
     protected final Map<UserHandle, UsageStatsManager> mUsmMap = new HashMap<>();
     protected String[] mAnnotations;
     protected String mContentType;
-    protected final ComponentName mPromoteToFirst;
 
     // True if the current share is a link.
     private final boolean mHttp;
@@ -109,18 +109,32 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
      * Constructor to initialize the comparator.
      * @param launchedFromContext the activity calling this comparator
      * @param intent original intent
-     * @param resolvedActivityUserSpaceList refers to the userSpace(s) used by the comparator for
-     *                                      fetching activity stats and recording activity
-     *                                      selection. The latter could be different from the
-     *                                      userSpace provided by context.
-     * @param promoteToFirst a component to be moved to the front of the app list if it's being
-     *                       ranked. Unlike pinned apps, this cannot be modified by the user.
+     * @param resolvedActivityUserSpace refers to the userSpace used by the comparator for
+     *                                  fetching activity stats and recording activity selection.
+     *                                  The latter could be different from the userSpace provided by
+     *                                  context.
      */
     public AbstractResolverComparator(
             Context launchedFromContext,
             Intent intent,
-            List<UserHandle> resolvedActivityUserSpaceList,
-            @Nullable ComponentName promoteToFirst) {
+            UserHandle resolvedActivityUserSpace) {
+        this(launchedFromContext, intent, Lists.newArrayList(resolvedActivityUserSpace));
+    }
+
+
+    /**
+     * Constructor to initialize the comparator.
+     * @param launchedFromContext the activity calling this comparator
+     * @param intent original intent
+     * @param resolvedActivityUserSpaceList refers to the userSpace(s) used by the comparator for
+     *                                      fetching activity stats and recording activity
+     *                                      selection. The latter could be different from the
+     *                                      userSpace provided by context.
+     */
+    public AbstractResolverComparator(
+            Context launchedFromContext,
+            Intent intent,
+            List<UserHandle> resolvedActivityUserSpaceList) {
         String scheme = intent.getScheme();
         mHttp = "http".equals(scheme) || "https".equals(scheme);
         mContentType = intent.getType();
@@ -133,7 +147,6 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
                     (UsageStatsManager) userContext.getSystemService(Context.USAGE_STATS_SERVICE));
         }
         mAzComparator = new AzInfoComparator(launchedFromContext);
-        mPromoteToFirst = promoteToFirst;
     }
 
     // get annotations of content from intent.
@@ -187,16 +200,6 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
         }
         if (rhs.targetUserId != UserHandle.USER_CURRENT) {
             return -1;
-        }
-
-        if (mPromoteToFirst != null) {
-            // A single component can be cemented to the front of the list. If it is seen, let it
-            // always get priority.
-            if (mPromoteToFirst.equals(lhs.activityInfo.getComponentName())) {
-                return -1;
-            } else if (mPromoteToFirst.equals(rhs.activityInfo.getComponentName())) {
-                return 1;
-            }
         }
 
         if (mHttp) {
