@@ -55,13 +55,23 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"수정"</string>
     <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + 파일 #개}other{{file_name} + 파일 #개}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{외 파일 #개}other{외 파일 #개}}"</string>
-    <string name="sharing_text" msgid="8137537443603304062">"텍스트 공유 중"</string>
-    <string name="sharing_link" msgid="2307694372813942916">"링크 공유 중"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{이미지 공유 중}other{이미지 #개 공유 중}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"텍스트 공유"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"링크 공유"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{이미지 공유}other{이미지 #개 공유}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{동영상 1개 공유 중}other{동영상 #개 공유 중}}"</string>
     <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{항목 1개 공유 중}other{항목 #개 공유 중}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"텍스트로 이미지 공유 중"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"링크로 이미지 공유 중"</string>
+    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
+    <skip />
+    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"공유할 추천 사용자가 없음"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"앱 목록"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"이 앱에는 녹음 권한이 부여되지 않았지만, 이 USB 기기를 통해 오디오를 녹음할 수 있습니다."</string>
@@ -74,8 +84,10 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"이 콘텐츠는 직장 앱으로 열 수 없습니다."</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"이 콘텐츠는 개인 앱을 통해 공유할 수 없습니다."</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"이 콘텐츠는 개인 앱으로 열 수 없습니다."</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"직장 프로필이 일시중지됨"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"탭하여 사용 설정"</string>
+    <!-- no translation found for resolver_turn_on_work_apps (7115260573975624516) -->
+    <skip />
+    <!-- no translation found for resolver_switch_on_work (8678893259344318807) -->
+    <skip />
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"직장 앱 없음"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"개인 앱 없음"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"개인 프로필에서 <xliff:g id="APP">%s</xliff:g> 앱을 여시겠습니까?"</string>

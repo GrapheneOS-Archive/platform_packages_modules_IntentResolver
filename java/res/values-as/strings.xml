@@ -60,8 +60,18 @@
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{প্ৰতিচ্ছবি শ্বেয়াৰ কৰি থকা হৈছে}one{# খন প্ৰতিচ্ছবি শ্বেয়াৰ কৰি থকা হৈছে}other{# খন প্ৰতিচ্ছবি শ্বেয়াৰ কৰি থকা হৈছে}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{ভিডিঅ’ শ্বেয়াৰ কৰি থকা হৈছে}one{# টা ভিডিঅ’ শ্বেয়াৰ কৰি থকা হৈছে}other{# টা ভিডিঅ’ শ্বেয়াৰ কৰি থকা হৈছে}}"</string>
     <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# টা বস্তু শ্বেয়াৰ কৰি থকা হৈছে}one{# টা বস্তু শ্বেয়াৰ কৰি থকা হৈছে}other{# টা বস্তু শ্বেয়াৰ কৰি থকা হৈছে}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"পাঠেৰে প্ৰতিচ্ছবি শ্বেয়াৰ কৰি হৈছে"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"লিংকৰে প্ৰতিচ্ছবি শ্বেয়াৰ কৰি হৈছে"</string>
+    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
+    <skip />
+    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"শ্বেয়াৰ কৰিবলৈ চুপাৰিছ কৰা কোনো লোক নাই"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"এপ্‌সমূহৰ সূচী"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"এই এপ্‌টোক ৰেকর্ড কৰাৰ অনুমতি দিয়া হোৱা নাই কিন্তু ই এই ইউএছবি ডিভাইচটোৰ জৰিয়তে অডিঅ\' ৰেকর্ড কৰিব পাৰে।"</string>
@@ -74,8 +84,10 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"এই সমল কৰ্মস্থানৰ এপৰ জৰিয়তে খুলিব নোৱাৰি"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"এই সমল ব্যক্তিগত এপৰ সৈতে শ্বেয়াৰ কৰিব নোৱাৰি"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"এই সমল ব্যক্তিগত এপৰ জৰিয়তে খুলিব নোৱাৰি"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"কৰ্মস্থানৰ প্ৰ\'ফাইলটো পজ কৰা আছে"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"অন কৰিবলৈ টিপক"</string>
+    <!-- no translation found for resolver_turn_on_work_apps (7115260573975624516) -->
+    <skip />
+    <!-- no translation found for resolver_switch_on_work (8678893259344318807) -->
+    <skip />
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"কোনো কৰ্মস্থানৰ এপ্‌ নাই"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"কোনো ব্যক্তিগত এপ্‌ নাই"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"আপোনাৰ ব্যক্তিগত প্ৰ’ফাইলত <xliff:g id="APP">%s</xliff:g> খুলিবনে?"</string>
