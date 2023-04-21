@@ -60,8 +60,18 @@
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Compartilhando imagem}one{Compartilhando # imagem}many{Compartilhando # de imagens}other{Compartilhando # imagens}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Compartilhando vídeo}one{Compartilhando # vídeo}many{Compartilhando # de vídeos}other{Compartilhando # vídeos}}"</string>
     <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Compartilhando # item}one{Compartilhando # item}many{Compartilhando # de itens}other{Compartilhando # itens}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"Compartilhando imagem com texto"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"Compartilhando imagem com link"</string>
+    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
+    <skip />
+    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Não há sugestões de pessoas para compartilhar"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Lista de apps"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Este app não tem permissão de gravação, mas pode capturar áudio pelo dispositivo USB."</string>
@@ -74,8 +84,10 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Não é possível abrir esse conteúdo com apps de trabalho"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Não é possível compartilhar esse conteúdo com apps pessoais"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Não é possível abrir esse conteúdo com apps pessoais"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"O perfil de trabalho está pausado"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Toque para ativar"</string>
+    <!-- no translation found for resolver_turn_on_work_apps (7115260573975624516) -->
+    <skip />
+    <!-- no translation found for resolver_switch_on_work (8678893259344318807) -->
+    <skip />
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Nenhum app de trabalho"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Nenhum app pessoal"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Abrir o app <xliff:g id="APP">%s</xliff:g> no seu perfil pessoal?"</string>

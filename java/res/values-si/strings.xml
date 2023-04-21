@@ -60,8 +60,18 @@
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{රූපය බෙදා ගැනීම}one{රූප #ක් බෙදා ගැනීම}other{රූප #ක් බෙදා ගැනීම}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{වීඩියෝව බෙදා ගැනීම}one{වීඩියෝ #ක් බෙදා ගැනීම}other{වීඩියෝ #ක් බෙදා ගැනීම}}"</string>
     <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# අයිතමයක් බෙදා ගැනීම}one{අයිතම #ක් බෙදා ගැනීම}other{අයිතම #ක් බෙදා ගැනීම}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"පෙළ සමග රූපය බෙදා ගැනීම"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"සබැඳිය සමග රූපය බෙදාගැනීම"</string>
+    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
+    <skip />
+    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"බෙදා ගැනීමට නිර්දේශිත පුද්ගලයන් නැත"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"යෙදුම් ලැයිස්තුව"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"මෙම යෙදුමට පටිගත කිරීම් අවසරයක් ලබා දී නොමැති නමුත් මෙම USB උපාංගය හරහා ශ්‍රව්‍ය ග්‍රහණය කර ගත හැකිය."</string>
@@ -74,8 +84,10 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"මෙම අන්තර්ගතය කාර්යාල යෙදුම් සමඟ විවෘත කළ නොහැකිය"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"මෙම අන්තර්ගතය පුද්ගලික යෙදුම් සමඟ බෙදා ගත නොහැකිය"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"මෙම අන්තර්ගතය පුද්ගලික යෙදුම් සමඟ විවෘත කළ නොහැකිය"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"කාර්යාල පැතිකඩ විරාම කර ඇත"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"ක්‍රියාත්මක කිරීමට තට්ටු කරන්න"</string>
+    <!-- no translation found for resolver_turn_on_work_apps (7115260573975624516) -->
+    <skip />
+    <!-- no translation found for resolver_switch_on_work (8678893259344318807) -->
+    <skip />
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"කාර්යාල යෙදුම් නැත"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"පුද්ගලික යෙදුම් නැත"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"<xliff:g id="APP">%s</xliff:g> ඔබගේ පුද්ගලික පැතිකඩ තුළ විවෘත කරන්නද?"</string>
