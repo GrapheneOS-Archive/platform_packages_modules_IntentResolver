@@ -40,82 +40,52 @@ public class AbstractResolverComparatorTest {
 
     @Test
     public void testPinned() {
-        ResolvedComponentInfo r1 = createResolvedComponentInfo(
-                new ComponentName("package", "class"));
+        ResolvedComponentInfo r1 = new ResolvedComponentInfo(
+                new ComponentName("package", "class"), new Intent(), new ResolveInfo()
+        );
         r1.setPinned(true);
 
-        ResolvedComponentInfo r2 = createResolvedComponentInfo(
-                new ComponentName("zackage", "zlass"));
+        ResolvedComponentInfo r2 = new ResolvedComponentInfo(
+                new ComponentName("zackage", "zlass"), new Intent(), new ResolveInfo()
+        );
 
         Context context = InstrumentationRegistry.getTargetContext();
-        AbstractResolverComparator comparator = getTestComparator(context, null);
+        AbstractResolverComparator comparator = getTestComparator(context);
 
         assertEquals("Pinned ranks over unpinned", -1, comparator.compare(r1, r2));
         assertEquals("Unpinned ranks under pinned", 1, comparator.compare(r2, r1));
     }
 
+
     @Test
     public void testBothPinned() {
-        ResolvedComponentInfo r1 = createResolvedComponentInfo(
-                new ComponentName("package", "class"));
+        ResolveInfo pmInfo1 = new ResolveInfo();
+        pmInfo1.activityInfo = new ActivityInfo();
+        pmInfo1.activityInfo.packageName = "aaa";
+
+        ResolvedComponentInfo r1 = new ResolvedComponentInfo(
+                new ComponentName("package", "class"), new Intent(), pmInfo1);
         r1.setPinned(true);
 
-        ResolvedComponentInfo r2 = createResolvedComponentInfo(
-                new ComponentName("zackage", "zlass"));
+        ResolveInfo pmInfo2 = new ResolveInfo();
+        pmInfo2.activityInfo = new ActivityInfo();
+        pmInfo2.activityInfo.packageName = "zzz";
+        ResolvedComponentInfo r2 = new ResolvedComponentInfo(
+                new ComponentName("zackage", "zlass"), new Intent(), pmInfo2);
         r2.setPinned(true);
 
         Context context = InstrumentationRegistry.getTargetContext();
-        AbstractResolverComparator comparator = getTestComparator(context, null);
+        AbstractResolverComparator comparator = getTestComparator(context);
 
         assertEquals("Both pinned should rank alphabetically", -1, comparator.compare(r1, r2));
     }
 
-    @Test
-    public void testPromoteToFirst() {
-        ComponentName promoteToFirst = new ComponentName("promoted-package", "class");
-        ResolvedComponentInfo r1 = createResolvedComponentInfo(promoteToFirst);
-
-        ResolvedComponentInfo r2 = createResolvedComponentInfo(
-                new ComponentName("package", "class"));
-
-        Context context = InstrumentationRegistry.getTargetContext();
-        AbstractResolverComparator comparator = getTestComparator(context, promoteToFirst);
-
-        assertEquals("PromoteToFirst ranks over non-cemented", -1, comparator.compare(r1, r2));
-        assertEquals("Non-cemented ranks under PromoteToFirst", 1, comparator.compare(r2, r1));
-    }
-
-    @Test
-    public void testPromoteToFirstOverPinned() {
-        ComponentName cementedComponent = new ComponentName("promoted-package", "class");
-        ResolvedComponentInfo r1 = createResolvedComponentInfo(cementedComponent);
-
-        ResolvedComponentInfo r2 = createResolvedComponentInfo(
-                new ComponentName("package", "class"));
-        r2.setPinned(true);
-
-        Context context = InstrumentationRegistry.getTargetContext();
-        AbstractResolverComparator comparator = getTestComparator(context, cementedComponent);
-
-        assertEquals("PromoteToFirst ranks over pinned", -1, comparator.compare(r1, r2));
-        assertEquals("Pinned ranks under PromoteToFirst", 1, comparator.compare(r2, r1));
-    }
-
-    private ResolvedComponentInfo createResolvedComponentInfo(ComponentName component) {
-        ResolveInfo info = new ResolveInfo();
-        info.activityInfo = new ActivityInfo();
-        info.activityInfo.packageName = component.getPackageName();
-        info.activityInfo.name = component.getClassName();
-        return new ResolvedComponentInfo(component, new Intent(), info);
-    }
-
-    private AbstractResolverComparator getTestComparator(
-            Context context, ComponentName promoteToFirst) {
+    private AbstractResolverComparator getTestComparator(Context context) {
         Intent intent = new Intent();
 
         AbstractResolverComparator testComparator =
                 new AbstractResolverComparator(context, intent,
-                        Lists.newArrayList(context.getUser()), promoteToFirst) {
+                        Lists.newArrayList(context.getUser())) {
 
                     @Override
                     int compare(ResolveInfo lhs, ResolveInfo rhs) {
