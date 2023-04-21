@@ -871,8 +871,7 @@ public class ResolverActivity extends FragmentActivity implements
                         getReferrerPackageName(),
                         null,
                         null,
-                        getResolverRankerServiceUserHandleList(userHandle),
-                        null);
+                        getResolverRankerServiceUserHandleList(userHandle));
         return new ResolverListController(
                 this,
                 mPm,
