@@ -102,10 +102,9 @@ public class ResolverRankerServiceResolverComparator extends AbstractResolverCom
      */
     public ResolverRankerServiceResolverComparator(Context launchedFromContext, Intent intent,
             String referrerPackage, Runnable afterCompute,
-            ChooserActivityLogger chooserActivityLogger, UserHandle targetUserSpace,
-            ComponentName promoteToFirst) {
+            ChooserActivityLogger chooserActivityLogger, UserHandle targetUserSpace) {
         this(launchedFromContext, intent, referrerPackage, afterCompute, chooserActivityLogger,
-                Lists.newArrayList(targetUserSpace), promoteToFirst);
+                Lists.newArrayList(targetUserSpace));
     }
 
     /**
@@ -118,9 +117,8 @@ public class ResolverRankerServiceResolverComparator extends AbstractResolverCom
      */
     public ResolverRankerServiceResolverComparator(Context launchedFromContext, Intent intent,
             String referrerPackage, Runnable afterCompute,
-            ChooserActivityLogger chooserActivityLogger, List<UserHandle> targetUserSpaceList,
-            @Nullable ComponentName promoteToFirst) {
-        super(launchedFromContext, intent, targetUserSpaceList, promoteToFirst);
+            ChooserActivityLogger chooserActivityLogger, List<UserHandle> targetUserSpaceList) {
+        super(launchedFromContext, intent, targetUserSpaceList);
         mCollator = Collator.getInstance(
                 launchedFromContext.getResources().getConfiguration().locale);
         mReferrerPackage = referrerPackage;

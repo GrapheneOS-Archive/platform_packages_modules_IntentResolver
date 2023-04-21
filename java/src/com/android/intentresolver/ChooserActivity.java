@@ -240,6 +240,7 @@ public class ChooserActivity extends ResolverActivity implements
                     getIntent(),
                     getReferrerPackageName(),
                     getReferrer(),
+                    mIntegratedDeviceComponents,
                     mFeatureFlagRepository);
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "Caller provided invalid Chooser request parameters", e);
@@ -1261,8 +1262,7 @@ public class ChooserActivity extends ResolverActivity implements
         AbstractResolverComparator resolverComparator;
         if (appPredictor != null) {
             resolverComparator = new AppPredictionServiceResolverComparator(this, getTargetIntent(),
-                    getReferrerPackageName(), appPredictor, userHandle, getChooserActivityLogger(),
-                    getIntegratedDeviceComponents().getNearbySharingComponent());
+                    getReferrerPackageName(), appPredictor, userHandle, getChooserActivityLogger());
         } else {
             resolverComparator =
                     new ResolverRankerServiceResolverComparator(
@@ -1271,8 +1271,7 @@ public class ChooserActivity extends ResolverActivity implements
                             getReferrerPackageName(),
                             null,
                             getChooserActivityLogger(),
-                            getResolverRankerServiceUserHandleList(userHandle),
-                            getIntegratedDeviceComponents().getNearbySharingComponent());
+                            getResolverRankerServiceUserHandleList(userHandle));
         }
 
         return new ChooserListController(
