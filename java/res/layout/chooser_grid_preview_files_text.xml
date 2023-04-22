@@ -38,8 +38,8 @@
 
         <com.android.intentresolver.widget.RoundedRectImageView
             android:id="@+id/image_view"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="@dimen/width_text_image_preview_size"
+            android:layout_height="@dimen/width_text_image_preview_size"
             android:scaleType="centerCrop"
             app:radius="@dimen/chooser_corner_radius_small"
         />
