@@ -279,9 +279,9 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
             return null;
         }
 
-        Intent merged = new Intent(matchingBase);
-        merged.fillIn(proposedRefinement, 0);
-        return new SelectableTargetInfo(this, merged);
+        return new SelectableTargetInfo(
+                this,
+                TargetInfo.mergeRefinementIntoMatchingBaseIntent(matchingBase, proposedRefinement));
     }
 
     @Override
