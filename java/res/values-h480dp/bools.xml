@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2023 The Android Open Source Project
   ~
@@ -14,6 +15,7 @@
   ~ limitations under the License.
   -->
 
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <integer name="text_preview_lines">1</integer>
+<resources>
+    <bool name="horizontal_actions">false</bool>
+    <bool name="minimal_preview">false</bool>
 </resources>
