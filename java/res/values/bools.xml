@@ -15,5 +15,8 @@
 -->
 
 <resources>
-  <bool name="horizontal_actions">false</bool>
+  <!-- Note that these values are for landscape phones, the values for all screens taller than
+       480dp are set in values-h480dp/bools.xml -->
+  <bool name="horizontal_actions">true</bool>
+  <bool name="minimal_preview">true</bool>
 </resources>
