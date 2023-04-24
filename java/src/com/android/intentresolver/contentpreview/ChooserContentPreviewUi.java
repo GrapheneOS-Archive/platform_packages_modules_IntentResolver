@@ -66,10 +66,6 @@ public final class ChooserContentPreviewUi {
         @Nullable
         ActionRow.Action createEditButton();
 
-        /** Create an "Share to Nearby" action. */
-        @Nullable
-        ActionRow.Action createNearbyButton();
-
         /** Create custom actions */
         List<ActionRow.Action> createCustomActions();
 
