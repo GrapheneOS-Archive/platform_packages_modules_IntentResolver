@@ -136,7 +136,7 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
                     contentPreviewLayout, mHeadlineGenerator.getVideosHeadline(mFiles.size()));
         } else {
             displayHeadline(
-                    contentPreviewLayout, mHeadlineGenerator.getItemsHeadline(mFiles.size()));
+                    contentPreviewLayout, mHeadlineGenerator.getFilesHeadline(mFiles.size()));
         }
 
         return contentPreviewLayout;

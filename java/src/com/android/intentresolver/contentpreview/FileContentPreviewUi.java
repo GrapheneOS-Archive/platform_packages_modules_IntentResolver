@@ -22,7 +22,6 @@ import android.util.PluralsMessageFormatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.intentresolver.R;
@@ -69,7 +68,7 @@ class FileContentPreviewUi extends ContentPreviewUi {
 
         final int uriCount = mFiles.size();
 
-        displayHeadline(contentPreviewLayout, mHeadlineGenerator.getItemsHeadline(mFiles.size()));
+        displayHeadline(contentPreviewLayout, mHeadlineGenerator.getFilesHeadline(mFiles.size()));
 
         if (uriCount == 0) {
             contentPreviewLayout.setVisibility(View.GONE);
@@ -79,26 +78,21 @@ class FileContentPreviewUi extends ContentPreviewUi {
         }
 
         FileInfo fileInfo = mFiles.get(0);
-        final CharSequence fileName;
-        final int iconId;
-        if (uriCount == 1) {
-            fileName = fileInfo.getName();
-            iconId = R.drawable.chooser_file_generic;
-        } else {
+        TextView fileNameView = contentPreviewLayout.findViewById(
+                R.id.content_preview_filename);
+        fileNameView.setText(fileInfo.getName());
+
+        TextView secondLine = contentPreviewLayout.findViewById(
+                R.id.content_preview_more_files);
+        if (uriCount > 1) {
             int remUriCount = uriCount - 1;
             Map<String, Object> arguments = new HashMap<>();
             arguments.put(PLURALS_COUNT, remUriCount);
-            arguments.put(PLURALS_FILE_NAME, fileInfo.getName());
-            fileName = PluralsMessageFormatter.format(resources, arguments, R.string.file_count);
-            iconId = R.drawable.ic_file_copy;
+            secondLine.setText(
+                    PluralsMessageFormatter.format(resources, arguments, R.string.more_files));
+        } else {
+            secondLine.setVisibility(View.GONE);
         }
-        TextView fileNameView = contentPreviewLayout.findViewById(
-                com.android.internal.R.id.content_preview_filename);
-        fileNameView.setText(fileName);
-
-        ImageView fileIconView = contentPreviewLayout.findViewById(
-                com.android.internal.R.id.content_preview_file_icon);
-        fileIconView.setImageResource(iconId);
 
         final ActionRow actionRow =
                 contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
