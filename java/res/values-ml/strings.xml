@@ -60,8 +60,18 @@
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ചിത്രം പങ്കിടുന്നു}other{# ചിത്രങ്ങൾ പങ്കിടുന്നു}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{വീഡിയോ പങ്കിടുന്നു}other{# വീഡിയോകൾ പങ്കിടുന്നു}}"</string>
     <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# ഇനം പങ്കിടുന്നു}other{# ഇനങ്ങൾ പങ്കിടുന്നു}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"ടെക്സ്റ്റിനൊപ്പം ചിത്രം പങ്കിടുന്നു"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"ലിങ്കിനൊപ്പം ചിത്രം പങ്കിടുന്നു"</string>
+    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
+    <skip />
+    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"പങ്കിടാൻ, നിർദ്ദേശിക്കപ്പെട്ട ആളുകളൊന്നുമില്ല"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"ആപ്പുകളുടെ ലിസ്‌റ്റ്"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ഈ ആപ്പിന് റെക്കോർഡ് അനുമതി നൽകിയിട്ടില്ല, എന്നാൽ ഈ USB ഉപകരണത്തിലൂടെ ഓഡിയോ ക്യാപ്‌ചർ ചെയ്യാനാവും."</string>
@@ -74,8 +84,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ഔദ്യോഗിക ആപ്പുകൾ ഉപയോഗിച്ച് ഈ ഉള്ളടക്കം തുറക്കാനാകില്ല"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"വ്യക്തിപര ആപ്പുകൾ ഉപയോഗിച്ച് ഈ ഉള്ളടക്കം പങ്കിടാനാകില്ല"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"വ്യക്തിപര ആപ്പുകൾ ഉപയോഗിച്ച് ഈ ഉള്ളടക്കം തുറക്കാനാകില്ല"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"ഔദ്യോഗിക പ്രൊഫൈൽ തൽക്കാലം നിർത്തിയിരിക്കുന്നു"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"ഓണാക്കാൻ ടാപ്പ് ചെയ്യുക"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"ഔദ്യോഗിക ആപ്പുകൾ തൽക്കാലം നിർത്തിയിരിക്കുന്നു"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"താൽക്കാലികമായി നിർത്തിയത് മാറ്റുക"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"ഔദ്യോഗിക ആപ്പുകൾ ഇല്ല"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"വ്യക്തിപര ആപ്പുകൾ ഇല്ല"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"<xliff:g id="APP">%s</xliff:g>, നിങ്ങളുടെ വ്യക്തിപരമായ പ്രൊഫൈലിൽ തുറക്കണോ?"</string>
