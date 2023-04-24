@@ -124,17 +124,18 @@
     <!-- Notification action for editing a screenshot (drawing on it, cropping it, etc) -->
     <string name="screenshot_edit">Edit</string>
 
-    <string name="file_count">{count, plural,
-        =1    {{file_name} + # file}
-        other {{file_name} + # files}
-    }
-    </string>
-
     <!-- Represents a number of other files also being shared; used as an item at the end of a list -->
     <string name="other_files">{count, plural,
         =1    {+ # file}
         other {+ # files}
     }
+    </string>
+
+    <!-- Text label indicating the  number of other files also being shared -->
+    <string name="more_files">{count, plural,
+        =1    {+ # more file}
+        other {+ # more files}
+        }
     </string>
 
     <!-- Title atop a sharing UI indicating that text is being shared [CHAR_LIMIT=50] -->
@@ -153,11 +154,11 @@
         other {Sharing # videos}
         }
     </string>
-    <!-- Title atop a sharing UI indicating that some number of items are being shared
+    <!-- Title atop a sharing UI indicating that some number of files are being shared
          (for example: sharing a mixture of photos and videos [CHAR_LIMIT=50] -->
-    <string name="sharing_items">{count, plural,
-        =1    {Sharing # item}
-        other {Sharing # items}
+    <string name="sharing_files">{count, plural,
+        =1    {Sharing # file}
+        other {Sharing # files}
         }
     </string>
     <string name="sharing_images_with_text">{count, plural,

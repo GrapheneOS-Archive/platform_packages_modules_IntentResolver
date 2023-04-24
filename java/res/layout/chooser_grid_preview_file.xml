@@ -27,41 +27,53 @@
     android:paddingBottom="@dimen/chooser_view_spacing"
     android:background="?android:attr/colorBackground">
 
-  <include layout="@layout/chooser_headline_row" />
+    <include layout="@layout/chooser_headline_row"/>
 
-  <LinearLayout
-      android:layout_width="@dimen/chooser_preview_width"
-      android:layout_height="wrap_content"
-      android:layout_gravity="center"
-      android:orientation="horizontal"
-      android:paddingLeft="@dimen/chooser_edge_margin_normal"
-      android:paddingRight="@dimen/chooser_edge_margin_normal"
-      android:layout_marginBottom="@dimen/chooser_view_spacing"
-      android:id="@androidprv:id/content_preview_file_layout">
-
-    <ImageView
-        android:id="@androidprv:id/content_preview_file_icon"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginRight="16dp"
-        android:adjustViewBounds="true"
-        android:layout_gravity="center_vertical"
-        android:gravity="center"
-        android:scaleType="fitCenter" />
-    <TextView
-        android:id="@androidprv:id/content_preview_filename"
-        android:layout_width="0dp"
-        android:layout_weight="1"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:ellipsize="middle"
-        android:gravity="start|top"
-        android:paddingRight="24dp"
-        android:singleLine="true"
-        android:textAppearance="@style/TextAppearance.ChooserDefault" />
-  </LinearLayout>
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="@dimen/chooser_edge_margin_normal"
+        android:layout_marginBottom="@dimen/chooser_view_spacing"
+        android:padding="@dimen/chooser_edge_margin_normal"
+        android:background="@drawable/chooser_content_preview_rounded"
+        android:id="@androidprv:id/content_preview_file_layout">
 
-  <include layout="@layout/chooser_action_row" />
+        <ImageView
+            android:id="@+id/content_preview_file_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="16dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_file_copy"
+            android:scaleType="fitCenter"/>
+        <TextView
+            android:id="@+id/content_preview_filename"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/content_preview_file_icon"
+            android:layout_alignParentTop="true"
+            android:layout_alignWithParentIfMissing="true"
+            android:ellipsize="middle"
+            android:gravity="start|top"
+            android:singleLine="true"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.ChooserDefault"/>
+
+        <TextView
+            android:id="@+id/content_preview_more_files"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/content_preview_file_icon"
+            android:layout_below="@id/content_preview_filename"
+            android:layout_alignWithParentIfMissing="true"
+            android:gravity="start|top"
+            android:singleLine="true"
+            android:textAppearance="@style/TextAppearance.ChooserDefault"/>
+    </RelativeLayout>
+
+    <include layout="@layout/chooser_action_row"/>
 
 </LinearLayout>
 
