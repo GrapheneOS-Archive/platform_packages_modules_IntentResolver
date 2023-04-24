@@ -153,7 +153,7 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
             } else if (mAllVideos) {
                 headline = mHeadlineGenerator.getVideosHeadline(mFiles.size());
             } else {
-                headline = mHeadlineGenerator.getItemsHeadline(mFiles.size());
+                headline = mHeadlineGenerator.getFilesHeadline(mFiles.size());
             }
         }
 

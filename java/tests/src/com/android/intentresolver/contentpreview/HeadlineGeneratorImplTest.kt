@@ -55,7 +55,7 @@ class HeadlineGeneratorImplTest {
         assertThat(generator.getVideosHeadline(1)).isEqualTo("Sharing video")
         assertThat(generator.getVideosHeadline(4)).isEqualTo("Sharing 4 videos")
 
-        assertThat(generator.getItemsHeadline(1)).isEqualTo("Sharing 1 item")
-        assertThat(generator.getItemsHeadline(4)).isEqualTo("Sharing 4 items")
+        assertThat(generator.getFilesHeadline(1)).isEqualTo("Sharing 1 file")
+        assertThat(generator.getFilesHeadline(4)).isEqualTo("Sharing 4 files")
     }
 }
