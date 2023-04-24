@@ -97,21 +97,8 @@ class FileContentPreviewUi extends ContentPreviewUi {
         final ActionRow actionRow =
                 contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
         actionRow.setActions(
-                createActions(
-                        createFilePreviewActions(),
-                        mActionFactory.createCustomActions()));
+                createActions(new ArrayList<>(), mActionFactory.createCustomActions()));
 
         return contentPreviewLayout;
-    }
-
-    private List<ActionRow.Action> createFilePreviewActions() {
-        List<ActionRow.Action> actions = new ArrayList<>(1);
-        //TODO(b/120417119):
-        // add action buttonFactory.createCopyButton()
-        ActionRow.Action action = mActionFactory.createNearbyButton();
-        if (action != null) {
-            actions.add(action);
-        }
-        return actions;
     }
 }
