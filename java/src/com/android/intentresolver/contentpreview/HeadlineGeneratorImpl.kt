@@ -56,8 +56,8 @@ class HeadlineGeneratorImpl(private val context: Context) : HeadlineGenerator {
         return getPluralString(R.string.sharing_videos, count)
     }
 
-    override fun getItemsHeadline(count: Int): String {
-        return getPluralString(R.string.sharing_items, count)
+    override fun getFilesHeadline(count: Int): String {
+        return getPluralString(R.string.sharing_files, count)
     }
 
     private fun getPluralString(@StringRes templateResource: Int, count: Int): String {
