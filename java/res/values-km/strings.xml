@@ -60,8 +60,18 @@
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{កំពុងចែក​រំលែករូបភាព}other{កំពុងចែក​រំលែករូបភាព #}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{កំពុងចែករំលែកវីដេអូ}other{កំពុងចែករំលែកវីដេអូ #}}"</string>
     <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{កំពុងចែករំលែកធាតុ #}other{កំពុងចែករំលែកធាតុ #}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"ចែករំលែករូបភាពជាមួយអក្សរ"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"ចែករំលែករូបភាពជាមួយតំណ"</string>
+    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
+    <skip />
+    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"មិនមាន​មនុស្សដែល​បានណែនាំ​សម្រាប់​ចែករំលែក​ជាមួយទេ"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"បញ្ជីកម្មវិធី"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"កម្មវិធីនេះ​មិនទាន់បាន​ទទួលសិទ្ធិ​ថតសំឡេង​នៅឡើយទេ ប៉ុន្តែអាច​ថតសំឡេង​តាមរយៈ​ឧបករណ៍ USB នេះបាន។"</string>
@@ -74,8 +84,10 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ខ្លឹមសារនេះ​មិនអាចបើក​តាមរយៈ​កម្មវិធី​ការងារ​បានទេ"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"ខ្លឹមសារនេះ​មិនអាចចែករំលែក​តាមរយៈ​កម្មវិធី​ផ្ទាល់ខ្លួន​បានទេ"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"ខ្លឹមសារនេះ​មិនអាចបើក​តាមរយៈ​កម្មវិធី​ផ្ទាល់ខ្លួន​បានទេ"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"កម្រងព័ត៌មានការងារត្រូវបាន​ផ្អាក"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"ចុច​ដើម្បី​បើក"</string>
+    <!-- no translation found for resolver_turn_on_work_apps (7115260573975624516) -->
+    <skip />
+    <!-- no translation found for resolver_switch_on_work (8678893259344318807) -->
+    <skip />
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"គ្មាន​កម្មវិធី​ការងារ​ទេ"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"គ្មាន​កម្មវិធី​ផ្ទាល់ខ្លួន​ទេ"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"បើក <xliff:g id="APP">%s</xliff:g> នៅក្នុងកម្រង​ព័ត៌មាន​ផ្ទាល់​ខ្លួនរបស់អ្នកឬ?"</string>
