@@ -70,7 +70,7 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
         boolean allVideos = true;
         for (FileInfo fileInfo : mFiles) {
             ScrollableImagePreviewView.PreviewType previewType =
-                    getPreviewType(fileInfo.getMimeType());
+                    getPreviewType(mTypeClassifier, fileInfo.getMimeType());
             allImages = allImages && previewType == ScrollableImagePreviewView.PreviewType.Image;
             allVideos = allVideos && previewType == ScrollableImagePreviewView.PreviewType.Video;
         }
@@ -179,15 +179,5 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
             updateHeadline(contentPreview);
         });
         includeText.setVisibility(View.VISIBLE);
-    }
-
-    private ScrollableImagePreviewView.PreviewType getPreviewType(String mimeType) {
-        if (mTypeClassifier.isImageType(mimeType)) {
-            return ScrollableImagePreviewView.PreviewType.Image;
-        }
-        if (mTypeClassifier.isVideoType(mimeType)) {
-            return ScrollableImagePreviewView.PreviewType.Video;
-        }
-        return ScrollableImagePreviewView.PreviewType.File;
     }
 }
