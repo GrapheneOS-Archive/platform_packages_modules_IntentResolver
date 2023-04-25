@@ -32,8 +32,8 @@
         android:orientation="horizontal"
         android:gravity="center_horizontal"
         android:layout_marginBottom="@dimen/chooser_view_spacing"
-        android:paddingStart="@dimen/chooser_edge_margin_normal_half"
-        android:paddingEnd="@dimen/chooser_edge_margin_normal_half"
+        android:layout_marginHorizontal="@dimen/chooser_edge_margin_normal"
+        android:paddingHorizontal="@dimen/chooser_edge_margin_normal_half"
         android:background="@drawable/chooser_content_preview_rounded">
 
         <com.android.intentresolver.widget.RoundedRectImageView
