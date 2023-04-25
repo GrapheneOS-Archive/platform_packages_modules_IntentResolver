@@ -28,6 +28,7 @@
       android:layout_height="wrap_content"
       android:gravity="center"
       android:layout_gravity="center"
+      android:textColor="?androidprv:attr/materialColorOnSurfaceVariant"
       android:visibility="gone" />
 </LinearLayout>
 
