@@ -25,7 +25,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingBottom="@dimen/chooser_view_spacing"
-    android:background="?android:attr/colorBackground">
+    android:background="?androidprv:attr/materialColorSurfaceContainer">
 
     <include layout="@layout/chooser_headline_row"/>
 
@@ -59,6 +59,9 @@
             android:gravity="start|top"
             android:singleLine="true"
             android:textStyle="bold"
+            android:textColor="?androidprv:attr/materialColorOnSurface"
+            android:textSize="12sp"
+            android:lineHeight="16sp"
             android:textAppearance="@style/TextAppearance.ChooserDefault"/>
 
         <TextView
@@ -70,6 +73,9 @@
             android:layout_alignWithParentIfMissing="true"
             android:gravity="start|top"
             android:singleLine="true"
+            android:textColor="?androidprv:attr/materialColorOnSurfaceVariant"
+            android:textSize="12sp"
+            android:lineHeight="16sp"
             android:textAppearance="@style/TextAppearance.ChooserDefault"/>
     </RelativeLayout>
 
