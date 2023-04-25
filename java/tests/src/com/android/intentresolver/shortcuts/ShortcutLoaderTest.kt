@@ -26,7 +26,9 @@ import android.content.pm.PackageManager.ApplicationInfoFlags
 import android.content.pm.ShortcutManager
 import android.os.UserHandle
 import android.os.UserManager
+import androidx.lifecycle.Lifecycle
 import androidx.test.filters.SmallTest
+import com.android.intentresolver.TestLifecycleOwner
 import com.android.intentresolver.any
 import com.android.intentresolver.argumentCaptor
 import com.android.intentresolver.capture
@@ -36,19 +38,27 @@ import com.android.intentresolver.createShareShortcutInfo
 import com.android.intentresolver.createShortcutInfo
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.never
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import java.util.concurrent.Executor
 import java.util.function.Consumer
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @SmallTest
 class ShortcutLoaderTest {
     private val appInfo = ApplicationInfo().apply {
@@ -68,7 +78,9 @@ class ShortcutLoaderTest {
         whenever(createContextAsUser(any(), anyInt())).thenReturn(this)
         whenever(getSystemService(Context.USER_SERVICE)).thenReturn(userManager)
     }
-    private val executor = ImmediateExecutor()
+    private val scheduler = TestCoroutineScheduler()
+    private val dispatcher = UnconfinedTestDispatcher(scheduler)
+    private val lifecycleOwner = TestLifecycleOwner()
     private val intentFilter = mock<IntentFilter>()
     private val appPredictor = mock<ShortcutLoader.AppPredictorProxy>()
     private val callback = mock<Consumer<ShortcutLoader.Result>>()
@@ -79,20 +91,32 @@ class ShortcutLoaderTest {
     private val appTargets = arrayOf(appTarget)
     private val matchingShortcutInfo = createShortcutInfo("id-0", componentName, 1)
 
+    @Before
+    fun setup() {
+        Dispatchers.setMain(dispatcher)
+        lifecycleOwner.state = Lifecycle.State.CREATED
+    }
+
+    @After
+    fun cleanup() {
+        lifecycleOwner.state = Lifecycle.State.DESTROYED
+        Dispatchers.resetMain()
+    }
+
     @Test
-    fun test_queryShortcuts_result_consistency_with_AppPredictor() {
+    fun test_loadShortcutsWithAppPredictor_resultIntegrity() {
         val testSubject = ShortcutLoader(
             context,
+            lifecycleOwner.lifecycle,
             appPredictor,
             UserHandle.of(0),
             true,
             intentFilter,
-            executor,
-            executor,
+            dispatcher,
             callback
         )
 
-        testSubject.queryShortcuts(appTargets)
+        testSubject.updateAppTargets(appTargets)
 
         val matchingAppTarget = createAppTarget(matchingShortcutInfo)
         val shortcuts = listOf(
@@ -130,7 +154,7 @@ class ShortcutLoaderTest {
     }
 
     @Test
-    fun test_queryShortcuts_result_consistency_with_ShortcutManager() {
+    fun test_loadShortcutsWithShortcutManager_resultIntegrity() {
         val shortcutManagerResult = listOf(
             ShortcutManager.ShareShortcutInfo(matchingShortcutInfo, componentName),
             // mismatching shortcut
@@ -142,16 +166,16 @@ class ShortcutLoaderTest {
         whenever(context.getSystemService(Context.SHORTCUT_SERVICE)).thenReturn(shortcutManager)
         val testSubject = ShortcutLoader(
             context,
+            lifecycleOwner.lifecycle,
             null,
             UserHandle.of(0),
             true,
             intentFilter,
-            executor,
-            executor,
+            dispatcher,
             callback
         )
 
-        testSubject.queryShortcuts(appTargets)
+        testSubject.updateAppTargets(appTargets)
 
         val resultCaptor = argumentCaptor<ShortcutLoader.Result>()
         verify(callback, times(1)).accept(capture(resultCaptor))
@@ -175,7 +199,7 @@ class ShortcutLoaderTest {
     }
 
     @Test
-    fun test_queryShortcuts_falls_back_to_ShortcutManager_on_empty_reply() {
+    fun test_appPredictorReturnsEmptyList_fallbackToShortcutManager() {
         val shortcutManagerResult = listOf(
             ShortcutManager.ShareShortcutInfo(matchingShortcutInfo, componentName),
             // mismatching shortcut
@@ -187,16 +211,16 @@ class ShortcutLoaderTest {
         whenever(context.getSystemService(Context.SHORTCUT_SERVICE)).thenReturn(shortcutManager)
         val testSubject = ShortcutLoader(
             context,
+            lifecycleOwner.lifecycle,
             appPredictor,
             UserHandle.of(0),
             true,
             intentFilter,
-            executor,
-            executor,
+            dispatcher,
             callback
         )
 
-        testSubject.queryShortcuts(appTargets)
+        testSubject.updateAppTargets(appTargets)
 
         verify(appPredictor, times(1)).requestPredictionUpdate()
         val appPredictorCallbackCaptor = argumentCaptor<AppPredictor.Callback>()
@@ -226,7 +250,7 @@ class ShortcutLoaderTest {
     }
 
     @Test
-    fun test_queryShortcuts_onAppPredictorFailure_fallbackToShortcutManager() {
+    fun test_appPredictor_requestPredictionUpdateFailure_fallbackToShortcutManager() {
         val shortcutManagerResult = listOf(
             ShortcutManager.ShareShortcutInfo(matchingShortcutInfo, componentName),
             // mismatching shortcut
@@ -240,16 +264,16 @@ class ShortcutLoaderTest {
             .thenThrow(IllegalStateException("Test exception"))
         val testSubject = ShortcutLoader(
             context,
+            lifecycleOwner.lifecycle,
             appPredictor,
             UserHandle.of(0),
             true,
             intentFilter,
-            executor,
-            executor,
+            dispatcher,
             callback
         )
 
-        testSubject.queryShortcuts(appTargets)
+        testSubject.updateAppTargets(appTargets)
 
         verify(appPredictor, times(1)).requestPredictionUpdate()
 
@@ -275,32 +299,105 @@ class ShortcutLoaderTest {
     }
 
     @Test
-    fun test_queryShortcuts_do_not_call_services_for_not_running_work_profile() {
+    fun test_ShortcutLoader_shortcutsRequestedIndependentlyFromAppTargets() {
+        ShortcutLoader(
+            context,
+            lifecycleOwner.lifecycle,
+            appPredictor,
+            UserHandle.of(0),
+            true,
+            intentFilter,
+            dispatcher,
+            callback
+        )
+
+        verify(appPredictor, times(1)).requestPredictionUpdate()
+        verify(callback, never()).accept(any())
+    }
+
+    @Test
+    fun test_ShortcutLoader_noResultsWithoutAppTargets() {
+        val shortcutManagerResult = listOf(
+            ShortcutManager.ShareShortcutInfo(matchingShortcutInfo, componentName),
+            // mismatching shortcut
+            createShareShortcutInfo("id-1", ComponentName("mismatching.pkg", "Class"), 1)
+        )
+        val shortcutManager = mock<ShortcutManager> {
+            whenever(getShareTargets(intentFilter)).thenReturn(shortcutManagerResult)
+        }
+        whenever(context.getSystemService(Context.SHORTCUT_SERVICE)).thenReturn(shortcutManager)
+        val testSubject = ShortcutLoader(
+            context,
+            lifecycleOwner.lifecycle,
+            null,
+            UserHandle.of(0),
+            true,
+            intentFilter,
+            dispatcher,
+            callback
+        )
+
+        verify(shortcutManager, times(1)).getShareTargets(any())
+        verify(callback, never()).accept(any())
+
+        testSubject.reset()
+
+        verify(shortcutManager, times(2)).getShareTargets(any())
+        verify(callback, never()).accept(any())
+
+        testSubject.updateAppTargets(appTargets)
+
+        verify(shortcutManager, times(2)).getShareTargets(any())
+        verify(callback, times(1)).accept(any())
+    }
+
+    @Test
+    fun test_OnLifecycleDestroyed_unsubscribeFromAppPredictor() {
+        ShortcutLoader(
+            context,
+            lifecycleOwner.lifecycle,
+            appPredictor,
+            UserHandle.of(0),
+            true,
+            intentFilter,
+            dispatcher,
+            callback
+        )
+
+        verify(appPredictor, never()).unregisterPredictionUpdates(any())
+
+        lifecycleOwner.state = Lifecycle.State.DESTROYED
+
+        verify(appPredictor, times(1)).unregisterPredictionUpdates(any())
+    }
+
+    @Test
+    fun test_workProfileNotRunning_doNotCallServices() {
         testDisabledWorkProfileDoNotCallSystem(isUserRunning = false)
     }
 
     @Test
-    fun test_queryShortcuts_do_not_call_services_for_locked_work_profile() {
+    fun test_workProfileLocked_doNotCallServices() {
         testDisabledWorkProfileDoNotCallSystem(isUserUnlocked = false)
     }
 
     @Test
-    fun test_queryShortcuts_do_not_call_services_if_quite_mode_is_enabled_for_work_profile() {
+    fun test_workProfileQuiteModeEnabled_doNotCallServices() {
         testDisabledWorkProfileDoNotCallSystem(isQuietModeEnabled = true)
     }
 
     @Test
-    fun test_queryShortcuts_call_services_for_not_running_main_profile() {
+    fun test_mainProfileNotRunning_callServicesAnyway() {
         testAlwaysCallSystemForMainProfile(isUserRunning = false)
     }
 
     @Test
-    fun test_queryShortcuts_call_services_for_locked_main_profile() {
+    fun test_mainProfileLocked_callServicesAnyway() {
         testAlwaysCallSystemForMainProfile(isUserUnlocked = false)
     }
 
     @Test
-    fun test_queryShortcuts_call_services_if_quite_mode_is_enabled_for_main_profile() {
+    fun test_mainProfileQuiteModeEnabled_callServicesAnyway() {
         testAlwaysCallSystemForMainProfile(isQuietModeEnabled = true)
     }
 
@@ -320,16 +417,16 @@ class ShortcutLoaderTest {
         val callback = mock<Consumer<ShortcutLoader.Result>>()
         val testSubject = ShortcutLoader(
             context,
+            lifecycleOwner.lifecycle,
             appPredictor,
             userHandle,
             false,
             intentFilter,
-            executor,
-            executor,
+            dispatcher,
             callback
         )
 
-        testSubject.queryShortcuts(arrayOf<DisplayResolveInfo>(mock()))
+        testSubject.updateAppTargets(arrayOf<DisplayResolveInfo>(mock()))
 
         verify(appPredictor, never()).requestPredictionUpdate()
     }
@@ -350,23 +447,17 @@ class ShortcutLoaderTest {
         val callback = mock<Consumer<ShortcutLoader.Result>>()
         val testSubject = ShortcutLoader(
             context,
+            lifecycleOwner.lifecycle,
             appPredictor,
             userHandle,
             true,
             intentFilter,
-            executor,
-            executor,
+            dispatcher,
             callback
         )
 
-        testSubject.queryShortcuts(arrayOf<DisplayResolveInfo>(mock()))
+        testSubject.updateAppTargets(arrayOf<DisplayResolveInfo>(mock()))
 
         verify(appPredictor, times(1)).requestPredictionUpdate()
-    }
-}
-
-private class ImmediateExecutor : Executor {
-    override fun execute(r: Runnable) {
-        r.run()
     }
 }
