@@ -36,14 +36,13 @@
         android:elevation="0dp"
         android:background="@drawable/bottomsheet_background">
 
-        <ImageView
+        <View
             android:id="@androidprv:id/drag"
             android:layout_width="64dp"
             android:layout_height="4dp"
-            android:src="@drawable/ic_drag_handle"
+            android:background="@drawable/ic_drag_handle"
             android:layout_marginTop="@dimen/chooser_edge_margin_thin"
             android:layout_marginBottom="@dimen/chooser_edge_margin_thin"
-            android:tint="?androidprv:attr/materialColorSurfaceContainerHigh"
             android:layout_centerHorizontal="true"
             android:layout_alignParentTop="true" />
 
@@ -72,7 +71,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:background="?android:attr/colorBackground">
+        android:background="?androidprv:attr/materialColorSurfaceContainer">
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
