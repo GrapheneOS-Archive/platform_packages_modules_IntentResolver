@@ -1342,7 +1342,7 @@ public class UnbundledChooserActivityTest {
         // verify that ShortcutLoader was queried
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
+        verify(shortcutLoaders.get(0).first, times(1)).updateAppTargets(appTargets.capture());
 
         // send shortcuts
         assertThat(
@@ -1423,7 +1423,7 @@ public class UnbundledChooserActivityTest {
         // verify that ShortcutLoader was queried
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
+        verify(shortcutLoaders.get(0).first, times(1)).updateAppTargets(appTargets.capture());
 
         // send shortcuts
         assertThat(
@@ -1508,7 +1508,7 @@ public class UnbundledChooserActivityTest {
         // verify that ShortcutLoader was queried
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
+        verify(shortcutLoaders.get(0).first, times(1)).updateAppTargets(appTargets.capture());
 
         // send shortcuts
         assertThat(
@@ -1583,7 +1583,7 @@ public class UnbundledChooserActivityTest {
         // verify that ShortcutLoader was queried
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
+        verify(shortcutLoaders.get(0).first, times(1)).updateAppTargets(appTargets.capture());
 
         // send shortcuts
         assertThat(
@@ -1675,7 +1675,7 @@ public class UnbundledChooserActivityTest {
         // verify that ShortcutLoader was queried
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
+        verify(shortcutLoaders.get(0).first, times(1)).updateAppTargets(appTargets.capture());
 
         // send shortcuts
         assertThat(
@@ -2174,7 +2174,7 @@ public class UnbundledChooserActivityTest {
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
         verify(shortcutLoaders.get(0).first, times(1))
-                .queryShortcuts(appTargets.capture());
+                .updateAppTargets(appTargets.capture());
 
         // send shortcuts
         assertThat(
@@ -2255,7 +2255,7 @@ public class UnbundledChooserActivityTest {
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
         verify(shortcutLoaders.get(0).first, times(1))
-                .queryShortcuts(appTargets.capture());
+                .updateAppTargets(appTargets.capture());
 
         // send shortcuts
         List<ChooserTarget> serviceTargets = createDirectShareTargets(
@@ -2550,12 +2550,12 @@ public class UnbundledChooserActivityTest {
                 .perform(swipeUp());
         waitForIdle();
 
-        verify(personalProfileShortcutLoader, times(1)).queryShortcuts(any());
+        verify(personalProfileShortcutLoader, times(1)).updateAppTargets(any());
 
         onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
-        verify(workProfileShortcutLoader, times(1)).queryShortcuts(any());
+        verify(workProfileShortcutLoader, times(1)).updateAppTargets(any());
     }
 
     @Test
