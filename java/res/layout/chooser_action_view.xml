@@ -15,13 +15,14 @@
   -->
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
     android:gravity="center"
     android:drawablePadding="8dp"
-    android:textColor="?android:attr/textColorPrimary"
+    android:textColor="?androidprv:attr/materialColorOnSurface"
     android:textSize="12sp"
     android:maxWidth="@dimen/chooser_action_max_width"
     android:clickable="true"
-    android:drawableTint="?android:attr/textColorPrimary"
+    android:drawableTint="?androidprv:attr/materialColorOnSurfaceVariant"
     android:drawableTintMode="src_in"
     android:ellipsize="end"
     android:maxLines="2"

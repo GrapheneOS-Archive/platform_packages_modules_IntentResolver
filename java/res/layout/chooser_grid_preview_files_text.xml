@@ -19,10 +19,11 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="?android:attr/colorBackground">
+    android:background="?androidprv:attr/materialColorSurfaceContainer">
 
     <include layout="@layout/chooser_headline_row" />
 
