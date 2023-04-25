@@ -35,6 +35,7 @@ import android.widget.TextView;
 
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
+import com.android.intentresolver.widget.ScrollableImagePreviewView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,5 +122,19 @@ abstract class ContentPreviewUi {
                 modifyShareView.setOnClickListener(view -> modifyShareAction.getOnClicked().run());
             }
         }
+    }
+
+    protected static ScrollableImagePreviewView.PreviewType getPreviewType(
+            MimeTypeClassifier typeClassifier, String mimeType) {
+        if (mimeType == null) {
+            return ScrollableImagePreviewView.PreviewType.File;
+        }
+        if (typeClassifier.isImageType(mimeType)) {
+            return ScrollableImagePreviewView.PreviewType.Image;
+        }
+        if (typeClassifier.isVideoType(mimeType)) {
+            return ScrollableImagePreviewView.PreviewType.Video;
+        }
+        return ScrollableImagePreviewView.PreviewType.File;
     }
 }
