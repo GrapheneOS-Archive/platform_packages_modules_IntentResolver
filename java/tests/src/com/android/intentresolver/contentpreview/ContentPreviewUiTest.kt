@@ -20,6 +20,7 @@ import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.android.intentresolver.widget.ActionRow
+import com.android.intentresolver.widget.ScrollableImagePreviewView.PreviewType
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -42,6 +43,23 @@ class ContentPreviewUiTest {
         ): List<ActionRow.Action> {
             return createActions(system, custom)
         }
+    }
+
+    @Test
+    fun testPreviewTypes() {
+        val typeClassifier = object : MimeTypeClassifier {
+            override fun isImageType(type: String?) = (type == "image")
+            override fun isVideoType(type: String?) = (type == "video")
+        }
+
+        assertThat(ContentPreviewUi.getPreviewType(typeClassifier, "image"))
+            .isEqualTo(PreviewType.Image)
+        assertThat(ContentPreviewUi.getPreviewType(typeClassifier, "video"))
+            .isEqualTo(PreviewType.Video)
+        assertThat(ContentPreviewUi.getPreviewType(typeClassifier, "other"))
+            .isEqualTo(PreviewType.File)
+        assertThat(ContentPreviewUi.getPreviewType(typeClassifier, null))
+            .isEqualTo(PreviewType.File)
     }
 
     @Test
