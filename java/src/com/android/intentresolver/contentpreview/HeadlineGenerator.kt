@@ -16,8 +16,6 @@
 
 package com.android.intentresolver.contentpreview
 
-private const val PLURALS_COUNT = "count"
-
 /**
  * HeadlineGenerator generates the text to show at the top of the sharesheet as a brief
  * description of the content being shared.
@@ -35,5 +33,5 @@ interface HeadlineGenerator {
 
     fun getVideosHeadline(count: Int): String
 
-    fun getItemsHeadline(count: Int): String
+    fun getFilesHeadline(count: Int): String
 }

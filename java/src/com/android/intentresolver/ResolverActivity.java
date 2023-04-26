@@ -871,7 +871,8 @@ public class ResolverActivity extends FragmentActivity implements
                         getReferrerPackageName(),
                         null,
                         null,
-                        getResolverRankerServiceUserHandleList(userHandle));
+                        getResolverRankerServiceUserHandleList(userHandle),
+                        null);
         return new ResolverListController(
                 this,
                 mPm,
@@ -1002,21 +1003,21 @@ public class ResolverActivity extends FragmentActivity implements
         return new CrossProfileIntentsChecker(getContentResolver());
     }
 
-    // @NonFinalForTesting
-    @VisibleForTesting
     protected WorkProfileAvailabilityManager createWorkProfileAvailabilityManager() {
         final UserHandle workUser = getWorkProfileUserHandle();
 
         return new WorkProfileAvailabilityManager(
                 getSystemService(UserManager.class),
                 workUser,
-                () -> {
-                    if (mMultiProfilePagerAdapter.getCurrentUserHandle().equals(workUser)) {
-                        mMultiProfilePagerAdapter.rebuildActiveTab(true);
-                    } else {
-                        mMultiProfilePagerAdapter.clearInactiveProfileCache();
-                    }
-                });
+                this::onWorkProfileStatusUpdated);
+    }
+
+    protected void onWorkProfileStatusUpdated() {
+        if (mMultiProfilePagerAdapter.getCurrentUserHandle().equals(getWorkProfileUserHandle())) {
+            mMultiProfilePagerAdapter.rebuildActiveTab(true);
+        } else {
+            mMultiProfilePagerAdapter.clearInactiveProfileCache();
+        }
     }
 
     // @NonFinalForTesting

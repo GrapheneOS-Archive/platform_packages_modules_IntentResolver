@@ -24,7 +24,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="?android:attr/colorBackground">
+    android:background="?androidprv:attr/materialColorSurfaceContainer">
 
   <include layout="@layout/chooser_headline_row" />
 
@@ -32,7 +32,6 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="center"
-      android:orientation="horizontal"
       android:layout_marginLeft="@dimen/chooser_edge_margin_normal"
       android:layout_marginRight="@dimen/chooser_edge_margin_normal"
       android:layout_marginBottom="@dimen/chooser_view_spacing"
@@ -64,7 +63,7 @@
         android:textAlignment="gravity"
         android:textDirection="locale"
         android:textStyle="bold"
-        android:textColor="?android:attr/textColorPrimary"
+        android:textColor="?androidprv:attr/materialColorOnSurface"
         android:fontFamily="@androidprv:string/config_headlineFontFamily"/>
 
     <TextView
@@ -76,7 +75,7 @@
         android:layout_alignWithParentIfMissing="true"
         android:ellipsize="end"
         android:fontFamily="@androidprv:string/config_headlineFontFamily"
-        android:textColor="?android:attr/textColorPrimary"
+        android:textColor="?androidprv:attr/materialColorOnSurfaceVariant"
         android:textAlignment="gravity"
         android:textDirection="locale"
         android:maxLines="@integer/text_preview_lines"

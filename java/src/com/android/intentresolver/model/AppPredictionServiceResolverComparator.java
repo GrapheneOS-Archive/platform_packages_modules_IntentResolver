@@ -72,8 +72,9 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
             String referrerPackage,
             AppPredictor appPredictor,
             UserHandle user,
-            ChooserActivityLogger chooserActivityLogger) {
-        super(context, intent, Lists.newArrayList(user));
+            ChooserActivityLogger chooserActivityLogger,
+            @Nullable ComponentName promoteToFirst) {
+        super(context, intent, Lists.newArrayList(user), promoteToFirst);
         mContext = context;
         mIntent = intent;
         mAppPredictor = appPredictor;
@@ -116,7 +117,8 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
                                         mReferrerPackage,
                                         () -> mHandler.sendEmptyMessage(RANKER_SERVICE_RESULT),
                                         getChooserActivityLogger(),
-                                        mUser);
+                                        mUser,
+                                        mPromoteToFirst);
                         mComparatorModel = buildUpdatedModel();
                         mResolverRankerService.compute(targets);
                     } else {

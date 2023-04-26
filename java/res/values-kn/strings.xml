@@ -60,8 +60,18 @@
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ಚಿತ್ರವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}one{# ಚಿತ್ರಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}other{# ಚಿತ್ರಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{ವೀಡಿಯೊವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}one{# ವೀಡಿಯೊಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}other{# ವೀಡಿಯೊಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}}"</string>
     <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# ಐಟಂ ಅನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}one{# ಐಟಂಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}other{# ಐಟಂಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"ಪಠ್ಯದೊಂದಿಗೆ ಚಿತ್ರವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"ಲಿಂಕ್‌ನೊಂದಿಗೆ ಚಿತ್ರವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ"</string>
+    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
+    <skip />
+    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ಹಂಚಿಕೊಳ್ಳಲು ಶಿಫಾರಸು ಮಾಡಲಾದವರು ಯಾರೂ ಇಲ್ಲ"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"ಆ್ಯಪ್‌ಗಳ ಪಟ್ಟಿ"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ಈ ಆ್ಯಪ್‌ಗೆ ರೆಕಾರ್ಡ್ ಅನುಮತಿಯನ್ನು ನೀಡಲಾಗಿಲ್ಲ, ಆದರೆ ಈ USB ಸಾಧನದ ಮೂಲಕ ಆಡಿಯೊವನ್ನು ಸೆರೆಹಿಡಿಯಬಲ್ಲದು."</string>
@@ -74,8 +84,10 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ಕೆಲಸಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಆ್ಯಪ್‌ಗಳ ಈ ವಿಷಯವನ್ನು ತೆರೆಯಲಾಗುವುದಿಲ್ಲ"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"ವೈಯಕ್ತಿಕ ಆ್ಯಪ್‌ಗಳ ಮೂಲಕ ಈ ವಿಷಯವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುವುದಿಲ್ಲ"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"ವೈಯಕ್ತಿಕ ಆ್ಯಪ್‌ಗಳ ಮೂಲಕ ಈ ವಿಷಯವನ್ನು ತೆರೆಯಲಾಗುವುದಿಲ್ಲ"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"ಕೆಲಸಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಪ್ರೊಫೈಲ್ ಅನ್ನು ವಿರಾಮಗೊಳಿಸಲಾಗಿದೆ"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"ಆನ್‌‌‌ ಮಾಡಲು ಟ್ಯಾಪ್‌ ಮಾಡಿ"</string>
+    <!-- no translation found for resolver_turn_on_work_apps (7115260573975624516) -->
+    <skip />
+    <!-- no translation found for resolver_switch_on_work (8678893259344318807) -->
+    <skip />
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"ಯಾವುದೇ ಕೆಲಸಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಆ್ಯಪ್‌ಗಳಿಲ್ಲ"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"ಯಾವುದೇ ವೈಯಕ್ತಿಕ ಆ್ಯಪ್‌ಗಳಿಲ್ಲ"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ <xliff:g id="APP">%s</xliff:g> ಅನ್ನು ತೆರೆಯಬೇಕೆ?"</string>

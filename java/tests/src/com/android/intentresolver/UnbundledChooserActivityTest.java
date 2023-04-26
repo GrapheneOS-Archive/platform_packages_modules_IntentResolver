@@ -1203,12 +1203,9 @@ public class UnbundledChooserActivityTest {
         setupResolverControllers(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(withText("app.pdf")));
-        onView(withId(com.android.internal.R.id.content_preview_file_icon))
-                .check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(withText("app.pdf")));
+        onView(withId(R.id.content_preview_file_icon)).check(matches(isDisplayed()));
     }
 
 
@@ -1228,12 +1225,11 @@ public class UnbundledChooserActivityTest {
         setupResolverControllers(resolvedComponentInfos);
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(withText("app.pdf + 2 files")));
-        onView(withId(com.android.internal.R.id.content_preview_file_icon))
-                .check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(withText("app.pdf")));
+        onView(withId(R.id.content_preview_more_files)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_more_files)).check(matches(withText("+ 2 more files")));
+        onView(withId(R.id.content_preview_file_icon)).check(matches(isDisplayed()));
     }
 
     @Test
@@ -1252,12 +1248,9 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(withText("app.pdf")));
-        onView(withId(com.android.internal.R.id.content_preview_file_icon))
-                .check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(withText("app.pdf")));
+        onView(withId(R.id.content_preview_file_icon)).check(matches(isDisplayed()));
     }
 
     @Test
@@ -1283,12 +1276,11 @@ public class UnbundledChooserActivityTest {
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.content_preview_filename))
-                .check(matches(withText("app.pdf + 1 file")));
-        onView(withId(com.android.internal.R.id.content_preview_file_icon))
-                .check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(withText("app.pdf")));
+        onView(withId(R.id.content_preview_more_files)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_more_files)).check(matches(withText("+ 1 more file")));
+        onView(withId(R.id.content_preview_file_icon)).check(matches(isDisplayed()));
     }
 
     @Test
@@ -1350,7 +1342,7 @@ public class UnbundledChooserActivityTest {
         // verify that ShortcutLoader was queried
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
+        verify(shortcutLoaders.get(0).first, times(1)).updateAppTargets(appTargets.capture());
 
         // send shortcuts
         assertThat(
@@ -1431,7 +1423,7 @@ public class UnbundledChooserActivityTest {
         // verify that ShortcutLoader was queried
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
+        verify(shortcutLoaders.get(0).first, times(1)).updateAppTargets(appTargets.capture());
 
         // send shortcuts
         assertThat(
@@ -1516,7 +1508,7 @@ public class UnbundledChooserActivityTest {
         // verify that ShortcutLoader was queried
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
+        verify(shortcutLoaders.get(0).first, times(1)).updateAppTargets(appTargets.capture());
 
         // send shortcuts
         assertThat(
@@ -1591,7 +1583,7 @@ public class UnbundledChooserActivityTest {
         // verify that ShortcutLoader was queried
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
+        verify(shortcutLoaders.get(0).first, times(1)).updateAppTargets(appTargets.capture());
 
         // send shortcuts
         assertThat(
@@ -1683,7 +1675,7 @@ public class UnbundledChooserActivityTest {
         // verify that ShortcutLoader was queried
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
-        verify(shortcutLoaders.get(0).first, times(1)).queryShortcuts(appTargets.capture());
+        verify(shortcutLoaders.get(0).first, times(1)).updateAppTargets(appTargets.capture());
 
         // send shortcuts
         assertThat(
@@ -2182,7 +2174,7 @@ public class UnbundledChooserActivityTest {
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
         verify(shortcutLoaders.get(0).first, times(1))
-                .queryShortcuts(appTargets.capture());
+                .updateAppTargets(appTargets.capture());
 
         // send shortcuts
         assertThat(
@@ -2263,7 +2255,7 @@ public class UnbundledChooserActivityTest {
         ArgumentCaptor<DisplayResolveInfo[]> appTargets =
                 ArgumentCaptor.forClass(DisplayResolveInfo[].class);
         verify(shortcutLoaders.get(0).first, times(1))
-                .queryShortcuts(appTargets.capture());
+                .updateAppTargets(appTargets.capture());
 
         // send shortcuts
         List<ChooserTarget> serviceTargets = createDirectShareTargets(
@@ -2558,12 +2550,12 @@ public class UnbundledChooserActivityTest {
                 .perform(swipeUp());
         waitForIdle();
 
-        verify(personalProfileShortcutLoader, times(1)).queryShortcuts(any());
+        verify(personalProfileShortcutLoader, times(1)).updateAppTargets(any());
 
         onView(withText(R.string.resolver_work_tab)).perform(click());
         waitForIdle();
 
-        verify(workProfileShortcutLoader, times(1)).queryShortcuts(any());
+        verify(workProfileShortcutLoader, times(1)).updateAppTargets(any());
     }
 
     @Test

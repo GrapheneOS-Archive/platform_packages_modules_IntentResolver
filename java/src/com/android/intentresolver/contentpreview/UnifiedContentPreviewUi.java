@@ -105,7 +105,7 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
         boolean allVideos = !mFiles.isEmpty();
         for (FileInfo fileInfo : mFiles) {
             ScrollableImagePreviewView.PreviewType previewType =
-                    getPreviewType(fileInfo.getMimeType());
+                    getPreviewType(mTypeClassifier, fileInfo.getMimeType());
             allImages = allImages && previewType == ScrollableImagePreviewView.PreviewType.Image;
             allVideos = allVideos && previewType == ScrollableImagePreviewView.PreviewType.Video;
 
@@ -136,35 +136,21 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
                     contentPreviewLayout, mHeadlineGenerator.getVideosHeadline(mFiles.size()));
         } else {
             displayHeadline(
-                    contentPreviewLayout, mHeadlineGenerator.getItemsHeadline(mFiles.size()));
+                    contentPreviewLayout, mHeadlineGenerator.getFilesHeadline(mFiles.size()));
         }
 
         return contentPreviewLayout;
     }
 
     private List<ActionRow.Action> createImagePreviewActions() {
-        ArrayList<ActionRow.Action> actions = new ArrayList<>(2);
+        ArrayList<ActionRow.Action> actions = new ArrayList<>(1);
         //TODO: add copy action;
-        ActionRow.Action action = mActionFactory.createNearbyButton();
-        if (action != null) {
-            actions.add(action);
-        }
         if (mFiles.size() == 1 && mTypeClassifier.isImageType(mFiles.get(0).getMimeType())) {
-            action = mActionFactory.createEditButton();
+            ActionRow.Action action = mActionFactory.createEditButton();
             if (action != null) {
                 actions.add(action);
             }
         }
         return actions;
-    }
-
-    private ScrollableImagePreviewView.PreviewType getPreviewType(String mimeType) {
-        if (mTypeClassifier.isImageType(mimeType)) {
-            return ScrollableImagePreviewView.PreviewType.Image;
-        }
-        if (mTypeClassifier.isVideoType(mimeType)) {
-            return ScrollableImagePreviewView.PreviewType.Video;
-        }
-        return ScrollableImagePreviewView.PreviewType.File;
     }
 }

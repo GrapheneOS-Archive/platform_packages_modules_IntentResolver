@@ -88,6 +88,7 @@ import com.android.intentresolver.contentpreview.ImageLoader;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.flags.FeatureFlagRepositoryFactory;
 import com.android.intentresolver.grid.ChooserGridAdapter;
+import com.android.intentresolver.measurements.Tracer;
 import com.android.intentresolver.model.AbstractResolverComparator;
 import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
@@ -227,6 +228,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Tracer.INSTANCE.markLaunched();
         final long intentReceivedTime = System.currentTimeMillis();
         mLatencyTracker.onActionStart(ACTION_LOAD_SHARE_SHEET);
 
@@ -240,7 +242,6 @@ public class ChooserActivity extends ResolverActivity implements
                     getIntent(),
                     getReferrerPackageName(),
                     getReferrer(),
-                    mIntegratedDeviceComponents,
                     mFeatureFlagRepository);
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "Caller provided invalid Chooser request parameters", e);
@@ -363,7 +364,10 @@ public class ChooserActivity extends ResolverActivity implements
     private void createProfileRecords(
             AppPredictorFactory factory, IntentFilter targetIntentFilter) {
         UserHandle mainUserHandle = getPersonalProfileUserHandle();
-        createProfileRecord(mainUserHandle, targetIntentFilter, factory);
+        ProfileRecord record = createProfileRecord(mainUserHandle, targetIntentFilter, factory);
+        if (record.shortcutLoader == null) {
+            Tracer.INSTANCE.endLaunchToShortcutTrace();
+        }
 
         UserHandle workUserHandle = getWorkProfileUserHandle();
         if (workUserHandle != null) {
@@ -371,7 +375,7 @@ public class ChooserActivity extends ResolverActivity implements
         }
     }
 
-    private void createProfileRecord(
+    private ProfileRecord createProfileRecord(
             UserHandle userHandle, IntentFilter targetIntentFilter, AppPredictorFactory factory) {
         AppPredictor appPredictor = factory.create(userHandle);
         ShortcutLoader shortcutLoader = ActivityManager.isLowRamDeviceStatic()
@@ -382,9 +386,9 @@ public class ChooserActivity extends ResolverActivity implements
                             userHandle,
                             targetIntentFilter,
                             shortcutsResult -> onShortcutsLoaded(userHandle, shortcutsResult));
-        mProfileRecords.put(
-                userHandle.getIdentifier(),
-                new ProfileRecord(appPredictor, shortcutLoader));
+        ProfileRecord record = new ProfileRecord(appPredictor, shortcutLoader);
+        mProfileRecords.put(userHandle.getIdentifier(), record);
+        return record;
     }
 
     @Nullable
@@ -401,6 +405,7 @@ public class ChooserActivity extends ResolverActivity implements
             Consumer<ShortcutLoader.Result> callback) {
         return new ShortcutLoader(
                 context,
+                getLifecycle(),
                 appPredictor,
                 userHandle,
                 targetIntentFilter,
@@ -581,14 +586,23 @@ public class ChooserActivity extends ResolverActivity implements
         // Refresh pinned items
         mPinnedSharedPrefs = getPinnedSharedPrefs(this);
         if (listAdapter == null) {
-            mChooserMultiProfilePagerAdapter.getActiveListAdapter().handlePackagesChanged();
+            handlePackageChangePerProfile(mChooserMultiProfilePagerAdapter.getActiveListAdapter());
             if (mChooserMultiProfilePagerAdapter.getCount() > 1) {
-                mChooserMultiProfilePagerAdapter.getInactiveListAdapter().handlePackagesChanged();
+                handlePackageChangePerProfile(
+                        mChooserMultiProfilePagerAdapter.getInactiveListAdapter());
             }
         } else {
-            listAdapter.handlePackagesChanged();
+            handlePackageChangePerProfile(listAdapter);
         }
         updateProfileViewButton();
+    }
+
+    private void handlePackageChangePerProfile(ResolverListAdapter adapter) {
+        ProfileRecord record = getProfileRecord(adapter.getUserHandle());
+        if (record != null && record.shortcutLoader != null) {
+            record.shortcutLoader.reset();
+        }
+        adapter.handlePackagesChanged();
     }
 
     @Override
@@ -1256,13 +1270,24 @@ public class ChooserActivity extends ResolverActivity implements
     }
 
     @Override
+    protected void onWorkProfileStatusUpdated() {
+        UserHandle workUser = getWorkProfileUserHandle();
+        ProfileRecord record = workUser == null ? null : getProfileRecord(workUser);
+        if (record != null && record.shortcutLoader != null) {
+            record.shortcutLoader.reset();
+        }
+        super.onWorkProfileStatusUpdated();
+    }
+
+    @Override
     @VisibleForTesting
     protected ChooserListController createListController(UserHandle userHandle) {
         AppPredictor appPredictor = getAppPredictor(userHandle);
         AbstractResolverComparator resolverComparator;
         if (appPredictor != null) {
             resolverComparator = new AppPredictionServiceResolverComparator(this, getTargetIntent(),
-                    getReferrerPackageName(), appPredictor, userHandle, getChooserActivityLogger());
+                    getReferrerPackageName(), appPredictor, userHandle, getChooserActivityLogger(),
+                    getIntegratedDeviceComponents().getNearbySharingComponent());
         } else {
             resolverComparator =
                     new ResolverRankerServiceResolverComparator(
@@ -1271,7 +1296,8 @@ public class ChooserActivity extends ResolverActivity implements
                             getReferrerPackageName(),
                             null,
                             getChooserActivityLogger(),
-                            getResolverRankerServiceUserHandleList(userHandle));
+                            getResolverRankerServiceUserHandleList(userHandle),
+                            getIntegratedDeviceComponents().getNearbySharingComponent());
         }
 
         return new ChooserListController(
@@ -1519,14 +1545,11 @@ public class ChooserActivity extends ResolverActivity implements
     private void maybeQueryAdditionalPostProcessingTargets(ChooserListAdapter chooserListAdapter) {
         UserHandle userHandle = chooserListAdapter.getUserHandle();
         ProfileRecord record = getProfileRecord(userHandle);
-        if (record == null) {
-            return;
-        }
-        if (record.shortcutLoader == null) {
+        if (record == null || record.shortcutLoader == null) {
             return;
         }
         record.loadingStartTime = SystemClock.elapsedRealtime();
-        record.shortcutLoader.queryShortcuts(chooserListAdapter.getDisplayResolveInfos());
+        record.shortcutLoader.updateAppTargets(chooserListAdapter.getDisplayResolveInfos());
     }
 
     @MainThread
@@ -1552,6 +1575,9 @@ public class ChooserActivity extends ResolverActivity implements
             adapter.completeServiceTargetLoading();
         }
 
+        if (mMultiProfilePagerAdapter.getActiveListAdapter() == adapter) {
+            Tracer.INSTANCE.endLaunchToShortcutTrace();
+        }
         logDirectShareTargetReceived(userHandle);
         sendVoiceChoicesIfNeeded();
         getChooserActivityLogger().logSharesheetDirectLoadComplete();
@@ -1882,9 +1908,6 @@ public class ChooserActivity extends ResolverActivity implements
         }
 
         public void destroy() {
-            if (shortcutLoader != null) {
-                shortcutLoader.destroy();
-            }
             if (appPredictor != null) {
                 appPredictor.destroy();
             }
