@@ -60,8 +60,18 @@
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Sharing image}other{Sharing # images}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Sharing video}other{Sharing # videos}}"</string>
     <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Sharing # item}other{Sharing # items}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"Sharing image with text"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"Sharing image with link"</string>
+    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
+    <skip />
+    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
+    <skip />
+    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
+    <skip />
+    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"No recommended people to share with"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Apps list"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"This app has not been granted record permission but could capture audio through this USB device."</string>
@@ -74,8 +84,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"This content can’t be opened with work apps"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"This content can’t be shared with personal apps"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"This content can’t be opened with personal apps"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Work profile is paused"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Tap to turn on"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Work apps are paused"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Unpause"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"No work apps"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"No personal apps"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Open <xliff:g id="APP">%s</xliff:g> in your personal profile?"</string>
