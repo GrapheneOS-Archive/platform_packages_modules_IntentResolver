@@ -98,9 +98,14 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
 
         final ActionRow actionRow =
                 contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
-        actionRow.setActions(createActions(
+        List<ActionRow.Action> actions = createActions(
                 createImagePreviewActions(),
-                mActionFactory.createCustomActions()));
+                mActionFactory.createCustomActions());
+        actionRow.setActions(actions);
+
+        if (actions.isEmpty()) {
+            contentPreviewLayout.findViewById(R.id.actions_top_divider).setVisibility(View.GONE);
+        }
 
         if (shouldShowPreview()) {
             mImageLoader.loadImage(mFiles.get(0).getPreviewUri(), bitmap -> {
