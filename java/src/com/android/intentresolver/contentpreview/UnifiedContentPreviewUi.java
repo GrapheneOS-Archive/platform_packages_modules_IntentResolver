@@ -85,10 +85,14 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
 
         final ActionRow actionRow =
                 contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
-        actionRow.setActions(
-                createActions(
-                        createImagePreviewActions(),
-                        mActionFactory.createCustomActions()));
+        List<ActionRow.Action> actions = createActions(
+                createImagePreviewActions(),
+                mActionFactory.createCustomActions());
+        actionRow.setActions(actions);
+        if (actions.isEmpty()) {
+            contentPreviewLayout.findViewById(R.id.actions_top_divider).setVisibility(View.GONE);
+        }
+
 
         if (mFiles.size() == 0) {
             Log.i(
