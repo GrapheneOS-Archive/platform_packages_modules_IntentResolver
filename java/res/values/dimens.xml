@@ -49,7 +49,6 @@
     <dimen name="resolver_empty_state_container_padding_top">48dp</dimen>
     <dimen name="resolver_empty_state_container_padding_bottom">8dp</dimen>
     <dimen name="resolver_profile_tab_margin">4dp</dimen>
-    <dimen name="chooser_preview_image_height_tall">192dp</dimen>
     <dimen name="chooser_action_view_icon_size">22dp</dimen>
     <dimen name="chooser_action_margin">0dp</dimen>
 
@@ -59,5 +58,7 @@
     <dimen name="chooser_view_spacing">8dp</dimen>
     <dimen name="chooser_action_max_width">120dp</dimen>
     <dimen name="width_text_image_preview_size">32dp</dimen>
+    <dimen name="chooser_preview_image_height_tall">64dp</dimen>
+    <dimen name="grid_padding_top">8dp</dimen>
     <!-- END SECTION -->
 </resources>
