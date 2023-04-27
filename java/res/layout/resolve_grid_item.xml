@@ -24,7 +24,7 @@
               android:layout_height="wrap_content"
               android:minHeight="100dp"
               android:gravity="center"
-              android:paddingTop="24dp"
+              android:paddingTop="@dimen/grid_padding_top"
               android:paddingBottom="12dp"
               android:paddingHorizontal="4dp"
               android:focusable="true"
