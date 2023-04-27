@@ -40,9 +40,14 @@
     <Space android:layout_width="1dp"
            android:layout_height="7dp"/>
 
+    <!-- NOTE: for id/text1 and id/text2 below set the width to match parent as a workaround for
+         b/269395540 i.e. prevent views bounds change during a transition animation. It does not
+         affect pinned views as we change their layout parameters programmatically (but that's even
+         more narrow possibility and it's not clear if the root cause or the bug would affect it).
+    -->
     <!-- App name or Direct Share target name, DS set to 2 lines -->
     <TextView android:id="@android:id/text1"
-              android:layout_width="wrap_content"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:textAppearance="?android:attr/textAppearanceSmall"
               android:textColor="?androidprv:attr/materialColorOnSurface"
@@ -56,7 +61,7 @@
               android:textAppearance="?android:attr/textAppearanceSmall"
               android:textSize="12sp"
               android:textColor="?androidprv:attr/materialColorOnSurfaceVariant"
-              android:layout_width="wrap_content"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:lines="1"
               android:gravity="top|center_horizontal"
