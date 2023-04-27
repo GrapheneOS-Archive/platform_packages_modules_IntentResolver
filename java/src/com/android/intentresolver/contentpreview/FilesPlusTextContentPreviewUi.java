@@ -21,6 +21,7 @@ import static com.android.intentresolver.contentpreview.ContentPreviewType.CONTE
 
 import android.content.res.Resources;
 import android.text.util.Linkify;
+import android.util.PluralsMessageFormatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,7 @@ import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ScrollableImagePreviewView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -180,9 +182,35 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
         shareTextAction.accept(false);
         includeText.setOnCheckedChangeListener((view, isChecked) -> {
             textView.setEnabled(isChecked);
+            if (isChecked) {
+                textView.setText(mText);
+            } else {
+                textView.setText(getNoTextString(contentPreview.getResources()));
+            }
             shareTextAction.accept(!isChecked);
             updateHeadline(contentPreview);
         });
         includeText.setVisibility(View.VISIBLE);
+    }
+
+    private String getNoTextString(Resources resources) {
+        int stringResource;
+
+        if (mAllImages) {
+            stringResource = R.string.sharing_images_only;
+        } else if (mAllVideos) {
+            stringResource = R.string.sharing_videos_only;
+        } else {
+            stringResource = R.string.sharing_files_only;
+        }
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("count", mFiles.size());
+
+        return PluralsMessageFormatter.format(
+                resources,
+                params,
+                stringResource
+        );
     }
 }
