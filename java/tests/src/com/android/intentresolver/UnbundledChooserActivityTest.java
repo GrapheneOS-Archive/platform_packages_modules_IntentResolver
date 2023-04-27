@@ -694,14 +694,13 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    public void testImagePlusTextSharing_ExcludeText() {
+    public void testFilePlusTextSharing_ExcludeText() {
         Uri uri = Uri.parse(
                 "android.resource://com.android.frameworks.coretests/"
                         + R.drawable.test320x240);
         Intent sendIntent = createSendImageIntent(uri);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 createImageLoader(uri, createBitmap());
-        ChooserActivityOverrideData.getInstance().isImageType = true;
         sendIntent.putExtra(Intent.EXTRA_TEXT, "https://google.com/search?q=google");
 
         List<ResolvedComponentInfo> resolvedComponentInfos = Arrays.asList(
@@ -723,6 +722,8 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
+        onView(withId(R.id.content_preview_text)).check(matches(withText("File only")));
+
         AtomicReference<Intent> launchedIntentRef = new AtomicReference<>();
         ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
             launchedIntentRef.set(targetInfo.getTargetIntent());
@@ -736,14 +737,13 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    public void testImagePlusTextSharing_RemoveAndAddBackText() {
+    public void testFilePlusTextSharing_RemoveAndAddBackText() {
         Uri uri = Uri.parse(
                 "android.resource://com.android.frameworks.coretests/"
                         + R.drawable.test320x240);
         Intent sendIntent = createSendImageIntent(uri);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 createImageLoader(uri, createBitmap());
-        ChooserActivityOverrideData.getInstance().isImageType = true;
         final String text = "https://google.com/search?q=google";
         sendIntent.putExtra(Intent.EXTRA_TEXT, text);
 
@@ -765,9 +765,13 @@ public class UnbundledChooserActivityTest {
                 .check(matches(isDisplayed()))
                 .perform(click());
         waitForIdle();
+        onView(withId(R.id.content_preview_text)).check(matches(withText("File only")));
+
         onView(withId(R.id.include_text_action))
                 .perform(click());
         waitForIdle();
+
+        onView(withId(R.id.content_preview_text)).check(matches(withText(text)));
 
         AtomicReference<Intent> launchedIntentRef = new AtomicReference<>();
         ChooserActivityOverrideData.getInstance().onSafelyStartInternalCallback = targetInfo -> {
@@ -782,14 +786,13 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    public void testImagePlusTextSharing_TextExclusionDoesNotAffectAlternativeIntent() {
+    public void testFilePlusTextSharing_TextExclusionDoesNotAffectAlternativeIntent() {
         Uri uri = Uri.parse(
                 "android.resource://com.android.frameworks.coretests/"
                         + R.drawable.test320x240);
         Intent sendIntent = createSendImageIntent(uri);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 createImageLoader(uri, createBitmap());
-        ChooserActivityOverrideData.getInstance().isImageType = true;
         sendIntent.putExtra(Intent.EXTRA_TEXT, "https://google.com/search?q=google");
 
         Intent alternativeIntent = createSendTextIntent();
@@ -828,7 +831,7 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    public void testImagePlusTextSharing_failedThumbnailAndExcludedText_textRemainsVisible() {
+    public void testImagePlusTextSharing_failedThumbnailAndExcludedText_textChanges() {
         Uri uri = Uri.parse(
                 "android.resource://com.android.frameworks.coretests/"
                         + R.drawable.test320x240);
@@ -860,7 +863,7 @@ public class UnbundledChooserActivityTest {
         onView(withId(R.id.image_view))
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         onView(withId(R.id.content_preview_text))
-                .check(matches(allOf(isDisplayed(), not(isEnabled()))));
+                .check(matches(allOf(isDisplayed(), not(isEnabled()), withText("File only"))));
     }
 
     @Test
