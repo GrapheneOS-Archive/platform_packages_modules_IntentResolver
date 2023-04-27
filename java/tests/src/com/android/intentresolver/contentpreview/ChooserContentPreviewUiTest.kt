@@ -19,11 +19,15 @@ package com.android.intentresolver.contentpreview
 import android.content.ClipDescription
 import android.content.ContentInterface
 import android.content.Intent
+import android.database.MatrixCursor
 import android.graphics.Bitmap
+import android.media.MediaMetadata
 import android.net.Uri
+import android.provider.DocumentsContract
 import com.android.intentresolver.any
 import com.android.intentresolver.anyOrNull
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
+import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.METADATA_COLUMNS
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
 import com.android.intentresolver.widget.ActionRow
@@ -59,7 +63,7 @@ class ChooserContentPreviewUiTest {
     private val transitionCallback = mock<ImagePreviewView.TransitionElementStatusCallback>()
 
     @Test
-    fun test_ChooserContentPreview_non_send_intent_action_to_text_preview() {
+    fun test_nonSendIntentAction_useTextPreviewUi() {
         val targetIntent = Intent(Intent.ACTION_VIEW)
         val testSubject = ChooserContentPreviewUi(
             targetIntent,
@@ -76,7 +80,7 @@ class ChooserContentPreviewUiTest {
     }
 
     @Test
-    fun test_ChooserContentPreview_text_mime_type_to_text_preview() {
+    fun test_textMimeType_useTextPreviewUi() {
         val targetIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, "Text Extra")
@@ -96,7 +100,7 @@ class ChooserContentPreviewUiTest {
     }
 
     @Test
-    fun test_ChooserContentPreview_single_image_uri_to_image_preview() {
+    fun test_singleImageUri_useImagePreviewUi() {
         val uri = Uri.parse("content://$PROVIDER_NAME/test.png")
         val targetIntent = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_STREAM, uri)
@@ -117,7 +121,7 @@ class ChooserContentPreviewUiTest {
     }
 
     @Test
-    fun test_ChooserContentPreview_single_uri_without_preview_to_file_preview() {
+    fun test_singleNonImageUriWithoutPreview_useFilePreviewUi() {
         val uri = Uri.parse("content://$PROVIDER_NAME/test.pdf")
         val targetIntent = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_STREAM, uri)
@@ -138,7 +142,7 @@ class ChooserContentPreviewUiTest {
     }
 
     @Test
-    fun test_ChooserContentPreview_single_uri_crashing_getType_to_file_preview() {
+    fun test_singleUriWithFailingGetType_useFilePreviewUi() {
         val uri = Uri.parse("content://$PROVIDER_NAME/test.pdf")
         val targetIntent = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_STREAM, uri)
@@ -160,7 +164,7 @@ class ChooserContentPreviewUiTest {
     }
 
     @Test
-    fun test_ChooserContentPreview_single_uri_crashing_metadata_to_file_preview() {
+    fun test_singleNonImageUriWithFailingMetadata_useFilePreviewUi() {
         val uri = Uri.parse("content://$PROVIDER_NAME/test.pdf")
         val targetIntent = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_STREAM, uri)
@@ -185,7 +189,7 @@ class ChooserContentPreviewUiTest {
     }
 
     @Test
-    fun test_ChooserContentPreview_single_uri_with_preview_to_image_preview() {
+    fun test_SingleNonImageUriWithImageTypeInGetStreamTypes_useImagePreviewUi() {
         val uri = Uri.parse("content://$PROVIDER_NAME/test.pdf")
         val targetIntent = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_STREAM, uri)
@@ -208,7 +212,52 @@ class ChooserContentPreviewUiTest {
     }
 
     @Test
-    fun test_ChooserContentPreview_multiple_image_uri_to_image_preview() {
+    fun test_SingleNonImageUriWithThumbnailFlag_useImagePreviewUi() {
+        testMetadataToImagePreview(
+            columns = arrayOf(DocumentsContract.Document.COLUMN_FLAGS),
+            values = arrayOf(
+                DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL or
+                        DocumentsContract.Document.FLAG_SUPPORTS_METADATA
+            )
+        )
+    }
+
+    @Test
+    fun test_SingleNonImageUriWithMetadataIconUri_useImagePreviewUi() {
+        testMetadataToImagePreview(
+            columns = arrayOf(MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI),
+            values = arrayOf("content://$PROVIDER_NAME/test.pdf?thumbnail"),
+        )
+    }
+
+    private fun testMetadataToImagePreview(columns: Array<String>, values: Array<Any>) {
+        val uri = Uri.parse("content://$PROVIDER_NAME/test.pdf")
+        val targetIntent = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_STREAM, uri)
+        }
+        whenever(contentResolver.getType(uri)).thenReturn("application/pdf")
+        whenever(contentResolver.query(uri, METADATA_COLUMNS, null, null))
+            .thenReturn(
+                MatrixCursor(columns).apply {
+                    addRow(values)
+                }
+            )
+        val testSubject = ChooserContentPreviewUi(
+            targetIntent,
+            contentResolver,
+            imageClassifier,
+            imageLoader,
+            actionFactory,
+            transitionCallback,
+            headlineGenerator
+        )
+        assertThat(testSubject.preferredContentPreview)
+            .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
+        verify(transitionCallback, never()).onAllTransitionElementsReady()
+    }
+
+    @Test
+    fun test_multipleImageUri_useImagePreviewUi() {
         val uri1 = Uri.parse("content://$PROVIDER_NAME/test.png")
         val uri2 = Uri.parse("content://$PROVIDER_NAME/test.jpg")
         val targetIntent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
@@ -237,7 +286,7 @@ class ChooserContentPreviewUiTest {
     }
 
     @Test
-    fun test_ChooserContentPreview_some_non_image_uri_to_image_preview() {
+    fun test_SomeImageUri_useImagePreviewUi() {
         val uri1 = Uri.parse("content://$PROVIDER_NAME/test.png")
         val uri2 = Uri.parse("content://$PROVIDER_NAME/test.pdf")
         val targetIntent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
@@ -266,7 +315,7 @@ class ChooserContentPreviewUiTest {
     }
 
     @Test
-    fun test_ChooserContentPreview_some_non_image_uri_with_preview_to_image_preview() {
+    fun test_someNonImageUriWithPreview_useImagePreviewUi() {
         val uri1 = Uri.parse("content://$PROVIDER_NAME/test.mp4")
         val uri2 = Uri.parse("content://$PROVIDER_NAME/test.pdf")
         val targetIntent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
@@ -297,7 +346,7 @@ class ChooserContentPreviewUiTest {
     }
 
     @Test
-    fun test_ChooserContentPreview_all_non_image_uris_without_preview_to_file_preview() {
+    fun test_allNonImageUrisWithoutPreview_useFilePreviewUi() {
         val uri1 = Uri.parse("content://$PROVIDER_NAME/test.html")
         val uri2 = Uri.parse("content://$PROVIDER_NAME/test.pdf")
         val targetIntent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
@@ -324,5 +373,4 @@ class ChooserContentPreviewUiTest {
                 .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
         verify(transitionCallback, times(1)).onAllTransitionElementsReady()
     }
-
 }
