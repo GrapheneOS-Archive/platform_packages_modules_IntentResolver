@@ -155,45 +155,82 @@
         }
     </string>
     <!-- Title atop a sharing UI indicating that some number of files are being shared
-         (for example: sharing a mixture of photos and videos [CHAR_LIMIT=50] -->
+         (for example: sharing a mixture of photos and videos) [CHAR_LIMIT=50] -->
     <string name="sharing_files">{count, plural,
         =1    {Sharing # file}
         other {Sharing # files}
         }
     </string>
+
+    <!-- Title atop a sharing UI indicating that some number of images are being shared
+         along with text [CHAR_LIMIT=50] -->
     <string name="sharing_images_with_text">{count, plural,
         =1    {Sharing image with text}
         other {Sharing # images with text}
         }
     </string>
 
+    <!-- Title atop a sharing UI indicating that some number of images are being shared
+         along with a web link [CHAR_LIMIT=50] -->
     <string name="sharing_images_with_link">{count, plural,
         =1    {Sharing image with link}
         other {Sharing # images with link}
         }
     </string>
 
+    <!-- Title atop a sharing UI indicating that some number of videos are being shared
+         along with text [CHAR_LIMIT=50] -->
     <string name="sharing_videos_with_text">{count, plural,
         =1    {Sharing video with text}
         other {Sharing # videos with text}
         }
     </string>
 
+    <!-- Title atop a sharing UI indicating that some number of videos are being shared
+         along with a web link [CHAR_LIMIT=50] -->
     <string name="sharing_videos_with_link">{count, plural,
         =1    {Sharing video with link}
         other {Sharing # videos with link}
         }
     </string>
 
+    <!-- Title atop a sharing UI indicating that some number of files are being shared
+         along with text [CHAR_LIMIT=50] -->
     <string name="sharing_files_with_text">{count, plural,
         =1    {Sharing file with text}
         other {Sharing # files with text}
         }
     </string>
 
+    <!-- Title atop a sharing UI indicating that some number of files are being shared
+         along with a web link [CHAR_LIMIT=50] -->
     <string name="sharing_files_with_link">{count, plural,
         =1    {Sharing file with link}
         other {Sharing # files with link}
+        }
+    </string>
+
+    <!-- Message indicating that the attached text has been removed from this share and only the
+         images are being shared.  [CHAR LIMIT=none] -->
+    <string name="sharing_images_only">{count, plural,
+        =1    {Image only}
+        other {Images only}
+        }
+    </string>
+
+    <!-- Message indicating that the attached text has been removed from this share and only the
+         videos are being shared.  [CHAR LIMIT=none] -->
+    <string name="sharing_videos_only">{count, plural,
+        =1    {Video only}
+        other {Videos only}
+        }
+    </string>
+
+    <!-- Message indicating that the attached text has been removed from this share and only the
+         files are being shared.  [CHAR LIMIT=none] -->
+    <string name="sharing_files_only">{count, plural,
+        =1    {File only}
+        other {Files only}
         }
     </string>
 
