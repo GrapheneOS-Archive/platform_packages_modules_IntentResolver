@@ -52,6 +52,7 @@
     <dimen name="chooser_preview_image_height_tall">192dp</dimen>
     <dimen name="chooser_action_view_icon_size">22dp</dimen>
     <dimen name="chooser_action_margin">0dp</dimen>
+    <dimen name="modify_share_text_toggle_max_width">150dp</dimen>
 
     <!-- Note that the values in this section are for landscape phones. For screen configs taller
          than 480dp, the values are set in values-h480dp/dimens.xml -->
