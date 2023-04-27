@@ -81,7 +81,6 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
                 R.layout.chooser_grid_preview_image, parent, false);
         ScrollableImagePreviewView imagePreview =
                 contentPreviewLayout.findViewById(R.id.scrollable_image_preview);
-        boolean showImages = !parent.getContext().getResources().getBoolean(R.bool.minimal_preview);
 
         final ActionRow actionRow =
                 contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
@@ -113,24 +112,19 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
             allImages = allImages && previewType == ScrollableImagePreviewView.PreviewType.Image;
             allVideos = allVideos && previewType == ScrollableImagePreviewView.PreviewType.Video;
 
-            if (showImages && fileInfo.getPreviewUri() != null) {
+            if (fileInfo.getPreviewUri() != null) {
                 previews.add(new ScrollableImagePreviewView.Preview(
                         previewType,
                         fileInfo.getPreviewUri()));
             }
         }
 
-        if (showImages) {
-            imagePreview.setOnNoPreviewCallback(() -> imagePreview.setVisibility(View.GONE));
-            imagePreview.setTransitionElementStatusCallback(mTransitionElementStatusCallback);
-            imagePreview.setPreviews(
-                    previews,
-                    mFiles.size() - previews.size(),
-                    mImageLoader);
-        } else {
-            imagePreview.setVisibility(View.GONE);
-            mTransitionElementStatusCallback.onAllTransitionElementsReady();
-        }
+        imagePreview.setOnNoPreviewCallback(() -> imagePreview.setVisibility(View.GONE));
+        imagePreview.setTransitionElementStatusCallback(mTransitionElementStatusCallback);
+        imagePreview.setPreviews(
+                previews,
+                mFiles.size() - previews.size(),
+                mImageLoader);
 
         if (allImages) {
             displayHeadline(
