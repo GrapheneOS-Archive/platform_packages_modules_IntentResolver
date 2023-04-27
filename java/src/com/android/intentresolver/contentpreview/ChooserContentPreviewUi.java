@@ -37,6 +37,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;
@@ -52,6 +53,18 @@ import java.util.function.Consumer;
  * A content preview façade.
  */
 public final class ChooserContentPreviewUi {
+
+    /**
+     * A set of metadata columns we read for a content URI (see [readFileMetadata] method).
+     */
+    @VisibleForTesting
+    static final String[] METADATA_COLUMNS = new String[] {
+            DocumentsContract.Document.COLUMN_FLAGS,
+            MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI,
+            OpenableColumns.DISPLAY_NAME,
+            Downloads.Impl.COLUMN_TITLE
+    };
+
     /**
      * Delegate to build the default system action buttons to display in the preview layout, if/when
      * they're determined to be appropriate for the particular preview we display.
@@ -209,9 +222,9 @@ public final class ChooserContentPreviewUi {
         if (typeClassifier.isImageType(mimeType)) {
             return builder.withPreviewUri(uri).build();
         }
-        readFileMetadata(resolver, uri, builder);
+        readOtherFileTypes(resolver, uri, typeClassifier, builder);
         if (builder.getPreviewUri() == null) {
-            readOtherFileTypes(resolver, uri, typeClassifier, builder);
+            readFileMetadata(resolver, uri, builder);
         }
         return builder.build();
     }
@@ -329,7 +342,7 @@ public final class ChooserContentPreviewUi {
         } catch (SecurityException e) {
             logProviderPermissionWarning(uri, "mime type");
         } catch (Throwable t) {
-            Log.e(ContentPreviewUi.TAG, "Failed to read content type, uri: " +  uri, t);
+            Log.e(ContentPreviewUi.TAG, "Failed to read content type, uri: " + uri, t);
         }
         return null;
     }
@@ -337,7 +350,7 @@ public final class ChooserContentPreviewUi {
     @Nullable
     private static Cursor query(ContentInterface resolver, Uri uri) {
         try {
-            return resolver.query(uri, null, null, null);
+            return resolver.query(uri, METADATA_COLUMNS, null, null);
         } catch (SecurityException e) {
             logProviderPermissionWarning(uri, "metadata");
         } catch (Throwable t) {
