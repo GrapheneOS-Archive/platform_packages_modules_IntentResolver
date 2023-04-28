@@ -33,6 +33,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.android.intentresolver.flags.FeatureFlagRepository;
+import com.android.intentresolver.util.UriFilters;
 
 import com.google.common.collect.ImmutableList;
 
@@ -320,7 +321,8 @@ public class ChooserRequestParameters {
                 ChooserAction.class,
                 true,
                 true)
-            .collect(toImmutableList());
+                .filter(UriFilters::hasValidIcon)
+                .collect(toImmutableList());
     }
 
     @Nullable

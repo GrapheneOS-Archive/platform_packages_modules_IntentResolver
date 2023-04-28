@@ -19,6 +19,7 @@ package com.android.intentresolver.contentpreview;
 import static android.provider.DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL;
 
 import static com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_IMAGE;
+import static com.android.intentresolver.util.UriFilters.isOwnedByCurrentUser;
 
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -306,14 +307,14 @@ public final class ChooserContentPreviewUi {
         List<Uri> uris = new ArrayList<>();
         if (Intent.ACTION_SEND.equals(targetIntent.getAction())) {
             Uri uri = targetIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if (ContentPreviewUi.validForContentPreview(uri)) {
+            if (isOwnedByCurrentUser(uri)) {
                 uris.add(uri);
             }
         } else {
             List<Uri> receivedUris = targetIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             if (receivedUris != null) {
                 for (Uri uri : receivedUris) {
-                    if (ContentPreviewUi.validForContentPreview(uri)) {
+                    if (isOwnedByCurrentUser(uri)) {
                         uris.add(uri);
                     }
                 }

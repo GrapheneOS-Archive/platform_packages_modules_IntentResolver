@@ -16,6 +16,8 @@
 
 package com.android.intentresolver.contentpreview;
 
+import static com.android.intentresolver.util.UriFilters.isOwnedByCurrentUser;
+
 import android.content.res.Resources;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -108,7 +110,7 @@ class TextContentPreviewUi extends ContentPreviewUi {
 
         ImageView previewThumbnailView = contentPreviewLayout.findViewById(
                 com.android.internal.R.id.content_preview_thumbnail);
-        if (!validForContentPreview(mPreviewThumbnail) || minimalPreview) {
+        if (!isOwnedByCurrentUser(mPreviewThumbnail) || minimalPreview) {
             previewThumbnailView.setVisibility(View.GONE);
         } else {
             mImageLoader.loadImage(
