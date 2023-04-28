@@ -53,24 +53,24 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Prikvači aplikaciju <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Otkvači sudionika <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Uredi"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} i # datoteka}one{{file_name} i # datoteka}few{{file_name} i # datoteke}other{{file_name} i # datoteka}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # datoteka}one{+ # datoteka}few{+ # datoteke}other{+ # datoteka}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{i još # datoteka}one{i još # datoteka}few{i još # datoteke}other{i još # datoteka}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Dijeli se tekst"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Dijeli se veza"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Dijeli se slika}one{Dijeli se # slika}few{Dijele se # slike}other{Dijeli se # slika}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Dijeli se videozapis}one{Dijeli se # videozapis}few{Dijele se # videozapisa}other{Dijeli se # videozapisa}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Dijeli se # stavka}one{Dijeli se # stavka}few{Dijele se # stavke}other{Dijeli se # stavki}}"</string>
-    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Dijeli se # datoteka}one{Dijeli se # datoteka}few{Dijele se # datoteke}other{Dijeli se # datoteka}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Dijeli se slika s tekstom}one{Dijeli se # slika s tekstom}few{Dijele se # slike s tekstom}other{Dijeli se # slika s tekstom}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Dijeli se slika s vezom}one{Dijeli se # slika s vezom}few{Dijele se # slike s vezom}other{Dijeli se # slika s vezom}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Dijeli se videozapis s tekstom}one{Dijeli se # videozapis s tekstom}few{Dijele se # videozapisa s tekstom}other{Dijeli se # videozapisa s tekstom}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Dijeli se videozapis s vezom}one{Dijeli se # videozapis s vezom}few{Dijele se # videozapisa s vezom}other{Dijeli se # videozapisa s vezom}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Dijeli se datoteka s tekstom}one{Dijeli se # datoteka s tekstom}few{Dijele se # datoteke s tekstom}other{Dijeli se # datoteka s tekstom}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Dijeli se datoteka s vezom}one{Dijeli se # datoteka s vezom}few{Dijele se # datoteke s vezom}other{Dijeli se # datoteka s vezom}}"</string>
+    <!-- no translation found for sharing_images_only (7762589767189955438) -->
     <skip />
-    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
+    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
     <skip />
-    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
-    <skip />
-    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <!-- no translation found for sharing_files_only (6603666533766964768) -->
     <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Nema preporučenih osoba za dijeljenje"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Popis aplikacija"</string>
@@ -84,10 +84,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Taj se sadržaj ne može otvoriti pomoću poslovnih aplikacija"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Taj se sadržaj ne može dijeliti pomoću osobnih aplikacija"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Taj se sadržaj ne može otvoriti pomoću osobnih aplikacija"</string>
-    <!-- no translation found for resolver_turn_on_work_apps (7115260573975624516) -->
-    <skip />
-    <!-- no translation found for resolver_switch_on_work (8678893259344318807) -->
-    <skip />
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Poslovne aplikacije su pauzirane"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Ponovno pokreni"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Poslovne aplikacije nisu dostupne"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Osobne aplikacije nisu dostupne"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Želite li otvoriti aplikaciju <xliff:g id="APP">%s</xliff:g> na osobnom profilu?"</string>
