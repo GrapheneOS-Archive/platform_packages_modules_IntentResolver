@@ -96,7 +96,13 @@ class TextContentPreviewUi extends ContentPreviewUi {
 
         TextView textView = contentPreviewLayout.findViewById(
                 com.android.internal.R.id.content_preview_text);
-        textView.setText(mSharingText);
+        String text = mSharingText.toString();
+
+        // If we're only previewing one line, then strip out newlines.
+        if (textView.getMaxLines() == 1) {
+            text = text.replace("\n", " ");
+        }
+        textView.setText(text);
 
         TextView previewTitleView = contentPreviewLayout.findViewById(
                 com.android.internal.R.id.content_preview_title);
