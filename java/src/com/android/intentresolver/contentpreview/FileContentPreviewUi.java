@@ -25,6 +25,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
 
@@ -35,17 +37,20 @@ import java.util.Map;
 
 class FileContentPreviewUi extends ContentPreviewUi {
     private static final String PLURALS_COUNT  = "count";
-    private static final String PLURALS_FILE_NAME = "file_name";
 
-    private final List<FileInfo> mFiles;
+    @Nullable
+    private String mFirstFileName = null;
+    private final int mFileCount;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
     private final HeadlineGenerator mHeadlineGenerator;
+    @Nullable
+    private ViewGroup mContentPreview = null;
 
     FileContentPreviewUi(
-            List<FileInfo> files,
+            int fileCount,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             HeadlineGenerator headlineGenerator) {
-        mFiles = files;
+        mFileCount = fileCount;
         mActionFactory = actionFactory;
         mHeadlineGenerator = headlineGenerator;
     }
@@ -53,6 +58,13 @@ class FileContentPreviewUi extends ContentPreviewUi {
     @Override
     public int getType() {
         return ContentPreviewType.CONTENT_PREVIEW_FILE;
+    }
+
+    public void setFirstFileName(String fileName) {
+        mFirstFileName = fileName;
+        if (mContentPreview != null) {
+            showFileName(mContentPreview, fileName);
+        }
     }
 
     @Override
@@ -64,48 +76,50 @@ class FileContentPreviewUi extends ContentPreviewUi {
 
     private ViewGroup displayInternal(
             Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
-        ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
+        mContentPreview = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_file, parent, false);
 
-        final int uriCount = mFiles.size();
+        displayHeadline(mContentPreview, mHeadlineGenerator.getFilesHeadline(mFileCount));
 
-        displayHeadline(contentPreviewLayout, mHeadlineGenerator.getFilesHeadline(mFiles.size()));
-
-        if (uriCount == 0) {
-            contentPreviewLayout.setVisibility(View.GONE);
+        if (mFileCount == 0) {
+            mContentPreview.setVisibility(View.GONE);
             Log.i(TAG, "Appears to be no uris available in EXTRA_STREAM,"
                     + " removing preview area");
-            return contentPreviewLayout;
+            return mContentPreview;
         }
 
-        FileInfo fileInfo = mFiles.get(0);
-        TextView fileNameView = contentPreviewLayout.findViewById(
-                R.id.content_preview_filename);
-        fileNameView.setText(fileInfo.getName());
+        if (mFirstFileName != null) {
+            showFileName(mContentPreview, mFirstFileName);
+        }
 
-        TextView secondLine = contentPreviewLayout.findViewById(
+        TextView secondLine = mContentPreview.findViewById(
                 R.id.content_preview_more_files);
-        if (uriCount > 1) {
-            int remUriCount = uriCount - 1;
+        if (mFileCount > 1) {
+            int remUriCount = mFileCount - 1;
             Map<String, Object> arguments = new HashMap<>();
             arguments.put(PLURALS_COUNT, remUriCount);
             secondLine.setText(
                     PluralsMessageFormatter.format(resources, arguments, R.string.more_files));
         } else {
-            ImageView icon = contentPreviewLayout.findViewById(R.id.content_preview_file_icon);
+            ImageView icon = mContentPreview.findViewById(R.id.content_preview_file_icon);
             icon.setImageResource(R.drawable.single_file);
             secondLine.setVisibility(View.GONE);
         }
 
         final ActionRow actionRow =
-                contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
+                mContentPreview.findViewById(com.android.internal.R.id.chooser_action_row);
         List<ActionRow.Action> actions =
                 createActions(new ArrayList<>(), mActionFactory.createCustomActions());
         actionRow.setActions(actions);
         if (actions.isEmpty()) {
-            contentPreviewLayout.findViewById(R.id.actions_top_divider).setVisibility(View.GONE);
+            mContentPreview.findViewById(R.id.actions_top_divider).setVisibility(View.GONE);
         }
 
-        return contentPreviewLayout;
+        return mContentPreview;
+    }
+
+    private void showFileName(ViewGroup contentPreview, String name) {
+        TextView fileNameView = contentPreview.requireViewById(R.id.content_preview_filename);
+        fileNameView.setText(name);
     }
 }
