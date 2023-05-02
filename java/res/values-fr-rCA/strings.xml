@@ -53,13 +53,13 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Épingler <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Annuler l\'épinglage de <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Modifier"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # fichier}one{{file_name} + # fichier}many{{file_name} + # fichiers}other{{file_name} + # fichiers}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # fichier}one{+ # fichier}many{+ # de fichiers}other{+ # fichiers}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{et # fichier supplémentaire}one{et # fichier supplémentaire}many{et # de fichiers supplémentaires}other{et # fichiers supplémentaires}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Partage du message texte en cours…"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Partage du lien en cours…"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Partage de l\'image…}one{Partage de # image…}many{Partage de # d\'images…}other{Partage de # images…}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Partage de la vidéo…}one{Partage de # vidéo…}many{Partage de # de vidéos…}other{Partage de # vidéos…}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Partage de # élément…}one{Partage de # élément…}many{Partage de # d\'éléments}other{Partage de # éléments…}}"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Partage de # fichier en cours…}one{Partage de # fichier en cours…}many{Partage de # de fichiers en cours…}other{Partage de # fichiers en cours…}}"</string>
     <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
     <skip />
     <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
@@ -71,6 +71,12 @@
     <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
     <skip />
     <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <skip />
+    <!-- no translation found for sharing_images_only (7762589767189955438) -->
+    <skip />
+    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
+    <skip />
+    <!-- no translation found for sharing_files_only (6603666533766964768) -->
     <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Aucune recommandation de personnes avec lesquelles effectuer un partage"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Liste des applications"</string>
@@ -84,10 +90,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Impossible d\'ouvrir ce contenu avec des applications professionnelles"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Impossible de partager ce contenu avec des applications personnelles"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Impossible d\'ouvrir ce contenu avec des applications personnelles"</string>
-    <!-- no translation found for resolver_turn_on_work_apps (7115260573975624516) -->
-    <skip />
-    <!-- no translation found for resolver_switch_on_work (8678893259344318807) -->
-    <skip />
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Les applications professionnelles sont interrompues"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Réactiver"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Aucune application professionnelle"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Aucune application personnelle"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Ouvrir <xliff:g id="APP">%s</xliff:g> dans votre profil personnel?"</string>

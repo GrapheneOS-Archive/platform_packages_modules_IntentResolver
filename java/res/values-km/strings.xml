@@ -53,25 +53,22 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"ខ្ទាស់ <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"ដកខ្ទាស់ <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"កែ"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + ឯកសារ #}other{{file_name} + ឯកសារ #}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ឯកសារ}other{+ # ឯកសារ}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{ឯកសារ + # ទៀត}other{ឯកសារ + # ទៀត}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"កំពុងចែករំលែក​សារជាអក្សរ"</string>
     <string name="sharing_link" msgid="2307694372813942916">"កំពុងចែករំលែកតំណ"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{កំពុងចែក​រំលែករូបភាព}other{កំពុងចែក​រំលែករូបភាព #}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{កំពុងចែករំលែកវីដេអូ}other{កំពុងចែករំលែកវីដេអូ #}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{កំពុងចែករំលែកធាតុ #}other{កំពុងចែករំលែកធាតុ #}}"</string>
-    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
-    <skip />
-    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
-    <skip />
-    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
-    <skip />
-    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
-    <skip />
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{កំពុង​ចែករំលែកឯកសារ #}other{កំពុង​ចែករំលែកឯកសារ #}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{ចែករំលែករូបភាពជាមួយអក្សរ}other{ចែករំលែករូបភាព # ជាមួយអក្សរ}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{ចែករំលែករូបភាពជាមួយតំណ}other{ចែករំលែករូបភាព # ជាមួយតំណ}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{ចែករំលែកវីដេអូជាមួយអក្សរ}other{ចែករំលែក # វីដេអូជាមួយអក្សរ}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{ចែករំលែកវីដេអូជាមួយតំណ}other{ចែករំលែក # វីដេអូជាមួយតំណ}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{ចែករំលែកឯកសារជាមួយអក្សរ}other{ចែករំលែក # ឯកសារជាមួយអក្សរ}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{ចែករំលែកឯកសារជាមួយតំណ}other{ចែករំលែកឯកសារ # ជាមួយតំណ}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{រូបភាព​តែប៉ុណ្ណោះ}other{រូបភាពតែប៉ុណ្ណោះ}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{​វីដេអូតែប៉ុណ្ណោះ}other{វីដេអូតែប៉ុណ្ណោះ}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ឯកសារតែប៉ុណ្ណោះ}other{ឯកសារតែប៉ុណ្ណោះ}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"មិនមាន​មនុស្សដែល​បានណែនាំ​សម្រាប់​ចែករំលែក​ជាមួយទេ"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"បញ្ជីកម្មវិធី"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"កម្មវិធីនេះ​មិនទាន់បាន​ទទួលសិទ្ធិ​ថតសំឡេង​នៅឡើយទេ ប៉ុន្តែអាច​ថតសំឡេង​តាមរយៈ​ឧបករណ៍ USB នេះបាន។"</string>
@@ -84,10 +81,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ខ្លឹមសារនេះ​មិនអាចបើក​តាមរយៈ​កម្មវិធី​ការងារ​បានទេ"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"ខ្លឹមសារនេះ​មិនអាចចែករំលែក​តាមរយៈ​កម្មវិធី​ផ្ទាល់ខ្លួន​បានទេ"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"ខ្លឹមសារនេះ​មិនអាចបើក​តាមរយៈ​កម្មវិធី​ផ្ទាល់ខ្លួន​បានទេ"</string>
-    <!-- no translation found for resolver_turn_on_work_apps (7115260573975624516) -->
-    <skip />
-    <!-- no translation found for resolver_switch_on_work (8678893259344318807) -->
-    <skip />
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"កម្មវិធី​ការងារ​ត្រូវបានផ្អាក"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"ឈប់ផ្អាក"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"គ្មាន​កម្មវិធី​ការងារ​ទេ"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"គ្មាន​កម្មវិធី​ផ្ទាល់ខ្លួន​ទេ"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"បើក <xliff:g id="APP">%s</xliff:g> នៅក្នុងកម្រង​ព័ត៌មាន​ផ្ទាល់​ខ្លួនរបស់អ្នកឬ?"</string>

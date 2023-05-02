@@ -53,25 +53,22 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g>-ის ჩამაგრება"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g>-ის ჩამაგრების მოხსნა"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"რედაქტირება"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # ფაილი}other{{file_name} + # ფაილი}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ფაილი}other{+ # ფაილი}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{კიდევ # ფაილი}other{კიდევ # ფაილი}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"ზიარდება ტექსტი"</string>
     <string name="sharing_link" msgid="2307694372813942916">"ზიარდება ბმული"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ზიარდება სურათი}other{ზიარდება # სურათი}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{ზიარდება ვიდეო}other{ზიარდება # ვიდეო}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{ზიარდება # ერთეული}other{ზიარდება # ერთეული}}"</string>
-    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
-    <skip />
-    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
-    <skip />
-    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
-    <skip />
-    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
-    <skip />
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{ზიარდება # ფაილი}other{ზიარდება # ფაილი}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{სურათი ზიარდება ტექსტით}other{# სურათი ზიარდება ტექსტით}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{სურათი ზიარდება ბმულით}other{# სურათი ზიარდება ბმულით}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{ვიდეო ზიარდება ტექსტით}other{# ვიდეო ზიარდება ტექსტით}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{ვიდეო ზიარდება ბმულით}other{# ვიდეო ზიარდება ბმულით}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{ფაილი ზიარდება ტექსტით}other{# ფაილი ზიარდება ტექსტით}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{ფაილი ზიარდება ბმულით}other{# ფაილი ზიარდება ბმულით}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{მხოლოდ სურათი}other{მხოლოდ სურათები}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{მხოლოდ ვიდეო}other{მხოლოდ ვიდეოები}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{მხოლოდ ფაილი}other{მხოლოდ ფაილები}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ვერ იძებნება რეკომენდებული ადამიანები, რომლებთანაც გაზიარება შეიძლება"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"აპების სია"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ამ აპს არ აქვს მინიჭებული ჩაწერის ნებართვა, მაგრამ შეუძლია ჩაიწეროს აუდიო ამ USB მოწყობილობის მეშვეობით."</string>
