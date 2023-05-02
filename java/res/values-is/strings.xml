@@ -53,24 +53,26 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Festa <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Losa <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Breyta"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # skrá}one{{file_name} + # skrá}other{{file_name} + # skrár}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # skrá}one{+ # skrá}other{+ # skrár}}"</string>
+    <!-- no translation found for more_files (1043875756612339842) -->
+    <skip />
     <string name="sharing_text" msgid="8137537443603304062">"Deilir texta"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Deilir tengli"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Deilir mynd}one{Deilir # mynd}other{Deilir # myndum}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Deilir myndskeiði}one{Deilir # myndskeiði}other{Deilir # myndskeiðum}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Deilir # atriði}one{Deilir # atriði}other{Deilir # atriðum}}"</string>
-    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
+    <!-- no translation found for sharing_files (1275646542246028823) -->
     <skip />
-    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Deilir mynd með texta}one{Deilir # mynd með texta}other{Deilir # myndum með texta}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Deilir mynd með tengli}one{Deilir # mynd með tengli}other{Deilir # myndum með tengli}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Deilir myndskeiði með texta}one{Deilir # myndskeiði með texta}other{Deilir # myndskeiðum með texta}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Deilir myndskeiði með tengli}one{Deilir # myndskeiði með tengli}other{Deilir # myndskeiðum með tengli}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Deilir skrá með texta}one{Deilir # skrá með texta}other{Deilir # skrám með texta}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Deilir skrá með tengli}one{Deilir # skrá með tengli}other{Deilir # skrám með tengli}}"</string>
+    <!-- no translation found for sharing_images_only (7762589767189955438) -->
     <skip />
-    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
+    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
     <skip />
-    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <!-- no translation found for sharing_files_only (6603666533766964768) -->
     <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Engar tillögur um fólk til að deila með"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Forritalisti"</string>
@@ -84,10 +86,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Ekki er hægt að opna þetta efni með vinnuforritum"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Ekki er hægt að deila þessu efni með forritum til einkanota"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Ekki er hægt að opna þetta efni með forritum til einkanota"</string>
-    <!-- no translation found for resolver_turn_on_work_apps (7115260573975624516) -->
-    <skip />
-    <!-- no translation found for resolver_switch_on_work (8678893259344318807) -->
-    <skip />
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Hlé gert á vinnuforritum"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Ljúka hléi"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Engin vinnuforrit"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Engin forrit til einkanota"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Opna <xliff:g id="APP">%s</xliff:g> í þínu eigin sniði?"</string>
