@@ -54,26 +54,21 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"取消置顶<xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"编辑"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{另外 # 个文件}other{另外 # 个文件}}"</string>
-    <!-- no translation found for more_files (1043875756612339842) -->
-    <skip />
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{还有 # 个文件}other{还有 # 个文件}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"分享文本"</string>
     <string name="sharing_link" msgid="2307694372813942916">"分享链接"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{分享图片}other{分享 # 张图片}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{正在分享视频}other{正在分享 # 个视频}}"</string>
-    <!-- no translation found for sharing_files (1275646542246028823) -->
-    <skip />
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{正在分享 # 个文件}other{正在分享 # 个文件}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{正在分享带有文本的图片}other{正在分享带有文本的 # 个图片}}"</string>
     <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{正在分享带有链接的图片}other{正在分享带有链接的 # 个图片}}"</string>
     <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{正在分享带有文本的视频}other{正在分享带有文本的 # 个视频}}"</string>
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{正在分享带有链接的视频}other{正在分享带有链接的 # 个视频}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{正在分享带有文本的文件}other{正在分享带有文本的 # 个文件}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{正在分享带有链接的文件}other{正在分享带有链接的 # 个文件}}"</string>
-    <!-- no translation found for sharing_images_only (7762589767189955438) -->
-    <skip />
-    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
-    <skip />
-    <!-- no translation found for sharing_files_only (6603666533766964768) -->
-    <skip />
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{仅限图片}other{仅限图片}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{仅限视频}other{仅限视频}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{仅限文件}other{仅限文件}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"没有任何推荐的分享对象"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"应用列表"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"此应用未获得录音权限，但能通过此 USB 设备录制音频。"</string>

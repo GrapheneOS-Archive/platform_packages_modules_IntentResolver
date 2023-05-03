@@ -66,12 +66,9 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{လင့်ခ်ပါသောဗီဒီယိုကို မျှဝေနေသည်}other{လင့်ခ်ပါသောဗီဒီယို # ခုကို မျှဝေနေသည်}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{စာသားပါသောဖိုင်ကို မျှဝေနေသည်}other{စာသားပါသောဖိုင် # ခုကို မျှဝေနေသည်}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{လင့်ခ်ပါသောဖိုင်ကို မျှဝေနေသည်}other{လင့်ခ်ပါသောဖိုင် # ခုကို မျှဝေနေသည်}}"</string>
-    <!-- no translation found for sharing_images_only (7762589767189955438) -->
-    <skip />
-    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
-    <skip />
-    <!-- no translation found for sharing_files_only (6603666533766964768) -->
-    <skip />
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{ပုံသာလျှင်}other{ပုံများသာလျှင်}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{ဗီဒီယိုသာလျှင်}other{ဗီဒီယိုများသာလျှင်}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ဖိုင်သာလျှင်}other{ဖိုင်များသာလျှင်}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"မျှဝေရန် အကြံပြုထားသူများ မရှိပါ"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"အက်ပ်စာရင်း"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ဤအက်ပ်ကို အသံဖမ်းခွင့် ပေးမထားသော်လည်း ၎င်းသည် ဤ USB စက်ပစ္စည်းမှတစ်ဆင့် အသံများကို ဖမ်းယူနိုင်ပါသည်။"</string>

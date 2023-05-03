@@ -54,14 +54,12 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"Losa <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Breyta"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # skrá}one{+ # skrá}other{+ # skrár}}"</string>
-    <!-- no translation found for more_files (1043875756612339842) -->
-    <skip />
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # skrá í viðbót}one{+ # skrá í viðbót}other{+ # skrár í viðbót}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Deilir texta"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Deilir tengli"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Deilir mynd}one{Deilir # mynd}other{Deilir # myndum}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Deilir myndskeiði}one{Deilir # myndskeiði}other{Deilir # myndskeiðum}}"</string>
-    <!-- no translation found for sharing_files (1275646542246028823) -->
-    <skip />
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Deilir # skrá}one{Deilir # skrá}other{Deilir # skrám}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Deilir mynd með texta}one{Deilir # mynd með texta}other{Deilir # myndum með texta}}"</string>
     <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Deilir mynd með tengli}one{Deilir # mynd með tengli}other{Deilir # myndum með tengli}}"</string>
     <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Deilir myndskeiði með texta}one{Deilir # myndskeiði með texta}other{Deilir # myndskeiðum með texta}}"</string>

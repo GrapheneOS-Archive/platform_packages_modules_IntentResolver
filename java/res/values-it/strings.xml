@@ -54,26 +54,21 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"Sblocca <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Modifica"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # file}many{+ # file}other{+ # file}}"</string>
-    <!-- no translation found for more_files (1043875756612339842) -->
-    <skip />
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # altro file}many{+ altri # file}other{+ altri # file}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Condivisione del testo"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Condivisione del link"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Condivisione dell\'immagine}many{Condivisione di # immagini}other{Condivisione di # immagini}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Condivisione del video…}many{Condivisione di # video…}other{Condivisione di # video…}}"</string>
-    <!-- no translation found for sharing_files (1275646542246028823) -->
-    <skip />
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Condivisione di # file in corso…}many{Condivisione di # file in corso…}other{Condivisione di # file in corso…}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Condivisione immagine con messaggio in corso…}many{Condivisione # immagini con messaggio in corso…}other{Condivisione # immagini con messaggio in corso…}}"</string>
     <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Condivisione immagine con link in corso…}many{Condivisione # immagini con link in corso…}other{Condivisione # immagini con link in corso…}}"</string>
     <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Condivisione video con messaggio in corso…}many{Condivisione # video con messaggio in corso…}other{Condivisione # video con messaggio in corso…}}"</string>
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Condivisione video con link in corso…}many{Condivisione # video con link in corso…}other{Condivisione # video con link in corso…}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Condivisione file con messaggio in corso…}many{Condivisione # file con messaggio in corso…}other{Condivisione # file con messaggio in corso…}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Condivisione file con link in corso…}many{Condivisione # file con link in corso…}other{Condivisione # file con link in corso…}}"</string>
-    <!-- no translation found for sharing_images_only (7762589767189955438) -->
-    <skip />
-    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
-    <skip />
-    <!-- no translation found for sharing_files_only (6603666533766964768) -->
-    <skip />
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Soltanto l\'immagine}many{Soltanto le immagini}other{Soltanto le immagini}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Soltanto il video}many{Soltanto i video}other{Soltanto i video}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Soltanto il file}many{Soltanto i file}other{Soltanto i file}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Nessuna persona consigliata per la condivisione"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Elenco di app"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"A questa app non è stata concessa l\'autorizzazione di registrazione, ma l\'app potrebbe acquisire l\'audio tramite questo dispositivo USB."</string>
