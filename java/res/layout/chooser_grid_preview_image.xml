@@ -34,7 +34,6 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="@dimen/chooser_view_spacing"
         android:layout_marginHorizontal="@dimen/chooser_edge_margin_normal_half"
-        android:background="?android:attr/colorBackground"
         app:itemInnerSpacing="3dp"
         app:itemOuterSpacing="@dimen/chooser_edge_margin_normal_half"/>
 
