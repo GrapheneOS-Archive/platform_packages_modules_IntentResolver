@@ -53,24 +53,24 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Fastgør <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Frigør <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Rediger"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # fil}one{{file_name} + # fil}other{{file_name} + # filer}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # fil}one{+ # fil}other{+ # filer}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # fil mere}one{+ # fil mere}other{+ # filer mere}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Deler tekst"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Deler link"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Deler billede}one{Deler # billede}other{Deler # billeder}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Deler video}one{Deler # video}other{Deler # videoer}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Deler # element}one{Deler # element}other{Deler # elementer}}"</string>
-    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Deler # fil}one{Deler # fil}other{Deler # filer}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Deler billede med tekst}one{Deler # billede med tekst}other{Deler # billeder med tekst}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Deler billede med et link}one{Deler # billede med et link}other{Deler # billeder med et link}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Deler video med tekst}one{Deler # video med tekst}other{Deler # videoer med tekst}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Deler video med et link}one{Deler # video med et link}other{Deler # videoer med et link}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Deler fil med tekst}one{Deler # fil med tekst}other{Deler # filer med tekst}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Deler fil med et link}one{Deler # fil med et link}other{Deler # filer med et link}}"</string>
+    <!-- no translation found for sharing_images_only (7762589767189955438) -->
     <skip />
-    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
+    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
     <skip />
-    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
-    <skip />
-    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <!-- no translation found for sharing_files_only (6603666533766964768) -->
     <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Der er ingen anbefalede personer at dele med"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Liste over apps"</string>
