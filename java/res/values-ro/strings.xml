@@ -54,14 +54,12 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"Anulează fixarea pentru <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Editează"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # fișier}few{+ # fișiere}other{+ # de fișiere}}"</string>
-    <!-- no translation found for more_files (1043875756612339842) -->
-    <skip />
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{Încă un fișier}few{Încă # fișiere}other{Încă # de fișiere}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Se trimite textul"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Se trimite linkul"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Se trimite imaginea}few{Se trimit # imagini}other{Se trimit # de imagini}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Se trimite videoclipul}few{Se trimit # videoclipuri}other{Se trimit # de videoclipuri}}"</string>
-    <!-- no translation found for sharing_files (1275646542246028823) -->
-    <skip />
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Se trimite un fișier}few{Se trimit # fișiere}other{Se trimit # de fișiere}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Se trimite imaginea cu text}few{Se trimit # imagini cu text}other{Se trimit # de imagini cu text}}"</string>
     <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Se trimite imaginea cu linkul}few{Se trimit # imagini cu linkul}other{Se trimit # de imagini cu linkul}}"</string>
     <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Se trimite videoclipul cu text}few{Se trimit # videoclipuri cu text}other{Se trimit # de videoclipuri cu text}}"</string>

@@ -54,26 +54,21 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"ຖອດປັກມຸດ <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"ແກ້ໄຂ"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{ອີກ # ໄຟລ໌}other{ອີກ # ໄຟລ໌}}"</string>
-    <!-- no translation found for more_files (1043875756612339842) -->
-    <skip />
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{ອີກ # ໄຟລ໌}other{ອີກ # ໄຟລ໌}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"ກຳລັງແບ່ງປັນຂໍ້ຄວາມ"</string>
     <string name="sharing_link" msgid="2307694372813942916">"ກຳລັງແບ່ງປັນລິ້ງ"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ກຳລັງແບ່ງປັນຮູບ}other{ກຳລັງແບ່ງປັນ # ຮູບ}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{ກຳລັງແບ່ງປັນວິດີໂອ}other{ກຳລັງແບ່ງປັນ # ວິດີໂອ}}"</string>
-    <!-- no translation found for sharing_files (1275646542246028823) -->
-    <skip />
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{ກຳລັງຈະແບ່ງປັນ # ໄຟລ໌}other{ກຳລັງຈະແບ່ງປັນ # ໄຟລ໌}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{ກຳລັງແບ່ງປັນຮູບພ້ອມຂໍ້ຄວາມ}other{ກຳລັງແບ່ງປັນ # ຮູບພ້ອມຂໍ້ຄວາມ}}"</string>
     <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{ກຳລັງແບ່ງປັນຮູບພ້ອມລິ້ງ}other{ກຳລັງແບ່ງປັນ # ຮູບພ້ອມລິ້ງ}}"</string>
     <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{ກຳລັງແບ່ງປັນວິດີໂອພ້ອມຂໍ້ຄວາມ}other{ກຳລັງແບ່ງປັນ # ວິດີໂອພ້ອມຂໍ້ຄວາມ}}"</string>
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{ກຳລັງແບ່ງປັນວິດີໂອພ້ອມລິ້ງ}other{ກຳລັງແບ່ງປັນ # ວິດີໂອພ້ອມລິ້ງ}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{ກຳລັງແບ່ງປັນໄຟລ໌ພ້ອມຂໍ້ຄວາມ}other{ກຳລັງແບ່ງປັນ # ໄຟລ໌ພ້ອມຂໍ້ຄວາມ}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{ກຳລັງແບ່ງປັນໄຟລ໌ພ້ອມລິ້ງ}other{ກຳລັງແບ່ງປັນ # ໄຟລ໌ພ້ອມລິ້ງ}}"</string>
-    <!-- no translation found for sharing_images_only (7762589767189955438) -->
-    <skip />
-    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
-    <skip />
-    <!-- no translation found for sharing_files_only (6603666533766964768) -->
-    <skip />
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{ຮູບເທົ່ານັ້ນ}other{ຮູບເທົ່ານັ້ນ}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{ວິດີໂອເທົ່ານັ້ນ}other{ວິດີໂອເທົ່ານັ້ນ}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ໄຟລ໌ເທົ່ານັ້ນ}other{ໄຟລ໌ເທົ່ານັ້ນ}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ບໍ່ມີຄົນທີ່ແນະນຳໃຫ້ແບ່ງປັນນຳ"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"ລາຍຊື່ແອັບ"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ແອັບນີ້ບໍ່ໄດ້ຮັບສິດອະນຸຍາດໃນການບັນທຶກ ແຕ່ສາມາດບັນທຶກສຽງໄດ້ຜ່ານອຸປະກອນ USB ນີ້."</string>

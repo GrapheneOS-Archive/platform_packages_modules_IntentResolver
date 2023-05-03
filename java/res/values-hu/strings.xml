@@ -54,14 +54,12 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> rögzítésének feloldása"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Szerkesztés"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # fájl}other{+ # fájl}}"</string>
-    <!-- no translation found for more_files (1043875756612339842) -->
-    <skip />
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{További # fájl}other{További # fájl}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Szöveg megosztása"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Link megosztása"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Kép megosztása}other{# kép megosztása}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Videó megosztása}other{# videó megosztása}}"</string>
-    <!-- no translation found for sharing_files (1275646542246028823) -->
-    <skip />
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# fájl megosztása}other{# fájl megosztása}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Kép megosztása szöveggel}other{# kép megosztása szöveggel}}"</string>
     <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Kép megosztása linkkel}other{# kép megosztása linkkel}}"</string>
     <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Videó megosztása szöveggel}other{# videó megosztása szöveggel}}"</string>

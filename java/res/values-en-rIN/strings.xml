@@ -54,14 +54,12 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"Unpin <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Edit"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # file}other{+ # files}}"</string>
-    <!-- no translation found for more_files (1043875756612339842) -->
-    <skip />
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # more file}other{+ # more files}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Sharing text"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Sharing link"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Sharing image}other{Sharing # images}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Sharing video}other{Sharing # videos}}"</string>
-    <!-- no translation found for sharing_files (1275646542246028823) -->
-    <skip />
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Sharing # file}other{Sharing # files}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Sharing image with text}other{Sharing # images with text}}"</string>
     <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Sharing image with link}other{Sharing # images with link}}"</string>
     <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Sharing video with text}other{Sharing # videos with text}}"</string>

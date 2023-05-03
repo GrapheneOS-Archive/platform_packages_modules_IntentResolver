@@ -54,14 +54,12 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"Odpni aplikacijo <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Uredi"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # datoteka}one{+ # datoteka}two{+ # datoteki}few{+ # datoteke}other{+ # datotek}}"</string>
-    <!-- no translation found for more_files (1043875756612339842) -->
-    <skip />
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ še # datoteka}one{+ še # datoteka}two{+ še # datoteki}few{+ še # datoteke}other{+ še # datotek}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Deljenje besedila"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Deljenje povezave"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Deljenje slike}one{Deljenje # slike}two{Deljenje # slik}few{Deljenje # slik}other{Deljenje # slik}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Deljenje videoposnetka}one{Deljenje # videoposnetka}two{Deljenje # videoposnetkov}few{Deljenje # videoposnetkov}other{Deljenje # videoposnetkov}}"</string>
-    <!-- no translation found for sharing_files (1275646542246028823) -->
-    <skip />
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Deljenje # datoteke}one{Deljenje # datoteke}two{Deljenje # datotek}few{Deljenje # datotek}other{Deljenje # datotek}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Deljenje slike z besedilom}one{Deljenje # slike z besedilom}two{Deljenje # slik z besedilom}few{Deljenje # slik z besedilom}other{Deljenje # slik z besedilom}}"</string>
     <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Deljenje slike s povezavo}one{Deljenje # slike s povezavo}two{Deljenje # slik s povezavo}few{Deljenje # slik s povezavo}other{Deljenje # slik s povezavo}}"</string>
     <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Deljenje videoposnetka z besedilom}one{Deljenje # videoposnetka z besedilom}two{Deljenje # videoposnetkov z besedilom}few{Deljenje # videoposnetkov z besedilom}other{Deljenje # videoposnetkov z besedilom}}"</string>

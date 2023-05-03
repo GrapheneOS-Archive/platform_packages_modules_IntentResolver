@@ -54,14 +54,12 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> ਨੂੰ ਅਨਪਿੰਨ ਕਰੋ"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"ਸੰਪਾਦਨ ਕਰੋ"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ਫ਼ਾਈਲ}one{+ # ਫ਼ਾਈਲ}other{+ # ਫ਼ਾਈਲਾਂ}}"</string>
-    <!-- no translation found for more_files (1043875756612339842) -->
-    <skip />
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # ਹੋਰ ਫ਼ਾਈਲ}one{+ # ਹੋਰ ਫ਼ਾਈਲ}other{+ # ਹੋਰ ਫ਼ਾਈਲਾਂ}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"ਲਿਖਤ ਸਾਂਝੀ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ"</string>
     <string name="sharing_link" msgid="2307694372813942916">"ਲਿੰਕ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ਚਿੱਤਰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}one{# ਚਿੱਤਰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}other{# ਚਿੱਤਰ ਸਾਂਝੇ ਕੀਤੇ ਜਾ ਰਹੇ ਹਨ}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{ਵੀਡੀਓ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}one{# ਵੀਡੀਓ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}other{# ਵੀਡੀਓ ਸਾਂਝੇ ਕੀਤੇ ਜਾ ਰਹੇ ਹਨ}}"</string>
-    <!-- no translation found for sharing_files (1275646542246028823) -->
-    <skip />
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# ਫ਼ਾਈਲ ਸਾਂਝੀ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ}one{# ਫ਼ਾਈਲ ਸਾਂਝੀ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ}other{# ਫ਼ਾਈਲਾਂ ਸਾਂਝੀਆਂ ਕੀਤੀਆਂ ਜਾ ਰਹੀਆਂ ਹਨ}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{ਲਿਖਤ ਸੁਨੇਹੇ ਨਾਲ ਚਿੱਤਰ ਨੂੰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}one{ਲਿਖਤ ਸੁਨੇਹੇ ਨਾਲ # ਚਿੱਤਰ ਨੂੰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}other{ਲਿਖਤ ਸੁਨੇਹੇ ਨਾਲ # ਚਿੱਤਰਾਂ ਨੂੰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}}"</string>
     <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{ਲਿੰਕ ਨਾਲ ਚਿੱਤਰ ਨੂੰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}one{ਲਿੰਕ ਨਾਲ # ਚਿੱਤਰ ਨੂੰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}other{ਲਿੰਕ ਨਾਲ # ਚਿੱਤਰਾਂ ਨੂੰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}}"</string>
     <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{ਲਿਖਤ ਸੁਨੇਹੇ ਨਾਲ ਵੀਡੀਓ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}one{ਲਿਖਤ ਸੁਨੇਹੇ ਨਾਲ # ਵੀਡੀਓ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}other{ਲਿਖਤ ਸੁਨੇਹੇ ਨਾਲ # ਵੀਡੀਓ ਸਾਂਝੇ ਕੀਤੇ ਜਾ ਰਹੇ ਹਨ}}"</string>
