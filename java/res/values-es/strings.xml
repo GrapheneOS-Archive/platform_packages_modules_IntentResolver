@@ -53,24 +53,24 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Fijar <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"No fijar <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Editar"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} y # archivo más}many{{file_name} y # archivos más}other{{file_name} y # archivos más}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # archivo}many{+ # archivos}other{+ # archivos}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{y # archivo más}many{y # archivos más}other{y # archivos más}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Compartiendo texto"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Compartiendo enlace"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Compartiendo imagen}many{Compartiendo # imágenes}other{Compartiendo # imágenes}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Compartiendo vídeo}many{Compartiendo # vídeos}other{Compartiendo # vídeos}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Compartiendo # elemento}many{Compartiendo # elementos}other{Compartiendo # elementos}}"</string>
-    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Compartiendo # archivo}many{Compartiendo # archivos}other{Compartiendo # archivos}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Compartiendo imagen con texto}many{Compartiendo # imágenes con texto}other{Compartiendo # imágenes con texto}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Compartiendo imagen con enlace}many{Compartiendo # imágenes con enlace}other{Compartiendo # imágenes con enlace}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Compartiendo vídeo con texto}many{Compartiendo # vídeos con texto}other{Compartiendo # vídeos con texto}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Compartiendo vídeo con enlace}many{Compartiendo # vídeos con enlace}other{Compartiendo # vídeos con enlace}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Compartiendo archivo con mensaje de texto}many{Compartiendo # archivos con mensaje de texto}other{Compartiendo # archivos con mensaje de texto}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Compartiendo archivo con enlace}many{Compartiendo # archivos con enlace}other{Compartiendo # archivos con enlace}}"</string>
+    <!-- no translation found for sharing_images_only (7762589767189955438) -->
     <skip />
-    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
+    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
     <skip />
-    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
-    <skip />
-    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <!-- no translation found for sharing_files_only (6603666533766964768) -->
     <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"No hay sugerencias de personas con las que compartir"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Lista de aplicaciones"</string>
@@ -84,10 +84,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Este contenido no se puede abrir con aplicaciones de trabajo"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Este contenido no se puede compartir con aplicaciones personales"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Este contenido no se puede abrir con aplicaciones personales"</string>
-    <!-- no translation found for resolver_turn_on_work_apps (7115260573975624516) -->
-    <skip />
-    <!-- no translation found for resolver_switch_on_work (8678893259344318807) -->
-    <skip />
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Las aplicaciones de trabajo están en pausa"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Reactivar"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Ninguna aplicación de trabajo"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Ninguna aplicación personal"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"¿Abrir <xliff:g id="APP">%s</xliff:g> en tu perfil personal?"</string>

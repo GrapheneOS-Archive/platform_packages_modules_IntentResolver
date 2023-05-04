@@ -53,24 +53,24 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"تثبيت <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"إزالة تثبيت <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"تعديل"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + ملف واحد}zero{{file_name} + # ملف}two{{file_name} + ملفان}few{{file_name} + # ملفات}many{{file_name} + # ملفًا}other{{file_name} + # ملف}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ ملف واحد}zero{+ # ملف}two{+ ملفان}few{+ # ملفات}many{+ # ملفًا}other{+ # ملف}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{وملف واحد آخر}zero{و# ملف آخر}two{وملفان آخران}few{و# ملفات أخرى}many{و# ملفًا آخر}other{و# ملف آخر}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"جارٍ مشاركة النص"</string>
     <string name="sharing_link" msgid="2307694372813942916">"جارٍ مشاركة الرابط"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{جارٍ مشاركة صورة واحدة}zero{جارٍ مشاركة # صورة}two{جارٍ مشاركة صورتَين}few{جارٍ مشاركة # صور}many{جارٍ مشاركة # صورة}other{جارٍ مشاركة # صورة}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{جارٍ مشاركة فيديو واحد}zero{جارٍ مشاركة # فيديو}two{جارٍ مشاركة فيديوهَين}few{جارٍ مشاركة # فيديوهات}many{جارٍ مشاركة # فيديو}other{جارٍ مشاركة # فيديو}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{جارٍ مشاركة عنصر واحد}zero{جارٍ مشاركة # عنصر}two{جارٍ مشاركة عنصرَين}few{جارٍ مشاركة # عناصر}many{جارٍ مشاركة # عنصرًا}other{جارٍ مشاركة # عنصر}}"</string>
-    <!-- no translation found for sharing_images_with_text (9005717434461730242) -->
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{مشاركة ملف واحد}zero{مشاركة # ملف}two{مشاركة ملفَّين}few{مشاركة # ملفات}many{مشاركة # ملفًّا}other{مشاركة # ملف}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{مشاركة صورة واحدة ونص}zero{مشاركة # صورة ونص}two{مشاركة صورتَين ونص}few{مشاركة # صور ونص}many{مشاركة # صورة ونص}other{مشاركة # صورة ونص}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{مشاركة صورة واحدة ورابط}zero{مشاركة # صورة ورابط}two{مشاركة # صورتَين ورابط}few{مشاركة # صور ورابط}many{مشاركة # صورة ورابط}other{مشاركة # صورة ورابط}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{مشاركة فيديو واحد ونص}zero{مشاركة # فيديو ونص}two{مشاركة فيديوهَين ونص}few{مشاركة # فيديوهات ونص}many{مشاركة # فيديو ونص}other{مشاركة # فيديو ونص}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{مشاركة فيديو واحد ورابط}zero{مشاركة # فيديو ورابط}two{مشاركة فيديوهَين ورابط}few{مشاركة # فيديوهات ورابط}many{مشاركة # فيديو ورابط}other{مشاركة # فيديو ورابط}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{مشاركة ملف واحد ونص}zero{مشاركة # ملف ونص}two{مشاركة # ملفَّين ونص}few{مشاركة # ملفات ونص}many{مشاركة # ملفًا ونص}other{مشاركة # ملف ونص}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{مشاركة ملف واحد ورابط}zero{مشاركة # ملف ورابط}two{مشاركة ملفَّين ورابط}few{مشاركة # ملفات ورابط}many{مشاركة # ملفًا ورابط}other{مشاركة # ملف ورابط}}"</string>
+    <!-- no translation found for sharing_images_only (7762589767189955438) -->
     <skip />
-    <!-- no translation found for sharing_images_with_link (8907893266387877733) -->
+    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
     <skip />
-    <!-- no translation found for sharing_videos_with_text (4169898442482118146) -->
-    <skip />
-    <!-- no translation found for sharing_videos_with_link (6383290441403042321) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_text (7331187260405018080) -->
-    <skip />
-    <!-- no translation found for sharing_files_with_link (6052797122358827239) -->
+    <!-- no translation found for sharing_files_only (6603666533766964768) -->
     <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ما مِن أشخاص مقترحين للمشاركة معهم."</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"قائمة التطبيقات"</string>
@@ -84,10 +84,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"لا يمكن فتح هذا المحتوى باستخدام تطبيقات العمل."</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"لا يمكن مشاركة هذا المحتوى مع التطبيقات الشخصية."</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"لا يمكن فتح هذا المحتوى باستخدام التطبيقات الشخصية."</string>
-    <!-- no translation found for resolver_turn_on_work_apps (7115260573975624516) -->
-    <skip />
-    <!-- no translation found for resolver_switch_on_work (8678893259344318807) -->
-    <skip />
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"تطبيقات العمل متوقفة مؤقتًا."</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"إلغاء الإيقاف المؤقت"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"ما مِن تطبيقات عمل."</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"ما مِن تطبيقات شخصية."</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"هل تريد فتح <xliff:g id="APP">%s</xliff:g> في ملفك الشخصي؟"</string>
