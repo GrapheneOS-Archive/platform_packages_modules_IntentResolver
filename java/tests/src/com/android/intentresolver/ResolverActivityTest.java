@@ -33,10 +33,10 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.fail;
 
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
@@ -510,7 +510,7 @@ public class ResolverActivityTest {
         waitForIdle();
         TextView headerText = activity.findViewById(com.android.internal.R.id.title);
         String initialText = headerText.getText().toString();
-        assertFalse(initialText.isEmpty(), "Header text is empty.");
+        assertFalse("Header text is empty.", initialText.isEmpty());
         assertThat(headerText.getVisibility(), is(View.VISIBLE));
     }
 
