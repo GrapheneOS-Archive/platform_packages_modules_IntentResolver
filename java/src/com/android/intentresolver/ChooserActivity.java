@@ -713,8 +713,7 @@ public class ChooserActivity extends ResolverActivity implements
         return resolver.query(uri, null, null, null, null);
     }
 
-    @VisibleForTesting
-    protected boolean isImageType(@Nullable String mimeType) {
+    private boolean isImageType(@Nullable String mimeType) {
         return mimeType != null && mimeType.startsWith("image/");
     }
 
