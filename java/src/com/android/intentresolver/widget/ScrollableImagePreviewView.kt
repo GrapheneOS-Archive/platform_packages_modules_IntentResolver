@@ -28,6 +28,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.VisibleForTesting
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -45,8 +46,6 @@ import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
-import java.util.ArrayDeque
-import kotlin.math.roundToInt
 
 private const val TRANSITION_NAME = "screenshot_preview_image"
 private const val PLURALS_COUNT = "count"
@@ -149,14 +148,17 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         previewAdapter.reset(0, imageLoader)
         batchLoader?.cancel()
         batchLoader = BatchPreviewLoader(
-            previewAdapter,
             imageLoader,
             previews,
             otherItemCount,
-        ) {
-            onNoPreviewCallback?.run()
-        }
-        .apply {
+            onReset = { totalItemCount -> previewAdapter.reset(totalItemCount, imageLoader) },
+            onUpdate = previewAdapter::addPreviews,
+            onCompletion = {
+                if (!previewAdapter.hasPreviews) {
+                    onNoPreviewCallback?.run()
+                }
+            }
+        ).apply {
             if (isMeasured) {
                 loadAspectRatios(getMaxWidth(), this@ScrollableImagePreviewView::updatePreviewSize)
             }
@@ -409,14 +411,17 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         }
     }
 
-    private class BatchPreviewLoader(
-        private val adapter: Adapter,
+    @VisibleForTesting
+    class BatchPreviewLoader(
         private val imageLoader: CachingImageLoader,
         previews: List<Preview>,
         otherItemCount: Int,
-        private val onNoPreviewCallback: (() -> Unit)
+        private val onReset: (Int) -> Unit,
+        private val onUpdate: (List<Preview>) -> Unit,
+        private val onCompletion: () -> Unit,
     ) {
-        private val pendingPreviews = ArrayDeque<Preview>(previews)
+        private val previews: List<Preview> =
+            if (previews is RandomAccess) previews else ArrayList(previews)
         private val totalItemCount = previews.size + otherItemCount
         private var scope: CoroutineScope? = MainScope() + Dispatchers.Main.immediate
 
@@ -427,52 +432,75 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
 
         fun loadAspectRatios(maxWidth: Int, previewSizeUpdater: (Preview, Int, Int) -> Int) {
             val scope = this.scope ?: return
-            val updates = ArrayDeque<Preview>(pendingPreviews.size)
+            // -1 encodes that the preview has not been processed,
+            // 0 means failed, > 0 is a preview width
+            val previewWidths = IntArray(previews.size) { -1 }
+            var blockStart = 0 // inclusive
+            var blockEnd = 0 // exclusive
+
             // replay 2 items to guarantee that we'd get at least one update
             val reportFlow = MutableSharedFlow<Any>(replay = 2)
-            var isFirstUpdate = true
             val updateEvent = Any()
             val completedEvent = Any()
-            // throttle adapter updates by waiting on the channel, the channel first notified
-            // when enough preview elements is loaded and then periodically with a delay
+
+            // throttle adapter updates using flow; the flow first emits when enough preview
+            // elements is loaded to fill the viewport and then each time a subsequent block of
+            // previews is loaded
             scope.launch(Dispatchers.Main) {
                 reportFlow
                     .takeWhile { it !== completedEvent }
                     .throttle(ADAPTER_UPDATE_INTERVAL_MS)
                     .onCompletion { cause ->
-                        if (cause == null && !adapter.hasPreviews) {
-                            onNoPreviewCallback()
+                        if (cause == null) {
+                            onCompletion()
                         }
                     }
                     .collect {
-                        if (isFirstUpdate) {
-                            isFirstUpdate = false
-                            adapter.reset(totalItemCount, imageLoader)
+                        if (blockStart == 0) {
+                            onReset(totalItemCount)
+                        }
+                        val updates = ArrayList<Preview>(blockEnd - blockStart)
+                        while (blockStart < blockEnd) {
+                            if (previewWidths[blockStart] > 0) {
+                                updates.add(previews[blockStart])
+                            }
+                            blockStart++
                         }
                         if (updates.isNotEmpty()) {
-                            adapter.addPreviews(updates)
-                            updates.clear()
+                            onUpdate(updates)
                         }
                     }
             }
 
             scope.launch {
-                var loadedPreviewWidth = 0
+                var blockWidth = 0
+                var isFirstBlock = true
+                var nextIdx = 0
                 List<Job>(4) {
                     launch {
-                        while (pendingPreviews.isNotEmpty()) {
-                            val preview = pendingPreviews.poll() ?: continue
-                            val isVisible = loadedPreviewWidth < maxWidth
-                            val bitmap = runCatching {
+                        while (true) {
+                            val i = nextIdx++
+                            if (i >= previews.size) break
+                            val preview = previews[i]
+
+                            previewWidths[i] = runCatching {
                                 // TODO: decide on adding a timeout
-                                imageLoader(preview.uri, isVisible)
-                            }.getOrNull() ?: continue
-                            val previewWidth =
-                                previewSizeUpdater(preview, bitmap.width, bitmap.height)
-                            updates.add(preview)
-                            if (isVisible) {
-                                loadedPreviewWidth += previewWidth
-                                if (loadedPreviewWidth >= maxWidth) {
+                                imageLoader(preview.uri, isFirstBlock)?.let { bitmap ->
+                                    previewSizeUpdater(preview, bitmap.width, bitmap.height)
+                                } ?: 0
+                            }.getOrDefault(0)
+
+                            if (blockEnd != i) continue
+                            while (
+                                blockEnd < previewWidths.size
+                                    && previewWidths[blockEnd] >= 0
+                            ) {
+                                blockWidth += previewWidths[blockEnd]
+                                blockEnd++
+                            }
+                            if (isFirstBlock) {
+                                if (blockWidth >= maxWidth) {
+                                    isFirstBlock = false
                                     // notify that the preview now can be displayed
                                     reportFlow.emit(updateEvent)
                                 }
