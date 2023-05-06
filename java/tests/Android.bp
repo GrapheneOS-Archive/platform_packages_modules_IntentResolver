@@ -29,7 +29,6 @@ android_test {
         "androidx.lifecycle_lifecycle-runtime-ktx",
         "truth-prebuilt",
         "testables",
-        "testng",
         "kotlinx_coroutines_test",
     ],
     test_suites: ["general-tests"],
