@@ -68,6 +68,7 @@ public class ChooserRequestParameters {
 
     private static final int LAUNCH_FLAGS_FOR_SEND_ACTION =
             Intent.FLAG_ACTIVITY_NEW_DOCUMENT | Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
+    private static final int MAX_CHOOSER_ACTIONS = 5;
 
     private final Intent mTarget;
     private final String mReferrerPackageName;
@@ -322,6 +323,7 @@ public class ChooserRequestParameters {
                 true,
                 true)
                 .filter(UriFilters::hasValidIcon)
+                .limit(MAX_CHOOSER_ACTIONS)
                 .collect(toImmutableList());
     }
 
