@@ -19,15 +19,18 @@ package com.android.intentresolver;
 import android.annotation.Nullable;
 import android.annotation.UiThread;
 import android.app.Activity;
-import android.content.Context;
+import android.app.Application;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.ResultReceiver;
 import android.util.Log;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 
 import com.android.intentresolver.chooser.TargetInfo;
 
@@ -42,38 +45,51 @@ import java.util.function.Consumer;
  * call).
  */
 @UiThread
-public final class ChooserRefinementManager {
+public final class ChooserRefinementManager extends ViewModel {
     private static final String TAG = "ChooserRefinement";
-
-    @Nullable
-    private final IntentSender mRefinementIntentSender;
-
-    private final Context mContext;
-    private final Consumer<TargetInfo> mOnSelectionRefined;
-    private final Runnable mOnRefinementCancelled;
 
     @Nullable    // Non-null only during an active refinement session.
     private RefinementResultReceiver mRefinementResultReceiver;
 
-    public ChooserRefinementManager(
-            Context context,
-            @Nullable IntentSender refinementIntentSender,
-            Consumer<TargetInfo> onSelectionRefined,
-            Runnable onRefinementCancelled) {
-        mContext = context;
-        mRefinementIntentSender = refinementIntentSender;
-        mOnSelectionRefined = onSelectionRefined;
-        mOnRefinementCancelled = onRefinementCancelled;
-    }
+    private boolean mConfigurationChangeInProgress = false;
 
     /**
-     * @return whether a refinement session has been initiated (i.e., an earlier call to
-     * {@link #maybeHandleSelection(TargetInfo)} returned true), and isn't yet complete. The session
-     * is complete if the refinement activity calls {@link ResultReceiver#onResultReceived()} (with
-     * any result), or if it's cancelled on our side by {@link ChooserRefinementManager#destroy()}.
+     * A token for the completion of a refinement process that can be consumed exactly once.
      */
-    public boolean isAwaitingRefinementResult() {
-        return (mRefinementResultReceiver != null);
+    public static class RefinementCompletion {
+        private TargetInfo mTargetInfo;
+        private boolean mConsumed;
+
+        RefinementCompletion(TargetInfo targetInfo) {
+            mTargetInfo = targetInfo;
+        }
+
+        /**
+         * @return The output of the completed refinement process. Null if the process was aborted
+         *         or failed.
+         */
+        public TargetInfo getTargetInfo() {
+            return mTargetInfo;
+        }
+
+        /**
+         * Mark this event as consumed if it wasn't already.
+         *
+         * @return true if this had not already been consumed.
+         */
+        public boolean consume() {
+            if (!mConsumed) {
+                mConsumed = true;
+                return true;
+            }
+            return false;
+        }
+    }
+
+    private MutableLiveData<RefinementCompletion> mRefinementCompletion = new MutableLiveData<>();
+
+    public LiveData<RefinementCompletion> getRefinementCompletion() {
+        return mRefinementCompletion;
     }
 
     /**
@@ -81,8 +97,9 @@ public final class ChooserRefinementManager {
      * @return true if the selection should wait for a now-started refinement flow, or false if it
      * can proceed by the default (non-refinement) logic.
      */
-    public boolean maybeHandleSelection(TargetInfo selectedTarget) {
-        if (mRefinementIntentSender == null) {
+    public boolean maybeHandleSelection(TargetInfo selectedTarget,
+            IntentSender refinementIntentSender, Application application, Handler mainHandler) {
+        if (refinementIntentSender == null) {
             return false;
         }
         if (selectedTarget.getAllSourceIntents().isEmpty()) {
@@ -100,33 +117,61 @@ public final class ChooserRefinementManager {
         mRefinementResultReceiver = new RefinementResultReceiver(
                 refinedIntent -> {
                     destroy();
+
                     TargetInfo refinedTarget =
                             selectedTarget.tryToCloneWithAppliedRefinement(refinedIntent);
                     if (refinedTarget != null) {
-                        mOnSelectionRefined.accept(refinedTarget);
+                        mRefinementCompletion.setValue(new RefinementCompletion(refinedTarget));
                     } else {
                         Log.e(TAG, "Failed to apply refinement to any matching source intent");
-                        mOnRefinementCancelled.run();
+                        mRefinementCompletion.setValue(new RefinementCompletion(null));
                     }
                 },
                 () -> {
                     destroy();
-                    mOnRefinementCancelled.run();
+                    mRefinementCompletion.setValue(new RefinementCompletion(null));
                 },
-                mContext.getMainThreadHandler());
+                mainHandler);
 
         Intent refinementRequest = makeRefinementRequest(mRefinementResultReceiver, selectedTarget);
         try {
-            mRefinementIntentSender.sendIntent(mContext, 0, refinementRequest, null, null);
+            refinementIntentSender.sendIntent(application, 0, refinementRequest, null, null);
             return true;
-        } catch (SendIntentException e) {
+        } catch (IntentSender.SendIntentException e) {
             Log.e(TAG, "Refinement IntentSender failed to send", e);
         }
-        return false;
+        return true;
+    }
+
+    /** ChooserActivity has stopped */
+    public void onActivityStop(boolean configurationChanging) {
+        mConfigurationChangeInProgress = configurationChanging;
+    }
+
+    /** ChooserActivity has resumed */
+    public void onActivityResume() {
+        if (mConfigurationChangeInProgress) {
+            mConfigurationChangeInProgress = false;
+        } else {
+            if (mRefinementResultReceiver != null) {
+                // This can happen if the refinement activity terminates without ever sending a
+                // response to our `ResultReceiver`. We're probably not prepared to return the user
+                // into a valid Chooser session, so we'll treat it as a cancellation instead.
+                Log.w(TAG, "Chooser resumed while awaiting refinement result; aborting");
+                destroy();
+                mRefinementCompletion.setValue(new RefinementCompletion(null));
+            }
+        }
+    }
+
+    @Override
+    protected void onCleared() {
+        // App lifecycle over, time to clean up.
+        destroy();
     }
 
     /** Clean up any ongoing refinement session. */
-    public void destroy() {
+    private void destroy() {
         if (mRefinementResultReceiver != null) {
             mRefinementResultReceiver.destroyReceiver();
             mRefinementResultReceiver = null;
