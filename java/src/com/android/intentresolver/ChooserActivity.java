@@ -72,6 +72,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
@@ -250,20 +251,25 @@ public class ChooserActivity extends ResolverActivity implements
             return;
         }
 
-        mRefinementManager = new ChooserRefinementManager(
-                this,
-                mChooserRequest.getRefinementIntentSender(),
-                (validatedRefinedTarget) -> {
-                    maybeRemoveSharedText(validatedRefinedTarget);
+        mRefinementManager = new ViewModelProvider(this).get(ChooserRefinementManager.class);
+
+        mRefinementManager.getRefinementCompletion().observe(this, completion -> {
+            if (completion.consume()) {
+                TargetInfo targetInfo = completion.getTargetInfo();
+                // targetInfo is non-null if the refinement process was successful.
+                if (targetInfo != null) {
+                    maybeRemoveSharedText(targetInfo);
 
                     // We already block suspended targets from going to refinement, and we probably
                     // can't recover a Chooser session if that's the reason the refined target fails
                     // to launch now. Fire-and-forget the refined launch; ignore the return value
                     // and just make sure the Sharesheet session gets cleaned up regardless.
-                    super.onTargetSelected(validatedRefinedTarget, false);
-                    finish();
-                },
-                this::finish);
+                    ChooserActivity.super.onTargetSelected(targetInfo, false);
+                }
+
+                finish();
+            }
+        });
 
         mChooserContentPreviewUi = new ChooserContentPreviewUi(
                 mChooserRequest.getTargetIntent(),
@@ -611,14 +617,7 @@ public class ChooserActivity extends ResolverActivity implements
         Log.d(TAG, "onResume: " + getComponentName().flattenToShortString());
         maybeCancelFinishAnimation();
 
-        if (mRefinementManager.isAwaitingRefinementResult()) {
-            // This can happen if the refinement activity terminates without ever sending a response
-            // to our `ResultReceiver`. We're probably not prepared to return the user into a valid
-            // Chooser session, so we'll treat it as a cancellation instead.
-            Log.w(TAG, "Chooser resumed while awaiting refinement result; aborting");
-            mRefinementManager.destroy();
-            finish();
-        }
+        mRefinementManager.onActivityResume();
     }
 
     @Override
@@ -730,6 +729,8 @@ public class ChooserActivity extends ResolverActivity implements
     @Override
     protected void onStop() {
         super.onStop();
+        mRefinementManager.onActivityStop(isChangingConfigurations());
+
         if (maybeCancelFinishAnimation()) {
             finish();
         }
@@ -741,11 +742,6 @@ public class ChooserActivity extends ResolverActivity implements
 
         if (isFinishing()) {
             mLatencyTracker.onActionCancel(ACTION_LOAD_SHARE_SHEET);
-        }
-
-        if (mRefinementManager != null) {  // TODO: null-checked in case of early-destroy, or skip?
-            mRefinementManager.destroy();
-            mRefinementManager = null;
         }
 
         mBackgroundThreadPoolExecutor.shutdownNow();
@@ -873,7 +869,11 @@ public class ChooserActivity extends ResolverActivity implements
 
     @Override
     protected boolean onTargetSelected(TargetInfo target, boolean alwaysCheck) {
-        if (mRefinementManager.maybeHandleSelection(target)) {
+        if (mRefinementManager.maybeHandleSelection(
+                target,
+                mChooserRequest.getRefinementIntentSender(),
+                getApplication(),
+                getMainThreadHandler())) {
             return false;
         }
         updateModelAndChooserCounts(target);
