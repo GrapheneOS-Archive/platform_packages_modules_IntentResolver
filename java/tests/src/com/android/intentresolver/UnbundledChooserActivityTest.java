@@ -1651,7 +1651,8 @@ public class UnbundledChooserActivityTest {
 
         // We need app targets for direct targets to get displayed
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
-        setupResolverControllers(resolvedComponentInfos);
+        setupResolverControllers(resolvedComponentInfos, resolvedComponentInfos);
+        markWorkProfileUserAvailable();
 
         // set caller-provided target
         Intent chooserIntent = Intent.createChooser(createSendTextIntent(), null);
@@ -1707,6 +1708,17 @@ public class UnbundledChooserActivityTest {
                 "The display label must match",
                 activeAdapter.getItem(0).getDisplayLabel(),
                 is(callerTargetLabel));
+
+        // Switch to work profile and ensure that the target *doesn't* show up there.
+        onView(withText(R.string.resolver_work_tab)).perform(click());
+        waitForIdle();
+
+        for (int i = 0; i < activity.getWorkListAdapter().getCount(); i++) {
+            assertThat(
+                    "Chooser target should not show up in opposite profile",
+                    activity.getWorkListAdapter().getItem(i).getDisplayLabel(),
+                    not(callerTargetLabel));
+        }
     }
 
     @Test
