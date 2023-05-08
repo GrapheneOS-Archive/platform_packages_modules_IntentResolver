@@ -61,7 +61,6 @@ public class ChooserActivityOverrideData {
     public ChooserActivity.ChooserListController resolverListController;
     public ChooserActivity.ChooserListController workResolverListController;
     public Boolean isVoiceInteraction;
-    public boolean isImageType;
     public Cursor resolverCursor;
     public boolean resolverForceException;
     public ImageLoader imageLoader;
@@ -84,7 +83,6 @@ public class ChooserActivityOverrideData {
         isVoiceInteraction = null;
         createPackageManager = null;
         imageLoader = null;
-        isImageType = false;
         resolverCursor = null;
         resolverForceException = false;
         resolverListController = mock(ChooserActivity.ChooserListController.class);
