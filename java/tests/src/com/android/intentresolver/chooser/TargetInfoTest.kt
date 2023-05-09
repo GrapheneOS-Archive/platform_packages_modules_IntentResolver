@@ -234,15 +234,15 @@ class TargetInfoTest {
 
         val refinedResult = originalInfo.tryToCloneWithAppliedRefinement(refinement)
         // Note `DisplayResolveInfo` targets merge refinements directly into their `resolvedIntent`.
-        assertThat(refinedResult.resolvedIntent.getBooleanExtra("refinement", false)).isTrue()
-        assertThat(refinedResult.resolvedIntent.getBooleanExtra("targetAlternate", false))
+        assertThat(refinedResult?.resolvedIntent?.getBooleanExtra("refinement", false)).isTrue()
+        assertThat(refinedResult?.resolvedIntent?.getBooleanExtra("targetAlternate", false))
             .isTrue()
         // None of the other source intents got merged in (not even the later one that matched):
-        assertThat(refinedResult.resolvedIntent.getBooleanExtra("originalIntent", false))
+        assertThat(refinedResult?.resolvedIntent?.getBooleanExtra("originalIntent", false))
             .isFalse()
-        assertThat(refinedResult.resolvedIntent.getBooleanExtra("mismatchedAlternate", false))
+        assertThat(refinedResult?.resolvedIntent?.getBooleanExtra("mismatchedAlternate", false))
             .isFalse()
-        assertThat(refinedResult.resolvedIntent.getBooleanExtra("extraMatch", false)).isFalse()
+        assertThat(refinedResult?.resolvedIntent?.getBooleanExtra("extraMatch", false)).isFalse()
     }
 
     @Test
