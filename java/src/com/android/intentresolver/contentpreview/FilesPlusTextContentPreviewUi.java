@@ -181,7 +181,6 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
         includeText.setText(isLink ? R.string.include_link : R.string.include_text);
         shareTextAction.accept(false);
         includeText.setOnCheckedChangeListener((view, isChecked) -> {
-            textView.setEnabled(isChecked);
             if (isChecked) {
                 textView.setText(mText);
             } else {
