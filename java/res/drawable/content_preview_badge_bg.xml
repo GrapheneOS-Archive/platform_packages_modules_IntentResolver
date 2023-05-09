@@ -14,14 +14,15 @@
   ~ limitations under the License.
   -->
 
+<!-- Note that this is the drawable for landscape phones, the default is in drawable-480dp -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <corners android:radius="@dimen/chooser_corner_radius_small" />
     <gradient
         android:type="radial"
-        android:centerX="1"
-        android:centerY="0"
-        android:gradientRadius="@dimen/chooser_preview_image_height_tall"
+        android:centerX="0.5"
+        android:centerY="0.5"
+        android:gradientRadius="23dp"
         android:startColor="#60000000"
         android:endColor="#00000000" />
 </shape>
