@@ -800,16 +800,14 @@ public class ChooserActivity extends ResolverActivity implements
         }
     }
 
-    @Override
-    public void addUseDifferentAppLabelIfNecessary(ResolverListAdapter adapter) {
+    private void addCallerChooserTargets() {
         if (!mChooserRequest.getCallerChooserTargets().isEmpty()) {
             // Send the caller's chooser targets only to the default profile.
             UserHandle defaultUser = (findSelectedProfile() == PROFILE_WORK)
                     ? getAnnotatedUserHandles().workProfileUserHandle
                     : getAnnotatedUserHandles().personalProfileUserHandle;
-            ChooserListAdapter chooserAdapter = (ChooserListAdapter) adapter;
-            if (chooserAdapter.getUserHandle() == defaultUser) {
-                chooserAdapter.addServiceResults(
+            if (mChooserMultiProfilePagerAdapter.getCurrentUserHandle() == defaultUser) {
+                mChooserMultiProfilePagerAdapter.getActiveListAdapter().addServiceResults(
                         /* origTarget */ null,
                         new ArrayList<>(mChooserRequest.getCallerChooserTargets()),
                         TARGET_TYPE_DEFAULT,
@@ -1542,6 +1540,7 @@ public class ChooserActivity extends ResolverActivity implements
         }
 
         if (rebuildComplete) {
+            addCallerChooserTargets();
             getChooserActivityLogger().logSharesheetAppLoadComplete();
             maybeQueryAdditionalPostProcessingTargets(chooserListAdapter);
             mLatencyTracker.onActionEnd(ACTION_LOAD_SHARE_SHEET);
