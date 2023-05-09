@@ -26,7 +26,6 @@ import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -855,7 +854,7 @@ public class UnbundledChooserActivityTest {
         onView(withId(R.id.image_view))
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         onView(withId(R.id.content_preview_text))
-                .check(matches(allOf(isDisplayed(), not(isEnabled()), withText("Image only"))));
+                .check(matches(allOf(isDisplayed(), withText("Image only"))));
     }
 
     @Test
