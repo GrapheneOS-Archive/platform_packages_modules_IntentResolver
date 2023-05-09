@@ -15,16 +15,16 @@
   -->
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
-    android:gravity="center"
-    android:drawablePadding="8dp"
-    android:textColor="?androidprv:attr/materialColorOnSurface"
-    android:textSize="12sp"
-    android:maxWidth="@dimen/chooser_action_max_width"
+    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    style="?android:attr/borderlessButtonStyle"
+    android:paddingVertical="16dp"
     android:clickable="true"
+    android:drawablePadding="8dp"
     android:drawableTint="?androidprv:attr/materialColorOnSurfaceVariant"
     android:drawableTintMode="src_in"
     android:ellipsize="end"
+    android:gravity="center"
     android:maxLines="2"
-    style="?android:attr/borderlessButtonStyle"
-    />
+    android:maxWidth="@dimen/chooser_action_max_width"
+    android:textColor="?androidprv:attr/materialColorOnSurface"
+    android:textSize="12sp" />
