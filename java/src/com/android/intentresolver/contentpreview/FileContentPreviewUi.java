@@ -22,6 +22,7 @@ import android.util.PluralsMessageFormatter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.intentresolver.R;
@@ -91,6 +92,8 @@ class FileContentPreviewUi extends ContentPreviewUi {
             secondLine.setText(
                     PluralsMessageFormatter.format(resources, arguments, R.string.more_files));
         } else {
+            ImageView icon = contentPreviewLayout.findViewById(R.id.content_preview_file_icon);
+            icon.setImageResource(R.drawable.single_file);
             secondLine.setVisibility(View.GONE);
         }
 
