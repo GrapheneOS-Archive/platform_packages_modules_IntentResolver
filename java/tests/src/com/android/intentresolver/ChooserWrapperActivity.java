@@ -201,11 +201,6 @@ public class ChooserWrapperActivity
     }
 
     @Override
-    protected boolean isImageType(String mimeType) {
-        return sOverrides.isImageType;
-    }
-
-    @Override
     public ChooserActivityLogger getChooserActivityLogger() {
         return sOverrides.chooserActivityLogger;
     }
