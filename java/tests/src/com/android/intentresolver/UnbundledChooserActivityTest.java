@@ -97,6 +97,7 @@ import android.view.WindowManager;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.contrib.RecyclerViewActions;
@@ -695,9 +696,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testFilePlusTextSharing_ExcludeText() {
-        Uri uri = Uri.parse(
-                "android.resource://com.android.frameworks.coretests/"
-                        + R.drawable.test320x240);
+        Uri uri = createTestContentProviderUri(null, "image/png");
         Intent sendIntent = createSendImageIntent(uri);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 createImageLoader(uri, createBitmap());
@@ -738,9 +737,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testFilePlusTextSharing_RemoveAndAddBackText() {
-        Uri uri = Uri.parse(
-                "android.resource://com.android.frameworks.coretests/"
-                        + R.drawable.test320x240);
+        Uri uri = createTestContentProviderUri("application/pdf", "image/png");
         Intent sendIntent = createSendImageIntent(uri);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 createImageLoader(uri, createBitmap());
@@ -787,9 +784,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testFilePlusTextSharing_TextExclusionDoesNotAffectAlternativeIntent() {
-        Uri uri = Uri.parse(
-                "android.resource://com.android.frameworks.coretests/"
-                        + R.drawable.test320x240);
+        Uri uri = createTestContentProviderUri("image/png", null);
         Intent sendIntent = createSendImageIntent(uri);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 createImageLoader(uri, createBitmap());
@@ -832,13 +827,10 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testImagePlusTextSharing_failedThumbnailAndExcludedText_textChanges() {
-        Uri uri = Uri.parse(
-                "android.resource://com.android.frameworks.coretests/"
-                        + R.drawable.test320x240);
+        Uri uri = createTestContentProviderUri("image/png", null);
         Intent sendIntent = createSendImageIntent(uri);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 new TestPreviewImageLoader(Collections.emptyMap());
-        ChooserActivityOverrideData.getInstance().isImageType = true;
         sendIntent.putExtra(Intent.EXTRA_TEXT, "https://google.com/search?q=google");
 
         List<ResolvedComponentInfo> resolvedComponentInfos = Arrays.asList(
@@ -863,7 +855,7 @@ public class UnbundledChooserActivityTest {
         onView(withId(R.id.image_view))
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         onView(withId(R.id.content_preview_text))
-                .check(matches(allOf(isDisplayed(), not(isEnabled()), withText("File only"))));
+                .check(matches(allOf(isDisplayed(), not(isEnabled()), withText("Image only"))));
     }
 
     @Test
@@ -930,14 +922,11 @@ public class UnbundledChooserActivityTest {
 
 
     @Test @Ignore
-    public void testEditImageLogs() throws Exception {
-        Uri uri = Uri.parse(
-                "android.resource://com.android.frameworks.coretests/"
-                        + R.drawable.test320x240);
+    public void testEditImageLogs() {
+        Uri uri = createTestContentProviderUri("image/png", null);
         Intent sendIntent = createSendImageIntent(uri);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 createImageLoader(uri, createBitmap());
-        ChooserActivityOverrideData.getInstance().isImageType = true;
 
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
 
@@ -956,8 +945,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void oneVisibleImagePreview() {
-        Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
-                + R.drawable.test320x240);
+        Uri uri = createTestContentProviderUri("image/png", null);
 
         ArrayList<Uri> uris = new ArrayList<>();
         uris.add(uri);
@@ -965,7 +953,6 @@ public class UnbundledChooserActivityTest {
         Intent sendIntent = createSendUriIntentWithPreview(uris);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 createImageLoader(uri, createWideBitmap());
-        ChooserActivityOverrideData.getInstance().isImageType = true;
 
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
 
@@ -993,8 +980,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void allThumbnailsFailedToLoad_hidePreview() {
-        Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
-                + R.drawable.test320x240);
+        Uri uri = createTestContentProviderUri("image/jpg", null);
 
         ArrayList<Uri> uris = new ArrayList<>();
         uris.add(uri);
@@ -1003,7 +989,6 @@ public class UnbundledChooserActivityTest {
         Intent sendIntent = createSendUriIntentWithPreview(uris);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 new TestPreviewImageLoader(Collections.emptyMap());
-        ChooserActivityOverrideData.getInstance().isImageType = true;
 
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
 
@@ -1016,8 +1001,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testManyVisibleImagePreview_ScrollableImagePreview() {
-        Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
-                + R.drawable.test320x240);
+        Uri uri = createTestContentProviderUri("image/png", null);
 
         ArrayList<Uri> uris = new ArrayList<>();
         uris.add(uri);
@@ -1034,7 +1018,6 @@ public class UnbundledChooserActivityTest {
         Intent sendIntent = createSendUriIntentWithPreview(uris);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 createImageLoader(uri, createBitmap());
-        ChooserActivityOverrideData.getInstance().isImageType = true;
 
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
 
@@ -1054,8 +1037,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testImageAndTextPreview() {
-        final Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
-                + R.drawable.test320x240);
+        final Uri uri = createTestContentProviderUri("image/png", null);
         final String sharedText = "text-" + System.currentTimeMillis();
 
         ArrayList<Uri> uris = new ArrayList<>();
@@ -1065,7 +1047,6 @@ public class UnbundledChooserActivityTest {
         sendIntent.putExtra(Intent.EXTRA_TEXT, sharedText);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 createImageLoader(uri, createBitmap());
-        ChooserActivityOverrideData.getInstance().isImageType = true;
 
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
 
@@ -1078,8 +1059,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testTextPreviewWhenTextIsSharedWithMultipleImages() {
-        final Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
-                + R.drawable.test320x240);
+        final Uri uri = createTestContentProviderUri("image/png", null);
         final String sharedText = "text-" + System.currentTimeMillis();
 
         ArrayList<Uri> uris = new ArrayList<>();
@@ -1090,7 +1070,6 @@ public class UnbundledChooserActivityTest {
         sendIntent.putExtra(Intent.EXTRA_TEXT, sharedText);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 createImageLoader(uri, createBitmap());
-        ChooserActivityOverrideData.getInstance().isImageType = true;
 
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
 
@@ -1170,8 +1149,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testImagePreviewLogging() {
-        Uri uri = Uri.parse("android.resource://com.android.frameworks.coretests/"
-                + R.drawable.test320x240);
+        Uri uri = createTestContentProviderUri("image/png", null);
 
         ArrayList<Uri> uris = new ArrayList<>();
         uris.add(uri);
@@ -1179,7 +1157,6 @@ public class UnbundledChooserActivityTest {
         Intent sendIntent = createSendUriIntentWithPreview(uris);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 createImageLoader(uri, createBitmap());
-        ChooserActivityOverrideData.getInstance().isImageType = true;
 
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
 
@@ -2658,6 +2635,21 @@ public class UnbundledChooserActivityTest {
         }
 
         return sendIntent;
+    }
+
+    private Uri createTestContentProviderUri(
+            @Nullable String mimeType, @Nullable String streamType) {
+        String packageName =
+                InstrumentationRegistry.getInstrumentation().getContext().getPackageName();
+        Uri.Builder builder = Uri.parse("content://" + packageName + "/image.png")
+                .buildUpon();
+        if (mimeType != null) {
+            builder.appendQueryParameter("mimeType", mimeType);
+        }
+        if (streamType != null) {
+            builder.appendQueryParameter("streamType", streamType);
+        }
+        return builder.build();
     }
 
     private Intent createSendTextIntentWithPreview(String title, Uri imageThumbnail) {
