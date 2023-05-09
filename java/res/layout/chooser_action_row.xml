@@ -23,7 +23,7 @@
         android:id="@+id/actions_top_divider"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="?androidprv:attr/materialColorSurfaceDim"
+        android:background="?androidprv:attr/materialColorSurfaceContainerHighest"
     />
 
     <com.android.intentresolver.widget.ScrollableActionRow
@@ -37,7 +37,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="?androidprv:attr/materialColorSurfaceDim"
+        android:background="?androidprv:attr/materialColorSurfaceContainerHighest"
     />
 </merge>
 
