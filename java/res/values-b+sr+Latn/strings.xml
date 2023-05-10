@@ -66,12 +66,9 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Deli se video sa linkom}one{Deli se # video sa linkom}few{Dele se # video snimka sa linkom}other{Deli se # video snimaka sa linkom}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Deli se fajl sa tekstom}one{Deli se # fajl sa tekstom}few{Dele se # fajla sa tekstom}other{Deli se # fajlova sa tekstom}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Deli se fajl sa linkom}one{Deli se # fajl sa linkom}few{Dele se # fajla sa linkom}other{Deli se # fajlova sa linkom}}"</string>
-    <!-- no translation found for sharing_images_only (7762589767189955438) -->
-    <skip />
-    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
-    <skip />
-    <!-- no translation found for sharing_files_only (6603666533766964768) -->
-    <skip />
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Samo slika}one{Samo slike}few{Samo slike}other{Samo slike}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Samo video}one{Samo video snimci}few{Samo video snimci}other{Samo video snimci}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Samo fajl}one{Samo fajlovi}few{Samo fajlovi}other{Samo fajlovi}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Nema preporučenih ljudi za deljenje"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Lista aplikacija"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Ova aplikacija nema dozvolu za snimanje, ali bi mogla da snima zvuk pomoću ovog USB uređaja."</string>
@@ -85,7 +82,7 @@
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Ovaj sadržaj ne može da se deli pomoću ličnih aplikacija"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Ovaj sadržaj ne može da se otvara pomoću ličnih aplikacija"</string>
     <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Poslovne aplikacije su pauzirane"</string>
-    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Opozovi pauzu"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Ponovo aktiviraj"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Nema poslovnih aplikacija"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Nema ličnih aplikacija"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Želite da na ličnom profilu otvorite: <xliff:g id="APP">%s</xliff:g>?"</string>

@@ -66,9 +66,9 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{正在分享影片 (含有連結)}other{正在分享 # 部影片 (含有連結)}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{正在分享檔案 (含有文字)}other{正在分享 # 個檔案 (含有文字)}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{正在分享檔案 (含有連結)}other{正在分享 # 個檔案 (含有連結)}}"</string>
-    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{只有圖片}other{只有圖片}}"</string>
-    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{只有影片}other{只有影片}}"</string>
-    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{只有檔案}other{只有檔案}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{僅含圖片}other{僅含圖片}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{僅含影片}other{僅含影片}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{僅含檔案}other{僅含檔案}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"沒有推薦的分享對象"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"應用程式清單"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"此應用程式尚未獲授予錄音權限，但可透過此 USB 裝置記錄音訊。"</string>
