@@ -50,10 +50,10 @@ abstract class ContentPreviewUi {
             List<ActionRow.Action> customActions) {
         ArrayList<ActionRow.Action> actions =
                 new ArrayList<>(systemActions.size() + customActions.size());
-        if (customActions != null && !customActions.isEmpty()) {
-            actions.addAll(customActions);
-        } else {
+        if (customActions.isEmpty()) {
             actions.addAll(systemActions);
+        } else {
+            actions.addAll(customActions);
         }
         return actions;
     }
