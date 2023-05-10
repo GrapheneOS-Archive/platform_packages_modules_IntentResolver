@@ -66,12 +66,9 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{กำลังแชร์วิดีโอพร้อมลิงก์}other{กำลังแชร์วิดีโอ # รายการพร้อมลิงก์}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{กำลังแชร์ไฟล์พร้อมข้อความ}other{กำลังแชร์ไฟล์ # รายการพร้อมข้อความ}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{กำลังแชร์ไฟล์พร้อมลิงก์}other{กำลังแชร์ไฟล์ # รายการพร้อมลิงก์}}"</string>
-    <!-- no translation found for sharing_images_only (7762589767189955438) -->
-    <skip />
-    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
-    <skip />
-    <!-- no translation found for sharing_files_only (6603666533766964768) -->
-    <skip />
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{รูปภาพเท่านั้น}other{รูปภาพเท่านั้น}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{วิดีโอเท่านั้น}other{วิดีโอเท่านั้น}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ไฟล์เท่านั้น}other{ไฟล์เท่านั้น}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ไม่พบใครที่แนะนำให้แชร์ด้วย"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"รายชื่อแอป"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"แอปนี้ไม่ได้รับอนุญาตให้บันทึกเสียงแต่อาจเก็บเสียงผ่านอุปกรณ์ USB นี้ได้"</string>
