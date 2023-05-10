@@ -36,32 +36,30 @@ import java.util.List;
 import java.util.Objects;
 
 class UnifiedContentPreviewUi extends ContentPreviewUi {
-    private final List<FileInfo> mFiles;
-    @Nullable
+    private final boolean mShowEditAction;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
     private final ImageLoader mImageLoader;
     private final MimeTypeClassifier mTypeClassifier;
     private final TransitionElementStatusCallback mTransitionElementStatusCallback;
     private final HeadlineGenerator mHeadlineGenerator;
+    @Nullable
+    private List<FileInfo> mFiles;
+    @Nullable
+    private ViewGroup mContentPreviewView;
 
     UnifiedContentPreviewUi(
-            List<FileInfo> files,
+            boolean isSingleImage,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
             MimeTypeClassifier typeClassifier,
             TransitionElementStatusCallback transitionElementStatusCallback,
             HeadlineGenerator headlineGenerator) {
-        mFiles = files;
+        mShowEditAction = isSingleImage;
         mActionFactory = actionFactory;
         mImageLoader = imageLoader;
         mTypeClassifier = typeClassifier;
         mTransitionElementStatusCallback = transitionElementStatusCallback;
         mHeadlineGenerator = headlineGenerator;
-
-        mImageLoader.prePopulate(mFiles.stream()
-                .map(FileInfo::getPreviewUri)
-                .filter(Objects::nonNull)
-                .toList());
     }
 
     @Override
@@ -76,74 +74,88 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
         return layout;
     }
 
+    public void setFiles(List<FileInfo> files) {
+        mImageLoader.prePopulate(files.stream()
+                .map(FileInfo::getPreviewUri)
+                .filter(Objects::nonNull)
+                .toList());
+        mFiles = files;
+        if (mContentPreviewView != null) {
+            updatePreviewWithFiles(mContentPreviewView, files);
+        }
+    }
+
     private ViewGroup displayInternal(LayoutInflater layoutInflater, ViewGroup parent) {
-        ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
+        mContentPreviewView = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_image, parent, false);
-        ScrollableImagePreviewView imagePreview =
-                contentPreviewLayout.findViewById(R.id.scrollable_image_preview);
 
         final ActionRow actionRow =
-                contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
+                mContentPreviewView.findViewById(com.android.internal.R.id.chooser_action_row);
         List<ActionRow.Action> actions = createActions(
                 createImagePreviewActions(),
                 mActionFactory.createCustomActions());
         actionRow.setActions(actions);
         if (actions.isEmpty()) {
-            contentPreviewLayout.findViewById(R.id.actions_top_divider).setVisibility(View.GONE);
+            mContentPreviewView.findViewById(R.id.actions_top_divider).setVisibility(View.GONE);
         }
 
+        ScrollableImagePreviewView imagePreview =
+                mContentPreviewView.requireViewById(R.id.scrollable_image_preview);
+        imagePreview.setOnNoPreviewCallback(() -> imagePreview.setVisibility(View.GONE));
+        imagePreview.setTransitionElementStatusCallback(mTransitionElementStatusCallback);
 
-        if (mFiles.size() == 0) {
+        if (mFiles != null) {
+            updatePreviewWithFiles(mContentPreviewView, mFiles);
+        }
+
+        return mContentPreviewView;
+    }
+
+    private void updatePreviewWithFiles(ViewGroup contentPreviewView, List<FileInfo> files) {
+        final int count = files.size();
+        ScrollableImagePreviewView imagePreview =
+                contentPreviewView.requireViewById(R.id.scrollable_image_preview);
+        if (count == 0) {
             Log.i(
                     TAG,
                     "Attempted to display image preview area with zero"
-                        + " available images detected in EXTRA_STREAM list");
+                            + " available images detected in EXTRA_STREAM list");
             imagePreview.setVisibility(View.GONE);
             mTransitionElementStatusCallback.onAllTransitionElementsReady();
-            return contentPreviewLayout;
+            return;
         }
 
         List<ScrollableImagePreviewView.Preview> previews = new ArrayList<>();
-        boolean allImages = !mFiles.isEmpty();
-        boolean allVideos = !mFiles.isEmpty();
-        for (FileInfo fileInfo : mFiles) {
+        boolean allImages = true;
+        boolean allVideos = true;
+        for (FileInfo fileInfo : files) {
             ScrollableImagePreviewView.PreviewType previewType =
                     getPreviewType(mTypeClassifier, fileInfo.getMimeType());
             allImages = allImages && previewType == ScrollableImagePreviewView.PreviewType.Image;
             allVideos = allVideos && previewType == ScrollableImagePreviewView.PreviewType.Video;
 
             if (fileInfo.getPreviewUri() != null) {
-                previews.add(new ScrollableImagePreviewView.Preview(
-                        previewType,
-                        fileInfo.getPreviewUri()));
+                previews.add(
+                        new ScrollableImagePreviewView.Preview(
+                                previewType, fileInfo.getPreviewUri()));
             }
         }
 
-        imagePreview.setOnNoPreviewCallback(() -> imagePreview.setVisibility(View.GONE));
-        imagePreview.setTransitionElementStatusCallback(mTransitionElementStatusCallback);
-        imagePreview.setPreviews(
-                previews,
-                mFiles.size() - previews.size(),
-                mImageLoader);
+        imagePreview.setPreviews(previews, count - previews.size(), mImageLoader);
 
         if (allImages) {
-            displayHeadline(
-                    contentPreviewLayout, mHeadlineGenerator.getImagesHeadline(mFiles.size()));
+            displayHeadline(contentPreviewView, mHeadlineGenerator.getImagesHeadline(count));
         } else if (allVideos) {
-            displayHeadline(
-                    contentPreviewLayout, mHeadlineGenerator.getVideosHeadline(mFiles.size()));
+            displayHeadline(contentPreviewView, mHeadlineGenerator.getVideosHeadline(count));
         } else {
-            displayHeadline(
-                    contentPreviewLayout, mHeadlineGenerator.getFilesHeadline(mFiles.size()));
+            displayHeadline(contentPreviewView, mHeadlineGenerator.getFilesHeadline(count));
         }
-
-        return contentPreviewLayout;
     }
 
     private List<ActionRow.Action> createImagePreviewActions() {
         ArrayList<ActionRow.Action> actions = new ArrayList<>(1);
         //TODO: add copy action;
-        if (mFiles.size() == 1 && mTypeClassifier.isImageType(mFiles.get(0).getMimeType())) {
+        if (mShowEditAction) {
             ActionRow.Action action = mActionFactory.createEditButton();
             if (action != null) {
                 actions.add(action);
