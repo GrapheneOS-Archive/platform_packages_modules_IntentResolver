@@ -16,8 +16,8 @@
 
 package com.android.intentresolver.measurements
 
-import android.os.Trace
 import android.os.SystemClock
+import android.os.Trace
 import android.util.Log
 import java.util.concurrent.atomic.AtomicLong
 
@@ -43,4 +43,13 @@ object Tracer {
     }
 
     private fun elapsedTimeNow() = SystemClock.elapsedRealtime()
+}
+
+inline fun <R> runTracing(name: String, block: () -> R): R {
+    Trace.beginSection(name)
+    try {
+        return block()
+    } finally {
+        Trace.endSection()
+    }
 }
