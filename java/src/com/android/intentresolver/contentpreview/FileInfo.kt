@@ -16,33 +16,21 @@
 package com.android.intentresolver.contentpreview
 
 import android.net.Uri
+import androidx.annotation.VisibleForTesting
 
-internal class FileInfo private constructor(
-    val uri: Uri,
-    val name: String?,
-    val previewUri: Uri?,
-    val mimeType: String?
-) {
+class FileInfo private constructor(val uri: Uri, val previewUri: Uri?, val mimeType: String?) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
     class Builder(val uri: Uri) {
-        var name: String = ""
-            private set
         var previewUri: Uri? = null
             private set
         var mimeType: String? = null
             private set
 
-        fun withName(name: String): Builder = apply {
-            this.name = name
-        }
+        @Synchronized fun withPreviewUri(uri: Uri?): Builder = apply { previewUri = uri }
 
-        fun withPreviewUri(uri: Uri?): Builder = apply {
-            previewUri = uri
-        }
+        @Synchronized
+        fun withMimeType(mimeType: String?): Builder = apply { this.mimeType = mimeType }
 
-        fun withMimeType(mimeType: String?): Builder = apply {
-            this.mimeType = mimeType
-        }
-
-        fun build(): FileInfo = FileInfo(uri, name, previewUri, mimeType)
+        @Synchronized fun build(): FileInfo = FileInfo(uri, previewUri, mimeType)
     }
 }
