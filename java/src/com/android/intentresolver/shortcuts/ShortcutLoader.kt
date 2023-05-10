@@ -38,6 +38,10 @@ import androidx.annotation.WorkerThread
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
 import com.android.intentresolver.chooser.DisplayResolveInfo
+import com.android.intentresolver.measurements.Tracer
+import com.android.intentresolver.measurements.runTracing
+import java.util.concurrent.Executor
+import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -47,20 +51,19 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executor
-import java.util.function.Consumer
 
 /**
  * Encapsulates shortcuts loading logic from either AppPredictor or ShortcutManager.
  *
- *
  * A ShortcutLoader instance can be viewed as a per-profile singleton hot stream of shortcut
- * updates. The shortcut loading is triggered in the constructor or by the [reset] method,
- * the processing happens on the [dispatcher] and the result is delivered
- * through the [callback] on the default [lifecycle]'s dispatcher, the main thread.
+ * updates. The shortcut loading is triggered in the constructor or by the [reset] method, the
+ * processing happens on the [dispatcher] and the result is delivered through the [callback] on the
+ * default [lifecycle]'s dispatcher, the main thread.
  */
 @OpenForTesting
-open class ShortcutLoader @VisibleForTesting constructor(
+open class ShortcutLoader
+@VisibleForTesting
+constructor(
     private val context: Context,
     private val lifecycle: Lifecycle,
     private val appPredictor: AppPredictorProxy?,
@@ -73,13 +76,15 @@ open class ShortcutLoader @VisibleForTesting constructor(
     private val shortcutToChooserTargetConverter = ShortcutToChooserTargetConverter()
     private val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
     private val appPredictorCallback = AppPredictor.Callback { onAppPredictorCallback(it) }
-    private val appTargetSource = MutableSharedFlow<Array<DisplayResolveInfo>?>(
-        replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    private val shortcutSource = MutableSharedFlow<ShortcutData?>(
-        replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    private val isDestroyed get() = !lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)
+    private val appTargetSource =
+        MutableSharedFlow<Array<DisplayResolveInfo>?>(
+            replay = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST
+        )
+    private val shortcutSource =
+        MutableSharedFlow<ShortcutData?>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private val isDestroyed
+        get() = !lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)
 
     @MainThread
     constructor(
@@ -93,7 +98,8 @@ open class ShortcutLoader @VisibleForTesting constructor(
         context,
         lifecycle,
         appPredictor?.let { AppPredictorProxy(it) },
-        userHandle, userHandle == UserHandle.of(ActivityManager.getCurrentUser()),
+        userHandle,
+        userHandle == UserHandle.of(ActivityManager.getCurrentUser()),
         targetIntentFilter,
         Dispatchers.IO,
         callback
@@ -103,43 +109,38 @@ open class ShortcutLoader @VisibleForTesting constructor(
         appPredictor?.registerPredictionUpdates(dispatcher.asExecutor(), appPredictorCallback)
         lifecycle.coroutineScope
             .launch {
-                appTargetSource.combine(shortcutSource) { appTargets, shortcutData ->
-                    if (appTargets == null || shortcutData == null) {
-                        null
-                    } else {
-                        filterShortcuts(
-                            appTargets,
-                            shortcutData.shortcuts,
-                            shortcutData.isFromAppPredictor,
-                            shortcutData.appPredictorTargets
-                        )
+                appTargetSource
+                    .combine(shortcutSource) { appTargets, shortcutData ->
+                        if (appTargets == null || shortcutData == null) {
+                            null
+                        } else {
+                            runTracing("filter-shortcuts-${userHandle.identifier}") {
+                                filterShortcuts(
+                                    appTargets,
+                                    shortcutData.shortcuts,
+                                    shortcutData.isFromAppPredictor,
+                                    shortcutData.appPredictorTargets
+                                )
+                            }
+                        }
                     }
-                }
-                .filter { it != null }
-                .flowOn(dispatcher)
-                .collect {
-                    callback.accept(it ?: error("can not be null"))
-                }
+                    .filter { it != null }
+                    .flowOn(dispatcher)
+                    .collect { callback.accept(it ?: error("can not be null")) }
             }
             .invokeOnCompletion {
-                runCatching {
-                    appPredictor?.unregisterPredictionUpdates(appPredictorCallback)
-                }
+                runCatching { appPredictor?.unregisterPredictionUpdates(appPredictorCallback) }
                 Log.d(TAG, "destroyed, user: $userHandle")
             }
         reset()
     }
 
-    /**
-     * Clear application targets (see [updateAppTargets] and initiate shrtcuts loading.
-     */
+    /** Clear application targets (see [updateAppTargets] and initiate shrtcuts loading. */
     fun reset() {
         Log.d(TAG, "reset shortcut loader for user $userHandle")
         appTargetSource.tryEmit(null)
         shortcutSource.tryEmit(null)
-        lifecycle.coroutineScope.launch(dispatcher) {
-            loadShortcuts()
-        }
+        lifecycle.coroutineScope.launch(dispatcher) { loadShortcuts() }
     }
 
     /**
@@ -154,7 +155,10 @@ open class ShortcutLoader @VisibleForTesting constructor(
     @WorkerThread
     private fun loadShortcuts() {
         // no need to query direct share for work profile when its locked or disabled
-        if (!shouldQueryDirectShareTargets()) return
+        if (!shouldQueryDirectShareTargets()) {
+            Log.d(TAG, "skip shortcuts loading for user $userHandle")
+            return
+        }
         Log.d(TAG, "querying direct share targets for user $userHandle")
         queryDirectShareTargets(false)
     }
@@ -163,33 +167,49 @@ open class ShortcutLoader @VisibleForTesting constructor(
     private fun queryDirectShareTargets(skipAppPredictionService: Boolean) {
         if (!skipAppPredictionService && appPredictor != null) {
             try {
+                Log.d(TAG, "query AppPredictor for user $userHandle")
+                Tracer.beginAppPredictorQueryTrace(userHandle)
                 appPredictor.requestPredictionUpdate()
                 return
             } catch (e: Throwable) {
+                endAppPredictorQueryTrace(userHandle)
                 // we might have been destroyed concurrently, nothing left to do
-                if (isDestroyed) return
+                if (isDestroyed) {
+                    return
+                }
                 Log.e(TAG, "Failed to query AppPredictor for user $userHandle", e)
             }
         }
         // Default to just querying ShortcutManager if AppPredictor not present.
-        if (targetIntentFilter == null) return
-        val shortcuts = queryShortcutManager(targetIntentFilter)
+        if (targetIntentFilter == null) {
+            Log.d(TAG, "skip querying ShortcutManager for $userHandle")
+            return
+        }
+        Log.d(TAG, "query ShortcutManager for user $userHandle")
+        val shortcuts =
+            runTracing("shortcut-mngr-${userHandle.identifier}") {
+                queryShortcutManager(targetIntentFilter)
+            }
+        Log.d(TAG, "receive shortcuts from ShortcutManager for user $userHandle")
         sendShareShortcutInfoList(shortcuts, false, null)
     }
 
     @WorkerThread
     private fun queryShortcutManager(targetIntentFilter: IntentFilter): List<ShareShortcutInfo> {
         val selectedProfileContext = context.createContextAsUser(userHandle, 0 /* flags */)
-        val sm = selectedProfileContext
-            .getSystemService(Context.SHORTCUT_SERVICE) as ShortcutManager?
+        val sm =
+            selectedProfileContext.getSystemService(Context.SHORTCUT_SERVICE) as ShortcutManager?
         val pm = context.createContextAsUser(userHandle, 0 /* flags */).packageManager
-        return sm?.getShareTargets(targetIntentFilter)
-            ?.filter { pm.isPackageEnabled(it.targetComponent.packageName) }
+        return sm?.getShareTargets(targetIntentFilter)?.filter {
+            pm.isPackageEnabled(it.targetComponent.packageName)
+        }
             ?: emptyList()
     }
 
     @WorkerThread
     private fun onAppPredictorCallback(appPredictorTargets: List<AppTarget>) {
+        endAppPredictorQueryTrace(userHandle)
+        Log.d(TAG, "receive app targets from AppPredictor")
         if (appPredictorTargets.isEmpty() && shouldQueryDirectShareTargets()) {
             // APS may be disabled, so try querying targets ourselves.
             queryDirectShareTargets(true)
@@ -202,9 +222,7 @@ open class ShortcutLoader @VisibleForTesting constructor(
 
     @WorkerThread
     private fun List<AppTarget>.toShortcuts(pm: PackageManager): ShortcutsAppTargetsPair =
-        fold(
-            ShortcutsAppTargetsPair(ArrayList(size), ArrayList(size))
-        ) { acc, appTarget ->
+        fold(ShortcutsAppTargetsPair(ArrayList(size), ArrayList(size))) { acc, appTarget ->
             val shortcutInfo = appTarget.shortcutInfo
             val packageName = appTarget.packageName
             val className = appTarget.className
@@ -234,9 +252,11 @@ open class ShortcutLoader @VisibleForTesting constructor(
     ): Result {
         if (appPredictorTargets != null && appPredictorTargets.size != shortcuts.size) {
             throw RuntimeException(
-                "resultList and appTargets must have the same size."
-                        + " resultList.size()=" + shortcuts.size
-                        + " appTargets.size()=" + appPredictorTargets.size
+                "resultList and appTargets must have the same size." +
+                    " resultList.size()=" +
+                    shortcuts.size +
+                    " appTargets.size()=" +
+                    appPredictorTargets.size
             )
         }
         val directShareAppTargetCache = HashMap<ChooserTarget, AppTarget>()
@@ -246,17 +266,17 @@ open class ShortcutLoader @VisibleForTesting constructor(
         // ShareShortcutInfos directly.
         val resultRecords: MutableList<ShortcutResultInfo> = ArrayList()
         for (displayResolveInfo in appTargets) {
-            val matchingShortcuts = shortcuts.filter {
-                it.targetComponent == displayResolveInfo.resolvedComponentName
-            }
+            val matchingShortcuts =
+                shortcuts.filter { it.targetComponent == displayResolveInfo.resolvedComponentName }
             if (matchingShortcuts.isEmpty()) continue
-            val chooserTargets = shortcutToChooserTargetConverter.convertToChooserTarget(
-                matchingShortcuts,
-                shortcuts,
-                appPredictorTargets,
-                directShareAppTargetCache,
-                directShareShortcutInfoCache
-            )
+            val chooserTargets =
+                shortcutToChooserTargetConverter.convertToChooserTarget(
+                    matchingShortcuts,
+                    shortcuts,
+                    appPredictorTargets,
+                    directShareAppTargetCache,
+                    directShareShortcutInfoCache
+                )
             val resultRecord = ShortcutResultInfo(displayResolveInfo, chooserTargets)
             resultRecords.add(resultRecord)
         }
@@ -270,16 +290,17 @@ open class ShortcutLoader @VisibleForTesting constructor(
     }
 
     /**
-     * Returns `false` if `userHandle` is the work profile and it's either
-     * in quiet mode or not running.
+     * Returns `false` if `userHandle` is the work profile and it's either in quiet mode or not
+     * running.
      */
     private fun shouldQueryDirectShareTargets(): Boolean = isPersonalProfile || isProfileActive
 
     @get:VisibleForTesting
     protected val isProfileActive: Boolean
-        get() = userManager.isUserRunning(userHandle)
-            && userManager.isUserUnlocked(userHandle)
-            && !userManager.isQuietModeEnabled(userHandle)
+        get() =
+            userManager.isUserRunning(userHandle) &&
+                userManager.isUserUnlocked(userHandle) &&
+                !userManager.isQuietModeEnabled(userHandle)
 
     private class ShortcutData(
         val shortcuts: List<ShareShortcutInfo>,
@@ -287,27 +308,21 @@ open class ShortcutLoader @VisibleForTesting constructor(
         val appPredictorTargets: List<AppTarget>?
     )
 
-    /**
-     * Resolved shortcuts with corresponding app targets.
-     */
+    /** Resolved shortcuts with corresponding app targets. */
     class Result(
         val isFromAppPredictor: Boolean,
         /**
-         * Input app targets (see [ShortcutLoader.updateAppTargets] the
-         * shortcuts were process against.
+         * Input app targets (see [ShortcutLoader.updateAppTargets] the shortcuts were process
+         * against.
          */
         val appTargets: Array<DisplayResolveInfo>,
-        /**
-         * Shortcuts grouped by app target.
-         */
+        /** Shortcuts grouped by app target. */
         val shortcutsByApp: Array<ShortcutResultInfo>,
         val directShareAppTargetCache: Map<ChooserTarget, AppTarget>,
         val directShareShortcutInfoCache: Map<ChooserTarget, ShortcutInfo>
     )
 
-    /**
-     * Shortcuts grouped by app.
-     */
+    /** Shortcuts grouped by app. */
     class ShortcutResultInfo(
         val appTarget: DisplayResolveInfo,
         val shortcuts: List<ChooserTarget?>
@@ -318,27 +333,20 @@ open class ShortcutLoader @VisibleForTesting constructor(
         val appTargets: List<AppTarget>?
     )
 
-    /**
-     * A wrapper around AppPredictor to facilitate unit-testing.
-     */
+    /** A wrapper around AppPredictor to facilitate unit-testing. */
     @VisibleForTesting
     open class AppPredictorProxy internal constructor(private val mAppPredictor: AppPredictor) {
-        /**
-         * [AppPredictor.registerPredictionUpdates]
-         */
+        /** [AppPredictor.registerPredictionUpdates] */
         open fun registerPredictionUpdates(
-            callbackExecutor: Executor, callback: AppPredictor.Callback
+            callbackExecutor: Executor,
+            callback: AppPredictor.Callback
         ) = mAppPredictor.registerPredictionUpdates(callbackExecutor, callback)
 
-        /**
-         * [AppPredictor.unregisterPredictionUpdates]
-         */
+        /** [AppPredictor.unregisterPredictionUpdates] */
         open fun unregisterPredictionUpdates(callback: AppPredictor.Callback) =
             mAppPredictor.unregisterPredictionUpdates(callback)
 
-        /**
-         * [AppPredictor.requestPredictionUpdate]
-         */
+        /** [AppPredictor.requestPredictionUpdate] */
         open fun requestPredictionUpdate() = mAppPredictor.requestPredictionUpdate()
     }
 
@@ -350,12 +358,21 @@ open class ShortcutLoader @VisibleForTesting constructor(
                 return false
             }
             return runCatching {
-                val appInfo = getApplicationInfo(
-                    packageName,
-                    PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
-                )
-                appInfo.enabled && (appInfo.flags and ApplicationInfo.FLAG_SUSPENDED) == 0
-            }.getOrDefault(false)
+                    val appInfo =
+                        getApplicationInfo(
+                            packageName,
+                            PackageManager.ApplicationInfoFlags.of(
+                                PackageManager.GET_META_DATA.toLong()
+                            )
+                        )
+                    appInfo.enabled && (appInfo.flags and ApplicationInfo.FLAG_SUSPENDED) == 0
+                }
+                .getOrDefault(false)
+        }
+
+        private fun endAppPredictorQueryTrace(userHandle: UserHandle) {
+            val duration = Tracer.endAppPredictorQueryTrace(userHandle)
+            Log.d(TAG, "AppPredictor query duration for user $userHandle: $duration ms")
         }
     }
 }

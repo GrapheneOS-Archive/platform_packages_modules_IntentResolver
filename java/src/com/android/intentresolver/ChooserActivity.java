@@ -1550,6 +1550,10 @@ public class ChooserActivity extends ResolverActivity implements
         }
 
         if (rebuildComplete) {
+            long duration = Tracer.INSTANCE.endAppTargetLoadingSection(listAdapter.getUserHandle());
+            if (duration >= 0) {
+                Log.d(TAG, "app target loading time " + duration + " ms");
+            }
             addCallerChooserTargets();
             getChooserActivityLogger().logSharesheetAppLoadComplete();
             maybeQueryAdditionalPostProcessingTargets(chooserListAdapter);
@@ -1591,7 +1595,10 @@ public class ChooserActivity extends ResolverActivity implements
         }
 
         if (mMultiProfilePagerAdapter.getActiveListAdapter() == adapter) {
-            Tracer.INSTANCE.endLaunchToShortcutTrace();
+            long duration = Tracer.INSTANCE.endLaunchToShortcutTrace();
+            if (duration >= 0) {
+                Log.d(TAG, "stat to first shortcut time: " + duration + " ms");
+            }
         }
         logDirectShareTargetReceived(userHandle);
         sendVoiceChoicesIfNeeded();
