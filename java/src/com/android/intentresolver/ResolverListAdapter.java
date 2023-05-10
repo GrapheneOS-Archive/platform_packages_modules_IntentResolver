@@ -682,7 +682,7 @@ public class ResolverListAdapter extends BaseAdapter {
         final ViewHolder holder = (ViewHolder) view.getTag();
         if (info == null) {
             holder.icon.setImageDrawable(loadIconPlaceholder());
-            holder.bindLabel("", "", false);
+            holder.bindLabel("", "");
             return;
         }
 
@@ -691,10 +691,9 @@ public class ResolverListAdapter extends BaseAdapter {
             if (dri.hasDisplayLabel()) {
                 holder.bindLabel(
                         dri.getDisplayLabel(),
-                        dri.getExtendedInfo(),
-                        alwaysShowSubLabel());
+                        dri.getExtendedInfo());
             } else {
-                holder.bindLabel("", "", false);
+                holder.bindLabel("", "");
                 loadLabel(dri);
             }
             holder.bindIcon(info);
@@ -830,10 +829,6 @@ public class ResolverListAdapter extends BaseAdapter {
         mIsTabLoaded = true;
     }
 
-    protected boolean alwaysShowSubLabel() {
-        return false;
-    }
-
     /**
      * Find the first element in a list of {@code ResolvedComponentInfo} objects whose
      * {@code ResolveInfo} specifies a {@code targetUserId} other than the current user.
@@ -940,17 +935,19 @@ public class ResolverListAdapter extends BaseAdapter {
             icon = (ImageView) view.findViewById(com.android.internal.R.id.icon);
         }
 
-        public void bindLabel(CharSequence label, CharSequence subLabel, boolean showSubLabel) {
+        public void bindLabel(CharSequence label, CharSequence subLabel) {
             text.setText(label);
 
             if (TextUtils.equals(label, subLabel)) {
                 subLabel = null;
             }
 
-            text2.setText(subLabel);
-            if (showSubLabel || subLabel != null) {
+            if (!TextUtils.isEmpty(subLabel)) {
+                text.setMaxLines(1);
+                text2.setText(subLabel);
                 text2.setVisibility(View.VISIBLE);
             } else {
+                text.setMaxLines(2);
                 text2.setVisibility(View.GONE);
             }
 
