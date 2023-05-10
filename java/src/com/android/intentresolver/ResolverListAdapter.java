@@ -1034,12 +1034,15 @@ public class ResolverListAdapter extends BaseAdapter {
 
         @Override
         protected Drawable doInBackground(Void... params) {
+            Trace.beginSection("app-icon");
             try {
                 return loadIconForResolveInfo(mResolveInfo);
             } catch (Exception e) {
                 ComponentName componentName = mDisplayResolveInfo.getResolvedComponentName();
                 Log.e(TAG, "Failed to load app icon for " + componentName, e);
                 return loadIconPlaceholder();
+            } finally {
+                Trace.endSection();
             }
         }
 
