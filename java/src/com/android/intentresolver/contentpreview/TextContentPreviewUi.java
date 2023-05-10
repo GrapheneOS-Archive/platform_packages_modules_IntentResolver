@@ -79,9 +79,6 @@ class TextContentPreviewUi extends ContentPreviewUi {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_text, parent, false);
 
-        boolean minimalPreview =
-                parent.getContext().getResources().getBoolean(R.bool.minimal_preview);
-
         final ActionRow actionRow =
                 contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
         actionRow.setActions(
@@ -108,7 +105,7 @@ class TextContentPreviewUi extends ContentPreviewUi {
 
         TextView previewTitleView = contentPreviewLayout.findViewById(
                 com.android.internal.R.id.content_preview_title);
-        if (TextUtils.isEmpty(mPreviewTitle) || minimalPreview) {
+        if (TextUtils.isEmpty(mPreviewTitle)) {
             previewTitleView.setVisibility(View.GONE);
         } else {
             previewTitleView.setText(mPreviewTitle);
@@ -116,7 +113,7 @@ class TextContentPreviewUi extends ContentPreviewUi {
 
         ImageView previewThumbnailView = contentPreviewLayout.findViewById(
                 com.android.internal.R.id.content_preview_thumbnail);
-        if (!isOwnedByCurrentUser(mPreviewThumbnail) || minimalPreview) {
+        if (!isOwnedByCurrentUser(mPreviewThumbnail)) {
             previewThumbnailView.setVisibility(View.GONE);
         } else {
             mImageLoader.loadImage(

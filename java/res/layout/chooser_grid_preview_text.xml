@@ -20,6 +20,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@androidprv:id/content_preview_text_area"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -35,20 +36,20 @@
       android:layout_marginLeft="@dimen/chooser_edge_margin_normal"
       android:layout_marginRight="@dimen/chooser_edge_margin_normal"
       android:layout_marginBottom="@dimen/chooser_view_spacing"
-      android:padding="@dimen/chooser_edge_margin_normal"
+      android:padding="@dimen/chooser_edge_margin_normal_half"
       android:background="@drawable/chooser_content_preview_rounded"
       android:id="@+id/text_preview_layout">
 
-    <ImageView
+    <com.android.intentresolver.widget.RoundedRectImageView
           android:id="@androidprv:id/content_preview_thumbnail"
-          android:layout_width="48dp"
-          android:layout_height="48dp"
+          android:layout_width="@dimen/width_text_image_preview_size"
+          android:layout_height="@dimen/width_text_image_preview_size"
           android:layout_alignParentStart="true"
-          android:layout_alignParentTop="true"
-          android:layout_marginEnd="@dimen/chooser_edge_margin_normal"
+          android:layout_centerVertical="true"
+          android:layout_marginEnd="@dimen/chooser_edge_margin_normal_half"
           android:adjustViewBounds="true"
-          android:layout_gravity="center_vertical"
           android:gravity="center"
+          app:radius="@dimen/chooser_corner_radius_small"
           android:scaleType="centerCrop"/>
 
     <TextView
