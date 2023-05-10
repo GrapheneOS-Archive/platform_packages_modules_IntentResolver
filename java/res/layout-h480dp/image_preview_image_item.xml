@@ -14,21 +14,21 @@
   ~ limitations under the License.
   -->
 
-<!-- Note that this is the layout for landscape phones, the default is in drawable-480dp -->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="46dp"
-    android:layout_height="46dp">
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/chooser_preview_image_height_tall">
 
     <com.android.intentresolver.widget.RoundedRectImageView
             android:id="@+id/image"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            app:layout_constraintDimensionRatio="W,1:1"
             android:layout_alignParentTop="true"
             android:adjustViewBounds="false"
             android:scaleType="centerCrop"
-            app:radius="8dp" />
+            app:radius="@dimen/chooser_corner_radius_small" />
 
     <FrameLayout
         android:id="@+id/badge_frame"
@@ -45,7 +45,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:scaleType="center"
+            android:layout_marginEnd="6dp"
+            android:layout_marginTop="6dp"
             android:tint="@android:color/white"
-            android:layout_gravity="center" />
+            android:layout_gravity="top|end" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
