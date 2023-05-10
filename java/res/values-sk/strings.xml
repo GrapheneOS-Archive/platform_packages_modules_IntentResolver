@@ -66,12 +66,9 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Zdieľa sa video s odkazom}few{Zdieľajú sa # videá s odkazom}many{Sharing # videos with link}other{Zdieľa sa # videí s odkazom}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Zdieľa sa súbor s textom}few{Zdieľajú sa # súbory s textom}many{Sharing # files with text}other{Zdieľa sa # súborov s textom}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Zdieľa sa súbor s odkazom}few{Zdieľajú sa # súbory s odkazom}many{Sharing # files with link}other{Zdieľa sa # súborov s odkazom}}"</string>
-    <!-- no translation found for sharing_images_only (7762589767189955438) -->
-    <skip />
-    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
-    <skip />
-    <!-- no translation found for sharing_files_only (6603666533766964768) -->
-    <skip />
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Iba obrázok}few{Iba obrázky}many{Iba obrázky}other{Iba obrázky}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Iba video}few{Iba videá}many{Iba videá}other{Iba videá}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Iba súbor}few{Iba súbory}many{Iba súbory}other{Iba súbory}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Žiadni odporúčaní príjemcovia"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Zoznam aplikácií"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Tejto aplikácii nebolo udelené povolenie na nahrávanie, ale môže nasnímať zvuk cez toto zariadenie USB."</string>

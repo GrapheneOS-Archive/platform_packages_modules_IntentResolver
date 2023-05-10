@@ -66,12 +66,9 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{සබැඳිය සමග වීඩියෝව බෙදා ගැනීම}one{සබැඳිය සමග වීඩියෝ #ක් බෙදා ගැනීම}other{සබැඳිය සමග වීඩියෝ #ක් බෙදා ගැනීම}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{පෙළ සමග ගොනුව බෙදා ගැනීම}one{පෙළ සමග ගොනු #ක් බෙදා ගැනීම}other{පෙළ සමග ගොනු #ක් බෙදා ගැනීම}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{සබැඳිය සමග ගොනුව බෙදා ගැනීම}one{සබැඳිය සමග ගොනු #ක් බෙදා ගැනීම}other{සබැඳිය සමග ගොනු #ක් බෙදා ගැනීම}}"</string>
-    <!-- no translation found for sharing_images_only (7762589767189955438) -->
-    <skip />
-    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
-    <skip />
-    <!-- no translation found for sharing_files_only (6603666533766964768) -->
-    <skip />
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{රූපය පමණි}one{රූප පමණි}other{රූප පමණි}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{වීඩියෝව පමණි}one{වීඩියෝ පමණි}other{වීඩියෝ පමණි}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ගොනුව පමණි}one{ගොනු පමණි}other{ගොනු පමණි}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"බෙදා ගැනීමට නිර්දේශිත පුද්ගලයන් නැත"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"යෙදුම් ලැයිස්තුව"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"මෙම යෙදුමට පටිගත කිරීම් අවසරයක් ලබා දී නොමැති නමුත් මෙම USB උපාංගය හරහා ශ්‍රව්‍ය ග්‍රහණය කර ගත හැකිය."</string>

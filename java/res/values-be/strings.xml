@@ -66,12 +66,9 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Абагульванне відэа са спасылкай}one{Абагульванне # відэа са спасылкай}few{Абагульванне # відэа са спасылкай}many{Абагульванне # відэа са спасылкай}other{Абагульванне # відэа са спасылкай}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Абагульванне файла з тэкстам}one{Абагульванне # файла з тэкстам}few{Абагульванне # файлаў з тэкстам}many{Абагульванне # файлаў з тэкстам}other{Абагульванне # файла з тэкстам}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Абагульванне файла са спасылкай}one{Абагульванне # файла са спасылкай}few{Абагульванне # файлаў са спасылкай}many{Абагульванне # файлаў са спасылкай}other{Абагульванне # файла са спасылкай}}"</string>
-    <!-- no translation found for sharing_images_only (7762589767189955438) -->
-    <skip />
-    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
-    <skip />
-    <!-- no translation found for sharing_files_only (6603666533766964768) -->
-    <skip />
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Толькі відарыс}one{Толькі відарысы}few{Толькі відарысы}many{Толькі відарысы}other{Толькі відарысы}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Толькі відэа}one{Толькі відэа}few{Толькі відэа}many{Толькі відэа}other{Толькі відэа}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Толькі файл}one{Толькі файлы}few{Толькі файлы}many{Толькі файлы}other{Толькі файлы}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Няма кантактаў, з якімі рэкамендуецца абагульваць змесціва"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Спіс праграм"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"У гэтай праграмы няма дазволу на запіс, аднак яна зможа запісваць аўдыя праз гэту USB-прыладу."</string>
