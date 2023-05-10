@@ -276,7 +276,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
             return;
         }
 
-        holder.bindLabel(info.getDisplayLabel(), info.getExtendedInfo(), alwaysShowSubLabel());
+        holder.bindLabel(info.getDisplayLabel(), info.getExtendedInfo());
         mAnimationTracker.animateLabel(holder.text, info);
         if (holder.text2.getVisibility() == View.VISIBLE) {
             mAnimationTracker.animateLabel(holder.text2, info);
@@ -628,12 +628,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
             mChooserActivityLogger.logSharesheetEmptyDirectShareRow();
         }
         notifyDataSetChanged();
-    }
-
-    protected boolean alwaysShowSubLabel() {
-        // Always show a subLabel for visual consistency across list items. Show an empty
-        // subLabel if the subLabel is the same as the label
-        return true;
     }
 
     /**

@@ -23,7 +23,7 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:minHeight="100dp"
-              android:gravity="center"
+              android:gravity="top"
               android:paddingTop="@dimen/grid_padding_top"
               android:paddingBottom="12dp"
               android:paddingHorizontal="4dp"
@@ -53,7 +53,7 @@
               android:textColor="?androidprv:attr/materialColorOnSurface"
               android:textSize="12sp"
               android:gravity="top|center_horizontal"
-              android:lines="1"
+              android:maxLines="1"
               android:ellipsize="end" />
 
     <!-- Activity name if set, gone for Direct Share targets -->
