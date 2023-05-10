@@ -35,4 +35,11 @@ public interface MimeTypeClassifier {
     default boolean isVideoType(@Nullable String mimeType) {
         return (mimeType != null) && ClipDescription.compareMimeTypes(mimeType, "video/*");
     }
+
+    /**
+     * @return whether the specified {@code mimeType} is classified as "text" type
+     */
+    default boolean isTextType(@Nullable String mimeType) {
+        return (mimeType != null) && ClipDescription.compareMimeTypes(mimeType, "text/*");
+    }
 }
