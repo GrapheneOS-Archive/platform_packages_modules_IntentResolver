@@ -228,7 +228,7 @@ public class ResolverActivity extends FragmentActivity implements
     // new component whose lifecycle is limited to the "created" Activity (so that we can just hold
     // the annotations as a `final` ivar, which is a better way to show immutability).
     private Supplier<AnnotatedUserHandles> mLazyAnnotatedUserHandles = () -> {
-        final AnnotatedUserHandles result = new AnnotatedUserHandles(this);
+        final AnnotatedUserHandles result = AnnotatedUserHandles.forShareActivity(this);
         mLazyAnnotatedUserHandles = () -> result;
         return result;
     };
