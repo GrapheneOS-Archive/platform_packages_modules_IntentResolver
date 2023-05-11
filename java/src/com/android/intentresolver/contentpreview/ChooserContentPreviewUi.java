@@ -88,7 +88,6 @@ public final class ChooserContentPreviewUi {
             Lifecycle lifecycle,
             PreviewDataProvider previewData,
             Intent targetIntent,
-            MimeTypeClassifier imageClassifier,
             ImageLoader imageLoader,
             ActionFactory actionFactory,
             TransitionElementStatusCallback transitionElementStatusCallback,
@@ -97,7 +96,7 @@ public final class ChooserContentPreviewUi {
         mContentPreviewUi = createContentPreview(
                 previewData,
                 targetIntent,
-                imageClassifier,
+                DefaultMimeTypeClassifier.INSTANCE,
                 imageLoader,
                 actionFactory,
                 transitionElementStatusCallback,
