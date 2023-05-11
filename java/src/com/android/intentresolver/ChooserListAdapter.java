@@ -676,6 +676,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
         @Override
         protected Drawable doInBackground(Void... voids) {
             Drawable drawable;
+            Trace.beginSection("shortcut-icon");
             try {
                 drawable = getChooserTargetIconDrawable(
                         mContext,
@@ -688,6 +689,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
                                 + mTargetInfo.getChooserTargetComponentName(),
                         e);
                 drawable = loadIconPlaceholder();
+            } finally {
+                Trace.endSection();
             }
             return drawable;
         }
