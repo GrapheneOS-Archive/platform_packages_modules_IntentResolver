@@ -23,7 +23,7 @@ import androidx.lifecycle.LifecycleRegistry
 internal class TestLifecycleOwner : LifecycleOwner {
     private val lifecycleRegistry = LifecycleRegistry.createUnsafe(this)
 
-    override val lifecycle: Lifecycle get() = lifecycleRegistry
+    override fun getLifecycle(): Lifecycle = lifecycleRegistry
 
     var state: Lifecycle.State
         get() = lifecycle.currentState
