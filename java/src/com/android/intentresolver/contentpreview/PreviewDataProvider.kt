@@ -78,11 +78,10 @@ constructor(
     constructor(
         targetIntent: Intent,
         contentResolver: ContentInterface,
-        typeClassifier: MimeTypeClassifier,
     ) : this(
         targetIntent,
         contentResolver,
-        typeClassifier,
+        DefaultMimeTypeClassifier,
         Dispatchers.IO,
     )
 
