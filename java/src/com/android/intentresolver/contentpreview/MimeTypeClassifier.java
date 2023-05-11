@@ -22,14 +22,12 @@ import androidx.annotation.Nullable;
 
 /**
  * Testing shim to specify whether a given mime type is considered to be an "image."
- *
- * TODO: move away from {@link ChooserActivityOverrideData} as a model to configure our tests,
- * then migrate {@link com.android.intentresolver.ChooserActivity#isImageType(String)} into this
- * class.
  */
 public interface MimeTypeClassifier {
     /** @return whether the specified {@code mimeType} is classified as an "image" type. */
-    boolean isImageType(@Nullable String mimeType);
+    default boolean isImageType(@Nullable String mimeType) {
+        return (mimeType != null) && ClipDescription.compareMimeTypes(mimeType, "image/*");
+    }
 
     /** @return whether the specified {@code mimeType} is classified as an "video" type */
     default boolean isVideoType(@Nullable String mimeType) {
