@@ -16,7 +16,6 @@
 
 package com.android.intentresolver.contentpreview
 
-import android.content.ClipDescription
 import android.content.ContentInterface
 import android.content.Intent
 import android.database.MatrixCursor
@@ -44,9 +43,7 @@ import org.mockito.Mockito.verify
 @OptIn(ExperimentalCoroutinesApi::class)
 class PreviewDataProviderTest {
     private val contentResolver = mock<ContentInterface>()
-    private val mimeTypeClassifier = MimeTypeClassifier { mimeType ->
-        mimeType != null && ClipDescription.compareMimeTypes(mimeType, "image/*")
-    }
+    private val mimeTypeClassifier = DefaultMimeTypeClassifier
 
     private val lifecycleOwner = TestLifecycleOwner()
     private val dispatcher = UnconfinedTestDispatcher()
