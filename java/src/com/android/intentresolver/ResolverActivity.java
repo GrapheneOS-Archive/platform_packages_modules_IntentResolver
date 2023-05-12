@@ -1864,8 +1864,10 @@ public class ResolverActivity extends FragmentActivity implements
         } else if (numberOfProfiles == 2
                 && mMultiProfilePagerAdapter.getActiveListAdapter().isTabLoaded()
                 && mMultiProfilePagerAdapter.getInactiveListAdapter().isTabLoaded()
-                && (maybeAutolaunchIfNoAppsOnInactiveTab()
-                        || maybeAutolaunchIfCrossProfileSupported())) {
+                && maybeAutolaunchIfCrossProfileSupported()) {
+            // TODO(b/280988288): If the ChooserActivity is shown we should consider showing the
+            //  correct intent-picker UIs (e.g., mini-resolver) if it was launched without
+            //  ACTION_SEND.
             return true;
         }
         return false;
@@ -1890,23 +1892,6 @@ public class ResolverActivity extends FragmentActivity implements
             return true;
         }
         return false;
-    }
-
-    private boolean maybeAutolaunchIfNoAppsOnInactiveTab() {
-        int count = mMultiProfilePagerAdapter.getActiveListAdapter().getUnfilteredCount();
-        if (count != 1) {
-            return false;
-        }
-        ResolverListAdapter inactiveListAdapter =
-                mMultiProfilePagerAdapter.getInactiveListAdapter();
-        if (inactiveListAdapter.getUnfilteredCount() != 0) {
-            return false;
-        }
-        TargetInfo target = mMultiProfilePagerAdapter.getActiveListAdapter()
-                .targetInfoForPosition(0, false);
-        safelyStartActivity(target);
-        finish();
-        return true;
     }
 
     /**
