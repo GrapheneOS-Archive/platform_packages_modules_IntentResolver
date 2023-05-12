@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver
+package com.android.intentresolver.contentpreview
 
 import android.content.ContentResolver
-import android.content.Context
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Size
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.coroutineScope
+import com.android.intentresolver.TestLifecycleOwner
+import com.android.intentresolver.any
+import com.android.intentresolver.anyOrNull
+import com.android.intentresolver.mock
+import com.android.intentresolver.whenever
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart.UNDISPATCHED
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +34,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -49,28 +54,26 @@ class ImagePreviewImageLoaderTest {
     private val uriOne = Uri.parse("content://org.package.app/image-1.png")
     private val uriTwo = Uri.parse("content://org.package.app/image-2.png")
     private val bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-    private val contentResolver = mock<ContentResolver> {
-        whenever(loadThumbnail(any(), any(), anyOrNull())).thenReturn(bitmap)
-    }
-    private val resources = mock<Resources> {
-        whenever(getDimensionPixelSize(R.dimen.chooser_preview_image_max_dimen))
-            .thenReturn(imageSize.width)
-    }
-    private val context = mock<Context> {
-        whenever(this.resources).thenReturn(this@ImagePreviewImageLoaderTest.resources)
-        whenever(this.contentResolver).thenReturn(this@ImagePreviewImageLoaderTest.contentResolver)
-    }
-    private val scheduler = TestCoroutineScheduler()
+    private val contentResolver =
+        mock<ContentResolver> {
+            whenever(loadThumbnail(any(), any(), anyOrNull())).thenReturn(bitmap)
+        }
     private val lifecycleOwner = TestLifecycleOwner()
-    private val dispatcher = UnconfinedTestDispatcher(scheduler)
-    private val testSubject = ImagePreviewImageLoader(
-        context, lifecycleOwner.lifecycle, 1, dispatcher
-    )
+    private val dispatcher = UnconfinedTestDispatcher()
+    private lateinit var testSubject: ImagePreviewImageLoader
 
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
         lifecycleOwner.state = Lifecycle.State.CREATED
+        // create test subject after we've updated the lifecycle dispatcher
+        testSubject =
+            ImagePreviewImageLoader(
+                lifecycleOwner.lifecycle.coroutineScope + dispatcher,
+                imageSize.width,
+                contentResolver,
+                1,
+            )
     }
 
     @After
@@ -110,14 +113,16 @@ class ImagePreviewImageLoaderTest {
     fun invoke_overlappedRequests_Deduplicate() = runTest {
         val scheduler = TestCoroutineScheduler()
         val dispatcher = StandardTestDispatcher(scheduler)
-        val testSubject = ImagePreviewImageLoader(context, lifecycleOwner.lifecycle, 1, dispatcher)
+        val testSubject =
+            ImagePreviewImageLoader(
+                lifecycleOwner.lifecycle.coroutineScope + dispatcher,
+                imageSize.width,
+                contentResolver,
+                1,
+            )
         coroutineScope {
-            launch(start = UNDISPATCHED) {
-                testSubject(uriOne, false)
-            }
-            launch(start = UNDISPATCHED) {
-                testSubject(uriOne, false)
-            }
+            launch(start = UNDISPATCHED) { testSubject(uriOne, false) }
+            launch(start = UNDISPATCHED) { testSubject(uriOne, false) }
             scheduler.advanceUntilIdle()
         }
 
@@ -154,11 +159,15 @@ class ImagePreviewImageLoaderTest {
     fun invoke_imageLoaderScopeClosedMidflight_throwsCancellationException() = runTest {
         val scheduler = TestCoroutineScheduler()
         val dispatcher = StandardTestDispatcher(scheduler)
-        val testSubject = ImagePreviewImageLoader(context, lifecycleOwner.lifecycle, 1, dispatcher)
+        val testSubject =
+            ImagePreviewImageLoader(
+                lifecycleOwner.lifecycle.coroutineScope + dispatcher,
+                imageSize.width,
+                contentResolver,
+                1
+            )
         coroutineScope {
-            val deferred = async(start = UNDISPATCHED) {
-                testSubject(uriOne, false)
-            }
+            val deferred = async(start = UNDISPATCHED) { testSubject(uriOne, false) }
             lifecycleOwner.state = Lifecycle.State.DESTROYED
             scheduler.advanceUntilIdle()
             deferred.await()
@@ -169,14 +178,16 @@ class ImagePreviewImageLoaderTest {
     fun invoke_multipleCallsWithDifferentCacheInstructions_cachingPrevails() = runTest {
         val scheduler = TestCoroutineScheduler()
         val dispatcher = StandardTestDispatcher(scheduler)
-        val testSubject = ImagePreviewImageLoader(context, lifecycleOwner.lifecycle, 1, dispatcher)
+        val testSubject =
+            ImagePreviewImageLoader(
+                lifecycleOwner.lifecycle.coroutineScope + dispatcher,
+                imageSize.width,
+                contentResolver,
+                1
+            )
         coroutineScope {
-            launch(start = UNDISPATCHED) {
-                testSubject(uriOne, false)
-            }
-            launch(start = UNDISPATCHED) {
-                testSubject(uriOne, true)
-            }
+            launch(start = UNDISPATCHED) { testSubject(uriOne, false) }
+            launch(start = UNDISPATCHED) { testSubject(uriOne, true) }
             scheduler.advanceUntilIdle()
         }
         testSubject(uriOne, true)
