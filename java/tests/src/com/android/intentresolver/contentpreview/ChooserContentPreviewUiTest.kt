@@ -39,7 +39,11 @@ class ChooserContentPreviewUiTest {
     private val headlineGenerator = mock<HeadlineGenerator>()
     private val imageLoader =
         object : ImageLoader {
-            override fun loadImage(uri: Uri, callback: Consumer<Bitmap?>) {
+            override fun loadImage(
+                callerLifecycle: Lifecycle,
+                uri: Uri,
+                callback: Consumer<Bitmap?>,
+            ) {
                 callback.accept(null)
             }
             override fun prePopulate(uris: List<Uri>) = Unit

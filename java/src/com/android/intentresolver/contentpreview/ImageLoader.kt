@@ -18,32 +18,29 @@ package com.android.intentresolver.contentpreview
 
 import android.graphics.Bitmap
 import android.net.Uri
+import androidx.lifecycle.Lifecycle
 import java.util.function.Consumer
 
-/**
- * A content preview image loader.
- */
+/** A content preview image loader. */
 interface ImageLoader : suspend (Uri) -> Bitmap?, suspend (Uri, Boolean) -> Bitmap? {
     /**
      * Load preview image asynchronously; caching is allowed.
+     *
      * @param uri content URI
      * @param callback a callback that will be invoked with the loaded image or null if loading has
-     * failed.
+     *   failed.
      */
-    fun loadImage(uri: Uri, callback: Consumer<Bitmap?>)
+    fun loadImage(callerLifecycle: Lifecycle, uri: Uri, callback: Consumer<Bitmap?>)
 
-    /**
-     * Prepopulate the image loader cache.
-     */
+    /** Prepopulate the image loader cache. */
     fun prePopulate(uris: List<Uri>)
 
-    /**
-     * Load preview image; caching is allowed.
-     */
+    /** Load preview image; caching is allowed. */
     override suspend fun invoke(uri: Uri) = invoke(uri, true)
 
     /**
      * Load preview image.
+     *
      * @param uri content URI
      * @param caching indicates if the loaded image could be cached.
      */
