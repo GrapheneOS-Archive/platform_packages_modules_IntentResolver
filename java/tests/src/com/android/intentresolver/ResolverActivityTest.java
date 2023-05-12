@@ -34,6 +34,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -741,7 +742,7 @@ public class ResolverActivityTest {
     }
 
     @Test
-    public void testWorkTab_onePersonalTarget_emptyStateOnWorkTarget_autolaunch() {
+    public void testWorkTab_onePersonalTarget_emptyStateOnWorkTarget_doesNotAutoLaunch() {
         markWorkProfileUserAvailable();
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
@@ -763,7 +764,7 @@ public class ResolverActivityTest {
         mActivityRule.launchActivity(sendIntent);
         waitForIdle();
 
-        assertThat(chosen[0], is(personalResolvedComponentInfos.get(1).getResolveInfoAt(0)));
+        assertNull(chosen[0]);
     }
 
     @Test
