@@ -31,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Lifecycle;
 
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
@@ -48,6 +49,7 @@ import java.util.function.Consumer;
  * file content).
  */
 class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
+    private final Lifecycle mLifecycle;
     private final CharSequence mText;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
     private final ImageLoader mImageLoader;
@@ -63,6 +65,7 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
     private boolean mAllVideos;
 
     FilesPlusTextContentPreviewUi(
+            Lifecycle lifecycle,
             boolean isSingleImage,
             int fileCount,
             CharSequence text,
@@ -70,6 +73,7 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
             ImageLoader imageLoader,
             MimeTypeClassifier typeClassifier,
             HeadlineGenerator headlineGenerator) {
+        mLifecycle = lifecycle;
         if (isSingleImage && fileCount != 1) {
             throw new IllegalArgumentException(
                     "fileCount = " + fileCount + " and isSingleImage = true");
@@ -155,13 +159,16 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
 
         ImageView imagePreview = mContentPreviewView.requireViewById(R.id.image_view);
         if (mIsSingleImage && mFirstFilePreviewUri != null) {
-            mImageLoader.loadImage(mFirstFilePreviewUri, bitmap -> {
-                if (bitmap == null) {
-                    imagePreview.setVisibility(View.GONE);
-                } else {
-                    imagePreview.setImageBitmap(bitmap);
-                }
-            });
+            mImageLoader.loadImage(
+                    mLifecycle,
+                    mFirstFilePreviewUri,
+                    bitmap -> {
+                        if (bitmap == null) {
+                            imagePreview.setVisibility(View.GONE);
+                        } else {
+                            imagePreview.setImageBitmap(bitmap);
+                        }
+                    });
         } else {
             imagePreview.setVisibility(View.GONE);
         }
