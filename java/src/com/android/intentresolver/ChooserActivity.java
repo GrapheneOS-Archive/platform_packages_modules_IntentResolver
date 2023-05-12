@@ -83,9 +83,9 @@ import com.android.intentresolver.NoCrossProfileEmptyStateProvider.DevicePolicyB
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.contentpreview.BasePreviewViewModel;
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi;
 import com.android.intentresolver.contentpreview.HeadlineGeneratorImpl;
-import com.android.intentresolver.contentpreview.ImageLoader;
 import com.android.intentresolver.contentpreview.PreviewViewModel;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.flags.FeatureFlagRepositoryFactory;
@@ -272,13 +272,14 @@ public class ChooserActivity extends ResolverActivity implements
             }
         });
 
+        BasePreviewViewModel previewViewModel =
+                new ViewModelProvider(this, createPreviewViewModelFactory())
+                        .get(BasePreviewViewModel.class);
         mChooserContentPreviewUi = new ChooserContentPreviewUi(
                 getLifecycle(),
-                new ViewModelProvider(this, PreviewViewModel.Companion.getFactory())
-                        .get(PreviewViewModel.class)
-                        .createOrReuseProvider(mChooserRequest),
+                previewViewModel.createOrReuseProvider(mChooserRequest),
                 mChooserRequest.getTargetIntent(),
-                createPreviewImageLoader(),
+                previewViewModel.createOrReuseImageLoader(),
                 createChooserActionFactory(),
                 mEnterTransitionAnimationDelegate,
                 new HeadlineGeneratorImpl(this));
@@ -1314,14 +1315,8 @@ public class ChooserActivity extends ResolverActivity implements
     }
 
     @VisibleForTesting
-    protected ImageLoader createPreviewImageLoader() {
-        final int cacheSize;
-        float chooserWidth = getResources().getDimension(R.dimen.chooser_width);
-        // imageWidth = imagePreviewHeight * minAspectRatio (see ScrollableImagePreviewView)
-        float imageWidth =
-                getResources().getDimension(R.dimen.chooser_preview_image_height_tall) * 2 / 5;
-        cacheSize = (int) (Math.ceil(chooserWidth / imageWidth) + 2);
-        return new ImagePreviewImageLoader(this, getLifecycle(), cacheSize);
+    protected ViewModelProvider.Factory createPreviewViewModelFactory() {
+        return PreviewViewModel.Companion.getFactory();
     }
 
     private ChooserActionFactory createChooserActionFactory() {

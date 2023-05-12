@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver
+package com.android.intentresolver.contentpreview
 
-import android.content.Context
+import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
@@ -26,12 +26,10 @@ import androidx.annotation.VisibleForTesting
 import androidx.collection.LruCache
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
-import com.android.intentresolver.contentpreview.ImageLoader
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.function.Consumer
@@ -42,29 +40,24 @@ private const val TAG = "ImagePreviewImageLoader"
  * Implements preview image loading for the content preview UI. Provides requests deduplication and
  * image caching.
  */
-@VisibleForTesting
-class ImagePreviewImageLoader @JvmOverloads constructor(
-    private val context: Context,
-    private val lifecycle: Lifecycle,
+@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+class ImagePreviewImageLoader(
+    private val scope: CoroutineScope,
+    thumbnailSize: Int,
+    private val contentResolver: ContentResolver,
     cacheSize: Int,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ImageLoader {
 
-    private val thumbnailSize: Size =
-        context.resources.getDimensionPixelSize(R.dimen.chooser_preview_image_max_dimen).let {
-            Size(it, it)
-        }
+    private val thumbnailSize: Size = Size(thumbnailSize, thumbnailSize)
 
     private val lock = Any()
-    @GuardedBy("lock")
-    private val cache = LruCache<Uri, RequestRecord>(cacheSize)
-    @GuardedBy("lock")
-    private val runningRequests = HashMap<Uri, RequestRecord>()
+    @GuardedBy("lock") private val cache = LruCache<Uri, RequestRecord>(cacheSize)
+    @GuardedBy("lock") private val runningRequests = HashMap<Uri, RequestRecord>()
 
     override suspend fun invoke(uri: Uri, caching: Boolean): Bitmap? = loadImageAsync(uri, caching)
 
-    override fun loadImage(uri: Uri, callback: Consumer<Bitmap?>) {
-        lifecycle.coroutineScope.launch {
+    override fun loadImage(callerLifecycle: Lifecycle, uri: Uri, callback: Consumer<Bitmap?>) {
+        callerLifecycle.coroutineScope.launch {
             val image = loadImageAsync(uri, caching = true)
             if (isActive) {
                 callback.accept(image)
@@ -74,28 +67,26 @@ class ImagePreviewImageLoader @JvmOverloads constructor(
 
     override fun prePopulate(uris: List<Uri>) {
         uris.asSequence().take(cache.maxSize()).forEach { uri ->
-            lifecycle.coroutineScope.launch {
-                loadImageAsync(uri, caching = true)
-            }
+            scope.launch { loadImageAsync(uri, caching = true) }
         }
     }
 
     private suspend fun loadImageAsync(uri: Uri, caching: Boolean): Bitmap? {
-        return getRequestDeferred(uri, caching)
-            .await()
+        return getRequestDeferred(uri, caching).await()
     }
 
     private fun getRequestDeferred(uri: Uri, caching: Boolean): Deferred<Bitmap?> {
         var shouldLaunchImageLoading = false
-        val request = synchronized(lock) {
-            cache[uri]
-                ?: runningRequests.getOrPut(uri) {
-                    shouldLaunchImageLoading = true
-                    RequestRecord(uri, CompletableDeferred(), caching)
-                }.apply {
-                    this.caching = this.caching || caching
-                }
-        }
+        val request =
+            synchronized(lock) {
+                cache[uri]
+                    ?: runningRequests
+                        .getOrPut(uri) {
+                            shouldLaunchImageLoading = true
+                            RequestRecord(uri, CompletableDeferred(), caching)
+                        }
+                        .apply { this.caching = this.caching || caching }
+            }
         if (shouldLaunchImageLoading) {
             request.loadBitmapAsync()
         }
@@ -103,22 +94,23 @@ class ImagePreviewImageLoader @JvmOverloads constructor(
     }
 
     private fun RequestRecord.loadBitmapAsync() {
-        lifecycle.coroutineScope.launch(dispatcher) {
-            loadBitmap()
-        }.invokeOnCompletion { cause ->
-            if (cause is CancellationException) {
-                cancel()
+        scope
+            .launch { loadBitmap() }
+            .invokeOnCompletion { cause ->
+                if (cause is CancellationException) {
+                    cancel()
+                }
             }
-        }
     }
 
     private fun RequestRecord.loadBitmap() {
-        val bitmap = try {
-            context.contentResolver.loadThumbnail(uri,  thumbnailSize, null)
-        } catch (t: Throwable) {
-            Log.d(TAG, "failed to load $uri preview", t)
-            null
-        }
+        val bitmap =
+            try {
+                contentResolver.loadThumbnail(uri, thumbnailSize, null)
+            } catch (t: Throwable) {
+                Log.d(TAG, "failed to load $uri preview", t)
+                null
+            }
         complete(bitmap)
     }
 
