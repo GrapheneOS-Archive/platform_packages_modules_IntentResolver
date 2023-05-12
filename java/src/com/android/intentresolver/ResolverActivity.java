@@ -125,9 +125,10 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 /**
- * This activity is displayed when the system attempts to start an Intent for
- * which there is more than one matching activity, allowing the user to decide
- * which to go to.  It is not normally used directly by application developers.
+ * This is a copy of ResolverActivity to support IntentResolver's ChooserActivity. This code is
+ * *not* the resolver that is actually triggered by the system right now (you want
+ * frameworks/base/core/java/com/android/internal/app/ResolverActivity.java for that), the full
+ * migration is not complete.
  */
 @UiThread
 public class ResolverActivity extends FragmentActivity implements
