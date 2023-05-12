@@ -16,24 +16,45 @@
 
 package com.android.intentresolver.contentpreview
 
-import android.content.ContentResolver
-import android.content.Context
+import android.app.Application
+import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.android.intentresolver.ChooserRequestParameters
+import com.android.intentresolver.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.plus
 
 /** A trivial view model to keep a [PreviewDataProvider] instance over a configuration change */
-class PreviewViewModel(private val contentResolver: ContentResolver) : ViewModel() {
+class PreviewViewModel(private val application: Application) : BasePreviewViewModel() {
     private var previewDataProvider: PreviewDataProvider? = null
+    private var imageLoader: ImagePreviewImageLoader? = null
 
-    fun createOrReuseProvider(chooserRequest: ChooserRequestParameters): PreviewDataProvider {
-        return previewDataProvider
-            ?: PreviewDataProvider(chooserRequest.targetIntent, contentResolver).also {
+    @MainThread
+    override fun createOrReuseProvider(
+        chooserRequest: ChooserRequestParameters
+    ): PreviewDataProvider =
+        previewDataProvider
+            ?: PreviewDataProvider(chooserRequest.targetIntent, application.contentResolver).also {
                 previewDataProvider = it
             }
-    }
+
+    @MainThread
+    override fun createOrReuseImageLoader(): ImageLoader =
+        imageLoader
+            ?: ImagePreviewImageLoader(
+                    viewModelScope + Dispatchers.IO,
+                    thumbnailSize =
+                        application.resources.getDimensionPixelSize(
+                            R.dimen.chooser_preview_image_max_dimen
+                        ),
+                    application.contentResolver,
+                    cacheSize = 16
+                )
+                .also { imageLoader = it }
 
     companion object {
         val Factory: ViewModelProvider.Factory =
@@ -42,10 +63,7 @@ class PreviewViewModel(private val contentResolver: ContentResolver) : ViewModel
                 override fun <T : ViewModel> create(
                     modelClass: Class<T>,
                     extras: CreationExtras
-                ): T =
-                    PreviewViewModel(
-                        (checkNotNull(extras[APPLICATION_KEY]) as Context).contentResolver
-                    ) as T
+                ): T = PreviewViewModel(checkNotNull(extras[APPLICATION_KEY])) as T
             }
     }
 }
