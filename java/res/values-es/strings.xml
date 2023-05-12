@@ -66,12 +66,9 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Compartiendo vídeo con enlace}many{Compartiendo # vídeos con enlace}other{Compartiendo # vídeos con enlace}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Compartiendo archivo con mensaje de texto}many{Compartiendo # archivos con mensaje de texto}other{Compartiendo # archivos con mensaje de texto}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Compartiendo archivo con enlace}many{Compartiendo # archivos con enlace}other{Compartiendo # archivos con enlace}}"</string>
-    <!-- no translation found for sharing_images_only (7762589767189955438) -->
-    <skip />
-    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
-    <skip />
-    <!-- no translation found for sharing_files_only (6603666533766964768) -->
-    <skip />
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Solo imagen}many{Solo imágenes}other{Solo imágenes}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Solo vídeo}many{Solo vídeos}other{Solo vídeos}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Solo archivo}many{Solo archivos}other{Solo archivos}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"No hay sugerencias de personas con las que compartir"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Lista de aplicaciones"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Esta aplicación no tiene permiso para grabar, pero podría capturar audio con este dispositivo USB."</string>

@@ -66,12 +66,9 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Videó megosztása linkkel}other{# videó megosztása linkkel}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Fájl megosztása szöveggel}other{# fájl megosztása szöveggel}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Fájl megosztása linkkel}other{# fájl megosztása linkkel}}"</string>
-    <!-- no translation found for sharing_images_only (7762589767189955438) -->
-    <skip />
-    <!-- no translation found for sharing_videos_only (5549729252364968606) -->
-    <skip />
-    <!-- no translation found for sharing_files_only (6603666533766964768) -->
-    <skip />
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Csak kép}other{Csak képek}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Csak videó}other{Csak videók}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Csak fájl}other{Csak fájlok}}"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Nincsenek ajánlott személyek a megosztáshoz"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Alkalmazások listája"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Ez az alkalmazás nem rendelkezik rögzítési engedéllyel, de ezzel az USB-eszközzel képes a hangfelvételre."</string>
