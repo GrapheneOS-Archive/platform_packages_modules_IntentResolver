@@ -22,6 +22,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingHorizontal="@dimen/chooser_edge_margin_normal"
+    android:layout_marginBottom="16dp"
 >
     <TextView
         android:id="@+id/headline"
@@ -35,7 +36,6 @@
         style="@style/TextAppearance.ChooserDefault"
         android:fontFamily="@androidprv:string/config_headlineFontFamily"
         android:textSize="18sp"
-        android:paddingBottom="16dp"
         />
 
     <androidx.constraintlayout.widget.Barrier
@@ -55,7 +55,6 @@
         android:ellipsize="end"
         android:visibility="gone"
         android:paddingTop="3dp"
-        android:paddingBottom="16dp"
         style="@style/TextAppearance.ChooserDefault"
         android:drawableEnd="@drawable/chevron_right"
         />
@@ -67,6 +66,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxWidth="@dimen/modify_share_text_toggle_max_width"
+        android:layout_marginTop="16dp"
+        app:layout_goneMarginTop="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/reselection_action"
         android:layout_alignWithParentIfMissing="true"
