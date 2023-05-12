@@ -44,12 +44,6 @@
         android:forceQueryable="true"
         android:supportsRtl="true">
 
-        <!-- This activity is enabled or disabled by the ChooserSelector
-             component, based on the flag flipper experiment (1500). It's
-             initially disabled here only as an extra precaution, since it
-             should be disabled by ChooserSelector on startup regardless.
-             TODO: if this graduates from its experiment (and ChooserSelector
-             is removed), this should be set to default-enabled. -->
         <activity android:name=".ChooserActivity"
                 android:theme="@style/Theme.DeviceDefault.Chooser"
                 android:finishOnCloseSystemDialogs="true"
@@ -58,8 +52,7 @@
                 android:relinquishTaskIdentity="true"
                 android:configChanges="screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden"
                 android:visibleToInstantApps="true"
-                android:exported="true"
-                android:enabled="false">
+                android:exported="true">
 
             <!-- This intent filter is assigned a priority greater than 100 so
                  that it will take precedence over the framework ChooserActivity
