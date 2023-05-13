@@ -841,7 +841,14 @@ public class ResolverDrawerLayout extends ViewGroup {
 
     @Override
     public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
-        if (!consumed && Math.abs(velocityY) > mMinFlingVelocity) {
+        // TODO: find a more suitable way to fix it.
+        //  RecyclerView started reporting `consumed` as true whenever a scrolling is enabled,
+        //  previously the value was based whether the fling can be performed in given direction
+        //  i.e. whether it is at the top or at the bottom. isRecyclerViewAtTheTop method is a
+        //  workaround that restores the legacy functionality.
+        boolean shouldConsume = (Math.abs(velocityY) > mMinFlingVelocity)
+                && (!consumed || (velocityY < 0 && isRecyclerViewAtTheTop(target)));
+        if (shouldConsume) {
             if (getShowAtTop()) {
                 if (isDismissable() && velocityY > 0) {
                     abortAnimation();
@@ -861,6 +868,21 @@ public class ResolverDrawerLayout extends ViewGroup {
             return true;
         }
         return false;
+    }
+
+    private static boolean isRecyclerViewAtTheTop(View target) {
+        // TODO: there's a very similar functionality in #isNestedRecyclerChildScrolled(),
+        //  consolidate the two.
+        if (!(target instanceof RecyclerView)) {
+            return false;
+        }
+        RecyclerView recyclerView = (RecyclerView) target;
+        if (recyclerView.getChildCount() == 0) {
+            return true;
+        }
+        View firstChild = recyclerView.getChildAt(0);
+        return recyclerView.getChildAdapterPosition(firstChild) == 0
+                && firstChild.getTop() >= recyclerView.getPaddingTop();
     }
 
     private boolean performAccessibilityActionCommon(int action) {
