@@ -125,9 +125,10 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 /**
- * This activity is displayed when the system attempts to start an Intent for
- * which there is more than one matching activity, allowing the user to decide
- * which to go to.  It is not normally used directly by application developers.
+ * This is a copy of ResolverActivity to support IntentResolver's ChooserActivity. This code is
+ * *not* the resolver that is actually triggered by the system right now (you want
+ * frameworks/base/core/java/com/android/internal/app/ResolverActivity.java for that), the full
+ * migration is not complete.
  */
 @UiThread
 public class ResolverActivity extends FragmentActivity implements
@@ -228,7 +229,7 @@ public class ResolverActivity extends FragmentActivity implements
     // new component whose lifecycle is limited to the "created" Activity (so that we can just hold
     // the annotations as a `final` ivar, which is a better way to show immutability).
     private Supplier<AnnotatedUserHandles> mLazyAnnotatedUserHandles = () -> {
-        final AnnotatedUserHandles result = new AnnotatedUserHandles(this);
+        final AnnotatedUserHandles result = AnnotatedUserHandles.forShareActivity(this);
         mLazyAnnotatedUserHandles = () -> result;
         return result;
     };
@@ -1864,8 +1865,10 @@ public class ResolverActivity extends FragmentActivity implements
         } else if (numberOfProfiles == 2
                 && mMultiProfilePagerAdapter.getActiveListAdapter().isTabLoaded()
                 && mMultiProfilePagerAdapter.getInactiveListAdapter().isTabLoaded()
-                && (maybeAutolaunchIfNoAppsOnInactiveTab()
-                        || maybeAutolaunchIfCrossProfileSupported())) {
+                && maybeAutolaunchIfCrossProfileSupported()) {
+            // TODO(b/280988288): If the ChooserActivity is shown we should consider showing the
+            //  correct intent-picker UIs (e.g., mini-resolver) if it was launched without
+            //  ACTION_SEND.
             return true;
         }
         return false;
@@ -1890,23 +1893,6 @@ public class ResolverActivity extends FragmentActivity implements
             return true;
         }
         return false;
-    }
-
-    private boolean maybeAutolaunchIfNoAppsOnInactiveTab() {
-        int count = mMultiProfilePagerAdapter.getActiveListAdapter().getUnfilteredCount();
-        if (count != 1) {
-            return false;
-        }
-        ResolverListAdapter inactiveListAdapter =
-                mMultiProfilePagerAdapter.getInactiveListAdapter();
-        if (inactiveListAdapter.getUnfilteredCount() != 0) {
-            return false;
-        }
-        TargetInfo target = mMultiProfilePagerAdapter.getActiveListAdapter()
-                .targetInfoForPosition(0, false);
-        safelyStartActivity(target);
-        finish();
-        return true;
     }
 
     /**

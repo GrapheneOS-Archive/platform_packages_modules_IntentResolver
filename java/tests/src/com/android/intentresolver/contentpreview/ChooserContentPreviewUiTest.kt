@@ -16,7 +16,6 @@
 
 package com.android.intentresolver.contentpreview
 
-import android.content.ClipDescription
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
@@ -37,13 +36,14 @@ import org.mockito.Mockito.verify
 class ChooserContentPreviewUiTest {
     private val lifecycle = mock<Lifecycle>()
     private val previewData = mock<PreviewDataProvider>()
-    private val imageClassifier = MimeTypeClassifier { mimeType ->
-        mimeType != null && ClipDescription.compareMimeTypes(mimeType, "image/*")
-    }
     private val headlineGenerator = mock<HeadlineGenerator>()
     private val imageLoader =
         object : ImageLoader {
-            override fun loadImage(uri: Uri, callback: Consumer<Bitmap?>) {
+            override fun loadImage(
+                callerLifecycle: Lifecycle,
+                uri: Uri,
+                callback: Consumer<Bitmap?>,
+            ) {
                 callback.accept(null)
             }
             override fun prePopulate(uris: List<Uri>) = Unit
@@ -67,11 +67,10 @@ class ChooserContentPreviewUiTest {
                 lifecycle,
                 previewData,
                 Intent(Intent.ACTION_VIEW),
-                imageClassifier,
                 imageLoader,
                 actionFactory,
                 transitionCallback,
-                headlineGenerator
+                headlineGenerator,
             )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_TEXT)
@@ -87,11 +86,10 @@ class ChooserContentPreviewUiTest {
                 lifecycle,
                 previewData,
                 Intent(Intent.ACTION_SEND),
-                imageClassifier,
                 imageLoader,
                 actionFactory,
                 transitionCallback,
-                headlineGenerator
+                headlineGenerator,
             )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
@@ -116,11 +114,10 @@ class ChooserContentPreviewUiTest {
                 lifecycle,
                 previewData,
                 Intent(Intent.ACTION_SEND).apply { putExtra(Intent.EXTRA_TEXT, "Shared text") },
-                imageClassifier,
                 imageLoader,
                 actionFactory,
                 transitionCallback,
-                headlineGenerator
+                headlineGenerator,
             )
         assertThat(testSubject.mContentPreviewUi)
             .isInstanceOf(FilesPlusTextContentPreviewUi::class.java)
@@ -145,11 +142,10 @@ class ChooserContentPreviewUiTest {
                 lifecycle,
                 previewData,
                 Intent(Intent.ACTION_SEND),
-                imageClassifier,
                 imageLoader,
                 actionFactory,
                 transitionCallback,
-                headlineGenerator
+                headlineGenerator,
             )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)

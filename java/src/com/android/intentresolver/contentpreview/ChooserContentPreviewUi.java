@@ -88,7 +88,6 @@ public final class ChooserContentPreviewUi {
             Lifecycle lifecycle,
             PreviewDataProvider previewData,
             Intent targetIntent,
-            MimeTypeClassifier imageClassifier,
             ImageLoader imageLoader,
             ActionFactory actionFactory,
             TransitionElementStatusCallback transitionElementStatusCallback,
@@ -97,7 +96,7 @@ public final class ChooserContentPreviewUi {
         mContentPreviewUi = createContentPreview(
                 previewData,
                 targetIntent,
-                imageClassifier,
+                DefaultMimeTypeClassifier.INSTANCE,
                 imageLoader,
                 actionFactory,
                 transitionElementStatusCallback,
@@ -119,6 +118,7 @@ public final class ChooserContentPreviewUi {
         int previewType = previewData.getPreviewType();
         if (previewType == CONTENT_PREVIEW_TEXT) {
             return createTextPreview(
+                    mLifecycle,
                     targetIntent,
                     actionFactory,
                     imageLoader,
@@ -141,6 +141,7 @@ public final class ChooserContentPreviewUi {
         if (!TextUtils.isEmpty(text)) {
             FilesPlusTextContentPreviewUi previewUi =
                     new FilesPlusTextContentPreviewUi(
+                            mLifecycle,
                             isSingleImageShare,
                             previewData.getUriCount(),
                             targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT),
@@ -181,6 +182,7 @@ public final class ChooserContentPreviewUi {
     }
 
     private static TextContentPreviewUi createTextPreview(
+            Lifecycle lifecycle,
             Intent targetIntent,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
@@ -196,6 +198,7 @@ public final class ChooserContentPreviewUi {
             }
         }
         return new TextContentPreviewUi(
+                lifecycle,
                 sharingText,
                 previewTitle,
                 previewThumbnail,
