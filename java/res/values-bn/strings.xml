@@ -69,6 +69,12 @@
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{শুধু ছবি}one{শুধু ছবি}other{শুধু ছবি}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{শুধু ভিডিও}one{শুধু ভিডিও}other{শুধু ভিডিও}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{শুধু ফাইল}one{শুধু ফাইল}other{শুধু ফাইল}}"</string>
+    <!-- no translation found for image_preview_a11y_description (297102643932491797) -->
+    <skip />
+    <!-- no translation found for video_preview_a11y_description (683440858811095990) -->
+    <skip />
+    <!-- no translation found for file_preview_a11y_description (7397224827802410602) -->
+    <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"শেয়ার করার জন্য সাজেস্ট করার মতো কেউ নেই"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"অ্যাপের তালিকা"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"এই অ্যাপকে রেকর্ড করার অনুমতি দেওয়া হয়নি কিন্তু USB ডিভাইসের মাধ্যমে সেটি অডিও রেকর্ড করতে পারে।"</string>
