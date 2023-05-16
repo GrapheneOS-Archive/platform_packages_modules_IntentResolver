@@ -28,7 +28,8 @@
             android:layout_alignParentTop="true"
             android:adjustViewBounds="false"
             android:scaleType="centerCrop"
-            app:radius="@dimen/chooser_corner_radius_small" />
+            app:radius="@dimen/chooser_corner_radius_small"
+            android:importantForAccessibility="no" />
 
     <FrameLayout
         android:id="@+id/badge_frame"
@@ -38,7 +39,8 @@
         app:layout_constraintEnd_toEndOf="@+id/image"
         app:layout_constraintTop_toTopOf="@+id/image"
         app:layout_constraintBottom_toBottomOf="@+id/image"
-        android:background="@drawable/content_preview_badge_bg">
+        android:background="@drawable/content_preview_badge_bg"
+        android:importantForAccessibility="noHideDescendants">
 
         <ImageView
             android:id="@+id/badge"
