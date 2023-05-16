@@ -234,6 +234,16 @@
         }
     </string>
 
+    <!-- Accessibility announcement when a preview thumbnail for a shared image is selected in the
+         Chooser content preview -->
+    <string name="image_preview_a11y_description">Image preview thumbnail</string>
+    <!-- Accessibility announcement when a preview thumbnail for a shared vide item is selected in
+         the Chooser content preview -->
+    <string name="video_preview_a11y_description">Video preview thumbnail</string>
+    <!-- Accessibility announcement when a preview thumbnail for a shared file is selected in the
+         Chooser content preview -->
+    <string name="file_preview_a11y_description">File preview thumbnail</string>
+
     <!-- ChooserActivity - No direct share targets are available. [CHAR LIMIT=NONE] -->
     <string name="chooser_no_direct_share_targets">No recommended people to share with</string>
 
