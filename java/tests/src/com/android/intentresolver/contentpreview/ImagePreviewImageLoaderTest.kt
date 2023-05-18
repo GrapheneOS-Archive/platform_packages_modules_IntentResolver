@@ -27,20 +27,33 @@ import com.android.intentresolver.any
 import com.android.intentresolver.anyOrNull
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
+import com.google.common.truth.Truth.assertThat
+import java.util.ArrayDeque
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit.MILLISECONDS
+import java.util.concurrent.TimeUnit.SECONDS
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineStart.UNDISPATCHED
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -72,7 +85,7 @@ class ImagePreviewImageLoaderTest {
                 lifecycleOwner.lifecycle.coroutineScope + dispatcher,
                 imageSize.width,
                 contentResolver,
-                1,
+                cacheSize = 1,
             )
     }
 
@@ -118,7 +131,7 @@ class ImagePreviewImageLoaderTest {
                 lifecycleOwner.lifecycle.coroutineScope + dispatcher,
                 imageSize.width,
                 contentResolver,
-                1,
+                cacheSize = 1,
             )
         coroutineScope {
             launch(start = UNDISPATCHED) { testSubject(uriOne, false) }
@@ -164,7 +177,7 @@ class ImagePreviewImageLoaderTest {
                 lifecycleOwner.lifecycle.coroutineScope + dispatcher,
                 imageSize.width,
                 contentResolver,
-                1
+                cacheSize = 1,
             )
         coroutineScope {
             val deferred = async(start = UNDISPATCHED) { testSubject(uriOne, false) }
@@ -183,7 +196,7 @@ class ImagePreviewImageLoaderTest {
                 lifecycleOwner.lifecycle.coroutineScope + dispatcher,
                 imageSize.width,
                 contentResolver,
-                1
+                cacheSize = 1,
             )
         coroutineScope {
             launch(start = UNDISPATCHED) { testSubject(uriOne, false) }
@@ -193,5 +206,161 @@ class ImagePreviewImageLoaderTest {
         testSubject(uriOne, true)
 
         verify(contentResolver, times(1)).loadThumbnail(uriOne, imageSize, null)
+    }
+
+    @Test
+    fun invoke_semaphoreGuardsContentResolverCalls() = runTest {
+        val contentResolver =
+            mock<ContentResolver> {
+                whenever(loadThumbnail(any(), any(), anyOrNull()))
+                    .thenThrow(SecurityException("test"))
+            }
+        val acquireCount = AtomicInteger()
+        val releaseCount = AtomicInteger()
+        val testSemaphore =
+            object : Semaphore {
+                override val availablePermits: Int
+                    get() = error("Unexpected invocation")
+
+                override suspend fun acquire() {
+                    acquireCount.getAndIncrement()
+                }
+
+                override fun tryAcquire(): Boolean {
+                    error("Unexpected invocation")
+                }
+
+                override fun release() {
+                    releaseCount.getAndIncrement()
+                }
+            }
+
+        val testSubject =
+            ImagePreviewImageLoader(
+                lifecycleOwner.lifecycle.coroutineScope + dispatcher,
+                imageSize.width,
+                contentResolver,
+                cacheSize = 1,
+                testSemaphore,
+            )
+        testSubject(uriOne, false)
+
+        verify(contentResolver, times(1)).loadThumbnail(uriOne, imageSize, null)
+        assertThat(acquireCount.get()).isEqualTo(1)
+        assertThat(releaseCount.get()).isEqualTo(1)
+    }
+
+    @Test
+    fun invoke_semaphoreIsReleasedAfterContentResolverFailure() = runTest {
+        val semaphoreDeferred = CompletableDeferred<Unit>()
+        val releaseCount = AtomicInteger()
+        val testSemaphore =
+            object : Semaphore {
+                override val availablePermits: Int
+                    get() = error("Unexpected invocation")
+
+                override suspend fun acquire() {
+                    semaphoreDeferred.await()
+                }
+
+                override fun tryAcquire(): Boolean {
+                    error("Unexpected invocation")
+                }
+
+                override fun release() {
+                    releaseCount.getAndIncrement()
+                }
+            }
+
+        val testSubject =
+            ImagePreviewImageLoader(
+                lifecycleOwner.lifecycle.coroutineScope + dispatcher,
+                imageSize.width,
+                contentResolver,
+                cacheSize = 1,
+                testSemaphore,
+            )
+        launch(start = UNDISPATCHED) { testSubject(uriOne, false) }
+
+        verify(contentResolver, never()).loadThumbnail(any(), any(), anyOrNull())
+
+        semaphoreDeferred.complete(Unit)
+
+        verify(contentResolver, times(1)).loadThumbnail(uriOne, imageSize, null)
+        assertThat(releaseCount.get()).isEqualTo(1)
+    }
+
+    @Test
+    fun invoke_multipleSimultaneousCalls_limitOnNumberOfSimultaneousOutgoingCallsIsRespected() {
+        val requestCount = 4
+        val thumbnailCallsCdl = CountDownLatch(requestCount)
+        val pendingThumbnailCalls = ArrayDeque<CountDownLatch>()
+        val contentResolver =
+            mock<ContentResolver> {
+                whenever(loadThumbnail(any(), any(), anyOrNull())).thenAnswer {
+                    val latch = CountDownLatch(1)
+                    synchronized(pendingThumbnailCalls) { pendingThumbnailCalls.offer(latch) }
+                    thumbnailCallsCdl.countDown()
+                    latch.await()
+                    bitmap
+                }
+            }
+        val name = "LoadImage"
+        val maxSimultaneousRequests = 2
+        val threadsStartedCdl = CountDownLatch(requestCount)
+        val dispatcher = NewThreadDispatcher(name) { threadsStartedCdl.countDown() }
+        val testSubject =
+            ImagePreviewImageLoader(
+                lifecycleOwner.lifecycle.coroutineScope + dispatcher + CoroutineName(name),
+                imageSize.width,
+                contentResolver,
+                cacheSize = 1,
+                maxSimultaneousRequests,
+            )
+        runTest {
+            repeat(requestCount) {
+                launch { testSubject(Uri.parse("content://org.pkg.app/image-$it.png")) }
+            }
+            yield()
+            // wait for all requests to be dispatched
+            assertThat(threadsStartedCdl.await(5, SECONDS)).isTrue()
+
+            assertThat(thumbnailCallsCdl.await(100, MILLISECONDS)).isFalse()
+            synchronized(pendingThumbnailCalls) {
+                assertThat(pendingThumbnailCalls.size).isEqualTo(maxSimultaneousRequests)
+            }
+
+            pendingThumbnailCalls.poll()?.countDown()
+            assertThat(thumbnailCallsCdl.await(100, MILLISECONDS)).isFalse()
+            synchronized(pendingThumbnailCalls) {
+                assertThat(pendingThumbnailCalls.size).isEqualTo(maxSimultaneousRequests)
+            }
+
+            pendingThumbnailCalls.poll()?.countDown()
+            assertThat(thumbnailCallsCdl.await(100, MILLISECONDS)).isTrue()
+            synchronized(pendingThumbnailCalls) {
+                assertThat(pendingThumbnailCalls.size).isEqualTo(maxSimultaneousRequests)
+            }
+            for (cdl in pendingThumbnailCalls) {
+                cdl.countDown()
+            }
+        }
+    }
+}
+
+private class NewThreadDispatcher(
+    private val coroutineName: String,
+    private val launchedCallback: () -> Unit
+) : CoroutineDispatcher() {
+    override fun isDispatchNeeded(context: CoroutineContext): Boolean = true
+
+    override fun dispatch(context: CoroutineContext, block: Runnable) {
+        Thread {
+                if (coroutineName == context[CoroutineName.Key]?.name) {
+                    launchedCallback()
+                }
+                block.run()
+            }
+            .start()
     }
 }
