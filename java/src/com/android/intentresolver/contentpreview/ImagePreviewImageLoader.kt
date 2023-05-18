@@ -26,27 +26,41 @@ import androidx.annotation.VisibleForTesting
 import androidx.collection.LruCache
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
+import java.util.function.Consumer
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.util.function.Consumer
+import kotlinx.coroutines.sync.Semaphore
 
 private const val TAG = "ImagePreviewImageLoader"
 
 /**
- * Implements preview image loading for the content preview UI. Provides requests deduplication and
- * image caching.
+ * Implements preview image loading for the content preview UI. Provides requests deduplication,
+ * image caching, and a limit on the number of parallel loadings.
  */
 @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-class ImagePreviewImageLoader(
+class ImagePreviewImageLoader
+@VisibleForTesting
+constructor(
     private val scope: CoroutineScope,
     thumbnailSize: Int,
     private val contentResolver: ContentResolver,
     cacheSize: Int,
+    // TODO: consider providing a scope with the dispatcher configured with
+    //  [CoroutineDispatcher#limitedParallelism] instead
+    private val contentResolverSemaphore: Semaphore,
 ) : ImageLoader {
+
+    constructor(
+        scope: CoroutineScope,
+        thumbnailSize: Int,
+        contentResolver: ContentResolver,
+        cacheSize: Int,
+        maxSimultaneousRequests: Int = 4
+    ) : this(scope, thumbnailSize, contentResolver, cacheSize, Semaphore(maxSimultaneousRequests))
 
     private val thumbnailSize: Size = Size(thumbnailSize, thumbnailSize)
 
@@ -103,13 +117,16 @@ class ImagePreviewImageLoader(
             }
     }
 
-    private fun RequestRecord.loadBitmap() {
+    private suspend fun RequestRecord.loadBitmap() {
+        contentResolverSemaphore.acquire()
         val bitmap =
             try {
                 contentResolver.loadThumbnail(uri, thumbnailSize, null)
             } catch (t: Throwable) {
                 Log.d(TAG, "failed to load $uri preview", t)
                 null
+            } finally {
+                contentResolverSemaphore.release()
             }
         complete(bitmap)
     }
