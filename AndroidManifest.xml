@@ -42,6 +42,7 @@
         android:label="@string/app_label"
         android:directBootAware="true"
         android:forceQueryable="true"
+        android:requiredForAllUsers="true"
         android:supportsRtl="true">
 
         <activity android:name=".ChooserActivity"
