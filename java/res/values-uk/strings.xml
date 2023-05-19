@@ -69,6 +69,12 @@
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Лише зображення}one{Лише зображення}few{Лише зображення}many{Лише зображення}other{Лише зображення}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Лише відео}one{Лише відео}few{Лише відео}many{Лише відео}other{Лише відео}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Лише файл}one{Лише файли}few{Лише файли}many{Лише файли}other{Лише файли}}"</string>
+    <!-- no translation found for image_preview_a11y_description (297102643932491797) -->
+    <skip />
+    <!-- no translation found for video_preview_a11y_description (683440858811095990) -->
+    <skip />
+    <!-- no translation found for file_preview_a11y_description (7397224827802410602) -->
+    <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Немає рекомендацій про те, з ким поділитися"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Список додатків"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Цей додаток не має дозволу на запис, але він може фіксувати звук через цей USB-пристрій."</string>

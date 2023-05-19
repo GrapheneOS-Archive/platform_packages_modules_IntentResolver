@@ -69,6 +69,12 @@
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{ຮູບເທົ່ານັ້ນ}other{ຮູບເທົ່ານັ້ນ}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{ວິດີໂອເທົ່ານັ້ນ}other{ວິດີໂອເທົ່ານັ້ນ}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ໄຟລ໌ເທົ່ານັ້ນ}other{ໄຟລ໌ເທົ່ານັ້ນ}}"</string>
+    <!-- no translation found for image_preview_a11y_description (297102643932491797) -->
+    <skip />
+    <!-- no translation found for video_preview_a11y_description (683440858811095990) -->
+    <skip />
+    <!-- no translation found for file_preview_a11y_description (7397224827802410602) -->
+    <skip />
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ບໍ່ມີຄົນທີ່ແນະນຳໃຫ້ແບ່ງປັນນຳ"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"ລາຍຊື່ແອັບ"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ແອັບນີ້ບໍ່ໄດ້ຮັບສິດອະນຸຍາດໃນການບັນທຶກ ແຕ່ສາມາດບັນທຶກສຽງໄດ້ຜ່ານອຸປະກອນ USB ນີ້."</string>
