@@ -30,7 +30,6 @@ import androidx.annotation.Nullable;
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,8 +107,7 @@ class FileContentPreviewUi extends ContentPreviewUi {
 
         final ActionRow actionRow =
                 mContentPreview.findViewById(com.android.internal.R.id.chooser_action_row);
-        List<ActionRow.Action> actions =
-                createActions(new ArrayList<>(), mActionFactory.createCustomActions());
+        List<ActionRow.Action> actions = mActionFactory.createCustomActions();
         actionRow.setActions(actions);
         if (actions.isEmpty()) {
             mContentPreview.findViewById(R.id.actions_top_divider).setVisibility(View.GONE);
