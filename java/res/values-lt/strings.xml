@@ -69,12 +69,9 @@
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Tik vaizdas}one{Tik vaizdai}few{Tik vaizdai}many{Tik vaizdai}other{Tik vaizdai}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Tik vaizdo įrašas}one{Tik vaizdo įrašai}few{Tik vaizdo įrašai}many{Tik vaizdo įrašai}other{Tik vaizdo įrašai}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Tik failas}one{Tik failai}few{Tik failai}many{Tik failai}other{Tik failai}}"</string>
-    <!-- no translation found for image_preview_a11y_description (297102643932491797) -->
-    <skip />
-    <!-- no translation found for video_preview_a11y_description (683440858811095990) -->
-    <skip />
-    <!-- no translation found for file_preview_a11y_description (7397224827802410602) -->
-    <skip />
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Vaizdo peržiūros miniatiūra"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Vaizdo įrašo peržiūros miniatiūra"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Failo peržiūros miniatiūra"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Nėra rekomenduojamų žmonių, su kuriais būtų galima bendrinti"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Programų sąrašas"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Šiai programai nebuvo suteiktas leidimas įrašyti, bet ji gali užfiksuoti garsą per šį USB įrenginį."</string>
