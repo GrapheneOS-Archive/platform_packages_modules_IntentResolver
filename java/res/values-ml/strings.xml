@@ -69,12 +69,9 @@
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{ചിത്രം മാത്രം}other{ചിത്രങ്ങൾ മാത്രം}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{വീഡിയോ മാത്രം}other{വീഡിയോകൾ മാത്രം}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ഫയൽ മാത്രം}other{ഫയലുകൾ മാത്രം}}"</string>
-    <!-- no translation found for image_preview_a11y_description (297102643932491797) -->
-    <skip />
-    <!-- no translation found for video_preview_a11y_description (683440858811095990) -->
-    <skip />
-    <!-- no translation found for file_preview_a11y_description (7397224827802410602) -->
-    <skip />
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"ചിത്രത്തിന്റെ പ്രിവ്യൂ ലഘുചിത്രം"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"വീഡിയോയുടെ പ്രിവ്യൂ ലഘുചിത്രം"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"ഫയലിന്റെ പ്രിവ്യൂ ലഘുചിത്രം"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"പങ്കിടാൻ, നിർദ്ദേശിക്കപ്പെട്ട ആളുകളൊന്നുമില്ല"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"ആപ്പുകളുടെ ലിസ്‌റ്റ്"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ഈ ആപ്പിന് റെക്കോർഡ് അനുമതി നൽകിയിട്ടില്ല, എന്നാൽ ഈ USB ഉപകരണത്തിലൂടെ ഓഡിയോ ക്യാപ്‌ചർ ചെയ്യാനാവും."</string>

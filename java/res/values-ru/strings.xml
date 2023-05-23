@@ -69,12 +69,9 @@
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Только изображение}one{Только изображения}few{Только изображения}many{Только изображения}other{Только изображения}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Только видео}one{Только видео}few{Только видео}many{Только видео}other{Только видео}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Только файл}one{Только файлы}few{Только файлы}many{Только файлы}other{Только файлы}}"</string>
-    <!-- no translation found for image_preview_a11y_description (297102643932491797) -->
-    <skip />
-    <!-- no translation found for video_preview_a11y_description (683440858811095990) -->
-    <skip />
-    <!-- no translation found for file_preview_a11y_description (7397224827802410602) -->
-    <skip />
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Значок предварительного просмотра изображения"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Значок предварительного просмотра видео"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Значок предварительного просмотра файла"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Рекомендованных получателей нет."</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Список приложений"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Приложению не разрешено записывать звук, однако оно может делать это с помощью этого USB-устройства."</string>
