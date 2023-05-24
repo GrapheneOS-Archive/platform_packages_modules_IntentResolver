@@ -27,10 +27,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.intentresolver.ChooserListAdapter.LoadDirectShareIconTask
 import com.android.intentresolver.chooser.DisplayResolveInfo
 import com.android.intentresolver.chooser.SelectableTargetInfo
 import com.android.intentresolver.chooser.TargetInfo
+import com.android.intentresolver.icons.TargetDataLoader
 import com.android.internal.R
 import org.junit.Before
 import org.junit.Test
@@ -40,47 +40,43 @@ import org.mockito.Mockito.verify
 
 @RunWith(AndroidJUnit4::class)
 class ChooserListAdapterTest {
-    private val PERSONAL_USER_HANDLE: UserHandle = InstrumentationRegistry
-            .getInstrumentation().getTargetContext().getUser()
+    private val userHandle: UserHandle =
+        InstrumentationRegistry.getInstrumentation().targetContext.user
 
-    private val packageManager = mock<PackageManager> {
-        whenever(
-            resolveActivity(any(), any<ResolveInfoFlags>())
-        ).thenReturn(mock())
-    }
-    private val context = InstrumentationRegistry.getInstrumentation().getContext()
+    private val packageManager =
+        mock<PackageManager> {
+            whenever(resolveActivity(any(), any<ResolveInfoFlags>())).thenReturn(mock())
+        }
+    private val context = InstrumentationRegistry.getInstrumentation().context
     private val resolverListController = mock<ResolverListController>()
     private val chooserActivityLogger = mock<ChooserActivityLogger>()
+    private val mTargetDataLoader = mock<TargetDataLoader>()
 
-    private fun createChooserListAdapter(
-        taskProvider: (TargetInfo?) -> LoadDirectShareIconTask
-    ) = object : ChooserListAdapter(
+    private val testSubject by lazy {
+        ChooserListAdapter(
             context,
             emptyList(),
             emptyArray(),
             emptyList(),
             false,
             resolverListController,
-            null,
+            userHandle,
             Intent(),
             mock(),
             packageManager,
             chooserActivityLogger,
             mock(),
             0,
-            null
-        ) {
-            override fun createLoadDirectShareIconTask(
-                info: SelectableTargetInfo
-            ): LoadDirectShareIconTask = taskProvider(info)
-        }
+            null,
+            mTargetDataLoader
+        )
+    }
 
     @Before
     fun setup() {
         // ChooserListAdapter reads DeviceConfig and needs a permission for that.
-        InstrumentationRegistry
-            .getInstrumentation()
-            .getUiAutomation()
+        InstrumentationRegistry.getInstrumentation()
+            .uiAutomation
             .adoptShellPermissionIdentity("android.permission.READ_DEVICE_CONFIG")
     }
 
@@ -90,41 +86,56 @@ class ChooserListAdapterTest {
         val viewHolder = ResolverListAdapter.ViewHolder(view)
         view.tag = viewHolder
         val targetInfo = createSelectableTargetInfo()
-        val iconTask = mock<LoadDirectShareIconTask>()
-        val testSubject = createChooserListAdapter { iconTask }
         testSubject.onBindView(view, targetInfo, 0)
 
-        verify(iconTask, times(1)).loadIcon()
+        verify(mTargetDataLoader, times(1)).loadDirectShareIcon(any(), any(), any())
     }
 
     @Test
-    fun testOnlyOneTaskPerTarget() {
+    fun onBindView_DirectShareTargetIconAndLabelLoadedOnlyOnce() {
         val view = createView()
         val viewHolderOne = ResolverListAdapter.ViewHolder(view)
         view.tag = viewHolderOne
         val targetInfo = createSelectableTargetInfo()
-        val iconTaskOne = mock<LoadDirectShareIconTask>()
-        val testTaskProvider = mock<() -> LoadDirectShareIconTask> {
-            whenever(invoke()).thenReturn(iconTaskOne)
-        }
-        val testSubject = createChooserListAdapter { testTaskProvider.invoke() }
         testSubject.onBindView(view, targetInfo, 0)
 
         val viewHolderTwo = ResolverListAdapter.ViewHolder(view)
         view.tag = viewHolderTwo
-        whenever(testTaskProvider()).thenReturn(mock())
 
         testSubject.onBindView(view, targetInfo, 0)
 
-        verify(iconTaskOne, times(1)).loadIcon()
-        verify(testTaskProvider, times(1)).invoke()
+        verify(mTargetDataLoader, times(1)).loadDirectShareIcon(any(), any(), any())
+    }
+
+    @Test
+    fun onBindView_AppTargetIconAndLabelLoadedOnlyOnce() {
+        val view = createView()
+        val viewHolderOne = ResolverListAdapter.ViewHolder(view)
+        view.tag = viewHolderOne
+        val targetInfo =
+            DisplayResolveInfo.newDisplayResolveInfo(
+                Intent(),
+                ResolverDataProvider.createResolveInfo(2, 0, userHandle),
+                null,
+                "extended info",
+                Intent(),
+                /* resolveInfoPresentationGetter= */ null
+            )
+        testSubject.onBindView(view, targetInfo, 0)
+
+        val viewHolderTwo = ResolverListAdapter.ViewHolder(view)
+        view.tag = viewHolderTwo
+
+        testSubject.onBindView(view, targetInfo, 0)
+
+        verify(mTargetDataLoader, times(1)).loadAppTargetIcon(any(), any(), any())
     }
 
     private fun createSelectableTargetInfo(): TargetInfo =
         SelectableTargetInfo.newSelectableTargetInfo(
             /* sourceInfo = */ DisplayResolveInfo.newDisplayResolveInfo(
                 Intent(),
-                ResolverDataProvider.createResolveInfo(2, 0, PERSONAL_USER_HANDLE),
+                ResolverDataProvider.createResolveInfo(2, 0, userHandle),
                 "label",
                 "extended info",
                 Intent(),
@@ -133,7 +144,10 @@ class ChooserListAdapterTest {
             /* backupResolveInfo = */ mock(),
             /* resolvedIntent = */ Intent(),
             /* chooserTarget = */ createChooserTarget(
-                "Target", 0.5f, ComponentName("pkg", "Class"), "id-1"
+                "Target",
+                0.5f,
+                ComponentName("pkg", "Class"),
+                "id-1"
             ),
             /* modifiedScore = */ 1f,
             /* shortcutInfo = */ createShortcutInfo("id-1", ComponentName("pkg", "Class"), 1),
