@@ -109,7 +109,7 @@ public class ResolverActivityTest {
         setupResolverControllers(resolvedComponentInfos);
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
-        Espresso.registerIdlingResources(activity.getAdapter().getLabelIdlingResource());
+        Espresso.registerIdlingResources(activity.getLabelIdlingResource());
         waitForIdle();
 
         assertThat(activity.getAdapter().getCount(), is(2));
@@ -246,7 +246,7 @@ public class ResolverActivityTest {
         ResolveInfo toChoose = personalResolvedComponentInfos.get(1).getResolveInfoAt(0);
         Intent sendIntent = createSendImageIntent();
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
-        Espresso.registerIdlingResources(activity.getAdapter().getLabelIdlingResource());
+        Espresso.registerIdlingResources(activity.getLabelIdlingResource());
         waitForIdle();
 
         // The other entry is filtered to the last used slot
@@ -280,7 +280,7 @@ public class ResolverActivityTest {
         setupResolverControllers(resolvedComponentInfos);
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
-        Espresso.registerIdlingResources(activity.getAdapter().getLabelIdlingResource());
+        Espresso.registerIdlingResources(activity.getLabelIdlingResource());
         waitForIdle();
 
         // The other entry is filtered to the other profile slot
@@ -321,7 +321,7 @@ public class ResolverActivityTest {
                 .thenReturn(resolvedComponentInfos.get(1).getResolveInfoAt(0));
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
-        Espresso.registerIdlingResources(activity.getAdapter().getLabelIdlingResource());
+        Espresso.registerIdlingResources(activity.getLabelIdlingResource());
         waitForIdle();
 
         // The other entry is filtered to the other profile slot
@@ -782,7 +782,7 @@ public class ResolverActivityTest {
                 .thenReturn(resolvedComponentInfos.get(1).getResolveInfoAt(0));
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
-        Espresso.registerIdlingResources(activity.getAdapter().getLabelIdlingResource());
+        Espresso.registerIdlingResources(activity.getLabelIdlingResource());
         waitForIdle();
 
         // The other entry is filtered to the last used slot
@@ -848,7 +848,7 @@ public class ResolverActivityTest {
                 .thenReturn(resolvedComponentInfos.get(0).getResolveInfoAt(0));
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
-        Espresso.registerIdlingResources(activity.getAdapter().getLabelIdlingResource());
+        Espresso.registerIdlingResources(activity.getLabelIdlingResource());
         waitForIdle();
 
         assertThat(activity.getAdapter().hasFilteredItem(), is(false));
