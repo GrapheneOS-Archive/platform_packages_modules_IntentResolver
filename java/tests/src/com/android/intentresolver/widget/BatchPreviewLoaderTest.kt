@@ -18,29 +18,29 @@ package com.android.intentresolver.widget
 
 import android.graphics.Bitmap
 import android.net.Uri
+import com.android.intentresolver.captureMany
+import com.android.intentresolver.mock
 import com.android.intentresolver.widget.ScrollableImagePreviewView.BatchPreviewLoader
 import com.android.intentresolver.widget.ScrollableImagePreviewView.Preview
 import com.android.intentresolver.widget.ScrollableImagePreviewView.PreviewType
+import com.android.intentresolver.withArgCaptor
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import org.junit.Test
-import com.android.intentresolver.mock
-import com.android.intentresolver.captureMany
-import com.android.intentresolver.withArgCaptor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
+import org.junit.Test
 import org.mockito.Mockito.atLeast
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import com.google.common.truth.Truth.assertThat
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BatchPreviewLoaderTest {
@@ -67,22 +67,21 @@ class BatchPreviewLoaderTest {
         val uriOne = createUri(1)
         val uriTwo = createUri(2)
         imageLoader.setUriLoadingOrder(succeed(uriTwo), succeed(uriOne))
-        val testSubject = BatchPreviewLoader(
-            imageLoader,
-            previews(uriOne, uriTwo),
-            0,
-            onReset,
-            onUpdate,
-            onCompletion
-        )
+        val testSubject =
+            BatchPreviewLoader(
+                imageLoader,
+                previews(uriOne, uriTwo),
+                0,
+                onReset,
+                onUpdate,
+                onCompletion
+            )
         testSubject.loadAspectRatios(200) { _, _, _ -> 100 }
         dispatcher.scheduler.advanceUntilIdle()
 
         verify(onCompletion, times(1)).invoke()
         verify(onReset, times(1)).invoke(2)
-        val list = withArgCaptor {
-            verify(onUpdate, times(1)).invoke(capture())
-        }.map { it.uri }
+        val list = withArgCaptor { verify(onUpdate, times(1)).invoke(capture()) }.map { it.uri }
         assertThat(list).containsExactly(uriOne, uriTwo).inOrder()
     }
 
@@ -93,22 +92,21 @@ class BatchPreviewLoaderTest {
         val uriTwo = createUri(2)
         val uriThree = createUri(3)
         imageLoader.setUriLoadingOrder(succeed(uriThree), fail(uriTwo), succeed(uriOne))
-        val testSubject = BatchPreviewLoader(
-            imageLoader,
-            previews(uriOne, uriTwo, uriThree),
-            0,
-            onReset,
-            onUpdate,
-            onCompletion
-        )
+        val testSubject =
+            BatchPreviewLoader(
+                imageLoader,
+                previews(uriOne, uriTwo, uriThree),
+                0,
+                onReset,
+                onUpdate,
+                onCompletion
+            )
         testSubject.loadAspectRatios(200) { _, _, _ -> 100 }
         dispatcher.scheduler.advanceUntilIdle()
 
         verify(onCompletion, times(1)).invoke()
         verify(onReset, times(1)).invoke(3)
-        val list = withArgCaptor {
-            verify(onUpdate, times(1)).invoke(capture())
-        }.map { it.uri }
+        val list = withArgCaptor { verify(onUpdate, times(1)).invoke(capture()) }.map { it.uri }
         assertThat(list).containsExactly(uriOne, uriThree).inOrder()
     }
 
@@ -116,35 +114,28 @@ class BatchPreviewLoaderTest {
     fun test_imagesLoadedNotInOrder_updatedInOrder() {
         val imageLoader = TestImageLoader(testScope)
         val uris = Array(10) { createUri(it) }
-        val loadingOrder = Array(uris.size) { i ->
-            val uriIdx = when {
-                i % 2 == 1 -> i - 1
-                i % 2 == 0 && i < uris.size - 1 -> i + 1
-                else -> i
+        val loadingOrder =
+            Array(uris.size) { i ->
+                val uriIdx =
+                    when {
+                        i % 2 == 1 -> i - 1
+                        i % 2 == 0 && i < uris.size - 1 -> i + 1
+                        else -> i
+                    }
+                succeed(uris[uriIdx])
             }
-            succeed(uris[uriIdx])
-        }
         imageLoader.setUriLoadingOrder(*loadingOrder)
-        val testSubject = BatchPreviewLoader(
-            imageLoader,
-            previews(*uris),
-            0,
-            onReset,
-            onUpdate,
-            onCompletion
-        )
+        val testSubject =
+            BatchPreviewLoader(imageLoader, previews(*uris), 0, onReset, onUpdate, onCompletion)
         testSubject.loadAspectRatios(200) { _, _, _ -> 100 }
         dispatcher.scheduler.advanceUntilIdle()
 
         verify(onCompletion, times(1)).invoke()
         verify(onReset, times(1)).invoke(uris.size)
-        val list = captureMany {
-            verify(onUpdate, atLeast(1)).invoke(capture())
-        }.fold(ArrayList<Preview>()) { acc, update ->
-            acc.apply {
-                addAll(update)
-            }
-        }.map { it.uri }
+        val list =
+            captureMany { verify(onUpdate, atLeast(1)).invoke(capture()) }
+                .fold(ArrayList<Preview>()) { acc, update -> acc.apply { addAll(update) } }
+                .map { it.uri }
         assertThat(list).containsExactly(*uris).inOrder()
     }
 
@@ -152,36 +143,29 @@ class BatchPreviewLoaderTest {
     fun test_imagesLoadedNotInOrderSomeFailed_updatedInOrder() {
         val imageLoader = TestImageLoader(testScope)
         val uris = Array(10) { createUri(it) }
-        val loadingOrder = Array(uris.size) { i ->
-            val uriIdx = when {
-                i % 2 == 1 -> i - 1
-                i % 2 == 0 && i < uris.size - 1 -> i + 1
-                else -> i
+        val loadingOrder =
+            Array(uris.size) { i ->
+                val uriIdx =
+                    when {
+                        i % 2 == 1 -> i - 1
+                        i % 2 == 0 && i < uris.size - 1 -> i + 1
+                        else -> i
+                    }
+                if (uriIdx % 2 == 0) fail(uris[uriIdx]) else succeed(uris[uriIdx])
             }
-            if (uriIdx % 2 == 0) fail(uris[uriIdx]) else succeed(uris[uriIdx])
-        }
         val expectedUris = Array(uris.size / 2) { createUri(it * 2 + 1) }
         imageLoader.setUriLoadingOrder(*loadingOrder)
-        val testSubject = BatchPreviewLoader(
-            imageLoader,
-            previews(*uris),
-            0,
-            onReset,
-            onUpdate,
-            onCompletion
-        )
+        val testSubject =
+            BatchPreviewLoader(imageLoader, previews(*uris), 0, onReset, onUpdate, onCompletion)
         testSubject.loadAspectRatios(200) { _, _, _ -> 100 }
         dispatcher.scheduler.advanceUntilIdle()
 
         verify(onCompletion, times(1)).invoke()
         verify(onReset, times(1)).invoke(uris.size)
-        val list = captureMany {
-            verify(onUpdate, atLeast(1)).invoke(capture())
-        }.fold(ArrayList<Preview>()) { acc, update ->
-            acc.apply {
-                addAll(update)
-            }
-        }.map { it.uri }
+        val list =
+            captureMany { verify(onUpdate, atLeast(1)).invoke(capture()) }
+                .fold(ArrayList<Preview>()) { acc, update -> acc.apply { addAll(update) } }
+                .map { it.uri }
         assertThat(list).containsExactly(*expectedUris).inOrder()
     }
 
@@ -191,21 +175,15 @@ class BatchPreviewLoaderTest {
     private fun succeed(uri: Uri) = uri to true
     private fun previews(vararg uris: Uri) =
         uris.fold(ArrayList<Preview>(uris.size)) { acc, uri ->
-            acc.apply {
-                add(Preview(PreviewType.Image, uri))
-            }
+            acc.apply { add(Preview(PreviewType.Image, uri, editAction = null)) }
         }
 }
 
-private class TestImageLoader(
-    scope: CoroutineScope
-) : suspend (Uri, Boolean) -> Bitmap? {
+private class TestImageLoader(scope: CoroutineScope) : suspend (Uri, Boolean) -> Bitmap? {
     private val loadingOrder = ArrayDeque<Pair<Uri, Boolean>>()
     private val pendingRequests = LinkedHashMap<Uri, CompletableDeferred<Bitmap?>>()
     private val flow = MutableSharedFlow<Unit>(replay = 1)
-    private val bitmap by lazy {
-        Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-    }
+    private val bitmap by lazy { Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888) }
 
     init {
         scope.launch {
@@ -217,9 +195,7 @@ private class TestImageLoader(
                     deferred.complete(if (isLoaded) bitmap else null)
                 }
                 if (loadingOrder.isEmpty()) {
-                    pendingRequests.forEach { (uri, deferred) ->
-                        deferred.complete(bitmap)
-                    }
+                    pendingRequests.forEach { (uri, deferred) -> deferred.complete(bitmap) }
                     pendingRequests.clear()
                 }
             }
