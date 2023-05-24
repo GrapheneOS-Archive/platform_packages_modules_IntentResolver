@@ -237,9 +237,14 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
     internal constructor(
         val type: PreviewType,
         val uri: Uri,
+        val editAction: Runnable?,
         internal var aspectRatioString: String
     ) {
-        constructor(type: PreviewType, uri: Uri) : this(type, uri, "1:1")
+        constructor(
+            type: PreviewType,
+            uri: Uri,
+            editAction: Runnable?
+        ) : this(type, uri, editAction, "1:1")
     }
 
     enum class PreviewType {
@@ -370,6 +375,7 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         val image = view.requireViewById<ImageView>(R.id.image)
         private val badgeFrame = view.requireViewById<View>(R.id.badge_frame)
         private val badge = view.requireViewById<ImageView>(R.id.badge)
+        private val editActionContainer = view.findViewById<View?>(R.id.edit)
         private var scope: CoroutineScope? = null
 
         fun bind(
@@ -402,6 +408,12 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
                     itemView.contentDescription = filePreviewDescription
                     badge.setImageResource(R.drawable.chooser_file_generic)
                     badgeFrame.visibility = View.VISIBLE
+                }
+            }
+            preview.editAction?.also { onClick ->
+                editActionContainer?.apply {
+                    setOnClickListener { onClick.run() }
+                    visibility = View.VISIBLE
                 }
             }
             resetScope().launch {
@@ -545,7 +557,8 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
                                                     bitmap.width,
                                                     bitmap.height
                                                 )
-                                            } ?: 0
+                                            }
+                                                ?: 0
                                         }
                                         .getOrDefault(0)
 

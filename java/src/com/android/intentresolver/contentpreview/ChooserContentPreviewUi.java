@@ -53,12 +53,17 @@ public final class ChooserContentPreviewUi {
      * TODO: clarify why action buttons are part of preview logic.
      */
     public interface ActionFactory {
-        /** Create an action that copies the share content to the clipboard. */
-        ActionRow.Action createCopyButton();
-
-        /** Create an action that opens the share content in a system-default editor. */
+        /**
+         * @return Runnable to be run when an edit button is clicked (if available).
+         */
         @Nullable
-        ActionRow.Action createEditButton();
+        Runnable getEditButtonRunnable();
+
+        /**
+         * @return Runnable to be run when a copy button is clicked (if available).
+         */
+        @Nullable
+        Runnable getCopyButtonRunnable();
 
         /** Create custom actions */
         List<ActionRow.Action> createCustomActions();
