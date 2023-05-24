@@ -868,8 +868,8 @@ public class UnbundledChooserActivityTest {
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
-        onView(withId(com.android.internal.R.id.chooser_copy_button)).check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.chooser_copy_button)).perform(click());
+        onView(withId(R.id.copy)).check(matches(isDisplayed()));
+        onView(withId(R.id.copy)).perform(click());
         ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(
                 Context.CLIPBOARD_SERVICE);
         ClipData clipData = clipboard.getPrimaryClip();
@@ -892,8 +892,8 @@ public class UnbundledChooserActivityTest {
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
-        onView(withId(com.android.internal.R.id.chooser_copy_button)).check(matches(isDisplayed()));
-        onView(withId(com.android.internal.R.id.chooser_copy_button)).perform(click());
+        onView(withId(R.id.copy)).check(matches(isDisplayed()));
+        onView(withId(R.id.copy)).perform(click());
 
         ChooserActivityLogger logger = activity.getChooserActivityLogger();
         verify(logger, times(1)).logActionSelected(eq(ChooserActivityLogger.SELECTION_TYPE_COPY));

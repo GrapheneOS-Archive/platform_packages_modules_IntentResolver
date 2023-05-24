@@ -29,7 +29,7 @@
 
   <include layout="@layout/chooser_headline_row" />
 
-  <RelativeLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="center"
@@ -44,9 +44,9 @@
           android:id="@androidprv:id/content_preview_thumbnail"
           android:layout_width="@dimen/width_text_image_preview_size"
           android:layout_height="@dimen/width_text_image_preview_size"
-          android:layout_alignParentStart="true"
-          android:layout_centerVertical="true"
-          android:layout_marginEnd="@dimen/chooser_edge_margin_normal_half"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          app:layout_constraintBottom_toBottomOf="parent"
           android:adjustViewBounds="true"
           android:gravity="center"
           app:radius="@dimen/chooser_corner_radius_small"
@@ -54,11 +54,15 @@
 
     <TextView
         android:id="@androidprv:id/content_preview_title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@androidprv:id/content_preview_thumbnail"
-        android:layout_alignParentTop="true"
-        android:layout_alignWithParentIfMissing="true"
+        app:layout_constraintStart_toEndOf="@androidprv:id/content_preview_thumbnail"
+        app:layout_constraintEnd_toStartOf="@id/copy"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@androidprv:id/content_preview_text"
+        android:layout_marginStart="@dimen/chooser_edge_margin_normal_half"
+        app:layout_goneMarginStart="0dp"
+        app:layout_constraintVertical_chainStyle="packed"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAlignment="gravity"
@@ -69,11 +73,14 @@
 
     <TextView
         android:id="@androidprv:id/content_preview_text"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@androidprv:id/content_preview_thumbnail"
-        android:layout_below="@androidprv:id/content_preview_title"
-        android:layout_alignWithParentIfMissing="true"
+        app:layout_constraintStart_toEndOf="@androidprv:id/content_preview_thumbnail"
+        app:layout_constraintEnd_toStartOf="@id/copy"
+        app:layout_constraintTop_toBottomOf="@androidprv:id/content_preview_title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="@dimen/chooser_edge_margin_normal_half"
+        app:layout_goneMarginStart="0dp"
         android:ellipsize="end"
         android:fontFamily="@androidprv:string/config_headlineFontFamily"
         android:textColor="?androidprv:attr/materialColorOnSurfaceVariant"
@@ -81,7 +88,28 @@
         android:textDirection="locale"
         android:maxLines="@integer/text_preview_lines"
         android:focusable="true"/>
-  </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/copy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@androidprv:id/content_preview_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_margin="8dp"
+        android:padding="8dp"
+        android:contentDescription="@android:string/copy"
+        >
+      <ImageView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:tint="?androidprv:attr/materialColorOnSurfaceVariant"
+          android:src="@androidprv:drawable/ic_menu_copy_material"
+          />
+    </FrameLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
 
   <include layout="@layout/chooser_action_row" />
 
