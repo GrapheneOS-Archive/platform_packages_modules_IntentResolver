@@ -37,7 +37,6 @@ import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ScrollableImagePreviewView;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
@@ -123,9 +122,7 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
 
         final ActionRow actionRow =
                 mContentPreviewView.findViewById(com.android.internal.R.id.chooser_action_row);
-        List<ActionRow.Action> actions = createActions(
-                createImagePreviewActions(),
-                mActionFactory.createCustomActions());
+        List<ActionRow.Action> actions = mActionFactory.createCustomActions();
         actionRow.setActions(actions);
 
         if (actions.isEmpty()) {
@@ -139,18 +136,6 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
         }
 
         return mContentPreviewView;
-    }
-
-    private List<ActionRow.Action> createImagePreviewActions() {
-        ArrayList<ActionRow.Action> actions = new ArrayList<>(2);
-        //TODO: add copy action;
-        if (mIsSingleImage) {
-            ActionRow.Action action = mActionFactory.createEditButton();
-            if (action != null) {
-                actions.add(action);
-            }
-        }
-        return actions;
     }
 
     private void updateUiWithMetadata(ViewGroup contentPreviewView) {
