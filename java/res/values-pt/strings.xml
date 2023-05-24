@@ -69,12 +69,9 @@
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Somente imagem}one{Somente imagem}many{Somente imagens}other{Somente imagens}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Somente vídeo}one{Somente vídeo}many{Somente vídeos}other{Somente vídeos}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Somente arquivo}one{Somente arquivo}many{Somente arquivos}other{Somente arquivos}}"</string>
-    <!-- no translation found for image_preview_a11y_description (297102643932491797) -->
-    <skip />
-    <!-- no translation found for video_preview_a11y_description (683440858811095990) -->
-    <skip />
-    <!-- no translation found for file_preview_a11y_description (7397224827802410602) -->
-    <skip />
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Miniatura da prévia da imagem"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Miniatura da prévia do vídeo"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Miniatura da prévia do arquivo"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Não há sugestões de pessoas para compartilhar"</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Lista de apps"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Este app não tem permissão de gravação, mas pode capturar áudio pelo dispositivo USB."</string>
