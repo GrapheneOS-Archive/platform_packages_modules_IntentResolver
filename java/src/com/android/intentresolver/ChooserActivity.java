@@ -90,6 +90,8 @@ import com.android.intentresolver.contentpreview.PreviewViewModel;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.flags.FeatureFlagRepositoryFactory;
 import com.android.intentresolver.grid.ChooserGridAdapter;
+import com.android.intentresolver.icons.DefaultTargetDataLoader;
+import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.measurements.Tracer;
 import com.android.intentresolver.model.AbstractResolverComparator;
 import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
@@ -309,7 +311,8 @@ public class ChooserActivity extends ResolverActivity implements
                 mChooserRequest.getDefaultTitleResource(),
                 mChooserRequest.getInitialIntents(),
                 /* rList: List<ResolveInfo> = */ null,
-                /* supportsAlwaysUseOption = */ false);
+                /* supportsAlwaysUseOption = */ false,
+                new DefaultTargetDataLoader(this, getLifecycle(), false));
 
         mChooserShownTime = System.currentTimeMillis();
         final long systemCost = mChooserShownTime - intentReceivedTime;
@@ -442,13 +445,14 @@ public class ChooserActivity extends ResolverActivity implements
     protected AbstractMultiProfilePagerAdapter createMultiProfilePagerAdapter(
             Intent[] initialIntents,
             List<ResolveInfo> rList,
-            boolean filterLastUsed) {
+            boolean filterLastUsed,
+            TargetDataLoader targetDataLoader) {
         if (shouldShowTabs()) {
             mChooserMultiProfilePagerAdapter = createChooserMultiProfilePagerAdapterForTwoProfiles(
-                    initialIntents, rList, filterLastUsed);
+                    initialIntents, rList, filterLastUsed, targetDataLoader);
         } else {
             mChooserMultiProfilePagerAdapter = createChooserMultiProfilePagerAdapterForOneProfile(
-                    initialIntents, rList, filterLastUsed);
+                    initialIntents, rList, filterLastUsed, targetDataLoader);
         }
         return mChooserMultiProfilePagerAdapter;
     }
@@ -491,14 +495,16 @@ public class ChooserActivity extends ResolverActivity implements
     private ChooserMultiProfilePagerAdapter createChooserMultiProfilePagerAdapterForOneProfile(
             Intent[] initialIntents,
             List<ResolveInfo> rList,
-            boolean filterLastUsed) {
+            boolean filterLastUsed,
+            TargetDataLoader targetDataLoader) {
         ChooserGridAdapter adapter = createChooserGridAdapter(
                 /* context */ this,
                 /* payloadIntents */ mIntents,
                 initialIntents,
                 rList,
                 filterLastUsed,
-                /* userHandle */ getPersonalProfileUserHandle());
+                /* userHandle */ getPersonalProfileUserHandle(),
+                targetDataLoader);
         return new ChooserMultiProfilePagerAdapter(
                 /* context */ this,
                 adapter,
@@ -512,7 +518,8 @@ public class ChooserActivity extends ResolverActivity implements
     private ChooserMultiProfilePagerAdapter createChooserMultiProfilePagerAdapterForTwoProfiles(
             Intent[] initialIntents,
             List<ResolveInfo> rList,
-            boolean filterLastUsed) {
+            boolean filterLastUsed,
+            TargetDataLoader targetDataLoader) {
         int selectedProfile = findSelectedProfile();
         ChooserGridAdapter personalAdapter = createChooserGridAdapter(
                 /* context */ this,
@@ -520,14 +527,16 @@ public class ChooserActivity extends ResolverActivity implements
                 selectedProfile == PROFILE_PERSONAL ? initialIntents : null,
                 rList,
                 filterLastUsed,
-                /* userHandle */ getPersonalProfileUserHandle());
+                /* userHandle */ getPersonalProfileUserHandle(),
+                targetDataLoader);
         ChooserGridAdapter workAdapter = createChooserGridAdapter(
                 /* context */ this,
                 /* payloadIntents */ mIntents,
                 selectedProfile == PROFILE_WORK ? initialIntents : null,
                 rList,
                 filterLastUsed,
-                /* userHandle */ getWorkProfileUserHandle());
+                /* userHandle */ getWorkProfileUserHandle(),
+                targetDataLoader);
         return new ChooserMultiProfilePagerAdapter(
                 /* context */ this,
                 personalAdapter,
@@ -1183,7 +1192,8 @@ public class ChooserActivity extends ResolverActivity implements
             Intent[] initialIntents,
             List<ResolveInfo> rList,
             boolean filterLastUsed,
-            UserHandle userHandle) {
+            UserHandle userHandle,
+            TargetDataLoader targetDataLoader) {
         ChooserListAdapter chooserListAdapter = createChooserListAdapter(
                 context,
                 payloadIntents,
@@ -1194,7 +1204,8 @@ public class ChooserActivity extends ResolverActivity implements
                 userHandle,
                 getTargetIntent(),
                 mChooserRequest,
-                mMaxTargetsPerRow);
+                mMaxTargetsPerRow,
+                targetDataLoader);
 
         return new ChooserGridAdapter(
                 context,
@@ -1252,7 +1263,8 @@ public class ChooserActivity extends ResolverActivity implements
             UserHandle userHandle,
             Intent targetIntent,
             ChooserRequestParameters chooserRequest,
-            int maxTargetsPerRow) {
+            int maxTargetsPerRow,
+            TargetDataLoader targetDataLoader) {
         UserHandle initialIntentsUserSpace = isLaunchedAsCloneProfile()
                 && userHandle.equals(getPersonalProfileUserHandle())
                 ? getCloneProfileUserHandle() : userHandle;
@@ -1270,7 +1282,8 @@ public class ChooserActivity extends ResolverActivity implements
                 getChooserActivityLogger(),
                 chooserRequest,
                 maxTargetsPerRow,
-                initialIntentsUserSpace);
+                initialIntentsUserSpace,
+                targetDataLoader);
     }
 
     @Override
