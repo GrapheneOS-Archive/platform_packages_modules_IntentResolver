@@ -51,8 +51,8 @@ class ChooserContentPreviewUiTest {
         }
     private val actionFactory =
         object : ActionFactory {
-            override fun createCopyButton() = ActionRow.Action(label = "Copy", icon = null) {}
-            override fun createEditButton(): ActionRow.Action? = null
+            override fun getCopyButtonRunnable(): Runnable? = null
+            override fun getEditButtonRunnable(): Runnable? = null
             override fun createCustomActions(): List<ActionRow.Action> = emptyList()
             override fun getModifyShareAction(): ActionRow.Action? = null
             override fun getExcludeSharedTextAction(): Consumer<Boolean> = Consumer<Boolean> {}
@@ -103,12 +103,7 @@ class ChooserContentPreviewUiTest {
         whenever(previewData.previewType).thenReturn(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
         whenever(previewData.uriCount).thenReturn(2)
         whenever(previewData.firstFileInfo)
-            .thenReturn(
-                FileInfo.Builder(uri)
-                    .withPreviewUri(uri)
-                    .withMimeType("image/png")
-                    .build()
-            )
+            .thenReturn(FileInfo.Builder(uri).withPreviewUri(uri).withMimeType("image/png").build())
         val testSubject =
             ChooserContentPreviewUi(
                 lifecycle,
@@ -131,12 +126,7 @@ class ChooserContentPreviewUiTest {
         whenever(previewData.previewType).thenReturn(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
         whenever(previewData.uriCount).thenReturn(2)
         whenever(previewData.firstFileInfo)
-            .thenReturn(
-                FileInfo.Builder(uri)
-                    .withPreviewUri(uri)
-                    .withMimeType("image/png")
-                    .build()
-            )
+            .thenReturn(FileInfo.Builder(uri).withPreviewUri(uri).withMimeType("image/png").build())
         val testSubject =
             ChooserContentPreviewUi(
                 lifecycle,
