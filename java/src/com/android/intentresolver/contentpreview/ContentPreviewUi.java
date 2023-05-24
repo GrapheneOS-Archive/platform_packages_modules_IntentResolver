@@ -32,9 +32,6 @@ import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ScrollableImagePreviewView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 abstract class ContentPreviewUi {
     private static final int IMAGE_FADE_IN_MILLIS = 150;
     static final String TAG = "ChooserPreview";
@@ -44,19 +41,6 @@ abstract class ContentPreviewUi {
 
     public abstract ViewGroup display(
             Resources resources, LayoutInflater layoutInflater, ViewGroup parent);
-
-    protected static List<ActionRow.Action> createActions(
-            List<ActionRow.Action> systemActions,
-            List<ActionRow.Action> customActions) {
-        ArrayList<ActionRow.Action> actions =
-                new ArrayList<>(systemActions.size() + customActions.size());
-        if (customActions.isEmpty()) {
-            actions.addAll(systemActions);
-        } else {
-            actions.addAll(customActions);
-        }
-        return actions;
-    }
 
     protected static void updateViewWithImage(ImageView imageView, Bitmap image) {
         if (image == null) {
