@@ -69,12 +69,9 @@
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Тек сурет}other{Тек суреттер}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Тек бейне}other{Тек бейнелер}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Тек файл}other{Тек файлдар}}"</string>
-    <!-- no translation found for image_preview_a11y_description (297102643932491797) -->
-    <skip />
-    <!-- no translation found for video_preview_a11y_description (683440858811095990) -->
-    <skip />
-    <!-- no translation found for file_preview_a11y_description (7397224827802410602) -->
-    <skip />
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Алдын ала көрсетілген суреттің нобайы"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Алдын ала көрсетілген бейненің нобайы"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Алдын ала көрсетілген файлдың нобайы"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Бөлісу үшін ұсынылатын адамдар жоқ."</string>
     <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Қолданбалар тізімі"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Қолданбаға жазу рұқсаты берілмеді, бірақ ол осы USB құрылғысы арқылы дыбыс жаза алады."</string>
