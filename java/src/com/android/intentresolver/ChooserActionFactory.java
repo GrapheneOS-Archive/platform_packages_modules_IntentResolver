@@ -84,11 +84,8 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
     private static final String IMAGE_EDITOR_SHARED_ELEMENT = "screenshot_preview_image";
 
     private final Context mContext;
-    private final String mCopyButtonLabel;
-    private final Drawable mCopyButtonDrawable;
-    private final Runnable mOnCopyButtonClicked;
-    private final TargetInfo mEditSharingTarget;
-    private final Runnable mOnEditButtonClicked;
+    private final Runnable mCopyButtonRunnable;
+    private final Runnable mEditButtonRunnable;
     private final ImmutableList<ChooserAction> mCustomActions;
     private final @Nullable ChooserAction mModifyShareAction;
     private final Consumer<Boolean> mExcludeSharedTextAction;
@@ -119,19 +116,13 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
             Consumer</* @Nullable */ Integer> finishCallback) {
         this(
                 context,
-                context.getString(com.android.internal.R.string.copy),
-                context.getDrawable(com.android.internal.R.drawable.ic_menu_copy_material),
-                makeOnCopyRunnable(
+                makeCopyButtonRunnable(
                         context,
                         chooserRequest.getTargetIntent(),
                         chooserRequest.getReferrerPackageName(),
                         finishCallback,
                         logger),
-                getEditSharingTarget(
-                        context,
-                        chooserRequest.getTargetIntent(),
-                        integratedDeviceComponents),
-                makeOnEditRunnable(
+                makeEditButtonRunnable(
                         getEditSharingTarget(
                                 context,
                                 chooserRequest.getTargetIntent(),
@@ -149,22 +140,16 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
     @VisibleForTesting
     ChooserActionFactory(
             Context context,
-            String copyButtonLabel,
-            Drawable copyButtonDrawable,
-            Runnable onCopyButtonClicked,
-            TargetInfo editSharingTarget,
-            Runnable onEditButtonClicked,
+            Runnable copyButtonRunnable,
+            Runnable editButtonRunnable,
             List<ChooserAction> customActions,
             @Nullable ChooserAction modifyShareAction,
             Consumer<Boolean> onUpdateSharedTextIsExcluded,
             ChooserActivityLogger logger,
             Consumer</* @Nullable */ Integer> finishCallback) {
         mContext = context;
-        mCopyButtonLabel = copyButtonLabel;
-        mCopyButtonDrawable = copyButtonDrawable;
-        mOnCopyButtonClicked = onCopyButtonClicked;
-        mEditSharingTarget = editSharingTarget;
-        mOnEditButtonClicked = onEditButtonClicked;
+        mCopyButtonRunnable = copyButtonRunnable;
+        mEditButtonRunnable = editButtonRunnable;
         mCustomActions = ImmutableList.copyOf(customActions);
         mModifyShareAction = modifyShareAction;
         mExcludeSharedTextAction = onUpdateSharedTextIsExcluded;
@@ -172,29 +157,16 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
         mFinishCallback = finishCallback;
     }
 
-    /** Create an action that copies the share content to the clipboard. */
-    @Override
-    public ActionRow.Action createCopyButton() {
-        return new ActionRow.Action(
-                com.android.internal.R.id.chooser_copy_button,
-                mCopyButtonLabel,
-                mCopyButtonDrawable,
-                mOnCopyButtonClicked);
-    }
-
-    /** Create an action that opens the share content in a system-default editor. */
     @Override
     @Nullable
-    public ActionRow.Action createEditButton() {
-        if (mEditSharingTarget == null) {
-            return null;
-        }
+    public Runnable getEditButtonRunnable() {
+        return mEditButtonRunnable;
+    }
 
-        return new ActionRow.Action(
-                com.android.internal.R.id.chooser_edit_button,
-                mEditSharingTarget.getDisplayLabel(),
-                mEditSharingTarget.getDisplayIconHolder().getDisplayIcon(),
-                mOnEditButtonClicked);
+    @Override
+    @Nullable
+    public Runnable getCopyButtonRunnable() {
+        return mCopyButtonRunnable;
     }
 
     /** Create custom actions */
@@ -247,7 +219,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
         return mExcludeSharedTextAction;
     }
 
-    private static Runnable makeOnCopyRunnable(
+    private static Runnable makeCopyButtonRunnable(
             Context context,
             Intent targetIntent,
             String referrerPackageName,
@@ -344,7 +316,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
         return dri;
     }
 
-    private static Runnable makeOnEditRunnable(
+    private static Runnable makeEditButtonRunnable(
             TargetInfo editSharingTarget,
             Callable</* @Nullable */ View> firstVisibleImageQuery,
             ActionActivityStarter activityStarter,
