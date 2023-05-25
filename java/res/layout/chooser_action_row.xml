@@ -16,27 +16,21 @@
 
 <merge
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <View
-        android:id="@+id/actions_top_divider"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="?androidprv:attr/materialColorSurfaceContainerHighest"
-    />
+    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android">
 
     <com.android.intentresolver.widget.ScrollableActionRow
         android:id="@androidprv:id/chooser_action_row"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        app:horizontalActions="@bool/horizontal_actions"
         android:gravity="center"/>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="2dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="@dimen/chooser_edge_margin_normal"
+        android:layout_marginBottom="10dp"
         android:background="?androidprv:attr/materialColorSurfaceContainerHighest"
     />
 </merge>

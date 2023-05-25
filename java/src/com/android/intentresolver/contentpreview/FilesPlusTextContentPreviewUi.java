@@ -125,10 +125,6 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
         List<ActionRow.Action> actions = mActionFactory.createCustomActions();
         actionRow.setActions(actions);
 
-        if (actions.isEmpty()) {
-            mContentPreviewView.findViewById(R.id.actions_top_divider).setVisibility(View.GONE);
-        }
-
         if (mIsMetadataUpdated) {
             updateUiWithMetadata(mContentPreviewView);
         } else if (!mIsSingleImage) {
