@@ -60,7 +60,7 @@
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Afbeelding delen}other{# afbeeldingen delen}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Video delen}other{# video\'s delen}}"</string>
     <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# bestand delen}other{# bestanden delen}}"</string>
-    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Afbeelding delen via tekstbericht}other{# afbeeldingen delen via tekstbericht}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Afbeelding met tekst wordt gedeeld}other{# afbeeldingen met tekst worden gedeeld}}"</string>
     <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Afbeelding delen via link}other{# afbeeldingen delen via link}}"</string>
     <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Video delen via tekstbericht}other{# video\'s delen via tekstbericht}}"</string>
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Video delen via link}other{# video\'s delen via link}}"</string>

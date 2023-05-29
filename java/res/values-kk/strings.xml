@@ -57,7 +57,7 @@
     <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{Тағы # файл}other{Тағы # файл}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Мәтінді бөлісіп жатыр"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Сілтемені бөлісіп жатыр"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Суретті бөлісіп жатыр}other{# суретті бөлісіп жатыр}}"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Сурет бөлісіп жатырсыз}other{# сурет бөлісіп жатырсыз}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Бейне бөлісіліп жатыр}other{# бейне бөлісіліп жатыр}}"</string>
     <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# файлды бөлісіп жатыр}other{# файлды бөлісіп жатыр}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Мәтіні бар сурет жіберу}other{Мәтіні бар # сурет жіберу}}"</string>
