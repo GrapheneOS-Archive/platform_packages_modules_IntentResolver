@@ -30,6 +30,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.VisibleForTesting
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.intentresolver.R
@@ -470,9 +471,14 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: State) {
             val itemCount = parent.adapter?.itemCount ?: return
             val pos = parent.getChildAdapterPosition(view)
-            var leftMargin = if (pos == 0) outerSpacing else innerSpacing
-            var rightMargin = if (pos == itemCount - 1) outerSpacing else 0
-            outRect.set(leftMargin, 0, rightMargin, 0)
+            var startMargin = if (pos == 0) outerSpacing else innerSpacing
+            var endMargin = if (pos == itemCount - 1) outerSpacing else 0
+
+            if (ViewCompat.getLayoutDirection(parent) == ViewCompat.LAYOUT_DIRECTION_RTL) {
+                outRect.set(endMargin, 0, startMargin, 0)
+            } else {
+                outRect.set(startMargin, 0, endMargin, 0)
+            }
         }
     }
 
