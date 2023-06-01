@@ -33,10 +33,11 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="center"
-      android:layout_marginLeft="@dimen/chooser_edge_margin_normal"
-      android:layout_marginRight="@dimen/chooser_edge_margin_normal"
-      android:layout_marginBottom="@dimen/chooser_view_spacing"
-      android:padding="@dimen/chooser_edge_margin_normal_half"
+      android:layout_marginHorizontal="@dimen/chooser_edge_margin_normal"
+      android:layout_marginBottom="8dp"
+      android:paddingVertical="@dimen/chooser_edge_margin_normal_half"
+      android:paddingStart="@dimen/chooser_edge_margin_normal_half"
+      android:paddingEnd="0dp"
       android:background="@drawable/chooser_content_preview_rounded"
       android:id="@+id/text_preview_layout">
 
@@ -91,20 +92,21 @@
 
     <FrameLayout
         android:id="@+id/copy"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        style="?android:attr/borderlessButtonStyle"
         app:layout_constraintStart_toEndOf="@androidprv:id/content_preview_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_margin="8dp"
-        android:padding="8dp"
+        android:layout_marginHorizontal="4dp"
         android:contentDescription="@android:string/copy"
         >
       <ImageView
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
+          android:layout_gravity="center"
           android:tint="?androidprv:attr/materialColorOnSurfaceVariant"
           android:src="@androidprv:drawable/ic_menu_copy_material"
           />
