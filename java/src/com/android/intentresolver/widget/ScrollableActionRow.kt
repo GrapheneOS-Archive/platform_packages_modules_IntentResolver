@@ -24,6 +24,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.intentresolver.R
@@ -39,23 +40,16 @@ class ScrollableActionRow : RecyclerView, ActionRow {
         layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         adapter = Adapter(context)
 
-        context
-            .obtainStyledAttributes(attrs, R.styleable.ScrollableActionRow, defStyleAttr, 0)
-            .use { a ->
-                horizontalActions =
-                    a.getBoolean(R.styleable.ScrollableActionRow_horizontalActions, false)
-            }
-
         addItemDecoration(
             MarginDecoration(
                 context.resources.getDimensionPixelSize(R.dimen.chooser_action_horizontal_margin),
+                context.resources.getDimensionPixelSize(R.dimen.chooser_edge_margin_normal)
             )
         )
     }
 
     private val actionsAdapter
         get() = adapter as Adapter
-    private val horizontalActions: Boolean
 
     override fun setActions(actions: List<ActionRow.Action>) {
         actionsAdapter.setActions(actions)
@@ -131,10 +125,20 @@ class ScrollableActionRow : RecyclerView, ActionRow {
         }
     }
 
-    private class MarginDecoration(private val margin: Int) : RecyclerView.ItemDecoration() {
+    private class MarginDecoration(private val innerMargin: Int, private val outerMargin: Int) :
+        ItemDecoration() {
         override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: State) {
-            outRect.left = margin
-            outRect.right = margin
+            val index = parent.getChildAdapterPosition(view)
+            val startMargin = if (index == 0) outerMargin else innerMargin
+            val endMargin = if (index == state.itemCount - 1) outerMargin else innerMargin
+
+            if (ViewCompat.getLayoutDirection(parent) == ViewCompat.LAYOUT_DIRECTION_RTL) {
+                outRect.right = startMargin
+                outRect.left = endMargin
+            } else {
+                outRect.left = startMargin
+                outRect.right = endMargin
+            }
         }
     }
 }
