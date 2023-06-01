@@ -109,9 +109,6 @@ class FileContentPreviewUi extends ContentPreviewUi {
                 mContentPreview.findViewById(com.android.internal.R.id.chooser_action_row);
         List<ActionRow.Action> actions = mActionFactory.createCustomActions();
         actionRow.setActions(actions);
-        if (actions.isEmpty()) {
-            mContentPreview.findViewById(R.id.actions_top_divider).setVisibility(View.GONE);
-        }
 
         return mContentPreview;
     }
