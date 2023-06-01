@@ -62,6 +62,8 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
     private Uri mFirstFilePreviewUri;
     private boolean mAllImages;
     private boolean mAllVideos;
+    // TODO(b/285309527): make this a flag
+    private static final boolean SHOW_TOGGLE_CHECKMARK = false;
 
     FilesPlusTextContentPreviewUi(
             Lifecycle lifecycle,
@@ -201,7 +203,9 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
             shareTextAction.accept(!isChecked);
             updateHeadline(contentPreview);
         });
-        includeText.setVisibility(View.VISIBLE);
+        if (SHOW_TOGGLE_CHECKMARK) {
+            includeText.setVisibility(View.VISIBLE);
+        }
     }
 
     private String getNoTextString(Resources resources) {
