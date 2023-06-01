@@ -22,7 +22,6 @@
     <dimen name="resolver_button_bar_spacing">8dp</dimen>
 
     <dimen name="chooser_preview_width">-1px</dimen>
-    <dimen name="chooser_view_spacing">18dp</dimen>
     <dimen name="chooser_preview_image_height_tall">192dp</dimen>
     <dimen name="grid_padding_top">10dp</dimen>
     <dimen name="width_text_image_preview_size">56dp</dimen>

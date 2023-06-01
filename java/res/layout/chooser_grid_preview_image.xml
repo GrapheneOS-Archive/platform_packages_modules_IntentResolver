@@ -33,10 +33,9 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/chooser_preview_image_height_tall"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="@dimen/chooser_view_spacing"
-        android:layout_marginHorizontal="@dimen/chooser_edge_margin_normal_half"
+        android:layout_marginBottom="8dp"
         app:itemInnerSpacing="3dp"
-        app:itemOuterSpacing="@dimen/chooser_edge_margin_normal_half"/>
+        app:itemOuterSpacing="@dimen/chooser_edge_margin_normal"/>
 
     <include layout="@layout/chooser_action_row"/>
 </LinearLayout>
