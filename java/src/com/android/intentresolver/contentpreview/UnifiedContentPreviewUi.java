@@ -93,9 +93,6 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
                 mContentPreviewView.findViewById(com.android.internal.R.id.chooser_action_row);
         List<ActionRow.Action> actions = mActionFactory.createCustomActions();
         actionRow.setActions(actions);
-        if (actions.isEmpty()) {
-            mContentPreviewView.findViewById(R.id.actions_top_divider).setVisibility(View.GONE);
-        }
 
         ScrollableImagePreviewView imagePreview =
                 mContentPreviewView.requireViewById(R.id.scrollable_image_preview);
