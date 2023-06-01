@@ -25,8 +25,8 @@
     <dimen name="chooser_corner_radius_small">14dp</dimen>
     <dimen name="chooser_row_text_option_translate">25dp</dimen>
     <dimen name="chooser_edge_margin_thin">8dp</dimen>
-    <dimen name="chooser_edge_margin_normal">24dp</dimen>
-    <dimen name="chooser_edge_margin_normal_half">12dp</dimen>
+    <dimen name="chooser_edge_margin_normal">16dp</dimen>
+    <dimen name="chooser_edge_margin_normal_half">8dp</dimen>
     <dimen name="chooser_preview_image_font_size">20sp</dimen>
     <dimen name="chooser_preview_image_border">1dp</dimen>
     <dimen name="chooser_preview_image_width">120dp</dimen>
@@ -55,12 +55,12 @@
     <dimen name="chooser_action_view_icon_size">22dp</dimen>
     <dimen name="chooser_action_margin">0dp</dimen>
     <dimen name="modify_share_text_toggle_max_width">150dp</dimen>
+    <dimen name="chooser_view_spacing">16dp</dimen>
 
     <!-- Note that the values in this section are for landscape phones. For screen configs taller
          than 480dp, the values are set in values-h480dp/dimens.xml -->
     <dimen name="chooser_preview_width">412dp</dimen>
-    <dimen name="chooser_view_spacing">8dp</dimen>
-    <dimen name="chooser_preview_image_height_tall">64dp</dimen>
+    <dimen name="chooser_preview_image_height_tall">46dp</dimen>
     <dimen name="grid_padding_top">6dp</dimen>
     <dimen name="width_text_image_preview_size">46dp</dimen>
     <!-- END SECTION -->
