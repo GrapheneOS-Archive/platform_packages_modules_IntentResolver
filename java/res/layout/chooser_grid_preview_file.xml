@@ -47,35 +47,41 @@
             android:layout_centerVertical="true"
             android:src="@drawable/ic_file_copy"
             android:scaleType="fitCenter"/>
-        <TextView
-            android:id="@+id/content_preview_filename"
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_centerVertical="true"
             android:layout_toEndOf="@id/content_preview_file_icon"
             android:layout_alignParentTop="true"
-            android:layout_alignWithParentIfMissing="true"
-            android:ellipsize="middle"
-            android:gravity="start|top"
-            android:singleLine="true"
-            android:textStyle="bold"
-            android:textColor="?androidprv:attr/materialColorOnSurface"
-            android:textSize="12sp"
-            android:lineHeight="16sp"
-            android:textAppearance="@style/TextAppearance.ChooserDefault"/>
+            android:layout_alignWithParentIfMissing="true">
 
-        <TextView
-            android:id="@+id/content_preview_more_files"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/content_preview_file_icon"
-            android:layout_below="@id/content_preview_filename"
-            android:layout_alignWithParentIfMissing="true"
-            android:gravity="start|top"
-            android:singleLine="true"
-            android:textColor="?androidprv:attr/materialColorOnSurfaceVariant"
-            android:textSize="12sp"
-            android:lineHeight="16sp"
-            android:textAppearance="@style/TextAppearance.ChooserDefault"/>
+            <TextView
+                android:id="@+id/content_preview_filename"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="middle"
+                android:gravity="start|top"
+                android:singleLine="true"
+                android:textStyle="bold"
+                android:textColor="?androidprv:attr/materialColorOnSurface"
+                android:textSize="12sp"
+                android:lineHeight="16sp"
+                android:textAppearance="@style/TextAppearance.ChooserDefault"/>
+
+            <TextView
+                android:id="@+id/content_preview_more_files"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start|top"
+                android:singleLine="true"
+                android:textColor="?androidprv:attr/materialColorOnSurfaceVariant"
+                android:textSize="12sp"
+                android:lineHeight="16sp"
+                android:textAppearance="@style/TextAppearance.ChooserDefault"/>
+
+        </LinearLayout>
     </RelativeLayout>
 
     <include layout="@layout/chooser_action_row"/>
