@@ -71,16 +71,21 @@ class PreviewDataProviderTest {
     }
 
     @Test
-    fun test_sendIntentWithTextMimeType_resolvesToTextPreviewUiSynchronously() {
+    fun test_sendSingleTextFileWithoutPreview_resolvesToFilePreviewUi() {
+        val uri = Uri.parse("content://org.pkg.app/notes.txt")
         val targetIntent = Intent(Intent.ACTION_SEND)
             .apply {
+                putExtra(Intent.EXTRA_STREAM, uri)
                 type = "text/plain"
             }
+        whenever(contentResolver.getType(uri)).thenReturn("text/plain")
         val testSubject =
             PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
 
-        assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_TEXT)
-        verify(contentResolver, never()).getType(any())
+        assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
+        assertThat(testSubject.uriCount).isEqualTo(1)
+        assertThat(testSubject.firstFileInfo?.uri).isEqualTo(uri)
+        verify(contentResolver, times(1)).getType(any())
     }
 
     @Test
