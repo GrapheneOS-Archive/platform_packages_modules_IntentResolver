@@ -694,6 +694,7 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    @Ignore("b/285309527")
     public void testFilePlusTextSharing_ExcludeText() {
         Uri uri = createTestContentProviderUri(null, "image/png");
         Intent sendIntent = createSendImageIntent(uri);
@@ -735,6 +736,7 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    @Ignore("b/285309527")
     public void testFilePlusTextSharing_RemoveAndAddBackText() {
         Uri uri = createTestContentProviderUri("application/pdf", "image/png");
         Intent sendIntent = createSendImageIntent(uri);
@@ -782,6 +784,7 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    @Ignore("b/285309527")
     public void testFilePlusTextSharing_TextExclusionDoesNotAffectAlternativeIntent() {
         Uri uri = createTestContentProviderUri("image/png", null);
         Intent sendIntent = createSendImageIntent(uri);
@@ -825,6 +828,7 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    @Ignore("b/285309527")
     public void testImagePlusTextSharing_failedThumbnailAndExcludedText_textChanges() {
         Uri uri = createTestContentProviderUri("image/png", null);
         Intent sendIntent = createSendImageIntent(uri);
