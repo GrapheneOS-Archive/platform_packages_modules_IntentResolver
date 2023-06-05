@@ -883,7 +883,7 @@ public class ChooserActivity extends ResolverActivity implements
 
         final long selectionCost = System.currentTimeMillis() - mChooserShownTime;
 
-        if (targetInfo.isMultiDisplayResolveInfo()) {
+        if ((targetInfo != null) && targetInfo.isMultiDisplayResolveInfo()) {
             MultiDisplayResolveInfo mti = (MultiDisplayResolveInfo) targetInfo;
             if (!mti.hasSelected()) {
                 // Add userHandle based badge to the stackedAppDialogBox.
@@ -900,7 +900,17 @@ public class ChooserActivity extends ResolverActivity implements
 
         super.startSelected(which, always, filtered);
 
-        if (currentListAdapter.getCount() > 0) {
+        // TODO: both of the conditions around this switch logic *should* be redundant, and
+        // can be removed if certain invariants can be guaranteed. In particular, it seems
+        // like targetInfo (from `ChooserListAdapter.targetInfoForPosition()`) is *probably*
+        // expected to be null only at out-of-bounds indexes where `getPositionTargetType()`
+        // returns TARGET_BAD; then the switch falls through to a default no-op, and we don't
+        // need to null-check targetInfo. We only need the null check if it's possible that
+        // the ChooserListAdapter contains null elements "in the middle" of its list data,
+        // such that they're classified as belonging to one of the real target types. That
+        // should probably never happen. But why would this method ever be invoked with a
+        // null target at all? Even an out-of-bounds index should never be "selected"...
+        if ((currentListAdapter.getCount() > 0) && (targetInfo != null)) {
             switch (currentListAdapter.getPositionTargetType(which)) {
                 case ChooserListAdapter.TARGET_SERVICE:
                     getChooserActivityLogger().logShareTargetSelected(
