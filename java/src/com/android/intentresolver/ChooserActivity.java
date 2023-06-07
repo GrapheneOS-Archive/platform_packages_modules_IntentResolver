@@ -320,8 +320,10 @@ public class ChooserActivity extends ResolverActivity implements
             mResolverDrawerLayout.addOnLayoutChangeListener(this::handleLayoutChange);
 
             mResolverDrawerLayout.setOnCollapsedChangedListener(
-                    isCollapsed ->
-                            getChooserActivityLogger().logSharesheetExpansionChanged(isCollapsed));
+                    isCollapsed -> {
+                        mChooserMultiProfilePagerAdapter.setIsCollapsed(isCollapsed);
+                        getChooserActivityLogger().logSharesheetExpansionChanged(isCollapsed);
+                    });
         }
 
         if (DEBUG) {
