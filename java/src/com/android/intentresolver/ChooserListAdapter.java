@@ -384,8 +384,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
                         .collect(Collectors.groupingBy(target ->
                                 target.getResolvedComponentName().getPackageName()
                                 + "#" + target.getDisplayLabel()
-                                + '#' + ResolverActivity.getResolveInfoUserHandle(
-                                        target.getResolveInfo(), getUserHandle()).getIdentifier()
+                                + '#' + target.getResolveInfo().userHandle.getIdentifier()
                         ))
                         .values()
                         .stream()

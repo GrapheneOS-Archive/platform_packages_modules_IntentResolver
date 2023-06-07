@@ -1649,10 +1649,9 @@ public class ResolverActivity extends FragmentActivity implements
     /** Start the activity specified by the {@link TargetInfo}.*/
     public final void safelyStartActivity(TargetInfo cti) {
         // In case cloned apps are present, we would want to start those apps in cloned user
-        // space, which will not be same as adaptor's userHandle. resolveInfo.userHandle
+        // space, which will not be same as the adapter's userHandle. resolveInfo.userHandle
         // identifies the correct user space in such cases.
-        UserHandle activityUserHandle = getResolveInfoUserHandle(
-                cti.getResolveInfo(), mMultiProfilePagerAdapter.getCurrentUserHandle());
+        UserHandle activityUserHandle = cti.getResolveInfo().userHandle;
         safelyStartActivityAsUser(cti, activityUserHandle, null);
     }
 
@@ -2267,11 +2266,7 @@ public class ResolverActivity extends FragmentActivity implements
                 && Objects.equals(lhs.activityInfo.packageName, rhs.activityInfo.packageName)
                         // Comparing against resolveInfo.userHandle in case cloned apps are present,
                         // as they will have the same activityInfo.
-                && Objects.equals(
-                        getResolveInfoUserHandle(lhs,
-                                mMultiProfilePagerAdapter.getActiveListAdapter().getUserHandle()),
-                        getResolveInfoUserHandle(rhs,
-                                mMultiProfilePagerAdapter.getActiveListAdapter().getUserHandle()));
+                && Objects.equals(lhs.userHandle, rhs.userHandle);
     }
 
     private boolean inactiveListAdapterHasItems() {
@@ -2408,14 +2403,5 @@ public class ResolverActivity extends FragmentActivity implements
             userList.add(getCloneProfileUserHandle());
         }
         return userList;
-    }
-
-    /**
-     * This function is temporary in nature, and its usages will be replaced with just
-     * resolveInfo.userHandle, once it is available, once sharesheet is stable.
-     */
-    public static UserHandle getResolveInfoUserHandle(ResolveInfo resolveInfo,
-            UserHandle predictedHandle) {
-        return resolveInfo.userHandle;
     }
 }
