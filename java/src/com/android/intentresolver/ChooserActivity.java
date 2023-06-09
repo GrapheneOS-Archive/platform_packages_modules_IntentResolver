@@ -99,7 +99,6 @@ import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.intentresolver.widget.ImagePreviewView;
-import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.content.PackageMonitor;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
@@ -142,8 +141,6 @@ public class ChooserActivity extends ResolverActivity implements
      * @hide
      */
     public static final String FIRST_IMAGE_PREVIEW_TRANSITION_NAME = "screenshot_preview_image";
-
-    private static final String PREF_NUM_SHEET_EXPANSIONS = "pref_num_sheet_expansions";
 
     private static final boolean DEBUG = true;
 
@@ -323,21 +320,8 @@ public class ChooserActivity extends ResolverActivity implements
             mResolverDrawerLayout.addOnLayoutChangeListener(this::handleLayoutChange);
 
             mResolverDrawerLayout.setOnCollapsedChangedListener(
-                    new ResolverDrawerLayout.OnCollapsedChangedListener() {
-
-                        // Only consider one expansion per activity creation
-                        private boolean mWrittenOnce = false;
-
-                        @Override
-                        public void onCollapsedChanged(boolean isCollapsed) {
-                            if (!isCollapsed && !mWrittenOnce) {
-                                incrementNumSheetExpansions();
-                                mWrittenOnce = true;
-                            }
-                            getChooserActivityLogger()
-                                    .logSharesheetExpansionChanged(isCollapsed);
-                        }
-                    });
+                    isCollapsed ->
+                            getChooserActivityLogger().logSharesheetExpansionChanged(isCollapsed));
         }
 
         if (DEBUG) {
@@ -723,15 +707,6 @@ public class ChooserActivity extends ResolverActivity implements
     @VisibleForTesting
     public Cursor queryResolver(ContentResolver resolver, Uri uri) {
         return resolver.query(uri, null, null, null, null);
-    }
-
-    private int getNumSheetExpansions() {
-        return getPreferences(Context.MODE_PRIVATE).getInt(PREF_NUM_SHEET_EXPANSIONS, 0);
-    }
-
-    private void incrementNumSheetExpansions() {
-        getPreferences(Context.MODE_PRIVATE).edit().putInt(PREF_NUM_SHEET_EXPANSIONS,
-                getNumSheetExpansions() + 1).apply();
     }
 
     @Override
@@ -1248,8 +1223,7 @@ public class ChooserActivity extends ResolverActivity implements
                 },
                 chooserListAdapter,
                 shouldShowContentPreview(),
-                mMaxTargetsPerRow,
-                getNumSheetExpansions());
+                mMaxTargetsPerRow);
     }
 
     @VisibleForTesting
