@@ -99,8 +99,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
     private static final int VIEW_TYPE_CALLER_AND_RANK = 5;
     private static final int VIEW_TYPE_FOOTER = 6;
 
-    private static final int NUM_EXPANSIONS_TO_HIDE_AZ_LABEL = 20;
-
     private final ChooserActivityDelegate mChooserActivityDelegate;
     private final ChooserListAdapter mChooserListAdapter;
     private final LayoutInflater mLayoutInflater;
@@ -109,7 +107,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
     private final boolean mShouldShowContentPreview;
     private final int mChooserWidthPixels;
     private final int mChooserRowTextOptionTranslatePixelSize;
-    private final boolean mShowAzLabelIfPoss;
 
     private int mChooserTargetWidth = 0;
 
@@ -120,8 +117,7 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
             ChooserActivityDelegate chooserActivityDelegate,
             ChooserListAdapter wrappedAdapter,
             boolean shouldShowContentPreview,
-            int maxTargetsPerRow,
-            int numSheetExpansions) {
+            int maxTargetsPerRow) {
         super();
 
         mChooserActivityDelegate = chooserActivityDelegate;
@@ -135,8 +131,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
         mChooserWidthPixels = context.getResources().getDimensionPixelSize(R.dimen.chooser_width);
         mChooserRowTextOptionTranslatePixelSize = context.getResources().getDimensionPixelSize(
                 R.dimen.chooser_row_text_option_translate);
-
-        mShowAzLabelIfPoss = numSheetExpansions < NUM_EXPANSIONS_TO_HIDE_AZ_LABEL;
 
         wrappedAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
@@ -243,7 +237,7 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
 
     public int getAzLabelRowCount() {
         // Only show a label if the a-z list is showing
-        return (mShowAzLabelIfPoss && mChooserListAdapter.getAlphaTargetCount() > 0) ? 1 : 0;
+        return (mChooserListAdapter.getAlphaTargetCount() > 0) ? 1 : 0;
     }
 
     @Override
