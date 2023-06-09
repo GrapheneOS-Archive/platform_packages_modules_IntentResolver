@@ -19,6 +19,7 @@ package com.android.intentresolver.util
 
 import android.content.ContentProvider.getUserIdFromUri
 import android.content.ContentResolver.SCHEME_CONTENT
+import android.graphics.drawable.Icon
 import android.graphics.drawable.Icon.TYPE_URI
 import android.graphics.drawable.Icon.TYPE_URI_ADAPTIVE_BITMAP
 import android.net.Uri
@@ -38,13 +39,14 @@ import android.service.chooser.ChooserAction
  */
 val Uri?.ownedByCurrentUser: Boolean
     @JvmName("isOwnedByCurrentUser")
-    get() = this?.let {
-        when (getUserIdFromUri(this, UserHandle.USER_CURRENT)) {
-            UserHandle.USER_CURRENT,
-            UserHandle.myUserId() -> true
-            else -> false
-        }
-    } == true
+    get() =
+        this?.let {
+            when (getUserIdFromUri(this, UserHandle.USER_CURRENT)) {
+                UserHandle.USER_CURRENT,
+                UserHandle.myUserId() -> true
+                else -> false
+            }
+        } == true
 
 /** Does the [Uri] reference a content provider ('content://')? */
 internal val Uri.contentScheme: Boolean
@@ -56,8 +58,15 @@ internal val Uri.contentScheme: Boolean
  * @param action the chooser action
  * @see [Uri.ownedByCurrentUser]
  */
-fun hasValidIcon(action: ChooserAction) =
-    with(action.icon) {
+fun hasValidIcon(action: ChooserAction) = hasValidIcon(action.icon)
+
+/**
+ * Checks if the Icon backed by content:// [Uri] is safe for display.
+ *
+ * @see [Uri.ownedByCurrentUser]
+ */
+fun hasValidIcon(icon: Icon) =
+    with(icon) {
         when (type) {
             TYPE_URI,
             TYPE_URI_ADAPTIVE_BITMAP -> !uri.contentScheme || uri.ownedByCurrentUser
