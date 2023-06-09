@@ -28,7 +28,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Trace;
-import android.os.UserHandle;
 import android.util.Log;
 
 import androidx.annotation.WorkerThread;
@@ -36,6 +35,7 @@ import androidx.annotation.WorkerThread;
 import com.android.intentresolver.SimpleIconFactory;
 import com.android.intentresolver.TargetPresentationGetter;
 import com.android.intentresolver.chooser.SelectableTargetInfo;
+import com.android.intentresolver.util.UriFilters;
 
 import java.util.function.Consumer;
 
@@ -49,7 +49,6 @@ class LoadDirectShareIconTask extends BaseLoadIconTask {
     LoadDirectShareIconTask(
             Context context,
             SelectableTargetInfo targetInfo,
-            UserHandle userHandle,
             TargetPresentationGetter.Factory presentationFactory,
             Consumer<Drawable> callback) {
         super(context, presentationFactory, callback);
@@ -61,11 +60,18 @@ class LoadDirectShareIconTask extends BaseLoadIconTask {
         Drawable drawable;
         Trace.beginSection("shortcut-icon");
         try {
-            drawable = getChooserTargetIconDrawable(
-                    mContext,
-                    mTargetInfo.getChooserTargetIcon(),
-                    mTargetInfo.getChooserTargetComponentName(),
-                    mTargetInfo.getDirectShareShortcutInfo());
+            final Icon icon = mTargetInfo.getChooserTargetIcon();
+            if (icon == null || UriFilters.hasValidIcon(icon)) {
+                drawable = getChooserTargetIconDrawable(
+                        mContext,
+                        icon,
+                        mTargetInfo.getChooserTargetComponentName(),
+                        mTargetInfo.getDirectShareShortcutInfo());
+            } else {
+                Log.e(TAG, "Failed to load shortcut icon for "
+                        + mTargetInfo.getChooserTargetComponentName() + "; no access");
+                drawable = loadIconPlaceholder();
+            }
         } catch (Exception e) {
             Log.e(
                     TAG,
