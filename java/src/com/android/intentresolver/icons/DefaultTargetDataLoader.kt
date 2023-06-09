@@ -86,7 +86,6 @@ class DefaultTargetDataLoader(
         LoadDirectShareIconTask(
                 context.createContextAsUser(userHandle, 0),
                 info,
-                userHandle,
                 presentationFactory,
             ) { result ->
                 removeTask(taskId)
