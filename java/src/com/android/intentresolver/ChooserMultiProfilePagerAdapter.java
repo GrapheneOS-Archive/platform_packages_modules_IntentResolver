@@ -121,6 +121,16 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
         mBottomPaddingOverrideSupplier.setEmptyStateBottomOffset(bottomOffset);
     }
 
+    /**
+     * Notify adapter about the drawer's collapse state. This will affect the app divider's
+     * visibility.
+     */
+    public void setIsCollapsed(boolean isCollapsed) {
+        for (int i = 0, size = getItemCount(); i < size; i++) {
+            getAdapterForIndex(i).setAzLabelVisibility(!isCollapsed);
+        }
+    }
+
     private static ViewGroup makeProfileView(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
         ViewGroup rootView = (ViewGroup) inflater.inflate(
