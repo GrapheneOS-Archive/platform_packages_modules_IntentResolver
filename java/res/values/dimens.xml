@@ -61,7 +61,7 @@
          than 480dp, the values are set in values-h480dp/dimens.xml -->
     <dimen name="chooser_preview_width">412dp</dimen>
     <dimen name="chooser_preview_image_height_tall">46dp</dimen>
-    <dimen name="grid_padding_top">6dp</dimen>
+    <dimen name="grid_padding">8dp</dimen>
     <dimen name="width_text_image_preview_size">46dp</dimen>
     <!-- END SECTION -->
 </resources>
