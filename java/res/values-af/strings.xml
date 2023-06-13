@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Videovoorskouminiprent"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Lêervoorskouminiprent"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Geen mense om mee te deel is aanbeveel nie"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Programmelys"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Opneemtoestemming is nie aan hierdie program verleen nie, maar dit kan oudio deur hierdie USB-toestel opneem."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Persoonlik"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Werk"</string>

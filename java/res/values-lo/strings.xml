@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"ຮູບຕົວຢ່າງຂອງວິດີໂອ"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"ຮູບຕົວຢ່າງຂອງໄຟລ໌"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ບໍ່ມີຄົນທີ່ແນະນຳໃຫ້ແບ່ງປັນນຳ"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"ລາຍຊື່ແອັບ"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ແອັບນີ້ບໍ່ໄດ້ຮັບສິດອະນຸຍາດໃນການບັນທຶກ ແຕ່ສາມາດບັນທຶກສຽງໄດ້ຜ່ານອຸປະກອນ USB ນີ້."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ສ່ວນຕົວ"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ວຽກ"</string>

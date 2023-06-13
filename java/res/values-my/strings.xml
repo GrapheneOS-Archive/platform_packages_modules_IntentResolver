@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"ဗီဒီယိုအစမ်းကြည့်ရှုမှု ပုံသေး"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"ဖိုင်အစမ်းကြည့်ရှုမှု ပုံသေး"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"မျှဝေရန် အကြံပြုထားသူများ မရှိပါ"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"အက်ပ်စာရင်း"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ဤအက်ပ်ကို အသံဖမ်းခွင့် ပေးမထားသော်လည်း ၎င်းသည် ဤ USB စက်ပစ္စည်းမှတစ်ဆင့် အသံများကို ဖမ်းယူနိုင်ပါသည်။"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ကိုယ်ပိုင်"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"အလုပ်"</string>

@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"រូបក្របតំណាងការមើលវីដេអូសាកល្បង"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"រូបក្របតំណាងការមើលឯកសារសាកល្បង"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"មិនមាន​មនុស្សដែល​បានណែនាំ​សម្រាប់​ចែករំលែក​ជាមួយទេ"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"បញ្ជីកម្មវិធី"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"កម្មវិធីនេះ​មិនទាន់បាន​ទទួលសិទ្ធិ​ថតសំឡេង​នៅឡើយទេ ប៉ុន្តែអាច​ថតសំឡេង​តាមរយៈ​ឧបករណ៍ USB នេះបាន។"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ផ្ទាល់ខ្លួន"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ការងារ"</string>

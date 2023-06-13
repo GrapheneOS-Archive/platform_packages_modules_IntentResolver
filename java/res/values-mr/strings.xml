@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"व्हिडिओ पूर्वावलोकनाची थंबनेल"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"फाइल पूर्वावलोकनाची थंबनेल"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"शेअर करण्यासाठी शिफारस केलेल्या कोणत्याही व्यक्ती नाहीत"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"अ‍ॅप्स सूची"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"या अ‍ॅपला रेकॉर्ड करण्याची परवानगी दिली गेली नाही पण हे USB डिव्हाइस वापरून ऑडिओ कॅप्चर केला जाऊ शकतो."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"वैयक्तिक"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"कार्य"</string>
