@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Hình thu nhỏ xem trước video"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Hình thu nhỏ xem trước tệp"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Không có gợi ý nào về người mà bạn có thể chia sẻ"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Danh sách ứng dụng"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Ứng dụng này chưa được cấp quyền ghi âm nhưng vẫn có thể ghi âm thông qua thiết bị USB này."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Cá nhân"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Công việc"</string>
