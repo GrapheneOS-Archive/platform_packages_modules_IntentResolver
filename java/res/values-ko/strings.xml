@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"동영상 미리보기 썸네일"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"파일 미리보기 썸네일"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"공유할 추천 사용자가 없음"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"앱 목록"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"이 앱에는 녹음 권한이 부여되지 않았지만, 이 USB 기기를 통해 오디오를 녹음할 수 있습니다."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"개인"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"직장"</string>

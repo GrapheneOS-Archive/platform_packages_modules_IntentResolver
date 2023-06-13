@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"වීඩියෝ පෙරදසුන් සිඟිති රුව"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"ගොනු පෙරදසුන් සිඟිති රුව"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"බෙදා ගැනීමට නිර්දේශිත පුද්ගලයන් නැත"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"යෙදුම් ලැයිස්තුව"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"මෙම යෙදුමට පටිගත කිරීම් අවසරයක් ලබා දී නොමැති නමුත් මෙම USB උපාංගය හරහා ශ්‍රව්‍ය ග්‍රහණය කර ගත හැකිය."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"පුද්ගලික"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"කාර්යාල"</string>
