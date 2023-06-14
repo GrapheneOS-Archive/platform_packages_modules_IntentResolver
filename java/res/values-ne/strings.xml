@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"भिडियो प्रिभ्यू थम्बनेल"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"फाइल प्रिभ्यू थम्बनेल"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"कुनै पनि व्यक्तिसँग सेयर गर्ने सिफारिस गरिएको छैन"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"अनुप्रयोगहरूको सूची"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"यो एपलाई रेकर्ड गर्ने अनुमति प्रदान गरिएको छैन तर यसले यो USB यन्त्रमार्फत अडियो क्याप्चर गर्न सक्छ।"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"व्यक्तिगत"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"काम"</string>

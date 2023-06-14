@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Videó előnézeti indexképe"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Fájl előnézeti indexképe"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Nincsenek ajánlott személyek a megosztáshoz"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Alkalmazások listája"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Ez az alkalmazás nem rendelkezik rögzítési engedéllyel, de ezzel az USB-eszközzel képes a hangfelvételre."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Személyes"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Munka"</string>

@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Bideoaren aurrebista gisako irudi txikia"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Fitxategiaren aurrebista gisako irudi txikia"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Ez dago edukia partekatzeko pertsona gomendaturik"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Aplikazioen zerrenda"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Aplikazioak ez du grabatzeko baimenik, baina baliteke audioa grabatzea USB bidezko gailu horren bidez."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Pertsonala"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Lanekoa"</string>

@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Kijipicha cha onyesho la kukagua video"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Kijipicha cha onyesho la kukagua faili"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Hujapendekezewa watu wa kushiriki nao"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Orodha ya programu"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Programu hii haijapewa ruhusa ya kurekodi lakini inaweza kurekodi sauti kupitia kifaa hiki cha USB."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Binafsi"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Kazini"</string>
