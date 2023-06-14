@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Vaizdo įrašo peržiūros miniatiūra"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Failo peržiūros miniatiūra"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Nėra rekomenduojamų žmonių, su kuriais būtų galima bendrinti"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Programų sąrašas"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Šiai programai nebuvo suteiktas leidimas įrašyti, bet ji gali užfiksuoti garsą per šį USB įrenginį."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Asmeninis"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Darbo"</string>

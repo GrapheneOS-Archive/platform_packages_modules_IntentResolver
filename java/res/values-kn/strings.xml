@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"ವೀಡಿಯೊ ಪೂರ್ವವೀಕ್ಷಣೆಯ ಥಂಬ್‌ನೇಲ್"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"ಫೈಲ್ ಪೂರ್ವವೀಕ್ಷಣೆಯ ಥಂಬ್‌ನೇಲ್"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ಹಂಚಿಕೊಳ್ಳಲು ಶಿಫಾರಸು ಮಾಡಲಾದವರು ಯಾರೂ ಇಲ್ಲ"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"ಆ್ಯಪ್‌ಗಳ ಪಟ್ಟಿ"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ಈ ಆ್ಯಪ್‌ಗೆ ರೆಕಾರ್ಡ್ ಅನುಮತಿಯನ್ನು ನೀಡಲಾಗಿಲ್ಲ, ಆದರೆ ಈ USB ಸಾಧನದ ಮೂಲಕ ಆಡಿಯೊವನ್ನು ಸೆರೆಹಿಡಿಯಬಲ್ಲದು."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ವೈಯಕ್ತಿಕ"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ಕೆಲಸ"</string>

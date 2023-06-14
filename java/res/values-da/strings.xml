@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Miniaturepreview af video"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Miniaturepreview af fil"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Der er ingen anbefalede personer at dele med"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Liste over apps"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Denne app har ikke fået tilladelse til at optage, men optager muligvis lyd via denne USB-enhed."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Personlig"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Arbejde"</string>

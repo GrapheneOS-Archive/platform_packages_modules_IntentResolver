@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"ভিডিওর প্রিভিউ থাম্বনেল"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"ফাইলের প্রিভিউ থাম্বনেল"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"শেয়ার করার জন্য সাজেস্ট করার মতো কেউ নেই"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"অ্যাপের তালিকা"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"এই অ্যাপকে রেকর্ড করার অনুমতি দেওয়া হয়নি কিন্তু USB ডিভাইসের মাধ্যমে সেটি অডিও রেকর্ড করতে পারে।"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ব্যক্তিগত"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"অফিস"</string>

@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"വീഡിയോയുടെ പ്രിവ്യൂ ലഘുചിത്രം"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"ഫയലിന്റെ പ്രിവ്യൂ ലഘുചിത്രം"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"പങ്കിടാൻ, നിർദ്ദേശിക്കപ്പെട്ട ആളുകളൊന്നുമില്ല"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"ആപ്പുകളുടെ ലിസ്‌റ്റ്"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ഈ ആപ്പിന് റെക്കോർഡ് അനുമതി നൽകിയിട്ടില്ല, എന്നാൽ ഈ USB ഉപകരണത്തിലൂടെ ഓഡിയോ ക്യാപ്‌ചർ ചെയ്യാനാവും."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"വ്യക്തിപരം"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ഔദ്യോഗികം"</string>
