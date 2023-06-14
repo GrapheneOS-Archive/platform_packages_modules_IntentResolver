@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Алдын ала көрсетілген бейненің нобайы"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Алдын ала көрсетілген файлдың нобайы"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Бөлісу үшін ұсынылатын адамдар жоқ."</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Қолданбалар тізімі"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Қолданбаға жазу рұқсаты берілмеді, бірақ ол осы USB құрылғысы арқылы дыбыс жаза алады."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Жеке"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Жұмыс"</string>

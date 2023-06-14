@@ -73,7 +73,6 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Миниизображение за визуализация на видеоклипа"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Миниизображение за визуализация на файла"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Няма препоръки за хора, с които да споделяте"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Списък с приложения"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Приложението няма разрешение за записване, но може да записва звук чрез това USB устройство."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Лични"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Служебни"</string>
