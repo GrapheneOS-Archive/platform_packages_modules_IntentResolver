@@ -75,7 +75,7 @@
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Žiadni odporúčaní príjemcovia"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Tejto aplikácii nebolo udelené povolenie na nahrávanie, ale môže nasnímať zvuk cez toto zariadenie USB."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Osobné"</string>
-    <string name="resolver_work_tab" msgid="3588325717455216412">"Práca"</string>
+    <string name="resolver_work_tab" msgid="3588325717455216412">"Pracovné"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Osobné zobrazenie"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Pracovné zobrazenie"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Blokované vaším správcom IT"</string>
