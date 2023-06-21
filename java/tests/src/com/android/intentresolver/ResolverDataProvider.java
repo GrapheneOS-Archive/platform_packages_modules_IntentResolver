@@ -36,20 +36,33 @@ public class ResolverDataProvider {
 
     static private int USER_SOMEONE_ELSE = 10;
 
-    static ResolverActivity.ResolvedComponentInfo createResolvedComponentInfo(int i) {
-        return new ResolverActivity.ResolvedComponentInfo(createComponentName(i),
-                createResolverIntent(i), createResolveInfo(i, UserHandle.USER_CURRENT));
+    static ResolvedComponentInfo createResolvedComponentInfo(int i) {
+        return new ResolvedComponentInfo(
+                createComponentName(i),
+                createResolverIntent(i),
+                createResolveInfo(i, UserHandle.USER_CURRENT));
     }
 
-    static ResolverActivity.ResolvedComponentInfo createResolvedComponentInfoWithOtherId(int i) {
-        return new ResolverActivity.ResolvedComponentInfo(createComponentName(i),
-                createResolverIntent(i), createResolveInfo(i, USER_SOMEONE_ELSE));
+    static ResolvedComponentInfo createResolvedComponentInfo(
+            ComponentName componentName, Intent intent) {
+        return new ResolvedComponentInfo(
+                componentName,
+                intent,
+                createResolveInfo(componentName, UserHandle.USER_CURRENT));
     }
 
-    static ResolverActivity.ResolvedComponentInfo createResolvedComponentInfoWithOtherId(int i,
-            int userId) {
-        return new ResolverActivity.ResolvedComponentInfo(createComponentName(i),
-                createResolverIntent(i), createResolveInfo(i, userId));
+    static ResolvedComponentInfo createResolvedComponentInfoWithOtherId(int i) {
+        return new ResolvedComponentInfo(
+                createComponentName(i),
+                createResolverIntent(i),
+                createResolveInfo(i, USER_SOMEONE_ELSE));
+    }
+
+    static ResolvedComponentInfo createResolvedComponentInfoWithOtherId(int i, int userId) {
+        return new ResolvedComponentInfo(
+                createComponentName(i),
+                createResolverIntent(i),
+                createResolveInfo(i, userId));
     }
 
     public static ComponentName createComponentName(int i) {
@@ -64,6 +77,13 @@ public class ResolverDataProvider {
         return resolveInfo;
     }
 
+    public static ResolveInfo createResolveInfo(ComponentName componentName, int userId) {
+        final ResolveInfo resolveInfo = new ResolveInfo();
+        resolveInfo.activityInfo = createActivityInfo(componentName);
+        resolveInfo.targetUserId = userId;
+        return resolveInfo;
+    }
+
     static ActivityInfo createActivityInfo(int i) {
         ActivityInfo ai = new ActivityInfo();
         ai.name = "activity_name" + i;
@@ -72,6 +92,18 @@ public class ResolverDataProvider {
         ai.exported = true;
         ai.permission = null;
         ai.applicationInfo = createApplicationInfo();
+        return ai;
+    }
+
+    static ActivityInfo createActivityInfo(ComponentName componentName) {
+        ActivityInfo ai = new ActivityInfo();
+        ai.name = componentName.getClassName();
+        ai.packageName = componentName.getPackageName();
+        ai.enabled = true;
+        ai.exported = true;
+        ai.permission = null;
+        ai.applicationInfo = createApplicationInfo();
+        ai.applicationInfo.packageName = componentName.getPackageName();
         return ai;
     }
 

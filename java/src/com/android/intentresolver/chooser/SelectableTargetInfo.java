@@ -33,7 +33,6 @@ import android.text.SpannableStringBuilder;
 import android.util.HashedStringCache;
 import android.util.Log;
 
-import com.android.intentresolver.ResolverActivity;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 
 import java.util.ArrayList;
@@ -79,7 +78,6 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     private final CharSequence mChooserTargetUnsanitizedTitle;
     private final Icon mChooserTargetIcon;
     private final Bundle mChooserTargetIntentExtras;
-    private final int mFillInFlags;
     private final boolean mIsPinned;
     private final float mModifiedScore;
     private final boolean mIsSuspended;
@@ -90,12 +88,6 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     private final IconHolder mDisplayIconHolder = new SettableIconHolder();
     private final TargetHashProvider mHashProvider;
     private final TargetActivityStarter mActivityStarter;
-
-    /**
-     * A refinement intent from the caller, if any (see
-     * {@link Intent#EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER})
-     */
-    private final Intent mFillInIntent;
 
     /**
      * An intent containing referrer URI (see {@link Activity#getReferrer()} (possibly {@code null})
@@ -160,6 +152,7 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
                 sourceInfo,
                 backupResolveInfo,
                 resolvedIntent,
+                null,
                 chooserTargetComponentName,
                 chooserTargetUnsanitizedTitle,
                 chooserTargetIcon,
@@ -167,15 +160,14 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
                 modifiedScore,
                 shortcutInfo,
                 appTarget,
-                referrerFillInIntent,
-                /* fillInIntent = */ null,
-                /* fillInFlags = */ 0);
+                referrerFillInIntent);
     }
 
     private SelectableTargetInfo(
             @Nullable DisplayResolveInfo sourceInfo,
             @Nullable ResolveInfo backupResolveInfo,
             Intent resolvedIntent,
+            @Nullable Intent baseIntentToSend,
             ComponentName chooserTargetComponentName,
             CharSequence chooserTargetUnsanitizedTitle,
             Icon chooserTargetIcon,
@@ -183,9 +175,7 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
             float modifiedScore,
             @Nullable ShortcutInfo shortcutInfo,
             @Nullable AppTarget appTarget,
-            Intent referrerFillInIntent,
-            @Nullable Intent fillInIntent,
-            int fillInFlags) {
+            Intent referrerFillInIntent) {
         mSourceInfo = sourceInfo;
         mBackupResolveInfo = backupResolveInfo;
         mResolvedIntent = resolvedIntent;
@@ -193,8 +183,6 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         mShortcutInfo = shortcutInfo;
         mAppTarget = appTarget;
         mReferrerFillInIntent = referrerFillInIntent;
-        mFillInIntent = fillInIntent;
-        mFillInFlags = fillInFlags;
         mChooserTargetComponentName = chooserTargetComponentName;
         mChooserTargetUnsanitizedTitle = chooserTargetUnsanitizedTitle;
         mChooserTargetIcon = chooserTargetIcon;
@@ -210,9 +198,8 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         mAllSourceIntents = getAllSourceIntents(sourceInfo);
 
         mBaseIntentToSend = getBaseIntentToSend(
+                baseIntentToSend,
                 mResolvedIntent,
-                mFillInIntent,
-                mFillInFlags,
                 mReferrerFillInIntent);
 
         mHashProvider = context -> {
@@ -263,11 +250,12 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         };
     }
 
-    private SelectableTargetInfo(SelectableTargetInfo other, Intent fillInIntent, int flags) {
+    private SelectableTargetInfo(SelectableTargetInfo other, Intent baseIntentToSend) {
         this(
                 other.mSourceInfo,
                 other.mBackupResolveInfo,
                 other.mResolvedIntent,
+                baseIntentToSend,
                 other.mChooserTargetComponentName,
                 other.mChooserTargetUnsanitizedTitle,
                 other.mChooserTargetIcon,
@@ -275,14 +263,25 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
                 other.mModifiedScore,
                 other.mShortcutInfo,
                 other.mAppTarget,
-                other.mReferrerFillInIntent,
-                fillInIntent,
-                flags);
+                other.mReferrerFillInIntent);
     }
 
     @Override
-    public TargetInfo cloneFilledIn(Intent fillInIntent, int flags) {
-        return new SelectableTargetInfo(this, fillInIntent, flags);
+    @Nullable
+    public TargetInfo tryToCloneWithAppliedRefinement(Intent proposedRefinement) {
+        Intent matchingBase =
+                getAllSourceIntents()
+                        .stream()
+                        .filter(i -> i.filterEquals(proposedRefinement))
+                        .findFirst()
+                        .orElse(null);
+        if (matchingBase == null) {
+            return null;
+        }
+
+        Intent merged = new Intent(matchingBase);
+        merged.fillIn(proposedRefinement, 0);
+        return new SelectableTargetInfo(this, merged);
     }
 
     @Override
@@ -332,18 +331,19 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
     }
 
     @Override
-    public boolean start(Activity activity, Bundle options) {
-        return mActivityStarter.start(activity, options);
-    }
-
-    @Override
-    public boolean startAsCaller(ResolverActivity activity, Bundle options, int userId) {
+    public boolean startAsCaller(Activity activity, Bundle options, int userId) {
         return mActivityStarter.startAsCaller(activity, options, userId);
     }
 
     @Override
     public boolean startAsUser(Activity activity, Bundle options, UserHandle user) {
         return mActivityStarter.startAsUser(activity, options, user);
+    }
+
+    @Nullable
+    @Override
+    public Intent getTargetIntent() {
+        return mBaseIntentToSend;
     }
 
     @Override
@@ -418,18 +418,14 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
 
     @Nullable
     private static Intent getBaseIntentToSend(
-            @Nullable Intent resolvedIntent,
-            Intent fillInIntent,
-            int fillInFlags,
+            @Nullable Intent providedBase,
+            @Nullable Intent fallbackBase,
             Intent referrerFillInIntent) {
-        Intent result = resolvedIntent;
+        Intent result = (providedBase != null) ? providedBase : fallbackBase;
         if (result == null) {
             Log.e(TAG, "ChooserTargetInfo: no base intent available to send");
         } else {
             result = new Intent(result);
-            if (fillInIntent != null) {
-                result.fillIn(fillInIntent, fillInFlags);
-            }
             result.fillIn(referrerFillInIntent, 0);
         }
         return result;

@@ -16,23 +16,72 @@
 
 package com.android.intentresolver
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import kotlinx.coroutines.suspendCancellableCoroutine
+import android.util.Size
+import androidx.annotation.GuardedBy
+import androidx.annotation.VisibleForTesting
+import androidx.collection.LruCache
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.coroutineScope
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import java.util.function.Consumer
 
-// TODO: convert ChooserContentPreviewCoordinator to Kotlin and merge this class into it.
-internal class ImagePreviewImageLoader(
-    private val previewCoordinator: ChooserContentPreviewUi.ContentPreviewCoordinator
-) : suspend (Uri) -> Bitmap? {
+@VisibleForTesting
+class ImagePreviewImageLoader @JvmOverloads constructor(
+    private val context: Context,
+    private val lifecycle: Lifecycle,
+    cacheSize: Int,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) : ImageLoader {
 
-    override suspend fun invoke(uri: Uri): Bitmap? =
-        suspendCancellableCoroutine { continuation ->
-            val callback = java.util.function.Consumer<Bitmap?> { bitmap ->
-                try {
-                    continuation.resumeWith(Result.success(bitmap))
-                } catch (ignored: Exception) {
+    private val thumbnailSize: Size =
+        context.resources.getDimensionPixelSize(R.dimen.chooser_preview_image_max_dimen).let {
+            Size(it, it)
+        }
+
+    @GuardedBy("self")
+    private val cache = LruCache<Uri, CompletableDeferred<Bitmap?>>(cacheSize)
+
+    override suspend fun invoke(uri: Uri): Bitmap? = loadImageAsync(uri)
+
+    override fun loadImage(uri: Uri, callback: Consumer<Bitmap?>) {
+        lifecycle.coroutineScope.launch {
+            val image = loadImageAsync(uri)
+            if (isActive) {
+                callback.accept(image)
+            }
+        }
+    }
+
+    override fun prePopulate(uris: List<Uri>) {
+        uris.asSequence().take(cache.maxSize()).forEach { uri ->
+            lifecycle.coroutineScope.launch {
+                loadImageAsync(uri)
+            }
+        }
+    }
+
+    private suspend fun loadImageAsync(uri: Uri): Bitmap? {
+        return synchronized(cache) {
+            cache.get(uri) ?: CompletableDeferred<Bitmap?>().also { result ->
+                cache.put(uri, result)
+                lifecycle.coroutineScope.launch(dispatcher) {
+                    result.loadBitmap(uri)
                 }
             }
-            previewCoordinator.loadImage(uri, callback)
-        }
+        }.await()
+    }
+
+    private fun CompletableDeferred<Bitmap?>.loadBitmap(uri: Uri) {
+        val bitmap = runCatching {
+            context.contentResolver.loadThumbnail(uri,  thumbnailSize, null)
+        }.getOrNull()
+        complete(bitmap)
+    }
 }

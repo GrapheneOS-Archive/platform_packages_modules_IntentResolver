@@ -31,7 +31,6 @@ import android.os.UserHandle;
 
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.QuietModeManager;
 import com.android.intentresolver.chooser.TargetInfo;
 
 import java.util.List;
@@ -88,11 +87,11 @@ public class ResolverWrapperActivity extends ResolverActivity {
     }
 
     @Override
-    protected QuietModeManager createQuietModeManager() {
-        if (sOverrides.mQuietModeManager != null) {
-            return sOverrides.mQuietModeManager;
+    protected WorkProfileAvailabilityManager createWorkProfileAvailabilityManager() {
+        if (sOverrides.mWorkProfileAvailability != null) {
+            return sOverrides.mWorkProfileAvailability;
         }
-        return super.createQuietModeManager();
+        return super.createWorkProfileAvailabilityManager();
     }
 
     ResolverWrapperAdapter getAdapter() {
@@ -130,10 +129,8 @@ public class ResolverWrapperActivity extends ResolverActivity {
     @Override
     protected ResolverListController createListController(UserHandle userHandle) {
         if (userHandle == UserHandle.SYSTEM) {
-            when(sOverrides.resolverListController.getUserHandle()).thenReturn(UserHandle.SYSTEM);
             return sOverrides.resolverListController;
         }
-        when(sOverrides.workResolverListController.getUserHandle()).thenReturn(userHandle);
         return sOverrides.workResolverListController;
     }
 
@@ -175,7 +172,7 @@ public class ResolverWrapperActivity extends ResolverActivity {
         public Integer myUserId;
         public boolean hasCrossProfileIntents;
         public boolean isQuietModeEnabled;
-        public QuietModeManager mQuietModeManager;
+        public WorkProfileAvailabilityManager mWorkProfileAvailability;
         public MyUserIdProvider mMyUserIdProvider;
         public CrossProfileIntentsChecker mCrossProfileIntentsChecker;
 
@@ -190,21 +187,24 @@ public class ResolverWrapperActivity extends ResolverActivity {
             hasCrossProfileIntents = true;
             isQuietModeEnabled = false;
 
-            mQuietModeManager = new QuietModeManager() {
+            mWorkProfileAvailability = new WorkProfileAvailabilityManager(null, null, null) {
                 @Override
-                public boolean isQuietModeEnabled(UserHandle workProfileUserHandle) {
+                public boolean isQuietModeEnabled() {
                     return isQuietModeEnabled;
                 }
 
                 @Override
-                public void requestQuietModeEnabled(boolean enabled,
-                        UserHandle workProfileUserHandle) {
+                public boolean isWorkProfileUserUnlocked() {
+                    return true;
+                }
+
+                @Override
+                public void requestQuietModeEnabled(boolean enabled) {
                     isQuietModeEnabled = enabled;
                 }
 
                 @Override
-                public void markWorkProfileEnabledBroadcastReceived() {
-                }
+                public void markWorkProfileEnabledBroadcastReceived() {}
 
                 @Override
                 public boolean isWaitingToEnableWorkProfile() {

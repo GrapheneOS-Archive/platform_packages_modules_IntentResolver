@@ -49,7 +49,6 @@ import android.widget.TextView;
 
 import androidx.annotation.WorkerThread;
 
-import com.android.intentresolver.ResolverActivity.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.NotSelectableTargetInfo;
@@ -264,7 +263,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
         }
 
         holder.bindLabel(info.getDisplayLabel(), info.getExtendedInfo(), alwaysShowSubLabel());
-        holder.bindIcon(info);
+        holder.bindIcon(info, /*animate =*/ true);
         if (info.isSelectableTargetInfo()) {
             // direct share targets should append the application name for a better readout
             DisplayResolveInfo rInfo = info.getDisplayResolveInfo();

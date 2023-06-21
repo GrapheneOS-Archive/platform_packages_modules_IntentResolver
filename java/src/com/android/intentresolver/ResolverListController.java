@@ -58,7 +58,6 @@ public class ResolverListController {
 
     private static final String TAG = "ResolverListController";
     private static final boolean DEBUG = false;
-    private final UserHandle mUserHandle;
 
     private AbstractResolverComparator mResolverComparator;
     private boolean isComputed = false;
@@ -68,9 +67,8 @@ public class ResolverListController {
             PackageManager pm,
             Intent targetIntent,
             String referrerPackage,
-            int launchedFromUid,
-            UserHandle userHandle) {
-        this(context, pm, targetIntent, referrerPackage, launchedFromUid, userHandle,
+            int launchedFromUid) {
+        this(context, pm, targetIntent, referrerPackage, launchedFromUid,
                     new ResolverRankerServiceResolverComparator(
                         context, targetIntent, referrerPackage, null, null));
     }
@@ -81,14 +79,12 @@ public class ResolverListController {
             Intent targetIntent,
             String referrerPackage,
             int launchedFromUid,
-            UserHandle userHandle,
             AbstractResolverComparator resolverComparator) {
         mContext = context;
         mpm = pm;
         mLaunchedFromUid = launchedFromUid;
         mTargetIntent = targetIntent;
         mReferrerPackage = referrerPackage;
-        mUserHandle = userHandle;
         mResolverComparator = resolverComparator;
     }
 
@@ -108,17 +104,11 @@ public class ResolverListController {
                 filter, match, intent.getComponent());
     }
 
-    @VisibleForTesting
-    public List<ResolverActivity.ResolvedComponentInfo> getResolversForIntent(
-            boolean shouldGetResolvedFilter,
-            boolean shouldGetActivityMetadata,
-            boolean shouldGetOnlyDefaultActivities,
-            List<Intent> intents) {
-        return getResolversForIntentAsUser(shouldGetResolvedFilter, shouldGetActivityMetadata,
-                shouldGetOnlyDefaultActivities, intents, mUserHandle);
-    }
-
-    public List<ResolverActivity.ResolvedComponentInfo> getResolversForIntentAsUser(
+    /**
+     * Get data about all the ways the user with the specified handle can resolve any of the
+     * provided {@code intents}.
+     */
+    public List<ResolvedComponentInfo> getResolversForIntentAsUser(
             boolean shouldGetResolvedFilter,
             boolean shouldGetActivityMetadata,
             boolean shouldGetOnlyDefaultActivities,
@@ -132,11 +122,9 @@ public class ResolverListController {
         return getResolversForIntentAsUserInternal(intents, userHandle, baseFlags);
     }
 
-    private List<ResolverActivity.ResolvedComponentInfo> getResolversForIntentAsUserInternal(
-            List<Intent> intents,
-            UserHandle userHandle,
-            int baseFlags) {
-        List<ResolverActivity.ResolvedComponentInfo> resolvedComponents = null;
+    private List<ResolvedComponentInfo> getResolversForIntentAsUserInternal(
+            List<Intent> intents, UserHandle userHandle, int baseFlags) {
+        List<ResolvedComponentInfo> resolvedComponents = null;
         for (int i = 0, N = intents.size(); i < N; i++) {
             Intent intent = intents.get(i);
             int flags = baseFlags;
@@ -160,14 +148,8 @@ public class ResolverListController {
     }
 
     @VisibleForTesting
-    public UserHandle getUserHandle() {
-        return mUserHandle;
-    }
-
-    @VisibleForTesting
-    public void addResolveListDedupe(List<ResolverActivity.ResolvedComponentInfo> into,
-            Intent intent,
-            List<ResolveInfo> from) {
+    public void addResolveListDedupe(
+            List<ResolvedComponentInfo> into, Intent intent, List<ResolveInfo> from) {
         final int fromCount = from.size();
         final int intoCount = into.size();
         for (int i = 0; i < fromCount; i++) {
@@ -175,7 +157,7 @@ public class ResolverListController {
             boolean found = false;
             // Only loop to the end of into as it was before we started; no dupes in from.
             for (int j = 0; j < intoCount; j++) {
-                final ResolverActivity.ResolvedComponentInfo rci = into.get(j);
+                final ResolvedComponentInfo rci = into.get(j);
                 if (isSameResolvedComponent(newInfo, rci)) {
                     found = true;
                     rci.add(intent, newInfo);
@@ -185,8 +167,7 @@ public class ResolverListController {
             if (!found) {
                 final ComponentName name = new ComponentName(
                         newInfo.activityInfo.packageName, newInfo.activityInfo.name);
-                final ResolverActivity.ResolvedComponentInfo rci =
-                        new ResolverActivity.ResolvedComponentInfo(name, intent, newInfo);
+                final ResolvedComponentInfo rci = new ResolvedComponentInfo(name, intent, newInfo);
                 rci.setPinned(isComponentPinned(name));
                 into.add(rci);
             }
@@ -206,10 +187,9 @@ public class ResolverListController {
     // To preserve the inputList, optionally will return the original list if any modification has
     // been made.
     @VisibleForTesting
-    public ArrayList<ResolverActivity.ResolvedComponentInfo> filterIneligibleActivities(
-            List<ResolverActivity.ResolvedComponentInfo> inputList,
-            boolean returnCopyOfOriginalListIfModified) {
-        ArrayList<ResolverActivity.ResolvedComponentInfo> listToReturn = null;
+    public ArrayList<ResolvedComponentInfo> filterIneligibleActivities(
+            List<ResolvedComponentInfo> inputList, boolean returnCopyOfOriginalListIfModified) {
+        ArrayList<ResolvedComponentInfo> listToReturn = null;
         for (int i = inputList.size()-1; i >= 0; i--) {
             ActivityInfo ai = inputList.get(i)
                     .getResolveInfoAt(0).activityInfo;
@@ -235,13 +215,12 @@ public class ResolverListController {
     // To preserve the inputList, optionally will return the original list if any modification has
     // been made.
     @VisibleForTesting
-    public ArrayList<ResolverActivity.ResolvedComponentInfo> filterLowPriority(
-            List<ResolverActivity.ResolvedComponentInfo> inputList,
-            boolean returnCopyOfOriginalListIfModified) {
-        ArrayList<ResolverActivity.ResolvedComponentInfo> listToReturn = null;
+    public ArrayList<ResolvedComponentInfo> filterLowPriority(
+            List<ResolvedComponentInfo> inputList, boolean returnCopyOfOriginalListIfModified) {
+        ArrayList<ResolvedComponentInfo> listToReturn = null;
         // Only display the first matches that are either of equal
         // priority or have asked to be default options.
-        ResolverActivity.ResolvedComponentInfo rci0 = inputList.get(0);
+        ResolvedComponentInfo rci0 = inputList.get(0);
         ResolveInfo r0 = rci0.getResolveInfoAt(0);
         int N = inputList.size();
         for (int i = 1; i < N; i++) {
@@ -266,8 +245,7 @@ public class ResolverListController {
         return listToReturn;
     }
 
-    private void compute(List<ResolverActivity.ResolvedComponentInfo> inputList)
-            throws InterruptedException {
+    private void compute(List<ResolvedComponentInfo> inputList) throws InterruptedException {
         if (mResolverComparator == null) {
             Log.d(TAG, "Comparator has already been destroyed; skipped.");
             return;
@@ -281,7 +259,7 @@ public class ResolverListController {
 
     @VisibleForTesting
     @WorkerThread
-    public void sort(List<ResolverActivity.ResolvedComponentInfo> inputList) {
+    public void sort(List<ResolvedComponentInfo> inputList) {
         try {
             long beforeRank = System.currentTimeMillis();
             if (!isComputed) {
@@ -300,7 +278,7 @@ public class ResolverListController {
 
     @VisibleForTesting
     @WorkerThread
-    public void topK(List<ResolverActivity.ResolvedComponentInfo> inputList, int k) {
+    public void topK(List<ResolvedComponentInfo> inputList, int k) {
         if (inputList == null || inputList.isEmpty() || k <= 0) {
             return;
         }
@@ -317,7 +295,7 @@ public class ResolverListController {
             }
 
             // Top of this heap has lowest rank.
-            PriorityQueue<ResolverActivity.ResolvedComponentInfo> minHeap = new PriorityQueue<>(k,
+            PriorityQueue<ResolvedComponentInfo> minHeap = new PriorityQueue<>(k,
                     (o1, o2) -> -mResolverComparator.compare(o1, o2));
             final int size = inputList.size();
             // Use this pointer to keep track of the position of next element
@@ -325,7 +303,7 @@ public class ResolverListController {
             int pointer = size - 1;
             minHeap.addAll(inputList.subList(size - k, size));
             for (int i = size - k - 1; i >= 0; --i) {
-                ResolverActivity.ResolvedComponentInfo ci = inputList.get(i);
+                ResolvedComponentInfo ci = inputList.get(i);
                 if (-mResolverComparator.compare(ci, minHeap.peek()) > 0) {
                     // When ranked higher than top of heap, remove top of heap,
                     // update input list with it, add this new element to heap.
@@ -354,8 +332,7 @@ public class ResolverListController {
         }
     }
 
-    private static boolean isSameResolvedComponent(ResolveInfo a,
-            ResolverActivity.ResolvedComponentInfo b) {
+    private static boolean isSameResolvedComponent(ResolveInfo a, ResolvedComponentInfo b) {
         final ActivityInfo ai = a.activityInfo;
         return ai.packageName.equals(b.name.getPackageName())
                 && ai.name.equals(b.name.getClassName());
