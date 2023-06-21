@@ -5,11 +5,12 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import javax.inject.Inject
 
 /**
  * Ensures that the unbundled version of [ChooserActivity] does not get stuck in a disabled state.
  */
-class ChooserActivityReEnabler : BroadcastReceiver() {
+class ChooserActivityReEnabler @Inject constructor() : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {

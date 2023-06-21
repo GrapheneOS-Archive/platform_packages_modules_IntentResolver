@@ -17,10 +17,11 @@
  */
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.android.intentresolver"
-        android:versionCode="0"
-        android:versionName="2021-11"
-        coreApp="true">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.android.intentresolver"
+    android:versionCode="0"
+    android:versionName="2021-11"
+    coreApp="true">
 
 
     <uses-permission android:name="android.permission.ACCESS_SHORTCUTS" />
@@ -39,12 +40,15 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
+        android:name=".IntentResolverApplication"
         android:hardwareAccelerated="true"
         android:label="@string/app_label"
         android:directBootAware="true"
         android:forceQueryable="true"
         android:requiredForAllUsers="true"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        tools:replace="android:appComponentFactory"
+        android:appComponentFactory=".IntentResolverAppComponentFactory">
 
         <activity android:name=".ChooserActivity"
                 android:theme="@style/Theme.DeviceDefault.Chooser"
