@@ -81,7 +81,7 @@
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"IT 管理員已封鎖這項操作"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"無法透過工作應用程式分享這項內容"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"無法使用工作應用程式開啟這項內容"</string>
-    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"無法透過個人應用程式分享這項內容"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"無法與個人應用程式分享這項內容"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"無法使用個人應用程式開啟這項內容"</string>
     <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"工作應用程式目前為暫停狀態"</string>
     <string name="resolver_switch_on_work" msgid="8678893259344318807">"取消暫停"</string>

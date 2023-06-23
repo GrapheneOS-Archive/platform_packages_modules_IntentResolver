@@ -81,7 +81,7 @@
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"បានទប់ស្កាត់ដោយ​អ្នកគ្រប់គ្រង​ផ្នែកព័ត៌មានវិទ្យា​របស់អ្នក"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"ខ្លឹមសារនេះ​មិនអាចចែករំលែក​តាមរយៈ​កម្មវិធី​ការងារ​បានទេ"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ខ្លឹមសារនេះ​មិនអាចបើក​តាមរយៈ​កម្មវិធី​ការងារ​បានទេ"</string>
-    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"ខ្លឹមសារនេះ​មិនអាចចែករំលែក​តាមរយៈ​កម្មវិធី​ផ្ទាល់ខ្លួន​បានទេ"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"មិនអាចចែករំលែកខ្លឹមសារនេះ​ជាមួយ​កម្មវិធី​ផ្ទាល់ខ្លួន​បានទេ"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"ខ្លឹមសារនេះ​មិនអាចបើក​តាមរយៈ​កម្មវិធី​ផ្ទាល់ខ្លួន​បានទេ"</string>
     <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"កម្មវិធី​ការងារ​ត្រូវបានផ្អាក"</string>
     <string name="resolver_switch_on_work" msgid="8678893259344318807">"ឈប់ផ្អាក"</string>
