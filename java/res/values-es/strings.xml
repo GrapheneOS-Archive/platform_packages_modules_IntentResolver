@@ -51,7 +51,7 @@
     <string name="activity_resolver_use_once" msgid="594173435998892989">"Solo una vez"</string>
     <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> no admite perfiles de trabajo"</string>
     <string name="pin_specific_target" msgid="5057063421361441406">"Fijar <xliff:g id="LABEL">%1$s</xliff:g>"</string>
-    <string name="unpin_specific_target" msgid="3115158908159857777">"No fijar <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="unpin_specific_target" msgid="3115158908159857777">"Desfijar <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Editar"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # archivo}many{+ # archivos}other{+ # archivos}}"</string>
     <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{y # archivo más}many{y # archivos más}other{y # archivos más}}"</string>
