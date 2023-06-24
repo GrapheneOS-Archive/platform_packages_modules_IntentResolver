@@ -79,9 +79,9 @@
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Просмотр личных данных"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Просмотр рабочих данных"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Заблокировано вашим администратором"</string>
-    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Этот контент нельзя открывать через рабочие приложения."</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Этим контентом нельзя делиться с рабочими приложениями."</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Этот контент нельзя открыть в рабочем приложении."</string>
-    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Этот контент нельзя открывать через личные приложения."</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Этим контентом нельзя делиться с личными приложениями."</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Этот контент нельзя открыть в личном приложении."</string>
     <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Рабочие приложения приостановлены"</string>
     <string name="resolver_switch_on_work" msgid="8678893259344318807">"Включить"</string>

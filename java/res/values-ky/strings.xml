@@ -79,10 +79,10 @@
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Жеке көрүнүш"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Жумуш көрүнүшү"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"IT администраторуңуз бөгөттөп койгон"</string>
-    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Бул мазмунду жумуш колдонмолору менен бөлүшүү мүмкүн эмес"</string>
-    <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Бул мазмунду жумуш колдонмолору менен ачуу мүмкүн эмес"</string>
-    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Бул мазмунду жеке колдонмолор менен бөлүшүү мүмкүн эмес"</string>
-    <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Бул мазмунду жеке колдонмолор менен ачуу мүмкүн эмес"</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Бул нерсени жумуш колдонмолору менен бөлүшө албайсыз"</string>
+    <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Бул нерсени жумуш колдонмолору менен ача албайсыз"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Бул нерсени жеке колдонмолор менен бөлүшө албайсыз"</string>
+    <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Бул нерсени жеке колдонмолор менен ача албайсыз"</string>
     <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Жумуш колдонмолору тындырылды"</string>
     <string name="resolver_switch_on_work" msgid="8678893259344318807">"Иштетүү"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Жумуш колдонмолору жок"</string>
