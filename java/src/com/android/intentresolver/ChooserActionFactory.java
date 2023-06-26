@@ -78,6 +78,11 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
             | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
             | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION;
 
+    // Boolean extra used to inform the editor that it may want to customize the editing experience
+    // for the sharesheet editing flow.
+    private static final String EDIT_SOURCE = "edit_source";
+    private static final String EDIT_SOURCE_SHARESHEET = "sharesheet";
+
     private static final String CHIP_LABEL_METADATA_KEY = "android.service.chooser.chip_label";
     private static final String CHIP_ICON_METADATA_KEY = "android.service.chooser.chip_icon";
 
@@ -284,6 +289,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
         resolveIntent.setFlags(originalIntent.getFlags() & URI_PERMISSION_INTENT_FLAGS);
         resolveIntent.setComponent(editorComponent);
         resolveIntent.setAction(Intent.ACTION_EDIT);
+        resolveIntent.putExtra(EDIT_SOURCE, EDIT_SOURCE_SHARESHEET);
         String originalAction = originalIntent.getAction();
         if (Intent.ACTION_SEND.equals(originalAction)) {
             if (resolveIntent.getData() == null) {
