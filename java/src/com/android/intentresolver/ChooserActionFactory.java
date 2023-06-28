@@ -317,8 +317,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
                 ri,
                 context.getString(R.string.screenshot_edit),
                 "",
-                resolveIntent,
-                null);
+                resolveIntent);
         dri.getDisplayIconHolder().setDisplayIcon(
                 context.getDrawable(com.android.internal.R.drawable.ic_screenshot_edit));
         return dri;

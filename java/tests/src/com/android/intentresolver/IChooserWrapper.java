@@ -16,7 +16,6 @@
 
 package com.android.intentresolver;
 
-import android.annotation.Nullable;
 import android.app.usage.UsageStatsManager;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
@@ -37,9 +36,12 @@ public interface IChooserWrapper {
     ChooserListAdapter getWorkListAdapter();
     boolean getIsSelected();
     UsageStatsManager getUsageStatsManager();
-    DisplayResolveInfo createTestDisplayResolveInfo(Intent originalIntent, ResolveInfo pri,
-            CharSequence pLabel, CharSequence pInfo, Intent replacementIntent,
-            @Nullable TargetPresentationGetter resolveInfoPresentationGetter);
+    DisplayResolveInfo createTestDisplayResolveInfo(
+            Intent originalIntent,
+            ResolveInfo pri,
+            CharSequence pLabel,
+            CharSequence pInfo,
+            Intent replacementIntent);
     UserHandle getCurrentUserHandle();
     Executor getMainExecutor();
 }

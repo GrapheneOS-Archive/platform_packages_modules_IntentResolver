@@ -123,8 +123,7 @@ class ChooserListAdapterTest {
                 ResolverDataProvider.createResolveInfo(2, 0, userHandle),
                 null,
                 "extended info",
-                Intent(),
-                /* resolveInfoPresentationGetter= */ null
+                Intent()
             )
         testSubject.onBindView(view, targetInfo, 0)
 
@@ -200,7 +199,6 @@ class ChooserListAdapterTest {
                 appLabel,
                 "extended info",
                 Intent(),
-                /* resolveInfoPresentationGetter= */ null
             )
             .apply {
                 if (isPinned) {

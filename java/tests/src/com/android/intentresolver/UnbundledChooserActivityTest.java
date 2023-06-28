@@ -500,8 +500,8 @@ public class UnbundledChooserActivityTest {
         };
         ResolveInfo toChoose = resolvedComponentInfos.get(0).getResolveInfoAt(0);
         DisplayResolveInfo testDri =
-                activity.createTestDisplayResolveInfo(sendIntent, toChoose, "testLabel", "testInfo",
-                        sendIntent, /* resolveInfoPresentationGetter */ null);
+                activity.createTestDisplayResolveInfo(
+                        sendIntent, toChoose, "testLabel", "testInfo", sendIntent);
         onView(withText(toChoose.activityInfo.name))
                 .perform(click());
         waitForIdle();
@@ -1414,8 +1414,7 @@ public class UnbundledChooserActivityTest {
                         ResolverDataProvider.createResolveInfo(3, 0, PERSONAL_USER_HANDLE),
                         "testLabel",
                         "testInfo",
-                        sendIntent,
-                /* resolveInfoPresentationGetter */ null);
+                        sendIntent);
         final ChooserListAdapter adapter = activity.getAdapter();
 
         assertThat(adapter.getBaseScore(null, 0), is(CALLER_TARGET_SCORE_BOOST));
@@ -1954,8 +1953,7 @@ public class UnbundledChooserActivityTest {
                                 ri,
                                 "testLabel",
                                 "testInfo",
-                                sendIntent,
-                                /* resolveInfoPresentationGetter */ null),
+                                sendIntent),
                         serviceTargets,
                         TARGET_TYPE_CHOOSER_TARGET,
                         directShareToShortcutInfos,

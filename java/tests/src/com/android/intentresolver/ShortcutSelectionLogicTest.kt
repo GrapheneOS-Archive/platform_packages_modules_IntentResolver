@@ -19,7 +19,6 @@ package com.android.intentresolver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ResolveInfo
 import android.content.pm.ShortcutInfo
 import android.os.UserHandle
 import android.service.chooser.ChooserTarget
@@ -60,16 +59,16 @@ class ShortcutSelectionLogicTest {
             ResolverDataProvider.createResolveInfo(3, 0, PERSONAL_USER_HANDLE),
             "label",
             "extended info",
-            Intent(),
-            /* resolveInfoPresentationGetter= */ null)
+            Intent()
+    )
 
     private val otherBaseDisplayInfo = DisplayResolveInfo.newDisplayResolveInfo(
             Intent(),
             ResolverDataProvider.createResolveInfo(4, 0, PERSONAL_USER_HANDLE),
             "label 2",
             "extended info 2",
-            Intent(),
-            /* resolveInfoPresentationGetter= */ null)
+            Intent()
+    )
 
     private operator fun Map<String, Array<ChooserTarget>>.get(pkg: String, idx: Int) =
         this[pkg]?.get(idx) ?: error("missing package $pkg")
