@@ -75,6 +75,8 @@ android_library {
         "androidx.lifecycle_lifecycle-extensions",
         "androidx.lifecycle_lifecycle-runtime-ktx",
         "androidx.lifecycle_lifecycle-viewmodel-ktx",
+        "dagger2",
+        "jsr330",
         "kotlin-stdlib",
         "kotlinx_coroutines",
         "kotlinx-coroutines-android",
@@ -82,6 +84,8 @@ android_library {
         "guava",
         "SystemUIFlagsLib",
     ],
+
+    plugins: ["dagger2-compiler"],
 
     lint: {
         strict_updatability_linting: false,
