@@ -103,30 +103,26 @@ public class ResolverDataProvider {
     }
 
     public static ResolveInfo createResolveInfo(int i, int userId) {
-        final ResolveInfo resolveInfo = new ResolveInfo();
-        resolveInfo.activityInfo = createActivityInfo(i);
-        resolveInfo.targetUserId = userId;
-        return resolveInfo;
+        return createResolveInfo(i, userId, UserHandle.of(userId));
     }
+
     public static ResolveInfo createResolveInfo(int i, int userId, UserHandle resolvedForUser) {
-        final ResolveInfo resolveInfo = new ResolveInfo();
-        resolveInfo.activityInfo = createActivityInfo(i);
-        resolveInfo.targetUserId = userId;
-        resolveInfo.userHandle = resolvedForUser;
-        return resolveInfo;
+        return createResolveInfo(createActivityInfo(i), userId, resolvedForUser);
     }
 
     public static ResolveInfo createResolveInfo(ComponentName componentName, int userId) {
-        final ResolveInfo resolveInfo = new ResolveInfo();
-        resolveInfo.activityInfo = createActivityInfo(componentName);
-        resolveInfo.targetUserId = userId;
-        return resolveInfo;
+        return createResolveInfo(componentName, userId, UserHandle.of(userId));
     }
 
-    public static ResolveInfo createResolveInfo(ComponentName componentName, int userId,
-            UserHandle resolvedForUser) {
+    public static ResolveInfo createResolveInfo(
+            ComponentName componentName, int userId, UserHandle resolvedForUser) {
+        return createResolveInfo(createActivityInfo(componentName), userId, resolvedForUser);
+    }
+
+    public static ResolveInfo createResolveInfo(
+            ActivityInfo activityInfo, int userId, UserHandle resolvedForUser) {
         final ResolveInfo resolveInfo = new ResolveInfo();
-        resolveInfo.activityInfo = createActivityInfo(componentName);
+        resolveInfo.activityInfo = activityInfo;
         resolveInfo.targetUserId = userId;
         resolveInfo.userHandle = resolvedForUser;
         return resolveInfo;
