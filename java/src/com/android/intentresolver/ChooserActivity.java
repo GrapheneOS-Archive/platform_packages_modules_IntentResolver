@@ -286,10 +286,6 @@ public class ChooserActivity extends ResolverActivity implements
                 mEnterTransitionAnimationDelegate,
                 new HeadlineGeneratorImpl(this));
 
-        setAdditionalTargets(mChooserRequest.getAdditionalTargets());
-
-        setSafeForwardingMode(true);
-
         mPinnedSharedPrefs = getPinnedSharedPrefs(this);
 
         mMaxTargetsPerRow = getResources().getInteger(R.integer.config_chooser_max_targets_per_row);
@@ -307,12 +303,14 @@ public class ChooserActivity extends ResolverActivity implements
         super.onCreate(
                 savedInstanceState,
                 mChooserRequest.getTargetIntent(),
+                mChooserRequest.getAdditionalTargets(),
                 mChooserRequest.getTitle(),
                 mChooserRequest.getDefaultTitleResource(),
                 mChooserRequest.getInitialIntents(),
-                /* rList: List<ResolveInfo> = */ null,
-                /* supportsAlwaysUseOption = */ false,
-                new DefaultTargetDataLoader(this, getLifecycle(), false));
+                /* resolutionList= */ null,
+                /* supportsAlwaysUseOption= */ false,
+                new DefaultTargetDataLoader(this, getLifecycle(), false),
+                /* safeForwardingMode= */ true);
 
         mChooserShownTime = System.currentTimeMillis();
         final long systemCost = mChooserShownTime - intentReceivedTime;
