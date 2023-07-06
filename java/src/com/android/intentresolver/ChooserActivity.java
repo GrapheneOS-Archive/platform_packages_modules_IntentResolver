@@ -849,9 +849,7 @@ public class ChooserActivity extends ResolverActivity implements
                 targetList,
                 // Adding userHandle from ResolveInfo allows the app icon in Dialog Box to be
                 // resolved correctly within the same tab.
-                getResolveInfoUserHandle(
-                        targetInfo.getResolveInfo(),
-                        mChooserMultiProfilePagerAdapter.getCurrentUserHandle()),
+                targetInfo.getResolveInfo().userHandle,
                 shortcutIdKey,
                 shortcutTitle,
                 isShortcutPinned,
@@ -892,9 +890,7 @@ public class ChooserActivity extends ResolverActivity implements
                         getSupportFragmentManager(),
                         mti,
                         which,
-                        getResolveInfoUserHandle(
-                                targetInfo.getResolveInfo(),
-                                mChooserMultiProfilePagerAdapter.getCurrentUserHandle()));
+                        targetInfo.getResolveInfo().userHandle);
                 return;
             }
         }
@@ -1112,11 +1108,7 @@ public class ChooserActivity extends ResolverActivity implements
             // Adding two stage comparator, first stage compares using displayLabel, next stage
             //  compares using resolveInfo.userHandle
             mComparator = Comparator.comparing(DisplayResolveInfo::getDisplayLabel, collator)
-                    .thenComparingInt(displayResolveInfo ->
-                            getResolveInfoUserHandle(
-                                    displayResolveInfo.getResolveInfo(),
-                                    // TODO: User resolveInfo.userHandle, once its available.
-                                    UserHandle.SYSTEM).getIdentifier());
+                    .thenComparingInt(target -> target.getResolveInfo().userHandle.getIdentifier());
         }
 
         @Override
