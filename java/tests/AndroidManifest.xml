@@ -15,7 +15,8 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.intentresolver.tests">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.android.intentresolver.tests">
 
     <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="30" />
 
@@ -25,7 +26,9 @@
     <uses-permission android:name="android.permission.WRITE_DEVICE_CONFIG"/>
     <uses-permission android:name="android.permission.READ_DEVICE_CONFIG" />
 
-    <application android:name="com.android.intentresolver.TestApplication">
+    <application
+        tools:replace="android:name"
+        android:name="com.android.intentresolver.TestApplication" >
         <uses-library android:name="android.test.runner" />
         <activity android:name="com.android.intentresolver.ChooserWrapperActivity" />
         <activity android:name="com.android.intentresolver.ResolverWrapperActivity" />
