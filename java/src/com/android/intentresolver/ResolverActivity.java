@@ -125,6 +125,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import javax.inject.Inject;
+
 /**
  * This is a copy of ResolverActivity to support IntentResolver's ChooserActivity. This code is
  * *not* the resolver that is actually triggered by the system right now (you want
@@ -135,6 +137,7 @@ import java.util.function.Supplier;
 public class ResolverActivity extends FragmentActivity implements
         ResolverListAdapter.ResolverListCommunicator {
 
+    @Inject
     public ResolverActivity() {
         mIsIntentPicker = getClass().equals(ResolverActivity.class);
     }
