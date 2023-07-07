@@ -23,7 +23,7 @@
         <item name="android:taskOpenExitAnimation">@anim/resolver_close_anim</item>
     </style>
     <style name="Theme.DeviceDefault.ResolverCommon"
-	    parent="@android:style/Theme.DeviceDefault.DayNight">
+        parent="@android:style/Theme.DeviceDefault.DayNight">
         <item name="android:windowAnimationStyle">@style/ResolverAnimation</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowNoTitle">true</item>
@@ -45,6 +45,7 @@
     <style name="Theme.DeviceDefault.Chooser" parent="Theme.DeviceDefault.Resolver">
         <item name="*android:iconfactoryIconSize">@dimen/chooser_icon_size</item>
         <item name="*android:iconfactoryBadgeSize">@dimen/chooser_badge_size</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
 
     <style name="TextAppearance.ChooserDefault"
