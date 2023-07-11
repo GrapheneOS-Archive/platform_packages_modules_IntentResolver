@@ -136,7 +136,8 @@ constructor(
     }
 
     /** Clear application targets (see [updateAppTargets] and initiate shrtcuts loading. */
-    fun reset() {
+    @OpenForTesting
+    open fun reset() {
         Log.d(TAG, "reset shortcut loader for user $userHandle")
         appTargetSource.tryEmit(null)
         shortcutSource.tryEmit(null)
