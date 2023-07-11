@@ -52,6 +52,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -1466,14 +1467,10 @@ public class UnbundledChooserActivityTest {
     @Test
     public void testShortcutTargetWithApplyAppLimits() {
         // Set up resources
-        ChooserActivityOverrideData.getInstance().resources = Mockito.spy(
+        Resources resources = Mockito.spy(
                 InstrumentationRegistry.getInstrumentation().getContext().getResources());
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resources
-                        .getInteger(R.integer.config_maxShortcutTargetsPerApp))
-                .thenReturn(1);
+        ChooserActivityOverrideData.getInstance().resources = resources;
+        doReturn(1).when(resources).getInteger(R.integer.config_maxShortcutTargetsPerApp);
         Intent sendIntent = createSendTextIntent();
         // We need app targets for direct targets to get displayed
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
@@ -1541,14 +1538,10 @@ public class UnbundledChooserActivityTest {
                 SystemUiDeviceConfigFlags.APPLY_SHARING_APP_LIMITS_IN_SYSUI,
                 Boolean.toString(false));
         // Set up resources
-        ChooserActivityOverrideData.getInstance().resources = Mockito.spy(
+        Resources resources = Mockito.spy(
                 InstrumentationRegistry.getInstrumentation().getContext().getResources());
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resources
-                        .getInteger(R.integer.config_maxShortcutTargetsPerApp))
-                .thenReturn(1);
+        ChooserActivityOverrideData.getInstance().resources = resources;
+        doReturn(1).when(resources).getInteger(R.integer.config_maxShortcutTargetsPerApp);
         Intent sendIntent = createSendTextIntent();
         // We need app targets for direct targets to get displayed
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
@@ -1620,14 +1613,10 @@ public class UnbundledChooserActivityTest {
                 SystemUiDeviceConfigFlags.APPLY_SHARING_APP_LIMITS_IN_SYSUI,
                 Boolean.toString(false));
         // Set up resources
-        ChooserActivityOverrideData.getInstance().resources = Mockito.spy(
+        Resources resources = Mockito.spy(
                 InstrumentationRegistry.getInstrumentation().getContext().getResources());
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resources
-                        .getInteger(R.integer.config_maxShortcutTargetsPerApp))
-                .thenReturn(1);
+        ChooserActivityOverrideData.getInstance().resources = resources;
+        doReturn(1).when(resources).getInteger(R.integer.config_maxShortcutTargetsPerApp);
 
         // We need app targets for direct targets to get displayed
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
@@ -1823,14 +1812,10 @@ public class UnbundledChooserActivityTest {
                         .getResources().getConfiguration());
         configuration.orientation = orientation;
 
-        ChooserActivityOverrideData.getInstance().resources = Mockito.spy(
+        Resources resources = Mockito.spy(
                 InstrumentationRegistry.getInstrumentation().getContext().getResources());
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resources
-                        .getConfiguration())
-                .thenReturn(configuration);
+        ChooserActivityOverrideData.getInstance().resources = resources;
+        doReturn(configuration).when(resources).getConfiguration();
 
         Intent sendIntent = createSendTextIntent();
         // We need app targets for direct targets to get displayed
@@ -2941,14 +2926,11 @@ public class UnbundledChooserActivityTest {
     }
 
     private void updateMaxTargetsPerRowResource(int targetsPerRow) {
-        ChooserActivityOverrideData.getInstance().resources = Mockito.spy(
+        Resources resources = Mockito.spy(
                 InstrumentationRegistry.getInstrumentation().getContext().getResources());
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resources
-                        .getInteger(R.integer.config_chooser_max_targets_per_row))
-                .thenReturn(targetsPerRow);
+        ChooserActivityOverrideData.getInstance().resources = resources;
+        doReturn(targetsPerRow).when(resources).getInteger(
+                R.integer.config_chooser_max_targets_per_row);
     }
 
     private SparseArray<Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>>>
