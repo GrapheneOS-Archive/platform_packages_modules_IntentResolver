@@ -23,22 +23,6 @@
     android:versionName="2021-11"
     coreApp="true">
 
-
-    <uses-permission android:name="android.permission.ACCESS_SHORTCUTS" />
-    <uses-permission android:name="android.permission.BIND_RESOLVER_RANKER_SERVICE" />
-    <uses-permission android:name="android.permission.GET_ANY_PROVIDER_TYPE" />
-    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
-    <uses-permission android:name="android.permission.MANAGE_APP_PREDICTIONS" />
-    <uses-permission android:name="android.permission.MANAGE_USERS" />
-    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
-    <uses-permission android:name="android.permission.READ_DEVICE_CONFIG" />
-    <uses-permission android:name="android.permission.SET_CLIP_SOURCE" />
-    <uses-permission android:name="android.permission.START_ACTIVITY_AS_CALLER" />
-    <uses-permission android:name="android.permission.UNLIMITED_SHORTCUTS_API_CALLS" />
-    <uses-permission android:name="android.permission.QUERY_CLONED_APPS" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
     <application
         android:name=".IntentResolverApplication"
         android:hardwareAccelerated="true"
