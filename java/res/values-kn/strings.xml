@@ -36,7 +36,7 @@
     <string name="whichSendToApplication" msgid="2724450540348806267">"ಇದನ್ನು ಬಳಸಿಕೊಂಡು ಕಳುಹಿಸಿ"</string>
     <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"<xliff:g id="APP">%1$s</xliff:g> ಬಳಸಿ ಕಳುಹಿಸಿ"</string>
     <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"ಕಳುಹಿಸು"</string>
-    <string name="whichHomeApplication" msgid="8797832422254564739">"ಮುಖಪುಟ‌ ಅಪ್ಲಿಕೇಶನ್‌ ಆಯ್ಕೆಮಾಡಿ"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"Home ಆ್ಯಪ್ ಆಯ್ಕೆಮಾಡಿ"</string>
     <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"<xliff:g id="APP">%1$s</xliff:g> ಅನ್ನು ಹೋಮ್ ಆಗಿ ಬಳಸಿ"</string>
     <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"ಚಿತ್ರ ಕ್ಯಾಪ್ಚರ್ ಮಾಡಿ"</string>
     <string name="whichImageCaptureApplication" msgid="7830965894804399333">"ಇದರ ಜೊತೆಗೆ ಚಿತ್ರ ಕ್ಯಾಪ್ಚರ್ ಮಾಡಿ"</string>
