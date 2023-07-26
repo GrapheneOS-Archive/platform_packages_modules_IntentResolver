@@ -67,18 +67,30 @@ class FileContentPreviewUi extends ContentPreviewUi {
     }
 
     @Override
-    public ViewGroup display(Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
-        ViewGroup layout = displayInternal(resources, layoutInflater, parent);
-        displayModifyShareAction(layout, mActionFactory);
+    public ViewGroup display(
+            Resources resources,
+            LayoutInflater layoutInflater,
+            ViewGroup parent,
+            @Nullable View headlineViewParent) {
+        ViewGroup layout = displayInternal(resources, layoutInflater, parent, headlineViewParent);
+        displayModifyShareAction(
+                headlineViewParent == null ? layout : headlineViewParent, mActionFactory);
         return layout;
     }
 
     private ViewGroup displayInternal(
-            Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
+            Resources resources,
+            LayoutInflater layoutInflater,
+            ViewGroup parent,
+            @Nullable View headlineViewParent) {
         mContentPreview = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_file, parent, false);
+        if (headlineViewParent == null) {
+            headlineViewParent = mContentPreview;
+        }
+        inflateHeadline(headlineViewParent);
 
-        displayHeadline(mContentPreview, mHeadlineGenerator.getFilesHeadline(mFileCount));
+        displayHeadline(headlineViewParent, mHeadlineGenerator.getFilesHeadline(mFileCount));
 
         if (mFileCount == 0) {
             mContentPreview.setVisibility(View.GONE);

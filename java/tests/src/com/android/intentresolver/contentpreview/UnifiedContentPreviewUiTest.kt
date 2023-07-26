@@ -159,7 +159,12 @@ class UnifiedContentPreviewUiTest {
             val layoutInflater = LayoutInflater.from(context)
             val gridLayout = layoutInflater.inflate(chooser_grid, null, false) as ViewGroup
 
-            testSubject.display(context.resources, LayoutInflater.from(context), gridLayout)
+            testSubject.display(
+                context.resources,
+                LayoutInflater.from(context),
+                gridLayout,
+                /*headlineViewParent=*/ null
+            )
             emptySourceFlow.tryEmit(endMarker)
         }
     }

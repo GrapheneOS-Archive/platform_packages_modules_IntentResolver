@@ -19,13 +19,17 @@ package com.android.intentresolver.contentpreview
 import android.content.res.Resources
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 
 internal class NoContextPreviewUi(private val type: Int) : ContentPreviewUi() {
     override fun getType(): Int = type
 
     override fun display(
-        resources: Resources?, layoutInflater: LayoutInflater?, parent: ViewGroup?
+        resources: Resources?,
+        layoutInflater: LayoutInflater?,
+        parent: ViewGroup?,
+        headlineViewParent: View?,
     ): ViewGroup? {
         Log.e(TAG, "Unexpected content preview type: $type")
         return null

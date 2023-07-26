@@ -28,6 +28,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
@@ -188,9 +189,12 @@ public final class ChooserContentPreviewUi {
      * specified {@code intent}.
      */
     public ViewGroup displayContentPreview(
-            Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
+            Resources resources,
+            LayoutInflater layoutInflater,
+            ViewGroup parent,
+            @Nullable View headlineViewParent) {
 
-        return mContentPreviewUi.display(resources, layoutInflater, parent);
+        return mContentPreviewUi.display(resources, layoutInflater, parent, headlineViewParent);
     }
 
     private static TextContentPreviewUi createTextPreview(
