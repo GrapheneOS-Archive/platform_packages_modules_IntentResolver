@@ -69,8 +69,8 @@
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Chỉ chia sẻ hình ảnh}other{Chỉ chia sẻ các hình ảnh}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Chỉ chia sẻ video}other{Chỉ chia sẻ các video}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Chỉ chia sẻ tệp}other{Chỉ chia sẻ các tệp}}"</string>
-    <string name="image_preview_a11y_description" msgid="297102643932491797">"Hình thu nhỏ xem trước hình ảnh"</string>
-    <string name="video_preview_a11y_description" msgid="683440858811095990">"Hình thu nhỏ xem trước video"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Hình thu nhỏ của ảnh xem trước"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Hình thu nhỏ của video xem trước"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Hình thu nhỏ xem trước tệp"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Không có gợi ý nào về người mà bạn có thể chia sẻ"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Ứng dụng này chưa được cấp quyền ghi âm nhưng vẫn có thể ghi âm thông qua thiết bị USB này."</string>
