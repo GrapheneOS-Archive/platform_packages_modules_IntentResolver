@@ -37,6 +37,7 @@ import android.view.View;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi;
+import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -97,7 +98,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
     private final @Nullable ChooserAction mModifyShareAction;
     private final Consumer<Boolean> mExcludeSharedTextAction;
     private final Consumer</* @Nullable */ Integer> mFinishCallback;
-    private final ChooserActivityLogger mLogger;
+    private final EventLog mLogger;
 
     /**
      * @param context
@@ -116,7 +117,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
             Context context,
             ChooserRequestParameters chooserRequest,
             ChooserIntegratedDeviceComponents integratedDeviceComponents,
-            ChooserActivityLogger logger,
+            EventLog logger,
             Consumer<Boolean> onUpdateSharedTextIsExcluded,
             Callable</* @Nullable */ View> firstVisibleImageQuery,
             ActionActivityStarter activityStarter,
@@ -152,7 +153,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
             List<ChooserAction> customActions,
             @Nullable ChooserAction modifyShareAction,
             Consumer<Boolean> onUpdateSharedTextIsExcluded,
-            ChooserActivityLogger logger,
+            EventLog logger,
             Consumer</* @Nullable */ Integer> finishCallback) {
         mContext = context;
         mCopyButtonRunnable = copyButtonRunnable;
@@ -208,7 +209,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
                 mModifyShareAction,
                 mFinishCallback,
                 () -> {
-                    mLogger.logActionSelected(ChooserActivityLogger.SELECTION_TYPE_MODIFY_SHARE);
+                    mLogger.logActionSelected(EventLog.SELECTION_TYPE_MODIFY_SHARE);
                 });
     }
 
@@ -232,7 +233,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
             Intent targetIntent,
             String referrerPackageName,
             Consumer<Integer> finishCallback,
-            ChooserActivityLogger logger) {
+            EventLog logger) {
         final ClipData clipData;
         try {
             clipData = extractTextToCopy(targetIntent);
@@ -248,7 +249,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
                     Context.CLIPBOARD_SERVICE);
             clipboardManager.setPrimaryClipAsPackage(clipData, referrerPackageName);
 
-            logger.logActionSelected(ChooserActivityLogger.SELECTION_TYPE_COPY);
+            logger.logActionSelected(EventLog.SELECTION_TYPE_COPY);
             finishCallback.accept(Activity.RESULT_OK);
         };
     }
@@ -327,10 +328,10 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
             TargetInfo editSharingTarget,
             Callable</* @Nullable */ View> firstVisibleImageQuery,
             ActionActivityStarter activityStarter,
-            ChooserActivityLogger logger) {
+            EventLog logger) {
         return () -> {
             // Log share completion via edit.
-            logger.logActionSelected(ChooserActivityLogger.SELECTION_TYPE_EDIT);
+            logger.logActionSelected(EventLog.SELECTION_TYPE_EDIT);
 
             View firstImageView = null;
             try {
