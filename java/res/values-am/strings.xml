@@ -92,7 +92,7 @@
     <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"የግል አሳሽ ተጠቀም"</string>
     <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"የስራ አሳሽ ተጠቀም"</string>
     <string name="exclude_text" msgid="5508128757025928034">"ጽሁፍን አታካትት"</string>
-    <string name="include_text" msgid="642280283268536140">"ፅሁፍ ጨምር"</string>
+    <string name="include_text" msgid="642280283268536140">"ጽሁፍ ጨምር"</string>
     <string name="exclude_link" msgid="1332778255031992228">"አገናኝን አታካትት"</string>
     <string name="include_link" msgid="827855767220339802">"አገናኝ አካትት"</string>
 </resources>
