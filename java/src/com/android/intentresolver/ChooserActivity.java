@@ -491,7 +491,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 /* workProfileQuietModeChecker= */ () -> false,
                 /* workProfileUserHandle= */ null,
                 getAnnotatedUserHandles().cloneProfileUserHandle,
-                mMaxTargetsPerRow);
+                mMaxTargetsPerRow,
+                mFeatureFlags);
     }
 
     private ChooserMultiProfilePagerAdapter createChooserMultiProfilePagerAdapterForTwoProfiles(
@@ -525,7 +526,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 selectedProfile,
                 getAnnotatedUserHandles().workProfileUserHandle,
                 getAnnotatedUserHandles().cloneProfileUserHandle,
-                mMaxTargetsPerRow);
+                mMaxTargetsPerRow,
+                mFeatureFlags);
     }
 
     private int findSelectedProfile() {
@@ -667,7 +669,9 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 getResources(),
                 getLayoutInflater(),
                 parent,
-                /*headlineViewParent=*/null);
+                mFeatureFlags.scrollablePreview()
+                        ? findViewById(R.id.chooser_headline_row_container)
+                        : null);
 
         if (layout != null) {
             adjustPreviewWidth(getResources().getConfiguration().orientation, layout);
@@ -788,7 +792,9 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     @Override
     public int getLayoutResource() {
-        return R.layout.chooser_grid;
+        return mFeatureFlags.scrollablePreview()
+                ? R.layout.chooser_grid_scrollable_preview
+                : R.layout.chooser_grid;
     }
 
     @Override // ResolverListCommunicator
@@ -1208,7 +1214,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 },
                 chooserListAdapter,
                 shouldShowContentPreview(),
-                mMaxTargetsPerRow);
+                mMaxTargetsPerRow,
+                mFeatureFlags);
     }
 
     @VisibleForTesting
@@ -1639,11 +1646,13 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     }
 
     private boolean shouldShowStickyContentPreviewNoOrientationCheck() {
-        return shouldShowTabs()
-                && (mMultiProfilePagerAdapter.getListAdapterForUserHandle(
-                UserHandle.of(UserHandle.myUserId())).getCount() > 0
-                || shouldShowContentPreviewWhenEmpty())
-                && shouldShowContentPreview();
+        if (!shouldShowContentPreview()) {
+            return false;
+        }
+        boolean isEmpty = mMultiProfilePagerAdapter.getListAdapterForUserHandle(
+                UserHandle.of(UserHandle.myUserId())).getCount() == 0;
+        return (mFeatureFlags.scrollablePreview() || shouldShowTabs())
+                && (!isEmpty || shouldShowContentPreviewWhenEmpty());
     }
 
     /**

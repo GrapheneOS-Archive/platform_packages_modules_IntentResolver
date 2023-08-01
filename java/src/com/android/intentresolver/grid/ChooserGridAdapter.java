@@ -32,9 +32,12 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.Space;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.intentresolver.ChooserListAdapter;
+import com.android.intentresolver.FeatureFlags;
 import com.android.intentresolver.R;
 import com.android.intentresolver.ResolverListAdapter.ViewHolder;
 import com.android.internal.annotations.VisibleForTesting;
@@ -107,6 +110,9 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
     private final boolean mShouldShowContentPreview;
     private final int mChooserWidthPixels;
     private final int mChooserRowTextOptionTranslatePixelSize;
+    private final FeatureFlags mFeatureFlags;
+    @Nullable
+    private RecyclerView mRecyclerView;
 
     private int mChooserTargetWidth = 0;
 
@@ -119,7 +125,8 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
             ChooserActivityDelegate chooserActivityDelegate,
             ChooserListAdapter wrappedAdapter,
             boolean shouldShowContentPreview,
-            int maxTargetsPerRow) {
+            int maxTargetsPerRow,
+            FeatureFlags featureFlags) {
         super();
 
         mChooserActivityDelegate = chooserActivityDelegate;
@@ -133,6 +140,7 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
         mChooserWidthPixels = context.getResources().getDimensionPixelSize(R.dimen.chooser_width);
         mChooserRowTextOptionTranslatePixelSize = context.getResources().getDimensionPixelSize(
                 R.dimen.chooser_row_text_option_translate);
+        mFeatureFlags = featureFlags;
 
         wrappedAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
@@ -147,6 +155,18 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
                 notifyDataSetChanged();
             }
         });
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        if (mFeatureFlags.scrollablePreview()) {
+            mRecyclerView = recyclerView;
+        }
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        mRecyclerView = null;
     }
 
     public void setFooterHeight(int height) {
@@ -196,7 +216,8 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
     public int getSystemRowCount() {
         // For the tabbed case we show the sticky content preview above the tabs,
         // please refer to shouldShowStickyContentPreview
-        if (mChooserActivityDelegate.shouldShowTabs()) {
+        if (mChooserActivityDelegate.shouldShowTabs()
+                || mFeatureFlags.scrollablePreview()) {
             return 0;
         }
 
@@ -316,6 +337,15 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
         mAzLabelVisibility = isVisible;
         int azRowPos = getAzLabelRowPosition();
         if (azRowPos >= 0) {
+            if (mRecyclerView != null) {
+                for (int i = 0, size = mRecyclerView.getChildCount(); i < size; i++) {
+                    View child = mRecyclerView.getChildAt(i);
+                    if (mRecyclerView.getChildAdapterPosition(child) == azRowPos) {
+                        child.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+                    }
+                }
+                return;
+            }
             notifyItemChanged(azRowPos);
         }
     }
