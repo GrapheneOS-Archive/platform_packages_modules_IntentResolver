@@ -220,7 +220,7 @@ class ImmutableTargetInfoTest {
         val originalInfo = ImmutableTargetInfo.newBuilder()
             .setResolvedIntent(originalIntent)
             .build()
-        val info = originalInfo.tryToCloneWithAppliedRefinement(refinementIntent)
+        val info = checkNotNull(originalInfo.tryToCloneWithAppliedRefinement(refinementIntent))
 
         assertThat(info?.baseIntentToSend?.getBooleanExtra("ORIGINAL", false)).isTrue()
         assertThat(info?.baseIntentToSend?.getBooleanExtra("REFINEMENT", false)).isTrue()
@@ -243,7 +243,8 @@ class ImmutableTargetInfoTest {
         val refinementIntent = Intent("REFINE_ME")
         refinementIntent.setPackage("original")  // Has to match for refinement.
 
-        val info = infoWithReferrerFillIn.tryToCloneWithAppliedRefinement(refinementIntent)
+        val info =
+            checkNotNull(infoWithReferrerFillIn.tryToCloneWithAppliedRefinement(refinementIntent))
 
         assertThat(info?.baseIntentToSend?.getPackage()).isEqualTo("original")  // Set all along.
         assertThat(info?.baseIntentToSend?.action).isEqualTo("REFINE_ME")  // Refinement wins.
@@ -265,8 +266,9 @@ class ImmutableTargetInfoTest {
             .setReferrerFillInIntent(referrerFillInIntent)
             .build()
 
-        val refined1 = originalInfo.tryToCloneWithAppliedRefinement(refinementIntent1)
-        val refined2 = refined1?.tryToCloneWithAppliedRefinement(refinementIntent2)  // Cloned clone.
+        val refined1 = checkNotNull(originalInfo.tryToCloneWithAppliedRefinement(refinementIntent1))
+        // Cloned clone.
+        val refined2 = checkNotNull(refined1.tryToCloneWithAppliedRefinement(refinementIntent2))
 
         // Both clones get the same values filled in from the referrer intent.
         assertThat(refined1?.baseIntentToSend?.getStringExtra("TEST")).isEqualTo("REFERRER")
@@ -300,7 +302,7 @@ class ImmutableTargetInfoTest {
         val refinement = Intent("REFINE_ME")  // First match is `targetAlternate`
         refinement.putExtra("refinement", true)
 
-        val refinedResult = originalInfo.tryToCloneWithAppliedRefinement(refinement)
+        val refinedResult = checkNotNull(originalInfo.tryToCloneWithAppliedRefinement(refinement))
         assertThat(refinedResult?.baseIntentToSend?.getBooleanExtra("refinement", false)).isTrue()
         assertThat(refinedResult?.baseIntentToSend?.getBooleanExtra("targetAlternate", false))
             .isTrue()
