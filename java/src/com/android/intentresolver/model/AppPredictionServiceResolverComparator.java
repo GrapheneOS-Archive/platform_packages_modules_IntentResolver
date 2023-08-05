@@ -31,7 +31,7 @@ import android.os.Message;
 import android.os.UserHandle;
 import android.util.Log;
 
-import com.android.intentresolver.ChooserActivityLogger;
+import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 
@@ -72,7 +72,7 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
             String referrerPackage,
             AppPredictor appPredictor,
             UserHandle user,
-            ChooserActivityLogger chooserActivityLogger,
+            EventLog eventLog,
             @Nullable ComponentName promoteToFirst) {
         super(context, intent, Lists.newArrayList(user), promoteToFirst);
         mContext = context;
@@ -80,7 +80,7 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
         mAppPredictor = appPredictor;
         mUser = user;
         mReferrerPackage = referrerPackage;
-        setChooserActivityLogger(chooserActivityLogger);
+        setEventLog(eventLog);
         mComparatorModel = buildUpdatedModel();
     }
 
@@ -116,7 +116,7 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
                                         mIntent,
                                         mReferrerPackage,
                                         () -> mHandler.sendEmptyMessage(RANKER_SERVICE_RESULT),
-                                        getChooserActivityLogger(),
+                                        getEventLog(),
                                         mUser,
                                         mPromoteToFirst);
                         mComparatorModel = buildUpdatedModel();

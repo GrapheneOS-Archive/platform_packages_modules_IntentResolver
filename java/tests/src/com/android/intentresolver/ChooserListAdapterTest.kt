@@ -31,6 +31,7 @@ import com.android.intentresolver.chooser.DisplayResolveInfo
 import com.android.intentresolver.chooser.SelectableTargetInfo
 import com.android.intentresolver.chooser.TargetInfo
 import com.android.intentresolver.icons.TargetDataLoader
+import com.android.intentresolver.logging.EventLog
 import com.android.internal.R
 import org.junit.Before
 import org.junit.Test
@@ -49,7 +50,7 @@ class ChooserListAdapterTest {
         }
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val resolverListController = mock<ResolverListController>()
-    private val chooserActivityLogger = mock<ChooserActivityLogger>()
+    private val mEventLog = mock<EventLog>()
     private val mTargetDataLoader = mock<TargetDataLoader>()
 
     private val testSubject by lazy {
@@ -64,7 +65,7 @@ class ChooserListAdapterTest {
             Intent(),
             mock(),
             packageManager,
-            chooserActivityLogger,
+            mEventLog,
             mock(),
             0,
             null,

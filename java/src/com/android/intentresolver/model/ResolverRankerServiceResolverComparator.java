@@ -39,7 +39,7 @@ import android.service.resolver.ResolverRankerService;
 import android.service.resolver.ResolverTarget;
 import android.util.Log;
 
-import com.android.intentresolver.ChooserActivityLogger;
+import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.internal.logging.MetricsLogger;
@@ -102,9 +102,9 @@ public class ResolverRankerServiceResolverComparator extends AbstractResolverCom
      */
     public ResolverRankerServiceResolverComparator(Context launchedFromContext, Intent intent,
             String referrerPackage, Runnable afterCompute,
-            ChooserActivityLogger chooserActivityLogger, UserHandle targetUserSpace,
+            EventLog eventLog, UserHandle targetUserSpace,
             ComponentName promoteToFirst) {
-        this(launchedFromContext, intent, referrerPackage, afterCompute, chooserActivityLogger,
+        this(launchedFromContext, intent, referrerPackage, afterCompute, eventLog,
                 Lists.newArrayList(targetUserSpace), promoteToFirst);
     }
 
@@ -118,7 +118,7 @@ public class ResolverRankerServiceResolverComparator extends AbstractResolverCom
      */
     public ResolverRankerServiceResolverComparator(Context launchedFromContext, Intent intent,
             String referrerPackage, Runnable afterCompute,
-            ChooserActivityLogger chooserActivityLogger, List<UserHandle> targetUserSpaceList,
+            EventLog eventLog, List<UserHandle> targetUserSpaceList,
             @Nullable ComponentName promoteToFirst) {
         super(launchedFromContext, intent, targetUserSpaceList, promoteToFirst);
         mCollator = Collator.getInstance(
@@ -139,7 +139,7 @@ public class ResolverRankerServiceResolverComparator extends AbstractResolverCom
         mAction = intent.getAction();
         mRankerServiceName = new ComponentName(mContext, this.getClass());
         setCallBack(afterCompute);
-        setChooserActivityLogger(chooserActivityLogger);
+        setEventLog(eventLog);
 
         mComparatorModel = buildUpdatedModel();
     }
