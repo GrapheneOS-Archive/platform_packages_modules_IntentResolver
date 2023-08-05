@@ -108,6 +108,7 @@ import androidx.test.rule.ActivityTestRule;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.contentpreview.ImageLoader;
+import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
@@ -900,8 +901,8 @@ public class UnbundledChooserActivityTest {
         onView(withId(R.id.copy)).check(matches(isDisplayed()));
         onView(withId(R.id.copy)).perform(click());
 
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
-        verify(logger, times(1)).logActionSelected(eq(ChooserActivityLogger.SELECTION_TYPE_COPY));
+        EventLog logger = activity.getEventLog();
+        verify(logger, times(1)).logActionSelected(eq(EventLog.SELECTION_TYPE_COPY));
     }
 
     @Test
@@ -1100,7 +1101,7 @@ public class UnbundledChooserActivityTest {
 
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, "logger test"));
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        EventLog logger = activity.getEventLog();
         waitForIdle();
 
         verify(logger).logChooserActivityShown(eq(false), eq(TEST_MIME_TYPE), anyLong());
@@ -1115,7 +1116,7 @@ public class UnbundledChooserActivityTest {
 
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, "logger test"));
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        EventLog logger = activity.getEventLog();
         waitForIdle();
 
         verify(logger).logChooserActivityShown(eq(true), eq(TEST_MIME_TYPE), anyLong());
@@ -1128,7 +1129,7 @@ public class UnbundledChooserActivityTest {
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(
                         Intent.createChooser(sendIntent, "empty preview logger test"));
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        EventLog logger = activity.getEventLog();
         waitForIdle();
 
         verify(logger).logChooserActivityShown(eq(false), eq(null), anyLong());
@@ -1147,7 +1148,7 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
 
         // Second invocation is from onCreate
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        EventLog logger = activity.getEventLog();
         Mockito.verify(logger, times(1)).logActionShareWithPreview(eq(CONTENT_PREVIEW_TEXT));
     }
 
@@ -1169,7 +1170,7 @@ public class UnbundledChooserActivityTest {
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        EventLog logger = activity.getEventLog();
         Mockito.verify(logger, times(1)).logActionShareWithPreview(eq(CONTENT_PREVIEW_IMAGE));
     }
 
@@ -1371,8 +1372,8 @@ public class UnbundledChooserActivityTest {
 
         ArgumentCaptor<HashedStringCache.HashResult> hashCaptor =
                 ArgumentCaptor.forClass(HashedStringCache.HashResult.class);
-        verify(activity.getChooserActivityLogger(), times(1)).logShareTargetSelected(
-                eq(ChooserActivityLogger.SELECTION_TYPE_SERVICE),
+        verify(activity.getEventLog(), times(1)).logShareTargetSelected(
+                eq(EventLog.SELECTION_TYPE_SERVICE),
                 /* packageName= */ any(),
                 /* positionPicked= */ anyInt(),
                 /* directTargetAlsoRanked= */ eq(-1),
@@ -1452,8 +1453,8 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        verify(activity.getChooserActivityLogger(), times(1)).logShareTargetSelected(
-                eq(ChooserActivityLogger.SELECTION_TYPE_SERVICE),
+        verify(activity.getEventLog(), times(1)).logShareTargetSelected(
+                eq(EventLog.SELECTION_TYPE_SERVICE),
                 /* packageName= */ any(),
                 /* positionPicked= */ anyInt(),
                 /* directTargetAlsoRanked= */ eq(0),
@@ -1862,9 +1863,9 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        ChooserActivityLogger logger = wrapper.getChooserActivityLogger();
+        EventLog logger = wrapper.getEventLog();
         verify(logger, times(1)).logShareTargetSelected(
-                eq(ChooserActivityLogger.SELECTION_TYPE_SERVICE),
+                eq(EventLog.SELECTION_TYPE_SERVICE),
                 /* packageName= */ any(),
                 /* positionPicked= */ anyInt(),
                 // The packages sholdn't match for app target and direct target:
@@ -2194,10 +2195,10 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        EventLog logger = activity.getEventLog();
         ArgumentCaptor<Integer> typeCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(logger, times(1)).logShareTargetSelected(
-                eq(ChooserActivityLogger.SELECTION_TYPE_SERVICE),
+                eq(EventLog.SELECTION_TYPE_SERVICE),
                 /* packageName= */ any(),
                 /* positionPicked= */ anyInt(),
                 /* directTargetAlsoRanked= */ anyInt(),

@@ -92,6 +92,7 @@ import com.android.intentresolver.flags.FeatureFlagRepositoryFactory;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.icons.DefaultTargetDataLoader;
 import com.android.intentresolver.icons.TargetDataLoader;
+import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.measurements.Tracer;
 import com.android.intentresolver.model.AbstractResolverComparator;
 import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
@@ -193,7 +194,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     private boolean mShouldDisplayLandscape;
     // statsd logger wrapper
-    protected ChooserActivityLogger mChooserActivityLogger;
+    protected EventLog mEventLog;
 
     private long mChooserShownTime;
     protected boolean mIsSuccessfullySelected;
@@ -236,7 +237,7 @@ public class ChooserActivity extends ResolverActivity implements
         final long intentReceivedTime = System.currentTimeMillis();
         mLatencyTracker.onActionStart(ACTION_LOAD_SHARE_SHEET);
 
-        getChooserActivityLogger().logSharesheetTriggered();
+        getEventLog().logSharesheetTriggered();
 
         mFeatureFlagRepository = createFeatureFlagRepository();
         mIntegratedDeviceComponents = getIntegratedDeviceComponents();
@@ -314,7 +315,7 @@ public class ChooserActivity extends ResolverActivity implements
 
         mChooserShownTime = System.currentTimeMillis();
         final long systemCost = mChooserShownTime - intentReceivedTime;
-        getChooserActivityLogger().logChooserActivityShown(
+        getEventLog().logChooserActivityShown(
                 isWorkProfile(), mChooserRequest.getTargetType(), systemCost);
 
         if (mResolverDrawerLayout != null) {
@@ -323,7 +324,7 @@ public class ChooserActivity extends ResolverActivity implements
             mResolverDrawerLayout.setOnCollapsedChangedListener(
                     isCollapsed -> {
                         mChooserMultiProfilePagerAdapter.setIsCollapsed(isCollapsed);
-                        getChooserActivityLogger().logSharesheetExpansionChanged(isCollapsed);
+                        getEventLog().logSharesheetExpansionChanged(isCollapsed);
                     });
         }
 
@@ -331,7 +332,7 @@ public class ChooserActivity extends ResolverActivity implements
             Log.d(TAG, "System Time Cost is " + systemCost);
         }
 
-        getChooserActivityLogger().logShareStarted(
+        getEventLog().logShareStarted(
                 getReferrerPackageName(),
                 mChooserRequest.getTargetType(),
                 mChooserRequest.getCallerChooserTargets().size(),
@@ -550,7 +551,7 @@ public class ChooserActivity extends ResolverActivity implements
         if (shouldShowStickyContentPreview()
                 || mChooserMultiProfilePagerAdapter
                         .getCurrentRootAdapter().getSystemRowCount() != 0) {
-            getChooserActivityLogger().logActionShareWithPreview(
+            getEventLog().logActionShareWithPreview(
                     mChooserContentPreviewUi.getPreferredContentPreview());
         }
         return postRebuildListInternal(rebuildCompleted);
@@ -910,8 +911,8 @@ public class ChooserActivity extends ResolverActivity implements
         if ((currentListAdapter.getCount() > 0) && (targetInfo != null)) {
             switch (currentListAdapter.getPositionTargetType(which)) {
                 case ChooserListAdapter.TARGET_SERVICE:
-                    getChooserActivityLogger().logShareTargetSelected(
-                            ChooserActivityLogger.SELECTION_TYPE_SERVICE,
+                    getEventLog().logShareTargetSelected(
+                            EventLog.SELECTION_TYPE_SERVICE,
                             targetInfo.getResolveInfo().activityInfo.processName,
                             which,
                             /* directTargetAlsoRanked= */ getRankedPosition(targetInfo),
@@ -924,8 +925,8 @@ public class ChooserActivity extends ResolverActivity implements
                     return;
                 case ChooserListAdapter.TARGET_CALLER:
                 case ChooserListAdapter.TARGET_STANDARD:
-                    getChooserActivityLogger().logShareTargetSelected(
-                            ChooserActivityLogger.SELECTION_TYPE_APP,
+                    getEventLog().logShareTargetSelected(
+                            EventLog.SELECTION_TYPE_APP,
                             targetInfo.getResolveInfo().activityInfo.processName,
                             (which - currentListAdapter.getSurfacedTargetInfo().size()),
                             /* directTargetAlsoRanked= */ -1,
@@ -941,8 +942,8 @@ public class ChooserActivity extends ResolverActivity implements
                     // they are from the alphabetical pool.
                     // TODO: why do we log a different selection type if the -1 value already
                     // designates the same condition?
-                    getChooserActivityLogger().logShareTargetSelected(
-                            ChooserActivityLogger.SELECTION_TYPE_STANDARD,
+                    getEventLog().logShareTargetSelected(
+                            EventLog.SELECTION_TYPE_STANDARD,
                             targetInfo.getResolveInfo().activityInfo.processName,
                             /* value= */ -1,
                             /* directTargetAlsoRanked= */ -1,
@@ -994,7 +995,7 @@ public class ChooserActivity extends ResolverActivity implements
         if (profileRecord == null) {
             return;
         }
-        getChooserActivityLogger().logDirectShareTargetReceived(
+        getEventLog().logDirectShareTargetReceived(
                 MetricsEvent.ACTION_DIRECT_SHARE_TARGETS_LOADED_SHORTCUT_MANAGER,
                 (int) (SystemClock.elapsedRealtime() - profileRecord.loadingStartTime));
     }
@@ -1128,11 +1129,11 @@ public class ChooserActivity extends ResolverActivity implements
         }
     }
 
-    protected ChooserActivityLogger getChooserActivityLogger() {
-        if (mChooserActivityLogger == null) {
-            mChooserActivityLogger = new ChooserActivityLogger();
+    protected EventLog getEventLog() {
+        if (mEventLog == null) {
+            mEventLog = new EventLog();
         }
-        return mChooserActivityLogger;
+        return mEventLog;
     }
 
     public class ChooserListController extends ResolverListController {
@@ -1258,7 +1259,7 @@ public class ChooserActivity extends ResolverActivity implements
                 targetIntent,
                 this,
                 context.getPackageManager(),
-                getChooserActivityLogger(),
+                getEventLog(),
                 chooserRequest,
                 maxTargetsPerRow,
                 initialIntentsUserSpace,
@@ -1282,7 +1283,7 @@ public class ChooserActivity extends ResolverActivity implements
         AbstractResolverComparator resolverComparator;
         if (appPredictor != null) {
             resolverComparator = new AppPredictionServiceResolverComparator(this, getTargetIntent(),
-                    getReferrerPackageName(), appPredictor, userHandle, getChooserActivityLogger(),
+                    getReferrerPackageName(), appPredictor, userHandle, getEventLog(),
                     getIntegratedDeviceComponents().getNearbySharingComponent());
         } else {
             resolverComparator =
@@ -1291,7 +1292,7 @@ public class ChooserActivity extends ResolverActivity implements
                             getTargetIntent(),
                             getReferrerPackageName(),
                             null,
-                            getChooserActivityLogger(),
+                            getEventLog(),
                             getResolverRankerServiceUserHandleList(userHandle),
                             getIntegratedDeviceComponents().getNearbySharingComponent());
         }
@@ -1316,7 +1317,7 @@ public class ChooserActivity extends ResolverActivity implements
                 this,
                 mChooserRequest,
                 mIntegratedDeviceComponents,
-                getChooserActivityLogger(),
+                getEventLog(),
                 (isExcluded) -> mExcludeSharedText = isExcluded,
                 this::getFirstVisibleImgPreviewView,
                 new ChooserActionFactory.ActionActivityStarter() {
@@ -1531,7 +1532,7 @@ public class ChooserActivity extends ResolverActivity implements
                 Log.d(TAG, "app target loading time " + duration + " ms");
             }
             addCallerChooserTargets();
-            getChooserActivityLogger().logSharesheetAppLoadComplete();
+            getEventLog().logSharesheetAppLoadComplete();
             maybeQueryAdditionalPostProcessingTargets(chooserListAdapter);
             mLatencyTracker.onActionEnd(ACTION_LOAD_SHARE_SHEET);
         }
@@ -1578,7 +1579,7 @@ public class ChooserActivity extends ResolverActivity implements
         }
         logDirectShareTargetReceived(userHandle);
         sendVoiceChoicesIfNeeded();
-        getChooserActivityLogger().logSharesheetDirectLoadComplete();
+        getEventLog().logSharesheetDirectLoadComplete();
     }
 
     private void setupScrollListener() {
@@ -1884,7 +1885,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     @Override
     protected void maybeLogProfileChange() {
-        getChooserActivityLogger().logSharesheetProfileChanged();
+        getEventLog().logSharesheetProfileChanged();
     }
 
     private static class ProfileRecord {

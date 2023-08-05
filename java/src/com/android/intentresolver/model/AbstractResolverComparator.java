@@ -30,7 +30,7 @@ import android.os.Message;
 import android.os.UserHandle;
 import android.util.Log;
 
-import com.android.intentresolver.ChooserActivityLogger;
+import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.ResolverActivity;
 import com.android.intentresolver.chooser.TargetInfo;
@@ -72,7 +72,7 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
     private static final int WATCHDOG_TIMEOUT_MILLIS = 500;
 
     private final Comparator<ResolveInfo> mAzComparator;
-    private ChooserActivityLogger mChooserActivityLogger;
+    private EventLog mEventLog;
 
     protected final Handler mHandler = new Handler(Looper.getMainLooper()) {
         public void handleMessage(Message msg) {
@@ -94,8 +94,8 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
                     }
                     mHandler.removeMessages(RANKER_SERVICE_RESULT);
                     afterCompute();
-                    if (mChooserActivityLogger != null) {
-                        mChooserActivityLogger.logSharesheetAppShareRankingTimeout();
+                    if (mEventLog != null) {
+                        mEventLog.logSharesheetAppShareRankingTimeout();
                     }
                     break;
 
@@ -161,12 +161,12 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
         mAfterCompute = afterCompute;
     }
 
-    void setChooserActivityLogger(ChooserActivityLogger chooserActivityLogger) {
-        mChooserActivityLogger = chooserActivityLogger;
+    void setEventLog(EventLog eventLog) {
+        mEventLog = eventLog;
     }
 
-    ChooserActivityLogger getChooserActivityLogger() {
-        return mChooserActivityLogger;
+    EventLog getEventLog() {
+        return mEventLog;
     }
 
     protected final void afterCompute() {
