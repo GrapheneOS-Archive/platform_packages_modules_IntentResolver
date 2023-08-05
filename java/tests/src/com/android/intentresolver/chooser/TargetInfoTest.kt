@@ -232,7 +232,7 @@ class TargetInfoTest {
         val refinement = Intent("REFINE_ME")  // First match is `targetAlternate`
         refinement.putExtra("refinement", true)
 
-        val refinedResult = originalInfo.tryToCloneWithAppliedRefinement(refinement)
+        val refinedResult = checkNotNull(originalInfo.tryToCloneWithAppliedRefinement(refinement))
         // Note `DisplayResolveInfo` targets merge refinements directly into their `resolvedIntent`.
         assertThat(refinedResult?.resolvedIntent?.getBooleanExtra("refinement", false)).isTrue()
         assertThat(refinedResult?.resolvedIntent?.getBooleanExtra("targetAlternate", false))
