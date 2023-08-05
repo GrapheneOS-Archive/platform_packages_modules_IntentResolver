@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver;
+package com.android.intentresolver.logging;
 
 import android.annotation.Nullable;
 import android.content.Intent;
@@ -24,6 +24,7 @@ import android.provider.MediaStore;
 import android.util.HashedStringCache;
 import android.util.Log;
 
+import com.android.intentresolver.ChooserActivity;
 import com.android.intentresolver.contentpreview.ContentPreviewType;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.logging.InstanceId;
@@ -39,7 +40,7 @@ import com.android.internal.util.FrameworkStatsLog;
  * Helper for writing Sharesheet atoms to statsd log.
  * @hide
  */
-public class ChooserActivityLogger {
+public class EventLog {
     private static final String TAG = "ChooserActivity";
     private static final boolean DEBUG = true;
 
@@ -94,12 +95,12 @@ public class ChooserActivityLogger {
     private final FrameworkStatsLogger mFrameworkStatsLogger;
     private final MetricsLogger mMetricsLogger;
 
-    public ChooserActivityLogger() {
+    public EventLog() {
         this(new UiEventLoggerImpl(), new DefaultFrameworkStatsLogger(), new MetricsLogger());
     }
 
     @VisibleForTesting
-    ChooserActivityLogger(
+    EventLog(
             UiEventLogger uiEventLogger,
             FrameworkStatsLogger frameworkLogger,
             MetricsLogger metricsLogger) {

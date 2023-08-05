@@ -40,6 +40,7 @@ import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.icons.TargetDataLoader;
+import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
@@ -89,7 +90,7 @@ public class ChooserWrapperActivity
                 targetIntent,
                 this,
                 packageManager,
-                getChooserActivityLogger(),
+                getEventLog(),
                 chooserRequest,
                 maxTargetsPerRow,
                 userHandle,
@@ -205,8 +206,8 @@ public class ChooserWrapperActivity
     }
 
     @Override
-    public ChooserActivityLogger getChooserActivityLogger() {
-        return sOverrides.chooserActivityLogger;
+    public EventLog getEventLog() {
+        return sOverrides.mEventLog;
     }
 
     @Override
