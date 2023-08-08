@@ -1,4 +1,20 @@
-package com.android.intentresolver
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.intentresolver.dagger
 
 import android.app.Activity
 import android.app.Application
@@ -6,14 +22,15 @@ import android.content.BroadcastReceiver
 import android.content.Intent
 import android.util.Log
 import androidx.core.app.AppComponentFactory
-import com.android.intentresolver.dagger.ActivitySubComponent
+import com.android.intentresolver.ApplicationComponentOwner
 import javax.inject.Inject
 import javax.inject.Provider
 
-/** [AppComponentFactory] that performs dagger injection on Android components. */
-class IntentResolverAppComponentFactory : AppComponentFactory() {
+/** Provides instances of application components, delegates construction to Dagger. */
+class InjectedAppComponentFactory : AppComponentFactory() {
 
-    @set:Inject lateinit var activitySubComponentBuilder: Provider<ActivitySubComponent.Builder>
+    @set:Inject lateinit var activityComponentBuilder: ActivityComponent.Factory
+
     @set:Inject
     lateinit var receivers: Map<Class<*>, @JvmSuppressWildcards Provider<BroadcastReceiver>>
 
@@ -32,7 +49,7 @@ class IntentResolverAppComponentFactory : AppComponentFactory() {
         intent: Intent?,
     ): Activity {
         return runCatching {
-                val activities = activitySubComponentBuilder.get().build().activities()
+                val activities = activityComponentBuilder.create().activities()
                 instantiate(className, activities)
             }
             .onFailure {
@@ -70,6 +87,6 @@ class IntentResolverAppComponentFactory : AppComponentFactory() {
     }
 
     companion object {
-        private const val TAG = "IRAppComponentFactory"
+        private const val TAG = "AppComponentFactory"
     }
 }

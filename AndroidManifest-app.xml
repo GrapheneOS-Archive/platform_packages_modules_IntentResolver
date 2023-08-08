@@ -32,7 +32,7 @@
         android:requiredForAllUsers="true"
         android:supportsRtl="true"
         tools:replace="android:appComponentFactory"
-        android:appComponentFactory=".IntentResolverAppComponentFactory">
+        android:appComponentFactory=".dagger.InjectedAppComponentFactory">
 
         <activity android:name=".ChooserActivity"
                 android:theme="@style/Theme.DeviceDefault.Chooser"

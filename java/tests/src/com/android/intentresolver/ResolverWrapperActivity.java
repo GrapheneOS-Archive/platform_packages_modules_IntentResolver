@@ -44,6 +44,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javax.inject.Inject;
+
 /*
  * Simple wrapper around chooser activity to be able to initiate it under test
  */
@@ -53,6 +55,7 @@ public class ResolverWrapperActivity extends ResolverActivity {
     private final CountingIdlingResource mLabelIdlingResource =
             new CountingIdlingResource("LoadLabelTask");
 
+    @Inject
     public ResolverWrapperActivity() {
         super(/* isIntentPicker= */ true);
     }
