@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver
+package com.android.intentresolver.dagger
 
-import android.content.Context
-import android.os.UserHandle
-import com.android.intentresolver.dagger.DaggerTestApplicationComponent
+import dagger.Subcomponent
 
-class TestApplication : IntentResolverApplication() {
-    override fun createApplicationComponentBuilder() = DaggerTestApplicationComponent.builder()
-
-    // return the current context as a work profile doesn't really exist in these tests
-    override fun createContextAsUser(user: UserHandle, flags: Int): Context = this
+@ActivityScope
+@Subcomponent(
+    modules = [ActivityModule::class, ActivityBinderModule::class, TestActivityBinderModule::class]
+)
+interface TestActivityComponent : ActivityComponent {
+    @Subcomponent.Factory
+    interface Factory : ActivityComponent.Factory {
+        override fun create(): TestActivityComponent
+    }
 }

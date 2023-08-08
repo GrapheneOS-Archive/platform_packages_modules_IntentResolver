@@ -16,15 +16,18 @@ interface ActivityBinderModule {
     @Binds
     @IntoMap
     @ClassKey(ChooserActivity::class)
+    @ActivityScope
     fun bindChooserActivity(activity: ChooserActivity): Activity
 
     @Binds
     @IntoMap
     @ClassKey(ResolverActivity::class)
+    @ActivityScope
     fun bindResolverActivity(activity: ResolverActivity): Activity
 
     @Binds
     @IntoMap
     @ClassKey(IntentForwarderActivity::class)
+    @ActivityScope
     fun bindIntentForwarderActivity(activity: IntentForwarderActivity): Activity
 }

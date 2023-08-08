@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver
+package com.android.intentresolver.dagger
 
-import android.content.Context
-import android.os.UserHandle
-import com.android.intentresolver.dagger.DaggerTestApplicationComponent
+import androidx.lifecycle.ViewModel
+import com.android.intentresolver.ui.ChooserViewModel
+import dagger.Binds
+import dagger.Module
+import dagger.multibindings.ClassKey
+import dagger.multibindings.IntoMap
 
-class TestApplication : IntentResolverApplication() {
-    override fun createApplicationComponentBuilder() = DaggerTestApplicationComponent.builder()
-
-    // return the current context as a work profile doesn't really exist in these tests
-    override fun createContextAsUser(user: UserHandle, flags: Int): Context = this
+/** Defines a map of injectable ViewModel classes. */
+@Module
+interface ViewModelBinderModule {
+    @Binds
+    @IntoMap
+    @ClassKey(ChooserViewModel::class)
+    @ViewModelScope
+    fun chooserViewModel(viewModel: ChooserViewModel): ViewModel
 }

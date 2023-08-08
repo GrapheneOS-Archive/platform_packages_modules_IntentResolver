@@ -72,6 +72,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -87,6 +88,8 @@ import com.android.intentresolver.contentpreview.BasePreviewViewModel;
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi;
 import com.android.intentresolver.contentpreview.HeadlineGeneratorImpl;
 import com.android.intentresolver.contentpreview.PreviewViewModel;
+import com.android.intentresolver.dagger.InjectedViewModelFactory;
+import com.android.intentresolver.dagger.ViewModelComponent;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.flags.FeatureFlagRepositoryFactory;
 import com.android.intentresolver.grid.ChooserGridAdapter;
@@ -99,10 +102,13 @@ import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
+import com.android.intentresolver.ui.ChooserViewModel;
 import com.android.intentresolver.widget.ImagePreviewView;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.content.PackageMonitor;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.lang.annotation.Retention;
@@ -127,7 +133,7 @@ import javax.inject.Inject;
  *
  */
 public class ChooserActivity extends ResolverActivity implements
-        ResolverListAdapter.ResolverListCommunicator {
+        ResolverListAdapter.ResolverListCommunicator, HasDefaultViewModelProviderFactory {
     private static final String TAG = "ChooserActivity";
 
     /**
@@ -166,6 +172,11 @@ public class ChooserActivity extends ResolverActivity implements
     private static final int SCROLL_STATUS_IDLE = 0;
     private static final int SCROLL_STATUS_SCROLLING_VERTICAL = 1;
     private static final int SCROLL_STATUS_SCROLLING_HORIZONTAL = 2;
+
+    private ViewModelProvider.Factory mViewModelFactory;
+    private final ViewModelComponent.Builder mViewModelComponentBuilder;
+
+    private ChooserViewModel mViewModel;
 
     @IntDef(flag = false, prefix = { "TARGET_TYPE_" }, value = {
             TARGET_TYPE_DEFAULT,
@@ -229,15 +240,31 @@ public class ChooserActivity extends ResolverActivity implements
     private boolean mExcludeSharedText = false;
 
     @Inject
-    public ChooserActivity() {}
+    public ChooserActivity(ViewModelComponent.Builder builder) {
+        mViewModelComponentBuilder = builder;
+    }
+
+    @NotNull
+    @Override
+    public final ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
+        if (mViewModelFactory == null) {
+            mViewModelFactory = new InjectedViewModelFactory(mViewModelComponentBuilder,
+                    getDefaultViewModelCreationExtras(),
+                    getReferrer());
+        }
+        return mViewModelFactory;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
         Tracer.INSTANCE.markLaunched();
         final long intentReceivedTime = System.currentTimeMillis();
         mLatencyTracker.onActionStart(ACTION_LOAD_SHARE_SHEET);
 
         getEventLog().logSharesheetTriggered();
+
+        mViewModel = new ViewModelProvider(this).get(ChooserViewModel.class);
 
         mFeatureFlagRepository = createFeatureFlagRepository();
         mIntegratedDeviceComponents = getIntegratedDeviceComponents();
@@ -255,7 +282,9 @@ public class ChooserActivity extends ResolverActivity implements
             return;
         }
 
-        mRefinementManager = new ViewModelProvider(this).get(ChooserRefinementManager.class);
+        // Note: Uses parent ViewModelProvider.Factory because RefinementManager is not injectable
+        mRefinementManager = new ViewModelProvider(this, super.getDefaultViewModelProviderFactory())
+                .get(ChooserRefinementManager.class);
 
         mRefinementManager.getRefinementCompletion().observe(this, completion -> {
             if (completion.consume()) {
@@ -277,7 +306,7 @@ public class ChooserActivity extends ResolverActivity implements
 
         BasePreviewViewModel previewViewModel =
                 new ViewModelProvider(this, createPreviewViewModelFactory())
-                        .get(BasePreviewViewModel.class);
+                        .get(PreviewViewModel.class);
         mChooserContentPreviewUi = new ChooserContentPreviewUi(
                 getLifecycle(),
                 previewViewModel.createOrReuseProvider(mChooserRequest),
