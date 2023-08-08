@@ -864,7 +864,7 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    public void copyTextToClipboard() throws Exception {
+    public void copyTextToClipboard() {
         Intent sendIntent = createSendTextIntent();
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
 
@@ -879,7 +879,8 @@ public class UnbundledChooserActivityTest {
         ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(
                 Context.CLIPBOARD_SERVICE);
         ClipData clipData = clipboard.getPrimaryClip();
-        assertThat("testing intent sending", is(clipData.getItemAt(0).getText()));
+        assertThat(clipData).isNotNull();
+        assertThat(clipData.getItemAt(0).getText()).isEqualTo("testing intent sending");
 
         ClipDescription clipDescription = clipData.getDescription();
         assertThat("text/plain", is(clipDescription.getMimeType(0)));
