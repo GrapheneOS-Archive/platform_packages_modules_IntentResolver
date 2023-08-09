@@ -47,7 +47,6 @@ class BatchPreviewLoaderTest {
     private val dispatcher = UnconfinedTestDispatcher()
     private val testScope = CoroutineScope(dispatcher)
     private val onCompletion = mock<() -> Unit>()
-    private val onReset = mock<(Int) -> Unit>()
     private val onUpdate = mock<(List<Preview>) -> Unit>()
 
     @Before
@@ -68,19 +67,11 @@ class BatchPreviewLoaderTest {
         val uriTwo = createUri(2)
         imageLoader.setUriLoadingOrder(succeed(uriTwo), succeed(uriOne))
         val testSubject =
-            BatchPreviewLoader(
-                imageLoader,
-                previews(uriOne, uriTwo),
-                0,
-                onReset,
-                onUpdate,
-                onCompletion
-            )
+            BatchPreviewLoader(imageLoader, previews(uriOne, uriTwo), 0, onUpdate, onCompletion)
         testSubject.loadAspectRatios(200) { _, _, _ -> 100 }
         dispatcher.scheduler.advanceUntilIdle()
 
         verify(onCompletion, times(1)).invoke()
-        verify(onReset, times(1)).invoke(2)
         val list = withArgCaptor { verify(onUpdate, times(1)).invoke(capture()) }.map { it.uri }
         assertThat(list).containsExactly(uriOne, uriTwo).inOrder()
     }
@@ -97,7 +88,6 @@ class BatchPreviewLoaderTest {
                 imageLoader,
                 previews(uriOne, uriTwo, uriThree),
                 0,
-                onReset,
                 onUpdate,
                 onCompletion
             )
@@ -105,7 +95,6 @@ class BatchPreviewLoaderTest {
         dispatcher.scheduler.advanceUntilIdle()
 
         verify(onCompletion, times(1)).invoke()
-        verify(onReset, times(1)).invoke(3)
         val list = withArgCaptor { verify(onUpdate, times(1)).invoke(capture()) }.map { it.uri }
         assertThat(list).containsExactly(uriOne, uriThree).inOrder()
     }
@@ -126,12 +115,11 @@ class BatchPreviewLoaderTest {
             }
         imageLoader.setUriLoadingOrder(*loadingOrder)
         val testSubject =
-            BatchPreviewLoader(imageLoader, previews(*uris), 0, onReset, onUpdate, onCompletion)
+            BatchPreviewLoader(imageLoader, previews(*uris), 0, onUpdate, onCompletion)
         testSubject.loadAspectRatios(200) { _, _, _ -> 100 }
         dispatcher.scheduler.advanceUntilIdle()
 
         verify(onCompletion, times(1)).invoke()
-        verify(onReset, times(1)).invoke(uris.size)
         val list =
             captureMany { verify(onUpdate, atLeast(1)).invoke(capture()) }
                 .fold(ArrayList<Preview>()) { acc, update -> acc.apply { addAll(update) } }
@@ -156,12 +144,11 @@ class BatchPreviewLoaderTest {
         val expectedUris = Array(uris.size / 2) { createUri(it * 2 + 1) }
         imageLoader.setUriLoadingOrder(*loadingOrder)
         val testSubject =
-            BatchPreviewLoader(imageLoader, previews(*uris), 0, onReset, onUpdate, onCompletion)
+            BatchPreviewLoader(imageLoader, previews(*uris), 0, onUpdate, onCompletion)
         testSubject.loadAspectRatios(200) { _, _, _ -> 100 }
         dispatcher.scheduler.advanceUntilIdle()
 
         verify(onCompletion, times(1)).invoke()
-        verify(onReset, times(1)).invoke(uris.size)
         val list =
             captureMany { verify(onUpdate, atLeast(1)).invoke(capture()) }
                 .fold(ArrayList<Preview>()) { acc, update -> acc.apply { addAll(update) } }

@@ -158,22 +158,28 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         return null
     }
 
-    fun setPreviews(previews: List<Preview>, otherItemCount: Int, imageLoader: CachingImageLoader) {
-        previewAdapter.reset(0, imageLoader)
+    fun setImageLoader(imageLoader: CachingImageLoader) {
+        previewAdapter.imageLoader = imageLoader
+    }
+
+    fun setLoading(totalItemCount: Int) {
+        previewAdapter.reset(totalItemCount)
+    }
+
+    fun setPreviews(previews: List<Preview>, otherItemCount: Int) {
+        previewAdapter.reset(previews.size + otherItemCount)
         batchLoader?.cancel()
         batchLoader =
             BatchPreviewLoader(
-                    imageLoader,
+                    previewAdapter.imageLoader ?: error("Image loader is not set"),
                     previews,
                     otherItemCount,
-                    onReset = { totalItemCount ->
-                        previewAdapter.reset(totalItemCount, imageLoader)
-                    },
                     onUpdate = previewAdapter::addPreviews,
                     onCompletion = {
                         if (!previewAdapter.hasPreviews) {
                             onNoPreviewCallback?.run()
                         }
+                        previewAdapter.markLoaded()
                     }
                 )
                 .apply {
@@ -262,10 +268,11 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
             context.resources.getString(R.string.video_preview_a11y_description)
         private val filePreviewDescription =
             context.resources.getString(R.string.file_preview_a11y_description)
-        private var imageLoader: CachingImageLoader? = null
+        var imageLoader: CachingImageLoader? = null
         private var firstImagePos = -1
         private var totalItemCount: Int = 0
 
+        private var isLoading = false
         private val hasOtherItem
             get() = previews.size < totalItemCount
         val hasPreviews: Boolean
@@ -273,61 +280,78 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
 
         var transitionStatusElementCallback: TransitionElementStatusCallback? = null
 
-        fun reset(totalItemCount: Int, imageLoader: CachingImageLoader) {
-            this.imageLoader = imageLoader
+        fun reset(totalItemCount: Int) {
             firstImagePos = -1
             previews.clear()
             this.totalItemCount = maxOf(0, totalItemCount)
+            isLoading = this.totalItemCount > 0
             notifyDataSetChanged()
+        }
+
+        fun markLoaded() {
+            if (!isLoading) return
+            isLoading = false
+            if (hasOtherItem) {
+                notifyItemChanged(previews.size)
+            } else {
+                notifyItemRemoved(previews.size)
+            }
         }
 
         fun addPreviews(newPreviews: Collection<Preview>) {
             if (newPreviews.isEmpty()) return
             val insertPos = previews.size
             val hadOtherItem = hasOtherItem
+            val wasEmpty = previews.isEmpty()
             previews.addAll(newPreviews)
             if (firstImagePos < 0) {
                 val pos = newPreviews.indexOfFirst { it.type == PreviewType.Image }
                 if (pos >= 0) firstImagePos = insertPos + pos
             }
-            notifyItemRangeInserted(insertPos, newPreviews.size)
-            when {
-                hadOtherItem && previews.size >= totalItemCount -> {
-                    notifyItemRemoved(previews.size)
-                }
-                !hadOtherItem && previews.size < totalItemCount -> {
-                    notifyItemInserted(previews.size)
+            if (wasEmpty) {
+                // we don't want any item animation in that case
+                notifyDataSetChanged()
+            } else {
+                notifyItemRangeInserted(insertPos, newPreviews.size)
+                when {
+                    hadOtherItem && !hasOtherItem -> {
+                        notifyItemRemoved(previews.size)
+                    }
+                    !hadOtherItem && hasOtherItem -> {
+                        notifyItemInserted(previews.size)
+                    }
                 }
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, itemType: Int): ViewHolder {
             val view = LayoutInflater.from(context).inflate(itemType, parent, false)
-            return if (itemType == R.layout.image_preview_other_item) {
-                OtherItemViewHolder(view)
-            } else {
-                PreviewViewHolder(
-                    view,
-                    imagePreviewDescription,
-                    videoPreviewDescription,
-                    filePreviewDescription,
-                )
+            return when (itemType) {
+                R.layout.image_preview_other_item -> OtherItemViewHolder(view)
+                R.layout.image_preview_loading_item -> LoadingItemViewHolder(view)
+                else ->
+                    PreviewViewHolder(
+                        view,
+                        imagePreviewDescription,
+                        videoPreviewDescription,
+                        filePreviewDescription,
+                    )
             }
         }
 
-        override fun getItemCount(): Int = previews.size + if (hasOtherItem) 1 else 0
+        override fun getItemCount(): Int = previews.size + if (isLoading || hasOtherItem) 1 else 0
 
-        override fun getItemViewType(position: Int): Int {
-            return if (position == previews.size) {
-                R.layout.image_preview_other_item
-            } else {
-                R.layout.image_preview_image_item
+        override fun getItemViewType(position: Int): Int =
+            when {
+                position == previews.size && isLoading -> R.layout.image_preview_loading_item
+                position == previews.size -> R.layout.image_preview_other_item
+                else -> R.layout.image_preview_image_item
             }
-        }
 
         override fun onBindViewHolder(vh: ViewHolder, position: Int) {
             when (vh) {
                 is OtherItemViewHolder -> vh.bind(totalItemCount - previews.size)
+                is LoadingItemViewHolder -> vh.bind()
                 is PreviewViewHolder ->
                     vh.bind(
                         previews[position],
@@ -466,6 +490,11 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         override fun unbind() = Unit
     }
 
+    private class LoadingItemViewHolder(view: View) : ViewHolder(view) {
+        fun bind() = Unit
+        override fun unbind() = Unit
+    }
+
     private class SpacingDecoration(private val innerSpacing: Int, private val outerSpacing: Int) :
         ItemDecoration() {
         override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: State) {
@@ -487,7 +516,6 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         private val imageLoader: CachingImageLoader,
         previews: List<Preview>,
         otherItemCount: Int,
-        private val onReset: (Int) -> Unit,
         private val onUpdate: (List<Preview>) -> Unit,
         private val onCompletion: () -> Unit,
     ) {
@@ -527,9 +555,6 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
                         }
                     }
                     .collect {
-                        if (blockStart == 0) {
-                            onReset(totalItemCount)
-                        }
                         val updates = ArrayList<Preview>(blockEnd - blockStart)
                         while (blockStart < blockEnd) {
                             if (previewWidths[blockStart] > 0) {
