@@ -31,9 +31,11 @@ import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;
 import com.android.intentresolver.widget.ScrollableImagePreviewView;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.flow.Flow;
 
 class UnifiedContentPreviewUi extends ContentPreviewUi {
     private final boolean mShowEditAction;
@@ -44,6 +46,7 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
     private final MimeTypeClassifier mTypeClassifier;
     private final TransitionElementStatusCallback mTransitionElementStatusCallback;
     private final HeadlineGenerator mHeadlineGenerator;
+    private final Flow<FileInfo> mFileInfoFlow;
     private final int mItemCount;
     @Nullable
     private List<FileInfo> mFiles;
@@ -51,12 +54,14 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
     private ViewGroup mContentPreviewView;
 
     UnifiedContentPreviewUi(
+            CoroutineScope scope,
             boolean isSingleImage,
             @Nullable String intentMimeType,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
             MimeTypeClassifier typeClassifier,
             TransitionElementStatusCallback transitionElementStatusCallback,
+            Flow<FileInfo> fileInfoFlow,
             int itemCount,
             HeadlineGenerator headlineGenerator) {
         mShowEditAction = isSingleImage;
@@ -65,8 +70,11 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
         mImageLoader = imageLoader;
         mTypeClassifier = typeClassifier;
         mTransitionElementStatusCallback = transitionElementStatusCallback;
+        mFileInfoFlow = fileInfoFlow;
         mItemCount = itemCount;
         mHeadlineGenerator = headlineGenerator;
+
+        JavaFlowHelper.collectToList(scope, fileInfoFlow, this::setFiles);
     }
 
     @Override
@@ -81,7 +89,7 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
         return layout;
     }
 
-    public void setFiles(List<FileInfo> files) {
+    private void setFiles(List<FileInfo> files) {
         mImageLoader.prePopulate(files.stream()
                 .map(FileInfo::getPreviewUri)
                 .filter(Objects::nonNull)
@@ -106,6 +114,12 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
         imagePreview.setImageLoader(mImageLoader);
         imagePreview.setOnNoPreviewCallback(() -> imagePreview.setVisibility(View.GONE));
         imagePreview.setTransitionElementStatusCallback(mTransitionElementStatusCallback);
+        imagePreview.setPreviews(
+                JavaFlowHelper.mapFileIntoToPreview(
+                        mFileInfoFlow,
+                        mTypeClassifier,
+                        mShowEditAction ? mActionFactory.getEditButtonRunnable() : null),
+                mItemCount);
 
         if (mFiles != null) {
             updatePreviewWithFiles(mContentPreviewView, mFiles);
@@ -135,7 +149,6 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
             return;
         }
 
-        List<ScrollableImagePreviewView.Preview> previews = new ArrayList<>();
         boolean allImages = true;
         boolean allVideos = true;
         for (FileInfo fileInfo : files) {
@@ -143,17 +156,8 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
                     getPreviewType(mTypeClassifier, fileInfo.getMimeType());
             allImages = allImages && previewType == ScrollableImagePreviewView.PreviewType.Image;
             allVideos = allVideos && previewType == ScrollableImagePreviewView.PreviewType.Video;
-
-            if (fileInfo.getPreviewUri() != null) {
-                Runnable editAction =
-                        mShowEditAction ? mActionFactory.getEditButtonRunnable() : null;
-                previews.add(
-                        new ScrollableImagePreviewView.Preview(
-                                previewType, fileInfo.getPreviewUri(), editAction));
-            }
         }
 
-        imagePreview.setPreviews(previews, count - previews.size());
         displayHeadline(contentPreviewView, count, allImages, allVideos);
     }
 

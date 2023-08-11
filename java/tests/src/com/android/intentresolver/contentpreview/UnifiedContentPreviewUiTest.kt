@@ -25,6 +25,13 @@ import com.android.intentresolver.R.layout.chooser_grid
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.anyInt
@@ -33,6 +40,7 @@ import org.mockito.Mockito.verify
 
 @RunWith(AndroidJUnit4::class)
 class UnifiedContentPreviewUiTest {
+    private val testScope = TestScope(EmptyCoroutineContext + UnconfinedTestDispatcher())
     private val actionFactory =
         mock<ChooserContentPreviewUi.ActionFactory> {
             whenever(createCustomActions()).thenReturn(emptyList())
@@ -129,24 +137,30 @@ class UnifiedContentPreviewUiTest {
     }
 
     private fun testLoadingHeadline(intentMimeType: String, files: List<FileInfo>?) {
-        val testSubject =
-            UnifiedContentPreviewUi(
-                /*isSingleImage=*/ false,
-                intentMimeType,
-                actionFactory,
-                imageLoader,
-                DefaultMimeTypeClassifier,
-                object : TransitionElementStatusCallback {
-                    override fun onTransitionElementReady(name: String) = Unit
-                    override fun onAllTransitionElementsReady() = Unit
-                },
-                /*itemCount=*/ 2,
-                headlineGenerator
-            )
-        val layoutInflater = LayoutInflater.from(context)
-        val gridLayout = layoutInflater.inflate(chooser_grid, null, false) as ViewGroup
+        testScope.runTest {
+            val endMarker = FileInfo.Builder(Uri.EMPTY).build()
+            val emptySourceFlow = MutableSharedFlow<FileInfo>(replay = 1)
+            val testSubject =
+                UnifiedContentPreviewUi(
+                    testScope,
+                    /*isSingleImage=*/ false,
+                    intentMimeType,
+                    actionFactory,
+                    imageLoader,
+                    DefaultMimeTypeClassifier,
+                    object : TransitionElementStatusCallback {
+                        override fun onTransitionElementReady(name: String) = Unit
+                        override fun onAllTransitionElementsReady() = Unit
+                    },
+                    files?.let { it.asFlow() } ?: emptySourceFlow.takeWhile { it !== endMarker },
+                    /*itemCount=*/ 2,
+                    headlineGenerator
+                )
+            val layoutInflater = LayoutInflater.from(context)
+            val gridLayout = layoutInflater.inflate(chooser_grid, null, false) as ViewGroup
 
-        files?.let(testSubject::setFiles)
-        testSubject.display(context.resources, LayoutInflater.from(context), gridLayout)
+            testSubject.display(context.resources, LayoutInflater.from(context), gridLayout)
+            emptySourceFlow.tryEmit(endMarker)
+        }
     }
 }
