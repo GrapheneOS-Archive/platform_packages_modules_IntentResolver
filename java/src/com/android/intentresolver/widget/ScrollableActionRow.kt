@@ -17,12 +17,14 @@
 package com.android.intentresolver.widget
 
 import android.content.Context
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.intentresolver.R
@@ -31,13 +33,23 @@ class ScrollableActionRow : RecyclerView, ActionRow {
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(
-        context: Context, attrs: AttributeSet?, defStyleAttr: Int
+        context: Context,
+        attrs: AttributeSet?,
+        defStyleAttr: Int
     ) : super(context, attrs, defStyleAttr) {
         layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         adapter = Adapter(context)
+
+        addItemDecoration(
+            MarginDecoration(
+                context.resources.getDimensionPixelSize(R.dimen.chooser_action_horizontal_margin),
+                context.resources.getDimensionPixelSize(R.dimen.chooser_edge_margin_normal)
+            )
+        )
     }
 
-    private val actionsAdapter get() = adapter as Adapter
+    private val actionsAdapter
+        get() = adapter as Adapter
 
     override fun setActions(actions: List<ActionRow.Action>) {
         actionsAdapter.setActions(actions)
@@ -50,7 +62,7 @@ class ScrollableActionRow : RecyclerView, ActionRow {
         )
     }
 
-    private class Adapter(private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
+    private inner class Adapter(private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
         private val iconSize: Int =
             context.resources.getDimensionPixelSize(R.dimen.chooser_action_view_icon_size)
         private val itemLayout = R.layout.chooser_action_view
@@ -59,7 +71,7 @@ class ScrollableActionRow : RecyclerView, ActionRow {
         override fun onCreateViewHolder(parent: ViewGroup, type: Int): ViewHolder =
             ViewHolder(
                 LayoutInflater.from(context).inflate(itemLayout, null) as TextView,
-                iconSize
+                iconSize,
             )
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -83,8 +95,9 @@ class ScrollableActionRow : RecyclerView, ActionRow {
         }
     }
 
-    private class ViewHolder(
-        private val view: TextView, private val iconSize: Int
+    private inner class ViewHolder(
+        private val view: TextView,
+        private val iconSize: Int,
     ) : RecyclerView.ViewHolder(view) {
 
         fun bind(action: ActionRow.Action) {
@@ -93,12 +106,10 @@ class ScrollableActionRow : RecyclerView, ActionRow {
                 // some drawables (edit) does not gets tinted when set to the top of the text
                 // with TextView#setCompoundDrawableRelative
                 tintIcon(icon, view)
-                view.setCompoundDrawablesRelative(null, icon, null, null)
+                view.setCompoundDrawablesRelative(icon, null, null, null)
             }
             view.text = action.label ?: ""
-            view.setOnClickListener {
-                action.onClicked.run()
-            }
+            view.setOnClickListener { action.onClicked.run() }
             view.id = action.id
         }
 
@@ -111,6 +122,23 @@ class ScrollableActionRow : RecyclerView, ActionRow {
             drawable.setTintList(tintList)
             view.compoundDrawableTintMode?.let { drawable.setTintMode(it) }
             view.compoundDrawableTintBlendMode?.let { drawable.setTintBlendMode(it) }
+        }
+    }
+
+    private class MarginDecoration(private val innerMargin: Int, private val outerMargin: Int) :
+        ItemDecoration() {
+        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: State) {
+            val index = parent.getChildAdapterPosition(view)
+            val startMargin = if (index == 0) outerMargin else innerMargin
+            val endMargin = if (index == state.itemCount - 1) outerMargin else innerMargin
+
+            if (ViewCompat.getLayoutDirection(parent) == ViewCompat.LAYOUT_DIRECTION_RTL) {
+                outRect.right = startMargin
+                outRect.left = endMargin
+            } else {
+                outRect.left = startMargin
+                outRect.right = endMargin
+            }
         }
     }
 }

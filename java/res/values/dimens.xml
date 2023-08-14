@@ -17,18 +17,20 @@
     <dimen name="resolver_max_width">480dp</dimen>
 
     <!-- chooser/resolver (sharesheet) spacing -->
+    <dimen name="chooser_action_corner_radius">28dp</dimen>
+    <dimen name="chooser_action_horizontal_margin">2dp</dimen>
+    <dimen name="chooser_action_max_width">200dp</dimen>
     <dimen name="chooser_width">412dp</dimen>
     <dimen name="chooser_corner_radius">28dp</dimen>
+    <dimen name="chooser_corner_radius_small">14dp</dimen>
     <dimen name="chooser_row_text_option_translate">25dp</dimen>
-    <dimen name="chooser_view_spacing">18dp</dimen>
-    <dimen name="chooser_edge_margin_thin">16dp</dimen>
-    <dimen name="chooser_edge_margin_normal">24dp</dimen>
+    <dimen name="chooser_edge_margin_thin">8dp</dimen>
+    <dimen name="chooser_edge_margin_normal">16dp</dimen>
+    <dimen name="chooser_edge_margin_normal_half">8dp</dimen>
     <dimen name="chooser_preview_image_font_size">20sp</dimen>
     <dimen name="chooser_preview_image_border">1dp</dimen>
     <dimen name="chooser_preview_image_width">120dp</dimen>
-    <dimen name="chooser_preview_image_height">104dp</dimen>
     <dimen name="chooser_preview_image_max_dimen">200dp</dimen>
-    <dimen name="chooser_preview_width">-1px</dimen>
     <dimen name="chooser_header_scroll_elevation">4dp</dimen>
     <dimen name="chooser_max_collapsed_height">288dp</dimen>
     <dimen name="chooser_direct_share_label_placeholder_max_width">72dp</dimen>
@@ -50,8 +52,16 @@
     <dimen name="resolver_empty_state_container_padding_top">48dp</dimen>
     <dimen name="resolver_empty_state_container_padding_bottom">8dp</dimen>
     <dimen name="resolver_profile_tab_margin">4dp</dimen>
-
-    <dimen name="chooser_action_button_icon_size">18dp</dimen>
     <dimen name="chooser_action_view_icon_size">22dp</dimen>
     <dimen name="chooser_action_margin">0dp</dimen>
+    <dimen name="modify_share_text_toggle_max_width">150dp</dimen>
+    <dimen name="chooser_view_spacing">16dp</dimen>
+
+    <!-- Note that the values in this section are for landscape phones. For screen configs taller
+         than 480dp, the values are set in values-h480dp/dimens.xml -->
+    <dimen name="chooser_preview_width">412dp</dimen>
+    <dimen name="chooser_preview_image_height_tall">46dp</dimen>
+    <dimen name="grid_padding">8dp</dimen>
+    <dimen name="width_text_image_preview_size">46dp</dimen>
+    <!-- END SECTION -->
 </resources>

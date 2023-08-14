@@ -16,6 +16,8 @@
 
 package com.android.intentresolver.contentpreview;
 
+import static com.android.intentresolver.util.UriFilters.isOwnedByCurrentUser;
+
 import android.content.res.Resources;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -25,18 +27,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Lifecycle;
 
-import com.android.intentresolver.ImageLoader;
 import com.android.intentresolver.R;
-import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.widget.ActionRow;
 
-import java.util.ArrayList;
-import java.util.List;
-
 class TextContentPreviewUi extends ContentPreviewUi {
+    private final Lifecycle mLifecycle;
     @Nullable
     private final CharSequence mSharingText;
     @Nullable
@@ -45,21 +43,23 @@ class TextContentPreviewUi extends ContentPreviewUi {
     private final Uri mPreviewThumbnail;
     private final ImageLoader mImageLoader;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
-    private final FeatureFlagRepository mFeatureFlagRepository;
+    private final HeadlineGenerator mHeadlineGenerator;
 
     TextContentPreviewUi(
+            Lifecycle lifecycle,
             @Nullable CharSequence sharingText,
             @Nullable CharSequence previewTitle,
             @Nullable Uri previewThumbnail,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
-            FeatureFlagRepository featureFlagRepository) {
+            HeadlineGenerator headlineGenerator) {
+        mLifecycle = lifecycle;
         mSharingText = sharingText;
         mPreviewTitle = previewTitle;
         mPreviewThumbnail = previewThumbnail;
         mImageLoader = imageLoader;
         mActionFactory = actionFactory;
-        mFeatureFlagRepository = featureFlagRepository;
+        mHeadlineGenerator = headlineGenerator;
     }
 
     @Override
@@ -70,69 +70,69 @@ class TextContentPreviewUi extends ContentPreviewUi {
     @Override
     public ViewGroup display(Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
         ViewGroup layout = displayInternal(layoutInflater, parent);
-        displayPayloadReselectionAction(layout, mActionFactory, mFeatureFlagRepository);
+        displayModifyShareAction(layout, mActionFactory);
         return layout;
     }
 
     private ViewGroup displayInternal(
             LayoutInflater layoutInflater,
             ViewGroup parent) {
-        @LayoutRes int actionRowLayout = getActionRowLayout(mFeatureFlagRepository);
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_text, parent, false);
 
-        final ActionRow actionRow = inflateActionRow(contentPreviewLayout, actionRowLayout);
-        if (actionRow != null) {
-            actionRow.setActions(
-                    createActions(
-                            createTextPreviewActions(),
-                            mActionFactory.createCustomActions(),
-                            mFeatureFlagRepository));
-        }
+        final ActionRow actionRow =
+                contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
+        actionRow.setActions(mActionFactory.createCustomActions());
 
         if (mSharingText == null) {
             contentPreviewLayout
-                    .findViewById(com.android.internal.R.id.content_preview_text_layout)
+                    .findViewById(R.id.text_preview_layout)
                     .setVisibility(View.GONE);
-        } else {
-            TextView textView = contentPreviewLayout.findViewById(
-                    com.android.internal.R.id.content_preview_text);
-            textView.setText(mSharingText);
+            return contentPreviewLayout;
         }
 
+        TextView textView = contentPreviewLayout.findViewById(
+                com.android.internal.R.id.content_preview_text);
+        String text = mSharingText.toString();
+
+        // If we're only previewing one line, then strip out newlines.
+        if (textView.getMaxLines() == 1) {
+            text = text.replace("\n", " ");
+        }
+        textView.setText(text);
+
+        TextView previewTitleView = contentPreviewLayout.findViewById(
+                com.android.internal.R.id.content_preview_title);
         if (TextUtils.isEmpty(mPreviewTitle)) {
-            contentPreviewLayout
-                    .findViewById(com.android.internal.R.id.content_preview_title_layout)
-                    .setVisibility(View.GONE);
+            previewTitleView.setVisibility(View.GONE);
         } else {
-            TextView previewTitleView = contentPreviewLayout.findViewById(
-                    com.android.internal.R.id.content_preview_title);
             previewTitleView.setText(mPreviewTitle);
-
-            ImageView previewThumbnailView = contentPreviewLayout.findViewById(
-                    com.android.internal.R.id.content_preview_thumbnail);
-            if (!validForContentPreview(mPreviewThumbnail)) {
-                previewThumbnailView.setVisibility(View.GONE);
-            } else {
-                mImageLoader.loadImage(
-                        mPreviewThumbnail,
-                        (bitmap) -> updateViewWithImage(
-                                contentPreviewLayout.findViewById(
-                                        com.android.internal.R.id.content_preview_thumbnail),
-                                bitmap));
-            }
         }
+
+        ImageView previewThumbnailView = contentPreviewLayout.findViewById(
+                com.android.internal.R.id.content_preview_thumbnail);
+        if (!isOwnedByCurrentUser(mPreviewThumbnail)) {
+            previewThumbnailView.setVisibility(View.GONE);
+        } else {
+            mImageLoader.loadImage(
+                    mLifecycle,
+                    mPreviewThumbnail,
+                    (bitmap) -> updateViewWithImage(
+                            contentPreviewLayout.findViewById(
+                                    com.android.internal.R.id.content_preview_thumbnail),
+                            bitmap));
+        }
+
+        Runnable onCopy = mActionFactory.getCopyButtonRunnable();
+        View copyButton = contentPreviewLayout.findViewById(R.id.copy);
+        if (onCopy != null) {
+            copyButton.setOnClickListener((v) -> onCopy.run());
+        } else {
+            copyButton.setVisibility(View.GONE);
+        }
+
+        displayHeadline(contentPreviewLayout, mHeadlineGenerator.getTextHeadline(mSharingText));
 
         return contentPreviewLayout;
-    }
-
-    private List<ActionRow.Action> createTextPreviewActions() {
-        ArrayList<ActionRow.Action> actions = new ArrayList<>(2);
-        actions.add(mActionFactory.createCopyButton());
-        ActionRow.Action nearbyAction = mActionFactory.createNearbyButton();
-        if (nearbyAction != null) {
-            actions.add(nearbyAction);
-        }
-        return actions;
     }
 }

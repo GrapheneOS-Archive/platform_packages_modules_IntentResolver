@@ -30,14 +30,18 @@ import com.android.intentresolver.ResolverActivity
 import com.android.intentresolver.ResolverDataProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
+import androidx.test.platform.app.InstrumentationRegistry
 
 class ImmutableTargetInfoTest {
+    private val PERSONAL_USER_HANDLE: UserHandle = InstrumentationRegistry
+            .getInstrumentation().getTargetContext().getUser()
+
     private val resolvedIntent = Intent("resolved")
     private val targetIntent = Intent("target")
     private val referrerFillInIntent = Intent("referrer_fillin")
     private val resolvedComponentName = ComponentName("resolved", "component")
     private val chooserTargetComponentName = ComponentName("chooser", "target")
-    private val resolveInfo = ResolverDataProvider.createResolveInfo(1, 0)
+    private val resolveInfo = ResolverDataProvider.createResolveInfo(1, 0, PERSONAL_USER_HANDLE)
     private val displayLabel: CharSequence = "Display Label"
     private val extendedInfo: CharSequence = "Extended Info"
     private val displayIconHolder: TargetInfo.IconHolder = mock()
@@ -45,14 +49,14 @@ class ImmutableTargetInfoTest {
     private val sourceIntent2 = Intent("source2")
     private val displayTarget1 = DisplayResolveInfo.newDisplayResolveInfo(
         Intent("display1"),
-        ResolverDataProvider.createResolveInfo(2, 0),
+        ResolverDataProvider.createResolveInfo(2, 0, PERSONAL_USER_HANDLE),
         "display1 label",
         "display1 extended info",
         Intent("display1_resolved"),
         /* resolveInfoPresentationGetter= */ null)
     private val displayTarget2 = DisplayResolveInfo.newDisplayResolveInfo(
         Intent("display2"),
-        ResolverDataProvider.createResolveInfo(3, 0),
+        ResolverDataProvider.createResolveInfo(3, 0, PERSONAL_USER_HANDLE),
         "display2 label",
         "display2 extended info",
         Intent("display2_resolved"),
@@ -66,7 +70,7 @@ class ImmutableTargetInfoTest {
         UserHandle.CURRENT)
     private val displayResolveInfo = DisplayResolveInfo.newDisplayResolveInfo(
         Intent("displayresolve"),
-        ResolverDataProvider.createResolveInfo(5, 0),
+        ResolverDataProvider.createResolveInfo(5, 0, PERSONAL_USER_HANDLE),
         "displayresolve label",
         "displayresolve extended info",
         Intent("display_resolved"),

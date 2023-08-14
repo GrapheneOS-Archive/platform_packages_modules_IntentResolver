@@ -24,12 +24,11 @@ import static org.mockito.Mockito.when;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.os.UserHandle;
 
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.contentpreview.ImageLoader;
 import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 
@@ -55,35 +54,35 @@ public class ChooserActivityOverrideData {
 
     @SuppressWarnings("Since15")
     public Function<PackageManager, PackageManager> createPackageManager;
+    public Function<TargetInfo, Boolean> onSafelyStartInternalCallback;
     public Function<TargetInfo, Boolean> onSafelyStartCallback;
     public Function2<UserHandle, Consumer<ShortcutLoader.Result>, ShortcutLoader>
             shortcutLoaderFactory = (userHandle, callback) -> null;
     public ChooserActivity.ChooserListController resolverListController;
     public ChooserActivity.ChooserListController workResolverListController;
     public Boolean isVoiceInteraction;
-    public boolean isImageType;
     public Cursor resolverCursor;
     public boolean resolverForceException;
-    public Bitmap previewThumbnail;
+    public ImageLoader imageLoader;
     public ChooserActivityLogger chooserActivityLogger;
     public int alternateProfileSetting;
     public Resources resources;
     public UserHandle workProfileUserHandle;
+    public UserHandle cloneProfileUserHandle;
+    public UserHandle tabOwnerUserHandleForLaunch;
     public boolean hasCrossProfileIntents;
     public boolean isQuietModeEnabled;
     public Integer myUserId;
     public WorkProfileAvailabilityManager mWorkProfileAvailability;
-    public MyUserIdProvider mMyUserIdProvider;
     public CrossProfileIntentsChecker mCrossProfileIntentsChecker;
     public PackageManager packageManager;
     public FeatureFlagRepository featureFlagRepository;
 
     public void reset() {
-        onSafelyStartCallback = null;
+        onSafelyStartInternalCallback = null;
         isVoiceInteraction = null;
         createPackageManager = null;
-        previewThumbnail = null;
-        isImageType = false;
+        imageLoader = null;
         resolverCursor = null;
         resolverForceException = false;
         resolverListController = mock(ChooserActivity.ChooserListController.class);
@@ -92,6 +91,8 @@ public class ChooserActivityOverrideData {
         alternateProfileSetting = 0;
         resources = null;
         workProfileUserHandle = null;
+        cloneProfileUserHandle = null;
+        tabOwnerUserHandleForLaunch = null;
         hasCrossProfileIntents = true;
         isQuietModeEnabled = false;
         myUserId = null;
@@ -121,13 +122,6 @@ public class ChooserActivityOverrideData {
             }
         };
         shortcutLoaderFactory = ((userHandle, resultConsumer) -> null);
-
-        mMyUserIdProvider = new MyUserIdProvider() {
-            @Override
-            public int getMyUserId() {
-                return myUserId != null ? myUserId : UserHandle.myUserId();
-            }
-        };
 
         mCrossProfileIntentsChecker = mock(CrossProfileIntentsChecker.class);
         when(mCrossProfileIntentsChecker.hasCrossProfileIntents(any(), anyInt(), anyInt()))

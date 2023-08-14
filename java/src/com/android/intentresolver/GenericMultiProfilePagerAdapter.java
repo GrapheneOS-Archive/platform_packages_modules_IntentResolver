@@ -19,6 +19,7 @@ package com.android.intentresolver;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.os.UserHandle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -84,6 +85,7 @@ class GenericMultiProfilePagerAdapter<
             Supplier<Boolean> workProfileQuietModeChecker,
             @Profile int defaultProfile,
             UserHandle workProfileUserHandle,
+            UserHandle cloneProfileUserHandle,
             Supplier<ViewGroup> pageViewInflater,
             Supplier<Optional<Integer>> containerBottomPaddingOverrideSupplier) {
         super(
@@ -91,7 +93,8 @@ class GenericMultiProfilePagerAdapter<
                 /* currentPage= */ defaultProfile,
                 emptyStateProvider,
                 workProfileQuietModeChecker,
-                workProfileUserHandle);
+                workProfileUserHandle,
+                cloneProfileUserHandle);
 
         mListAdapterExtractor = listAdapterExtractor;
         mAdapterBinder = adapterBinder;
@@ -145,12 +148,12 @@ class GenericMultiProfilePagerAdapter<
     @Override
     @Nullable
     protected ListAdapterT getListAdapterForUserHandle(UserHandle userHandle) {
-        if (getActiveListAdapter().getUserHandle().equals(userHandle)) {
-            return getActiveListAdapter();
-        }
-        if ((getInactiveListAdapter() != null) && getInactiveListAdapter().getUserHandle().equals(
-                userHandle)) {
-            return getInactiveListAdapter();
+        if (getPersonalListAdapter().getUserHandle().equals(userHandle)
+                || userHandle.equals(getCloneUserHandle())) {
+            return getPersonalListAdapter();
+        } else if (getWorkListAdapter() != null
+                && getWorkListAdapter().getUserHandle().equals(userHandle)) {
+            return getWorkListAdapter();
         }
         return null;
     }
@@ -177,6 +180,9 @@ class GenericMultiProfilePagerAdapter<
 
     @Override
     public ListAdapterT getWorkListAdapter() {
+        if (!hasAdapterForIndex(PROFILE_WORK)) {
+            return null;
+        }
         return mListAdapterExtractor.apply(getAdapterForIndex(PROFILE_WORK));
     }
 
@@ -207,6 +213,10 @@ class GenericMultiProfilePagerAdapter<
                     container.getPaddingTop(),
                     container.getPaddingRight(),
                     paddingBottom));
+    }
+
+    private boolean hasAdapterForIndex(int pageIndex) {
+        return (pageIndex < getCount());
     }
 
     // TODO: `ChooserActivity` also has a per-profile record type. Maybe the "multi-profile pager"

@@ -16,16 +16,10 @@
 
 package com.android.intentresolver;
 
-import static android.content.Context.ACTIVITY_SERVICE;
-
-import android.animation.ObjectAnimator;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.app.ActivityManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.PermissionChecker;
 import android.content.pm.ActivityInfo;
 import android.content.pm.LabeledIntent;
 import android.content.pm.PackageManager;
@@ -43,7 +37,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -51,15 +44,15 @@ import android.widget.TextView;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.internal.annotations.VisibleForTesting;
 
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public class ResolverListAdapter extends BaseAdapter {
     private static final String TAG = "ResolverListAdapter";
@@ -71,32 +64,32 @@ public class ResolverListAdapter extends BaseAdapter {
     protected final LayoutInflater mInflater;
     protected final ResolverListCommunicator mResolverListCommunicator;
     protected final ResolverListController mResolverListController;
-    protected final TargetPresentationGetter.Factory mPresentationFactory;
 
     private final List<Intent> mIntents;
     private final Intent[] mInitialIntents;
     private final List<ResolveInfo> mBaseResolveList;
     private final PackageManager mPm;
-    private final int mIconDpi;
-    private final boolean mIsAudioCaptureDevice;
+    private final TargetDataLoader mTargetDataLoader;
     private final UserHandle mUserHandle;
     private final Intent mTargetIntent;
 
-    private final Map<DisplayResolveInfo, LoadIconTask> mIconLoaders = new HashMap<>();
-    private final Map<DisplayResolveInfo, LoadLabelTask> mLabelLoaders = new HashMap<>();
+    private final Set<DisplayResolveInfo> mRequestedIcons = new HashSet<>();
+    private final Set<DisplayResolveInfo> mRequestedLabels = new HashSet<>();
 
     private ResolveInfo mLastChosen;
     private DisplayResolveInfo mOtherProfile;
     private int mPlaceholderCount;
 
     // This one is the list that the Adapter will actually present.
-    private List<DisplayResolveInfo> mDisplayList;
+    private final List<DisplayResolveInfo> mDisplayList;
     private List<ResolvedComponentInfo> mUnfilteredResolveList;
 
     private int mLastChosenPosition = -1;
-    private boolean mFilterLastUsed;
+    private final boolean mFilterLastUsed;
     private Runnable mPostListReadyRunnable;
     private boolean mIsTabLoaded;
+    // Represents the UserSpace in which the Initial Intents should be resolved.
+    private final UserHandle mInitialIntentsUserSpace;
 
     public ResolverListAdapter(
             Context context,
@@ -108,23 +101,22 @@ public class ResolverListAdapter extends BaseAdapter {
             UserHandle userHandle,
             Intent targetIntent,
             ResolverListCommunicator resolverListCommunicator,
-            boolean isAudioCaptureDevice) {
+            UserHandle initialIntentsUserSpace,
+            TargetDataLoader targetDataLoader) {
         mContext = context;
         mIntents = payloadIntents;
         mInitialIntents = initialIntents;
         mBaseResolveList = rList;
         mInflater = LayoutInflater.from(context);
         mPm = context.getPackageManager();
+        mTargetDataLoader = targetDataLoader;
         mDisplayList = new ArrayList<>();
         mFilterLastUsed = filterLastUsed;
         mResolverListController = resolverListController;
         mUserHandle = userHandle;
         mTargetIntent = targetIntent;
         mResolverListCommunicator = resolverListCommunicator;
-        mIsAudioCaptureDevice = isAudioCaptureDevice;
-        final ActivityManager am = (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
-        mIconDpi = am.getLauncherLargeIconDensity();
-        mPresentationFactory = new TargetPresentationGetter.Factory(mContext, mIconDpi);
+        mInitialIntentsUserSpace = initialIntentsUserSpace;
     }
 
     public final DisplayResolveInfo getFirstDisplayResolveInfo() {
@@ -176,19 +168,25 @@ public class ResolverListAdapter extends BaseAdapter {
     }
 
     /**
-     * Returns the app share score of the given {@code componentName}.
+     * Returns the app share score of the given {@code targetInfo}.
      */
-    public float getScore(ComponentName componentName) {
-        return mResolverListController.getScore(componentName);
+    public float getScore(TargetInfo targetInfo) {
+        return mResolverListController.getScore(targetInfo);
     }
 
-    public void updateModel(ComponentName componentName) {
-        mResolverListController.updateModel(componentName);
+    /**
+     * Updates the model about the chosen {@code targetInfo}.
+     */
+    public void updateModel(TargetInfo targetInfo) {
+        mResolverListController.updateModel(targetInfo);
     }
 
-    public void updateChooserCounts(String packageName, String action) {
+    /**
+     * Updates the model about Chooser Activity selection.
+     */
+    public void updateChooserCounts(String packageName, String action, UserHandle userHandle) {
         mResolverListController.updateChooserCounts(
-                packageName, getUserHandle().getIdentifier(), action);
+                packageName, userHandle, action);
     }
 
     List<ResolvedComponentInfo> getUnfilteredResolveList() {
@@ -356,12 +354,11 @@ public class ResolverListAdapter extends BaseAdapter {
 
         if (otherProfileInfo != null) {
             mOtherProfile = makeOtherProfileDisplayResolveInfo(
-                    mContext,
                     otherProfileInfo,
                     mPm,
                     mTargetIntent,
                     mResolverListCommunicator,
-                    mIconDpi);
+                    mTargetDataLoader);
         } else {
             mOtherProfile = null;
             try {
@@ -468,13 +465,14 @@ public class ResolverListAdapter extends BaseAdapter {
                         ri.icon = 0;
                     }
 
+                    ri.userHandle = mInitialIntentsUserSpace;
                     addResolveInfo(DisplayResolveInfo.newDisplayResolveInfo(
                             ii,
                             ri,
                             ri.loadLabel(mPm),
                             null,
                             ii,
-                            mPresentationFactory.makePresentationGetter(ri)));
+                            mTargetDataLoader.createPresentationGetter(ri)));
                 }
             }
 
@@ -527,7 +525,7 @@ public class ResolverListAdapter extends BaseAdapter {
                 intent,
                 add,
                 (replaceIntent != null) ? replaceIntent : defaultIntent,
-                mPresentationFactory.makePresentationGetter(add));
+                mTargetDataLoader.createPresentationGetter(add));
         dri.setPinned(rci.isPinned());
         if (rci.isPinned()) {
             Log.i(TAG, "Pinned item: " + rci.name);
@@ -673,7 +671,7 @@ public class ResolverListAdapter extends BaseAdapter {
         final ViewHolder holder = (ViewHolder) view.getTag();
         if (info == null) {
             holder.icon.setImageDrawable(loadIconPlaceholder());
-            holder.bindLabel("", "", false);
+            holder.bindLabel("", "");
             return;
         }
 
@@ -682,10 +680,9 @@ public class ResolverListAdapter extends BaseAdapter {
             if (dri.hasDisplayLabel()) {
                 holder.bindLabel(
                         dri.getDisplayLabel(),
-                        dri.getExtendedInfo(),
-                        alwaysShowSubLabel());
+                        dri.getExtendedInfo());
             } else {
-                holder.bindLabel("", "", false);
+                holder.bindLabel("", "");
                 loadLabel(dri);
             }
             holder.bindIcon(info);
@@ -696,25 +693,37 @@ public class ResolverListAdapter extends BaseAdapter {
     }
 
     protected final void loadIcon(DisplayResolveInfo info) {
-        LoadIconTask task = mIconLoaders.get(info);
-        if (task == null) {
-            task = new LoadIconTask(info);
-            mIconLoaders.put(info, task);
-            task.execute();
+        if (mRequestedIcons.add(info)) {
+            mTargetDataLoader.loadAppTargetIcon(
+                    info,
+                    getUserHandle(),
+                    (drawable) -> onIconLoaded(info, drawable));
+        }
+    }
+
+    private void onIconLoaded(DisplayResolveInfo displayResolveInfo, Drawable drawable) {
+        if (getOtherProfile() == displayResolveInfo) {
+            mResolverListCommunicator.updateProfileViewButton();
+        } else if (!displayResolveInfo.hasDisplayIcon()) {
+            displayResolveInfo.getDisplayIconHolder().setDisplayIcon(drawable);
+            notifyDataSetChanged();
         }
     }
 
     private void loadLabel(DisplayResolveInfo info) {
-        LoadLabelTask task = mLabelLoaders.get(info);
-        if (task == null) {
-            task = createLoadLabelTask(info);
-            mLabelLoaders.put(info, task);
-            task.execute();
+        if (mRequestedLabels.add(info)) {
+            mTargetDataLoader.loadLabel(info, (result) -> onLabelLoaded(info, result));
         }
     }
 
-    protected LoadLabelTask createLoadLabelTask(DisplayResolveInfo info) {
-        return new LoadLabelTask(info);
+    protected final void onLabelLoaded(
+            DisplayResolveInfo displayResolveInfo, CharSequence[] result) {
+        if (displayResolveInfo.hasDisplayLabel()) {
+            return;
+        }
+        displayResolveInfo.setDisplayLabel(result[0]);
+        displayResolveInfo.setExtendedInfo(result[1]);
+        notifyDataSetChanged();
     }
 
     public void onDestroy() {
@@ -725,16 +734,8 @@ public class ResolverListAdapter extends BaseAdapter {
         if (mResolverListController != null) {
             mResolverListController.destroy();
         }
-        cancelTasks(mIconLoaders.values());
-        cancelTasks(mLabelLoaders.values());
-        mIconLoaders.clear();
-        mLabelLoaders.clear();
-    }
-
-    private <T extends AsyncTask> void cancelTasks(Collection<T> tasks) {
-        for (T task: tasks) {
-            task.cancel(false);
-        }
+        mRequestedIcons.clear();
+        mRequestedLabels.clear();
     }
 
     private static ColorMatrixColorFilter getSuspendedColorMatrix() {
@@ -760,37 +761,15 @@ public class ResolverListAdapter extends BaseAdapter {
         return sSuspendedMatrixColorFilter;
     }
 
-    Drawable loadIconForResolveInfo(ResolveInfo ri) {
-        // Load icons based on the current process. If in work profile icons should be badged.
-        return mPresentationFactory.makePresentationGetter(ri).getIcon(getUserHandle());
-    }
-
     protected final Drawable loadIconPlaceholder() {
         return mContext.getDrawable(R.drawable.resolver_icon_placeholder);
     }
 
     void loadFilteredItemIconTaskAsync(@NonNull ImageView iconView) {
         final DisplayResolveInfo iconInfo = getFilteredItem();
-        if (iconView != null && iconInfo != null) {
-            new AsyncTask<Void, Void, Drawable>() {
-                @Override
-                protected Drawable doInBackground(Void... params) {
-                    Drawable drawable;
-                    try {
-                        drawable = loadIconForResolveInfo(iconInfo.getResolveInfo());
-                    } catch (Exception e) {
-                        ComponentName componentName = iconInfo.getResolvedComponentName();
-                        Log.e(TAG, "Failed to load app icon for " + componentName, e);
-                        drawable = loadIconPlaceholder();
-                    }
-                    return drawable;
-                }
-
-                @Override
-                protected void onPostExecute(Drawable d) {
-                    iconView.setImageDrawable(d);
-                }
-            }.execute();
+        if (iconInfo != null) {
+            mTargetDataLoader.loadAppTargetIcon(
+                    iconInfo, getUserHandle(), iconView::setImageDrawable);
         }
     }
 
@@ -817,10 +796,6 @@ public class ResolverListAdapter extends BaseAdapter {
 
     protected void markTabLoaded() {
         mIsTabLoaded = true;
-    }
-
-    protected boolean alwaysShowSubLabel() {
-        return false;
     }
 
     /**
@@ -850,12 +825,11 @@ public class ResolverListAdapter extends BaseAdapter {
      * of an element in the resolve list).
      */
     private static DisplayResolveInfo makeOtherProfileDisplayResolveInfo(
-            Context context,
             ResolvedComponentInfo resolvedComponentInfo,
             PackageManager pm,
             Intent targetIntent,
             ResolverListCommunicator resolverListCommunicator,
-            int iconDpi) {
+            TargetDataLoader targetDataLoader) {
         ResolveInfo resolveInfo = resolvedComponentInfo.getResolveInfoAt(0);
 
         Intent pOrigIntent = resolverListCommunicator.getReplacementIntent(
@@ -865,8 +839,7 @@ public class ResolverListAdapter extends BaseAdapter {
                 resolveInfo.activityInfo, targetIntent);
 
         TargetPresentationGetter presentationGetter =
-                new TargetPresentationGetter.Factory(context, iconDpi)
-                .makePresentationGetter(resolveInfo);
+                targetDataLoader.createPresentationGetter(resolveInfo);
 
         return DisplayResolveInfo.newDisplayResolveInfo(
                 resolvedComponentInfo.getIntentAt(0),
@@ -913,7 +886,6 @@ public class ResolverListAdapter extends BaseAdapter {
      */
     @VisibleForTesting
     public static class ViewHolder {
-        private static final long IMAGE_FADE_IN_MILLIS = 150;
         public View itemView;
         public Drawable defaultItemViewBackground;
 
@@ -930,17 +902,19 @@ public class ResolverListAdapter extends BaseAdapter {
             icon = (ImageView) view.findViewById(com.android.internal.R.id.icon);
         }
 
-        public void bindLabel(CharSequence label, CharSequence subLabel, boolean showSubLabel) {
+        public void bindLabel(CharSequence label, CharSequence subLabel) {
             text.setText(label);
 
             if (TextUtils.equals(label, subLabel)) {
                 subLabel = null;
             }
 
-            text2.setText(subLabel);
-            if (showSubLabel || subLabel != null) {
+            if (!TextUtils.isEmpty(subLabel)) {
+                text.setMaxLines(1);
+                text2.setText(subLabel);
                 text2.setVisibility(View.VISIBLE);
             } else {
+                text.setMaxLines(2);
                 text2.setVisibility(View.GONE);
             }
 
@@ -951,109 +925,16 @@ public class ResolverListAdapter extends BaseAdapter {
             itemView.setContentDescription(description);
         }
 
-        public void bindIcon(TargetInfo info) {
-            bindIcon(info, false);
-        }
-
         /**
-         * Bind view holder to a TargetInfo, run icon reveal animation, if required.
+         * Bind view holder to a TargetInfo.
          */
-        public void bindIcon(TargetInfo info, boolean animate) {
+        public void bindIcon(TargetInfo info) {
             Drawable displayIcon = info.getDisplayIconHolder().getDisplayIcon();
-            boolean runAnimation = animate && (icon.getDrawable() == null) && (displayIcon != null);
             icon.setImageDrawable(displayIcon);
-            if (runAnimation) {
-                ObjectAnimator animator = ObjectAnimator.ofFloat(icon, "alpha", 0.0f, 1.0f);
-                animator.setInterpolator(new DecelerateInterpolator(1.0f));
-                animator.setDuration(IMAGE_FADE_IN_MILLIS);
-                animator.start();
-            }
             if (info.isSuspended()) {
                 icon.setColorFilter(getSuspendedColorMatrix());
             } else {
                 icon.setColorFilter(null);
-            }
-        }
-    }
-
-    protected class LoadLabelTask extends AsyncTask<Void, Void, CharSequence[]> {
-        private final DisplayResolveInfo mDisplayResolveInfo;
-
-        protected LoadLabelTask(DisplayResolveInfo dri) {
-            mDisplayResolveInfo = dri;
-        }
-
-        @Override
-        protected CharSequence[] doInBackground(Void... voids) {
-            TargetPresentationGetter pg = mPresentationFactory.makePresentationGetter(
-                    mDisplayResolveInfo.getResolveInfo());
-
-            if (mIsAudioCaptureDevice) {
-                // This is an audio capture device, so check record permissions
-                ActivityInfo activityInfo = mDisplayResolveInfo.getResolveInfo().activityInfo;
-                String packageName = activityInfo.packageName;
-
-                int uid = activityInfo.applicationInfo.uid;
-                boolean hasRecordPermission =
-                        PermissionChecker.checkPermissionForPreflight(
-                                mContext,
-                                android.Manifest.permission.RECORD_AUDIO, -1, uid,
-                                packageName)
-                                == android.content.pm.PackageManager.PERMISSION_GRANTED;
-
-                if (!hasRecordPermission) {
-                    // Doesn't have record permission, so warn the user
-                    return new CharSequence[] {
-                            pg.getLabel(),
-                            mContext.getString(R.string.usb_device_resolve_prompt_warn)
-                    };
-                }
-            }
-
-            return new CharSequence[] {
-                    pg.getLabel(),
-                    pg.getSubLabel()
-            };
-        }
-
-        @Override
-        protected void onPostExecute(CharSequence[] result) {
-            if (mDisplayResolveInfo.hasDisplayLabel()) {
-                return;
-            }
-            mDisplayResolveInfo.setDisplayLabel(result[0]);
-            mDisplayResolveInfo.setExtendedInfo(result[1]);
-            notifyDataSetChanged();
-        }
-    }
-
-    class LoadIconTask extends AsyncTask<Void, Void, Drawable> {
-        protected final DisplayResolveInfo mDisplayResolveInfo;
-        private final ResolveInfo mResolveInfo;
-
-        LoadIconTask(DisplayResolveInfo dri) {
-            mDisplayResolveInfo = dri;
-            mResolveInfo = dri.getResolveInfo();
-        }
-
-        @Override
-        protected Drawable doInBackground(Void... params) {
-            try {
-                return loadIconForResolveInfo(mResolveInfo);
-            } catch (Exception e) {
-                ComponentName componentName = mDisplayResolveInfo.getResolvedComponentName();
-                Log.e(TAG, "Failed to load app icon for " + componentName, e);
-                return loadIconPlaceholder();
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Drawable d) {
-            if (getOtherProfile() == mDisplayResolveInfo) {
-                mResolverListCommunicator.updateProfileViewButton();
-            } else if (!mDisplayResolveInfo.hasDisplayIcon()) {
-                mDisplayResolveInfo.getDisplayIconHolder().setDisplayIcon(d);
-                notifyDataSetChanged();
             }
         }
     }

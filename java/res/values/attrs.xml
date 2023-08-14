@@ -41,4 +41,14 @@
         <attr name="layout_hasNestedScrollIndicator" format="boolean" />
         <attr name="layout_maxHeight" format="dimension"/>
     </declare-styleable>
+
+    <declare-styleable name="RoundedRectImageView">
+        <attr name="radius" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="ScrollableImagePreviewView">
+        <attr name="itemInnerSpacing" format="dimension" />
+        <attr name="itemOuterSpacing" format="dimension" />
+        <attr name="maxWidthHint" format="dimension" />
+    </declare-styleable>
 </resources>

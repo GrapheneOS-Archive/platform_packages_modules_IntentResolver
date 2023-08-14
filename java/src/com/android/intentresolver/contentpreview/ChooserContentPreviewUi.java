@@ -21,51 +21,49 @@ import static com.android.intentresolver.contentpreview.ContentPreviewType.CONTE
 import static com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_TEXT;
 
 import android.content.ClipData;
-import android.content.ClipDescription;
-import android.content.ContentInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.os.RemoteException;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.lifecycle.Lifecycle;
 
-import com.android.intentresolver.ImageLoader;
-import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.widget.ActionRow;
-import com.android.intentresolver.widget.ImagePreviewView;
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * Collection of helpers for building the content preview UI displayed in
  * {@link com.android.intentresolver.ChooserActivity}.
- *
  * A content preview façade.
  */
 public final class ChooserContentPreviewUi {
+
+    private final Lifecycle mLifecycle;
+
     /**
      * Delegate to build the default system action buttons to display in the preview layout, if/when
      * they're determined to be appropriate for the particular preview we display.
      * TODO: clarify why action buttons are part of preview logic.
      */
     public interface ActionFactory {
-        /** Create an action that copies the share content to the clipboard. */
-        ActionRow.Action createCopyButton();
-
-        /** Create an action that opens the share content in a system-default editor. */
+        /**
+         * @return Runnable to be run when an edit button is clicked (if available).
+         */
         @Nullable
-        ActionRow.Action createEditButton();
+        Runnable getEditButtonRunnable();
 
-        /** Create an "Share to Nearby" action. */
+        /**
+         * @return Runnable to be run when a copy button is clicked (if available).
+         */
         @Nullable
-        ActionRow.Action createNearbyButton();
+        Runnable getCopyButtonRunnable();
 
         /** Create custom actions */
         List<ActionRow.Action> createCustomActions();
@@ -74,7 +72,7 @@ public final class ChooserContentPreviewUi {
          * Provides a share modification action, if any.
          */
         @Nullable
-        Runnable getModifyShareAction();
+        ActionRow.Action getModifyShareAction();
 
         /**
          * <p>
@@ -88,76 +86,90 @@ public final class ChooserContentPreviewUi {
         Consumer<Boolean> getExcludeSharedTextAction();
     }
 
-    /**
-     * Testing shim to specify whether a given mime type is considered to be an "image."
-     *
-     * TODO: move away from {@link ChooserActivityOverrideData} as a model to configure our tests,
-     * then migrate {@link com.android.intentresolver.ChooserActivity#isImageType(String)} into this
-     * class.
-     */
-    public interface ImageMimeTypeClassifier {
-        /** @return whether the specified {@code mimeType} is classified as an "image" type. */
-        boolean isImageType(String mimeType);
-    }
-
-    private final ContentPreviewUi mContentPreviewUi;
+    @VisibleForTesting
+    final ContentPreviewUi mContentPreviewUi;
 
     public ChooserContentPreviewUi(
+            Lifecycle lifecycle,
+            PreviewDataProvider previewData,
             Intent targetIntent,
-            ContentInterface contentResolver,
-            ImageMimeTypeClassifier imageClassifier,
             ImageLoader imageLoader,
             ActionFactory actionFactory,
             TransitionElementStatusCallback transitionElementStatusCallback,
-            FeatureFlagRepository featureFlagRepository) {
-
+            HeadlineGenerator headlineGenerator) {
+        mLifecycle = lifecycle;
         mContentPreviewUi = createContentPreview(
+                previewData,
                 targetIntent,
-                contentResolver,
-                imageClassifier,
+                DefaultMimeTypeClassifier.INSTANCE,
                 imageLoader,
                 actionFactory,
                 transitionElementStatusCallback,
-                featureFlagRepository);
+                headlineGenerator);
         if (mContentPreviewUi.getType() != CONTENT_PREVIEW_IMAGE) {
             transitionElementStatusCallback.onAllTransitionElementsReady();
         }
     }
 
     private ContentPreviewUi createContentPreview(
+            PreviewDataProvider previewData,
             Intent targetIntent,
-            ContentInterface contentResolver,
-            ImageMimeTypeClassifier imageClassifier,
+            MimeTypeClassifier typeClassifier,
             ImageLoader imageLoader,
             ActionFactory actionFactory,
             TransitionElementStatusCallback transitionElementStatusCallback,
-            FeatureFlagRepository featureFlagRepository) {
-        int type = findPreferredContentPreview(targetIntent, contentResolver, imageClassifier);
-        switch (type) {
-            case CONTENT_PREVIEW_TEXT:
-                return createTextPreview(
-                        targetIntent, actionFactory, imageLoader, featureFlagRepository);
+            HeadlineGenerator headlineGenerator) {
 
-            case CONTENT_PREVIEW_FILE:
-                return new FileContentPreviewUi(
-                        extractContentUris(targetIntent),
-                        actionFactory,
-                        imageLoader,
-                        contentResolver,
-                        featureFlagRepository);
-
-            case CONTENT_PREVIEW_IMAGE:
-                return createImagePreview(
-                        targetIntent,
-                        actionFactory,
-                        contentResolver,
-                        imageClassifier,
-                        imageLoader,
-                        transitionElementStatusCallback,
-                        featureFlagRepository);
+        int previewType = previewData.getPreviewType();
+        if (previewType == CONTENT_PREVIEW_TEXT) {
+            return createTextPreview(
+                    mLifecycle,
+                    targetIntent,
+                    actionFactory,
+                    imageLoader,
+                    headlineGenerator);
+        }
+        if (previewType == CONTENT_PREVIEW_FILE) {
+            FileContentPreviewUi fileContentPreviewUi = new FileContentPreviewUi(
+                    previewData.getUriCount(),
+                    actionFactory,
+                    headlineGenerator);
+            if (previewData.getUriCount() > 0) {
+                previewData.getFirstFileName(
+                        mLifecycle, fileContentPreviewUi::setFirstFileName);
+            }
+            return fileContentPreviewUi;
+        }
+        boolean isSingleImageShare = previewData.getUriCount() == 1
+                        && typeClassifier.isImageType(previewData.getFirstFileInfo().getMimeType());
+        CharSequence text = targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+        if (!TextUtils.isEmpty(text)) {
+            FilesPlusTextContentPreviewUi previewUi =
+                    new FilesPlusTextContentPreviewUi(
+                            mLifecycle,
+                            isSingleImageShare,
+                            previewData.getUriCount(),
+                            targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT),
+                            actionFactory,
+                            imageLoader,
+                            typeClassifier,
+                            headlineGenerator);
+            if (previewData.getUriCount() > 0) {
+                previewData.getFileMetadataForImagePreview(
+                        mLifecycle, previewUi::updatePreviewMetadata);
+            }
+            return previewUi;
         }
 
-        return new NoContextPreviewUi(type);
+        UnifiedContentPreviewUi unifiedContentPreviewUi = new UnifiedContentPreviewUi(
+                isSingleImageShare,
+                actionFactory,
+                imageLoader,
+                typeClassifier,
+                transitionElementStatusCallback,
+                headlineGenerator);
+        previewData.getFileMetadataForImagePreview(mLifecycle, unifiedContentPreviewUi::setFiles);
+        return unifiedContentPreviewUi;
     }
 
     public int getPreferredContentPreview() {
@@ -174,68 +186,12 @@ public final class ChooserContentPreviewUi {
         return mContentPreviewUi.display(resources, layoutInflater, parent);
     }
 
-    /** Determine the most appropriate type of preview to show for the provided {@link Intent}. */
-    @ContentPreviewType
-    private static int findPreferredContentPreview(
-            Intent targetIntent,
-            ContentInterface resolver,
-            ImageMimeTypeClassifier imageClassifier) {
-        /* In {@link android.content.Intent#getType}, the app may specify a very general mime type
-         * that broadly covers all data being shared, such as {@literal *}/* when sending an image
-         * and text. We therefore should inspect each item for the preferred type, in order: IMAGE,
-         * FILE, TEXT.  */
-        final String action = targetIntent.getAction();
-        final String type = targetIntent.getType();
-        final boolean isSend = Intent.ACTION_SEND.equals(action);
-        final boolean isSendMultiple = Intent.ACTION_SEND_MULTIPLE.equals(action);
-
-        if (!(isSend || isSendMultiple)
-                || (type != null && ClipDescription.compareMimeTypes(type, "text/*"))) {
-            return CONTENT_PREVIEW_TEXT;
-        }
-
-        if (isSend) {
-            Uri uri = targetIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-            return findPreferredContentPreview(uri, resolver, imageClassifier);
-        }
-
-        List<Uri> uris = targetIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-        if (uris == null || uris.isEmpty()) {
-            return CONTENT_PREVIEW_TEXT;
-        }
-
-        for (Uri uri : uris) {
-            // Defaulting to file preview when there are mixed image/file types is
-            // preferable, as it shows the user the correct number of items being shared
-            int uriPreviewType = findPreferredContentPreview(uri, resolver, imageClassifier);
-            if (uriPreviewType == CONTENT_PREVIEW_FILE) {
-                return CONTENT_PREVIEW_FILE;
-            }
-        }
-
-        return CONTENT_PREVIEW_IMAGE;
-    }
-
-    @ContentPreviewType
-    private static int findPreferredContentPreview(
-            Uri uri, ContentInterface resolver, ImageMimeTypeClassifier imageClassifier) {
-        if (uri == null) {
-            return CONTENT_PREVIEW_TEXT;
-        }
-
-        String mimeType = null;
-        try {
-            mimeType = resolver.getType(uri);
-        } catch (RemoteException ignored) {
-        }
-        return imageClassifier.isImageType(mimeType) ? CONTENT_PREVIEW_IMAGE : CONTENT_PREVIEW_FILE;
-    }
-
     private static TextContentPreviewUi createTextPreview(
+            Lifecycle lifecycle,
             Intent targetIntent,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
-            FeatureFlagRepository featureFlagRepository) {
+            HeadlineGenerator headlineGenerator) {
         CharSequence sharingText = targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         String previewTitle = targetIntent.getStringExtra(Intent.EXTRA_TITLE);
         ClipData previewData = targetIntent.getClipData();
@@ -247,64 +203,12 @@ public final class ChooserContentPreviewUi {
             }
         }
         return new TextContentPreviewUi(
+                lifecycle,
                 sharingText,
                 previewTitle,
                 previewThumbnail,
                 actionFactory,
                 imageLoader,
-                featureFlagRepository);
-    }
-
-    static ImageContentPreviewUi createImagePreview(
-            Intent targetIntent,
-            ChooserContentPreviewUi.ActionFactory actionFactory,
-            ContentInterface contentResolver,
-            ChooserContentPreviewUi.ImageMimeTypeClassifier imageClassifier,
-            ImageLoader imageLoader,
-            ImagePreviewView.TransitionElementStatusCallback transitionElementStatusCallback,
-            FeatureFlagRepository featureFlagRepository) {
-        CharSequence text = targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
-        String action = targetIntent.getAction();
-        // TODO: why don't we use image classifier for single-element ACTION_SEND?
-        final List<Uri> imageUris = Intent.ACTION_SEND.equals(action)
-                ? extractContentUris(targetIntent)
-                : extractContentUris(targetIntent)
-                        .stream()
-                        .filter(uri -> {
-                            String type = null;
-                            try {
-                                type = contentResolver.getType(uri);
-                            } catch (RemoteException ignored) {
-                            }
-                            return imageClassifier.isImageType(type);
-                        })
-                        .collect(Collectors.toList());
-        return new ImageContentPreviewUi(
-                imageUris,
-                text,
-                actionFactory,
-                imageLoader,
-                transitionElementStatusCallback,
-                featureFlagRepository);
-    }
-
-    private static List<Uri> extractContentUris(Intent targetIntent) {
-        List<Uri> uris = new ArrayList<>();
-        if (Intent.ACTION_SEND.equals(targetIntent.getAction())) {
-            Uri uri = targetIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if (ContentPreviewUi.validForContentPreview(uri)) {
-                uris.add(uri);
-            }
-        } else {
-            List<Uri> receivedUris = targetIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            if (receivedUris != null) {
-                for (Uri uri : receivedUris) {
-                    if (ContentPreviewUi.validForContentPreview(uri)) {
-                        uris.add(uri);
-                    }
-                }
-            }
-        }
-        return uris;
+                headlineGenerator);
     }
 }

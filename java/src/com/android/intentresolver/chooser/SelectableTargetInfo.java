@@ -195,12 +195,12 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
 
         mResolvedComponentName = getResolvedComponentName(mSourceInfo, mBackupResolveInfo);
 
-        mAllSourceIntents = getAllSourceIntents(sourceInfo);
-
         mBaseIntentToSend = getBaseIntentToSend(
                 baseIntentToSend,
                 mResolvedIntent,
                 mReferrerFillInIntent);
+
+        mAllSourceIntents = getAllSourceIntents(sourceInfo, mBaseIntentToSend);
 
         mHashProvider = context -> {
             final String plaintext =
@@ -279,9 +279,9 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
             return null;
         }
 
-        Intent merged = new Intent(matchingBase);
-        merged.fillIn(proposedRefinement, 0);
-        return new SelectableTargetInfo(this, merged);
+        return new SelectableTargetInfo(
+                this,
+                TargetInfo.mergeRefinementIntoMatchingBaseIntent(matchingBase, proposedRefinement));
     }
 
     @Override
@@ -395,11 +395,22 @@ public final class SelectableTargetInfo extends ChooserTargetInfo {
         return sb.toString();
     }
 
-    private static List<Intent> getAllSourceIntents(@Nullable DisplayResolveInfo sourceInfo) {
+    private static List<Intent> getAllSourceIntents(
+            @Nullable DisplayResolveInfo sourceInfo, Intent fallbackSourceIntent) {
         final List<Intent> results = new ArrayList<>();
         if (sourceInfo != null) {
-            // We only queried the service for the first one in our sourceinfo.
-            results.add(sourceInfo.getAllSourceIntents().get(0));
+            results.addAll(sourceInfo.getAllSourceIntents());
+        } else {
+            // This target wasn't joined to a `DisplayResolveInfo` result from our intent-resolution
+            // step, so it was provided directly by the caller. We don't support alternate intents
+            // in this case, but we still permit refinement of the intent we'll dispatch; e.g.,
+            // clients may use this hook to defer the computation of "lazy" extras in their share
+            // payload. Note this accommodation isn't strictly "necessary" because clients could
+            // always implement equivalent behavior by pointing custom targets back at their own app
+            // for any amount of further refinement/modification outside of the Sharesheet flow;
+            // nevertheless, it's offered as a convenience for clients who may expect their normal
+            // refinement logic to apply equally in the case of these "special targets."
+            results.add(fallbackSourceIntent);
         }
         return results;
     }

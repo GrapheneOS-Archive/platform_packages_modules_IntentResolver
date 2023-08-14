@@ -30,7 +30,6 @@ import android.stats.devicepolicy.nano.DevicePolicyEnums;
 
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyState;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyStateProvider;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
 import com.android.internal.R;
 
 import java.util.List;
@@ -50,16 +49,16 @@ public class NoAppsAvailableEmptyStateProvider implements EmptyStateProvider {
     @NonNull
     private final String mMetricsCategory;
     @NonNull
-    private final MyUserIdProvider mMyUserIdProvider;
+    private final UserHandle mTabOwnerUserHandleForLaunch;
 
     public NoAppsAvailableEmptyStateProvider(Context context, UserHandle workProfileUserHandle,
             UserHandle personalProfileUserHandle, String metricsCategory,
-            MyUserIdProvider myUserIdProvider) {
+            UserHandle tabOwnerUserHandleForLaunch) {
         mContext = context;
         mWorkProfileUserHandle = workProfileUserHandle;
         mPersonalProfileUserHandle = personalProfileUserHandle;
         mMetricsCategory = metricsCategory;
-        mMyUserIdProvider = myUserIdProvider;
+        mTabOwnerUserHandleForLaunch = tabOwnerUserHandleForLaunch;
     }
 
     @Nullable
@@ -69,7 +68,7 @@ public class NoAppsAvailableEmptyStateProvider implements EmptyStateProvider {
         UserHandle listUserHandle = resolverListAdapter.getUserHandle();
 
         if (mWorkProfileUserHandle != null
-                && (mMyUserIdProvider.getMyUserId() == listUserHandle.getIdentifier()
+                && (mTabOwnerUserHandleForLaunch.equals(listUserHandle)
                 || !hasAppsInOtherProfile(resolverListAdapter))) {
 
             String title;
@@ -102,7 +101,7 @@ public class NoAppsAvailableEmptyStateProvider implements EmptyStateProvider {
             return false;
         }
         List<ResolvedComponentInfo> resolversForIntent =
-                adapter.getResolversForUser(UserHandle.of(mMyUserIdProvider.getMyUserId()));
+                adapter.getResolversForUser(mTabOwnerUserHandleForLaunch);
         for (ResolvedComponentInfo info : resolversForIntent) {
             ResolveInfo resolveInfo = info.getResolveInfoAt(0);
             if (resolveInfo.targetUserId != UserHandle.USER_CURRENT) {
