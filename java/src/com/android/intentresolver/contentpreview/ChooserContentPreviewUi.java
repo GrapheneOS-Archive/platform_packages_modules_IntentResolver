@@ -150,6 +150,7 @@ public final class ChooserContentPreviewUi {
                             isSingleImageShare,
                             previewData.getUriCount(),
                             targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT),
+                            targetIntent.getType(),
                             actionFactory,
                             imageLoader,
                             typeClassifier,
