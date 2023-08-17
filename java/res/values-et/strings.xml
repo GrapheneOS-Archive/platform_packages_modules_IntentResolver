@@ -69,7 +69,7 @@
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Ainult pilt}other{Ainult pildid}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Ainult video}other{Ainult videod}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Ainult fail}other{Ainult failid}}"</string>
-    <string name="image_preview_a11y_description" msgid="297102643932491797">"Kujutise eelvaate pisipilt"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Pildi eelvaate pisipilt"</string>
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Video eelvaate pisipilt"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Faili eelvaate pisipilt"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Ei ole ühtki soovitatud inimest, kellega jagada"</string>
