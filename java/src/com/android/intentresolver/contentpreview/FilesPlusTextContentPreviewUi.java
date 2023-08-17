@@ -49,6 +49,8 @@ import java.util.function.Consumer;
  */
 class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
     private final Lifecycle mLifecycle;
+    @Nullable
+    private final String mIntentMimeType;
     private final CharSequence mText;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
     private final ImageLoader mImageLoader;
@@ -70,15 +72,17 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
             boolean isSingleImage,
             int fileCount,
             CharSequence text,
+            @Nullable String intentMimeType,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
             MimeTypeClassifier typeClassifier,
             HeadlineGenerator headlineGenerator) {
-        mLifecycle = lifecycle;
         if (isSingleImage && fileCount != 1) {
             throw new IllegalArgumentException(
                     "fileCount = " + fileCount + " and isSingleImage = true");
         }
+        mLifecycle = lifecycle;
+        mIntentMimeType = intentMimeType;
         mFileCount = fileCount;
         mIsSingleImage = isSingleImage;
         mText = text;
@@ -127,18 +131,25 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
         List<ActionRow.Action> actions = mActionFactory.createCustomActions();
         actionRow.setActions(actions);
 
+        if (!mIsSingleImage) {
+            mContentPreviewView.requireViewById(R.id.image_view).setVisibility(View.GONE);
+        }
+        prepareTextPreview(mContentPreviewView, mActionFactory);
         if (mIsMetadataUpdated) {
             updateUiWithMetadata(mContentPreviewView);
-        } else if (!mIsSingleImage) {
-            mContentPreviewView.requireViewById(R.id.image_view).setVisibility(View.GONE);
+        } else {
+            updateHeadline(
+                    mContentPreviewView,
+                    mFileCount,
+                    mTypeClassifier.isImageType(mIntentMimeType),
+                    mTypeClassifier.isVideoType(mIntentMimeType));
         }
 
         return mContentPreviewView;
     }
 
     private void updateUiWithMetadata(ViewGroup contentPreviewView) {
-        prepareTextPreview(contentPreviewView, mActionFactory);
-        updateHeadline(contentPreviewView);
+        updateHeadline(contentPreviewView, mFileCount, mAllImages, mAllVideos);
 
         ImageView imagePreview = mContentPreviewView.requireViewById(R.id.image_view);
         if (mIsSingleImage && mFirstFilePreviewUri != null) {
@@ -157,24 +168,25 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
         }
     }
 
-    private void updateHeadline(ViewGroup contentPreview) {
+    private void updateHeadline(
+            ViewGroup contentPreview, int fileCount, boolean allImages, boolean allVideos) {
         CheckBox includeText = contentPreview.requireViewById(R.id.include_text_action);
         String headline;
         if (includeText.getVisibility() == View.VISIBLE && includeText.isChecked()) {
-            if (mAllImages) {
-                headline = mHeadlineGenerator.getImagesWithTextHeadline(mText, mFileCount);
-            } else if (mAllVideos) {
-                headline = mHeadlineGenerator.getVideosWithTextHeadline(mText, mFileCount);
+            if (allImages) {
+                headline = mHeadlineGenerator.getImagesWithTextHeadline(mText, fileCount);
+            } else if (allVideos) {
+                headline = mHeadlineGenerator.getVideosWithTextHeadline(mText, fileCount);
             } else {
-                headline = mHeadlineGenerator.getFilesWithTextHeadline(mText, mFileCount);
+                headline = mHeadlineGenerator.getFilesWithTextHeadline(mText, fileCount);
             }
         } else {
-            if (mAllImages) {
-                headline = mHeadlineGenerator.getImagesHeadline(mFileCount);
-            } else if (mAllVideos) {
-                headline = mHeadlineGenerator.getVideosHeadline(mFileCount);
+            if (allImages) {
+                headline = mHeadlineGenerator.getImagesHeadline(fileCount);
+            } else if (allVideos) {
+                headline = mHeadlineGenerator.getVideosHeadline(fileCount);
             } else {
-                headline = mHeadlineGenerator.getFilesHeadline(mFileCount);
+                headline = mHeadlineGenerator.getFilesHeadline(fileCount);
             }
         }
 
@@ -201,7 +213,7 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
                 textView.setText(getNoTextString(contentPreview.getResources()));
             }
             shareTextAction.accept(!isChecked);
-            updateHeadline(contentPreview);
+            updateHeadline(contentPreview, mFileCount, mAllImages, mAllVideos);
         });
         if (SHOW_TOGGLE_CHECKMARK) {
             includeText.setVisibility(View.VISIBLE);
