@@ -163,10 +163,12 @@ public final class ChooserContentPreviewUi {
 
         UnifiedContentPreviewUi unifiedContentPreviewUi = new UnifiedContentPreviewUi(
                 isSingleImageShare,
+                targetIntent.getType(),
                 actionFactory,
                 imageLoader,
                 typeClassifier,
                 transitionElementStatusCallback,
+                previewData.getUriCount(),
                 headlineGenerator);
         previewData.getFileMetadataForImagePreview(mLifecycle, unifiedContentPreviewUi::setFiles);
         return unifiedContentPreviewUi;
