@@ -37,11 +37,14 @@ import java.util.Objects;
 
 class UnifiedContentPreviewUi extends ContentPreviewUi {
     private final boolean mShowEditAction;
+    @Nullable
+    private final String mIntentMimeType;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
     private final ImageLoader mImageLoader;
     private final MimeTypeClassifier mTypeClassifier;
     private final TransitionElementStatusCallback mTransitionElementStatusCallback;
     private final HeadlineGenerator mHeadlineGenerator;
+    private final int mItemCount;
     @Nullable
     private List<FileInfo> mFiles;
     @Nullable
@@ -49,16 +52,20 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
 
     UnifiedContentPreviewUi(
             boolean isSingleImage,
+            @Nullable String intentMimeType,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
             MimeTypeClassifier typeClassifier,
             TransitionElementStatusCallback transitionElementStatusCallback,
+            int itemCount,
             HeadlineGenerator headlineGenerator) {
         mShowEditAction = isSingleImage;
+        mIntentMimeType = intentMimeType;
         mActionFactory = actionFactory;
         mImageLoader = imageLoader;
         mTypeClassifier = typeClassifier;
         mTransitionElementStatusCallback = transitionElementStatusCallback;
+        mItemCount = itemCount;
         mHeadlineGenerator = headlineGenerator;
     }
 
@@ -96,11 +103,19 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
 
         ScrollableImagePreviewView imagePreview =
                 mContentPreviewView.requireViewById(R.id.scrollable_image_preview);
+        imagePreview.setImageLoader(mImageLoader);
         imagePreview.setOnNoPreviewCallback(() -> imagePreview.setVisibility(View.GONE));
         imagePreview.setTransitionElementStatusCallback(mTransitionElementStatusCallback);
 
         if (mFiles != null) {
             updatePreviewWithFiles(mContentPreviewView, mFiles);
+        } else {
+            displayHeadline(
+                    mContentPreviewView,
+                    mItemCount,
+                    mTypeClassifier.isImageType(mIntentMimeType),
+                    mTypeClassifier.isVideoType(mIntentMimeType));
+            imagePreview.setLoading(mItemCount);
         }
 
         return mContentPreviewView;
@@ -138,14 +153,18 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
             }
         }
 
-        imagePreview.setPreviews(previews, count - previews.size(), mImageLoader);
+        imagePreview.setPreviews(previews, count - previews.size());
+        displayHeadline(contentPreviewView, count, allImages, allVideos);
+    }
 
+    private void displayHeadline(
+            ViewGroup layout, int count, boolean allImages, boolean allVideos) {
         if (allImages) {
-            displayHeadline(contentPreviewView, mHeadlineGenerator.getImagesHeadline(count));
+            displayHeadline(layout, mHeadlineGenerator.getImagesHeadline(count));
         } else if (allVideos) {
-            displayHeadline(contentPreviewView, mHeadlineGenerator.getVideosHeadline(count));
+            displayHeadline(layout, mHeadlineGenerator.getVideosHeadline(count));
         } else {
-            displayHeadline(contentPreviewView, mHeadlineGenerator.getFilesHeadline(count));
+            displayHeadline(layout, mHeadlineGenerator.getFilesHeadline(count));
         }
     }
 }
