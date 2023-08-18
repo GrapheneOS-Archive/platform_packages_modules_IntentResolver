@@ -85,7 +85,7 @@ abstract class ContentPreviewUi {
         }
     }
 
-    protected static ScrollableImagePreviewView.PreviewType getPreviewType(
+    static ScrollableImagePreviewView.PreviewType getPreviewType(
             MimeTypeClassifier typeClassifier, String mimeType) {
         if (mimeType == null) {
             return ScrollableImagePreviewView.PreviewType.File;

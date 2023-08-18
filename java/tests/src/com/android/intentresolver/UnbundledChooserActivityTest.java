@@ -136,6 +136,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -1039,6 +1043,63 @@ public class UnbundledChooserActivityTest {
                     RecyclerView recyclerView = (RecyclerView) view;
                     assertThat(recyclerView.getAdapter().getItemCount(), is(uris.size()));
                 });
+    }
+
+    @Test
+    public void testPartiallyLoadedMetadata_previewIsShownForTheLoadedPart()
+            throws InterruptedException {
+        Uri imgOneUri = createTestContentProviderUri("image/png", null);
+        Uri imgTwoUri = createTestContentProviderUri("image/png", null)
+                .buildUpon()
+                .path("image-2.png")
+                .build();
+        Uri docUri = createTestContentProviderUri("application/pdf", "image/png", 3_000);
+        ArrayList<Uri> uris = new ArrayList<>(2);
+        // two large previews to fill the screen and be presented right away and one
+        // document that would be delayed by the URI metadata reading
+        uris.add(imgOneUri);
+        uris.add(imgTwoUri);
+        uris.add(docUri);
+
+        Intent sendIntent = createSendUriIntentWithPreview(uris);
+        Map<Uri, Bitmap> bitmaps = new HashMap<>();
+        bitmaps.put(imgOneUri, createWideBitmap(Color.RED));
+        bitmaps.put(imgTwoUri, createWideBitmap(Color.GREEN));
+        bitmaps.put(docUri, createWideBitmap(Color.BLUE));
+        ChooserActivityOverrideData.getInstance().imageLoader =
+                new TestPreviewImageLoader(bitmaps);
+
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+        setupResolverControllers(resolvedComponentInfos);
+
+        assertThat(launchActivityWithTimeout(Intent.createChooser(sendIntent, null), 1_000))
+                .isTrue();
+        waitForIdle();
+
+        onView(withId(R.id.scrollable_image_preview))
+                .check((view, exception) -> {
+                    if (exception != null) {
+                        throw exception;
+                    }
+                    RecyclerView recyclerView = (RecyclerView) view;
+                    assertThat(recyclerView.getChildCount()).isAtLeast(1);
+                    // the first view is a preview
+                    View imageView = recyclerView.getChildAt(0).findViewById(R.id.image);
+                    assertThat(imageView).isNotNull();
+                })
+                .perform(RecyclerViewActions.scrollToLastPosition())
+                .check((view, exception) -> {
+                    if (exception != null) {
+                        throw exception;
+                    }
+                    RecyclerView recyclerView = (RecyclerView) view;
+                    assertThat(recyclerView.getChildCount()).isAtLeast(1);
+                    // check that the last view is a loading indicator
+                    View loadingIndicator =
+                            recyclerView.getChildAt(recyclerView.getChildCount() - 1);
+                    assertThat(loadingIndicator).isNotNull();
+                });
+        waitForIdle();
     }
 
     @Test
@@ -2641,15 +2702,25 @@ public class UnbundledChooserActivityTest {
 
     private Uri createTestContentProviderUri(
             @Nullable String mimeType, @Nullable String streamType) {
+        return createTestContentProviderUri(mimeType, streamType, 0);
+    }
+
+    private Uri createTestContentProviderUri(
+            @Nullable String mimeType, @Nullable String streamType, long streamTypeTimeout) {
         String packageName =
                 InstrumentationRegistry.getInstrumentation().getContext().getPackageName();
         Uri.Builder builder = Uri.parse("content://" + packageName + "/image.png")
                 .buildUpon();
         if (mimeType != null) {
-            builder.appendQueryParameter("mimeType", mimeType);
+            builder.appendQueryParameter(TestContentProvider.PARAM_MIME_TYPE, mimeType);
         }
         if (streamType != null) {
-            builder.appendQueryParameter("streamType", streamType);
+            builder.appendQueryParameter(TestContentProvider.PARAM_STREAM_TYPE, streamType);
+        }
+        if (streamTypeTimeout > 0) {
+            builder.appendQueryParameter(
+                    TestContentProvider.PARAM_STREAM_TYPE_TIMEOUT,
+                    Long.toString(streamTypeTimeout));
         }
         return builder.build();
     }
@@ -2779,11 +2850,44 @@ public class UnbundledChooserActivityTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
+    private boolean launchActivityWithTimeout(Intent intent, long timeout)
+            throws InterruptedException {
+        final int initialState = 0;
+        final int completedState = 1;
+        final int timeoutState = 2;
+        final AtomicInteger state = new AtomicInteger(initialState);
+        final CountDownLatch cdl = new CountDownLatch(1);
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+        try {
+            executor.execute(() -> {
+                mActivityRule.launchActivity(intent);
+                state.compareAndSet(initialState, completedState);
+                cdl.countDown();
+            });
+            executor.schedule(
+                    () -> {
+                        state.compareAndSet(initialState, timeoutState);
+                        cdl.countDown();
+                    },
+                    timeout,
+                    TimeUnit.MILLISECONDS);
+            cdl.await();
+            return state.get() == completedState;
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
     private Bitmap createBitmap() {
         return createBitmap(200, 200);
     }
 
     private Bitmap createWideBitmap() {
+        return createWideBitmap(Color.RED);
+    }
+
+    private Bitmap createWideBitmap(int bgColor) {
         WindowManager windowManager = InstrumentationRegistry.getInstrumentation()
                 .getTargetContext()
                 .getSystemService(WindowManager.class);
@@ -2792,15 +2896,19 @@ public class UnbundledChooserActivityTest {
             Rect bounds = windowManager.getMaximumWindowMetrics().getBounds();
             width = bounds.width() + 200;
         }
-        return createBitmap(width, 100);
+        return createBitmap(width, 100, bgColor);
     }
 
     private Bitmap createBitmap(int width, int height) {
+        return createBitmap(width, height, Color.RED);
+    }
+
+    private Bitmap createBitmap(int width, int height, int bgColor) {
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
 
         Paint paint = new Paint();
-        paint.setColor(Color.RED);
+        paint.setColor(bgColor);
         paint.setStyle(Paint.Style.FILL);
         canvas.drawPaint(paint);
 

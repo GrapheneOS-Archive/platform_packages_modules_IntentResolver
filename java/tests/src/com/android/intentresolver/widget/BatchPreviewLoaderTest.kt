@@ -31,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -67,7 +68,13 @@ class BatchPreviewLoaderTest {
         val uriTwo = createUri(2)
         imageLoader.setUriLoadingOrder(succeed(uriTwo), succeed(uriOne))
         val testSubject =
-            BatchPreviewLoader(imageLoader, previews(uriOne, uriTwo), 0, onUpdate, onCompletion)
+            BatchPreviewLoader(
+                imageLoader,
+                previews(uriOne, uriTwo),
+                totalItemCount = 2,
+                onUpdate,
+                onCompletion
+            )
         testSubject.loadAspectRatios(200) { _, _, _ -> 100 }
         dispatcher.scheduler.advanceUntilIdle()
 
@@ -87,7 +94,7 @@ class BatchPreviewLoaderTest {
             BatchPreviewLoader(
                 imageLoader,
                 previews(uriOne, uriTwo, uriThree),
-                0,
+                totalItemCount = 3,
                 onUpdate,
                 onCompletion
             )
@@ -115,7 +122,7 @@ class BatchPreviewLoaderTest {
             }
         imageLoader.setUriLoadingOrder(*loadingOrder)
         val testSubject =
-            BatchPreviewLoader(imageLoader, previews(*uris), 0, onUpdate, onCompletion)
+            BatchPreviewLoader(imageLoader, previews(*uris), uris.size, onUpdate, onCompletion)
         testSubject.loadAspectRatios(200) { _, _, _ -> 100 }
         dispatcher.scheduler.advanceUntilIdle()
 
@@ -144,7 +151,7 @@ class BatchPreviewLoaderTest {
         val expectedUris = Array(uris.size / 2) { createUri(it * 2 + 1) }
         imageLoader.setUriLoadingOrder(*loadingOrder)
         val testSubject =
-            BatchPreviewLoader(imageLoader, previews(*uris), 0, onUpdate, onCompletion)
+            BatchPreviewLoader(imageLoader, previews(*uris), uris.size, onUpdate, onCompletion)
         testSubject.loadAspectRatios(200) { _, _, _ -> 100 }
         dispatcher.scheduler.advanceUntilIdle()
 
@@ -161,9 +168,11 @@ class BatchPreviewLoaderTest {
     private fun fail(uri: Uri) = uri to false
     private fun succeed(uri: Uri) = uri to true
     private fun previews(vararg uris: Uri) =
-        uris.fold(ArrayList<Preview>(uris.size)) { acc, uri ->
-            acc.apply { add(Preview(PreviewType.Image, uri, editAction = null)) }
-        }
+        uris
+            .fold(ArrayList<Preview>(uris.size)) { acc, uri ->
+                acc.apply { add(Preview(PreviewType.Image, uri, editAction = null)) }
+            }
+            .asFlow()
 }
 
 private class TestImageLoader(scope: CoroutineScope) : suspend (Uri, Boolean) -> Bitmap? {

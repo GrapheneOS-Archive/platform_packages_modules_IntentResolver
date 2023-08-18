@@ -25,11 +25,15 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.android.intentresolver.ChooserRequestParameters
 import com.android.intentresolver.R
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.plus
 
 /** A trivial view model to keep a [PreviewDataProvider] instance over a configuration change */
-class PreviewViewModel(private val application: Application) : BasePreviewViewModel() {
+class PreviewViewModel(
+    private val application: Application,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+) : BasePreviewViewModel() {
     private var previewDataProvider: PreviewDataProvider? = null
     private var imageLoader: ImagePreviewImageLoader? = null
 
@@ -38,15 +42,18 @@ class PreviewViewModel(private val application: Application) : BasePreviewViewMo
         chooserRequest: ChooserRequestParameters
     ): PreviewDataProvider =
         previewDataProvider
-            ?: PreviewDataProvider(chooserRequest.targetIntent, application.contentResolver).also {
-                previewDataProvider = it
-            }
+            ?: PreviewDataProvider(
+                    viewModelScope + dispatcher,
+                    chooserRequest.targetIntent,
+                    application.contentResolver
+                )
+                .also { previewDataProvider = it }
 
     @MainThread
     override fun createOrReuseImageLoader(): ImageLoader =
         imageLoader
             ?: ImagePreviewImageLoader(
-                    viewModelScope + Dispatchers.IO,
+                    viewModelScope + dispatcher,
                     thumbnailSize =
                         application.resources.getDimensionPixelSize(
                             R.dimen.chooser_preview_image_max_dimen
