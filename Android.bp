@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 The Android Open Source Project
+// Copyright (C) 2023 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,20 +15,8 @@
 //
 
 package {
-    // See: http://go/android-license-faq
-    // This was chosen for Sharesheet to match existing packages.
-    default_applicable_licenses: ["packages_modules_IntentResolver_license"],
-}
-
-license {
-    name: "packages_modules_IntentResolver_license",
-    visibility: [":__subpackages__"],
-    license_kinds: [
-        "SPDX-license-identifier-Apache-2.0",
-    ],
-    license_text: [
-        "NOTICE",
-    ],
+    default_applicable_licenses: ["Android-Apache-2.0"],
+    default_visibility: [":__subpackages__"],
 }
 
 filegroup {
@@ -45,9 +33,8 @@ filegroup {
     ],
 }
 
-android_library {
-    name: "IntentResolver-core",
-    min_sdk_version: "current",
+java_defaults {
+    name: "Java_Defaults",
     srcs: [
         "java/src/**/*.java",
         "java/src/**/*.kt",
@@ -62,9 +49,16 @@ android_library {
     resource_dirs: [
         "java/res",
     ],
-
     manifest: "AndroidManifest-lib.xml",
+    min_sdk_version: "current",
+    lint: {
+        strict_updatability_linting: false,
+    },
+}
 
+android_library {
+    name: "IntentResolver-core",
+    defaults: ["Java_Defaults"],
     static_libs: [
         "androidx.annotation_annotation",
         "androidx.concurrent_concurrent-futures",
@@ -75,6 +69,7 @@ android_library {
         "androidx.lifecycle_lifecycle-extensions",
         "androidx.lifecycle_lifecycle-runtime-ktx",
         "androidx.lifecycle_lifecycle-viewmodel-ktx",
+        "IntentResolverFlagsLib",
         "kotlin-stdlib",
         "kotlinx_coroutines",
         "kotlinx-coroutines-android",
@@ -82,33 +77,33 @@ android_library {
         "guava",
         "SystemUIFlagsLib",
     ],
-
-    lint: {
-        strict_updatability_linting: false,
-    },
-
     optimize: {
         proguard_flags_files: ["proguard.flags"],
     },
 }
 
-android_app {
-    name: "IntentResolver",
+java_defaults {
+    name: "App_Defaults",
+    manifest: "AndroidManifest-app.xml",
     min_sdk_version: "current",
+    platform_apis: true,
     certificate: "platform",
     privileged: true,
-    manifest: "AndroidManifest-app.xml",
     required: [
         "privapp_whitelist_com.android.intentresolver",
     ],
-    srcs: ["src/**/*.java"],
-    platform_apis: true,
+}
+
+android_app {
+    name: "IntentResolver",
+    defaults: ["App_Defaults"],
     static_libs: [
         "IntentResolver-core",
     ],
     optimize: {
         enabled: true,
     },
+    visibility: ["//visibility:public"],
     apex_available: [
         "//apex_available:platform",
         "com.android.intentresolver",
