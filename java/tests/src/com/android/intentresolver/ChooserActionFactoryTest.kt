@@ -20,6 +20,7 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Context.RECEIVER_EXPORTED
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Resources
@@ -69,7 +70,7 @@ class ChooserActionFactoryTest {
 
     @Before
     fun setup() {
-        context.registerReceiver(testReceiver, IntentFilter(testAction))
+        context.registerReceiver(testReceiver, IntentFilter(testAction), RECEIVER_EXPORTED)
     }
 
     @After
@@ -190,7 +191,8 @@ class ChooserActionFactoryTest {
     }
 
     private fun createFactory(includeModifyShare: Boolean = false): ChooserActionFactory {
-        val testPendingIntent = PendingIntent.getActivity(context, 0, Intent(testAction), 0)
+        val testPendingIntent =
+            PendingIntent.getActivity(context, 0, Intent(testAction), PendingIntent.FLAG_IMMUTABLE)
         val targetIntent = Intent()
         val action =
             ChooserAction.Builder(

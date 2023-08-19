@@ -55,6 +55,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.yield
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.never
@@ -301,7 +302,7 @@ class ImagePreviewImageLoaderTest {
                     val latch = CountDownLatch(1)
                     synchronized(pendingThumbnailCalls) { pendingThumbnailCalls.offer(latch) }
                     thumbnailCallsCdl.countDown()
-                    latch.await()
+                    assertTrue("Timeout waiting thumbnail calls", latch.await(1, SECONDS))
                     bitmap
                 }
             }

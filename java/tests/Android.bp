@@ -35,6 +35,8 @@ android_test {
         "testables",
         "truth-prebuilt",
     ],
+    min_sdk_version: "current",
+    target_sdk_version: "current",
     plugins: ["dagger2-compiler"],
     test_suites: ["general-tests"],
     sdk_version: "core_platform",
