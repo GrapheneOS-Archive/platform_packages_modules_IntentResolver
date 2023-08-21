@@ -30,15 +30,23 @@ class TestContentProvider : ContentProvider() {
         sortOrder: String?
     ): Cursor? = null
 
-    override fun getType(uri: Uri): String?
-        = runCatching {
-            uri.getQueryParameter("mimeType")
-        }.getOrNull()
+    override fun getType(uri: Uri): String? =
+        runCatching { uri.getQueryParameter(PARAM_MIME_TYPE) }.getOrNull()
 
-    override fun getStreamTypes(uri: Uri, mimeTypeFilter: String): Array<String>?
-        = runCatching {
-            uri.getQueryParameter("streamType")?.let { arrayOf(it) }
-        }.getOrNull()
+    override fun getStreamTypes(uri: Uri, mimeTypeFilter: String): Array<String>? {
+        val delay =
+            runCatching { uri.getQueryParameter(PARAM_STREAM_TYPE_TIMEOUT)?.toLong() ?: 0L }
+                .getOrDefault(0L)
+        if (delay > 0) {
+            try {
+                Thread.sleep(delay)
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+            }
+        }
+        return runCatching { uri.getQueryParameter(PARAM_STREAM_TYPE)?.let { arrayOf(it) } }
+            .getOrNull()
+    }
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? = null
 
@@ -52,4 +60,10 @@ class TestContentProvider : ContentProvider() {
     ): Int = 0
 
     override fun onCreate(): Boolean = true
+
+    companion object {
+        const val PARAM_MIME_TYPE = "mimeType"
+        const val PARAM_STREAM_TYPE = "streamType"
+        const val PARAM_STREAM_TYPE_TIMEOUT = "streamTypeTo"
+    }
 }
