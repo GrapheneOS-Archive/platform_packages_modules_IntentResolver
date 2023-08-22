@@ -28,8 +28,8 @@ import android.content.pm.ResolveInfo;
 import android.os.UserHandle;
 import android.stats.devicepolicy.nano.DevicePolicyEnums;
 
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyState;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyStateProvider;
+import com.android.intentresolver.MultiProfilePagerAdapter.EmptyState;
+import com.android.intentresolver.MultiProfilePagerAdapter.EmptyStateProvider;
 import com.android.internal.R;
 
 import java.util.List;

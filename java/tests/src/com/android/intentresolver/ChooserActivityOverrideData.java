@@ -26,7 +26,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.UserHandle;
 
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
+import com.android.intentresolver.MultiProfilePagerAdapter.CrossProfileIntentsChecker;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.contentpreview.ImageLoader;
 import com.android.intentresolver.shortcuts.ShortcutLoader;

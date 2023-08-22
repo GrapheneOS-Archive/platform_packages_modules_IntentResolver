@@ -73,8 +73,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyState;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyStateProvider;
+import com.android.intentresolver.MultiProfilePagerAdapter.EmptyState;
+import com.android.intentresolver.MultiProfilePagerAdapter.EmptyStateProvider;
 import com.android.intentresolver.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
@@ -418,7 +418,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     }
 
     @Override
-    protected AbstractMultiProfilePagerAdapter createMultiProfilePagerAdapter(
+    protected ChooserMultiProfilePagerAdapter createMultiProfilePagerAdapter(
             Intent[] initialIntents,
             List<ResolveInfo> rList,
             boolean filterLastUsed,
