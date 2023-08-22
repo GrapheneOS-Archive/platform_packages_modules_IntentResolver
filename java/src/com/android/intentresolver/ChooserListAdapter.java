@@ -296,11 +296,23 @@ public class ChooserListAdapter extends ResolverListAdapter {
             CharSequence extendedInfo = info.getExtendedInfo();
             String contentDescription = String.join(" ", info.getDisplayLabel(),
                     extendedInfo != null ? extendedInfo : "", appName);
+            if (info.isPinned()) {
+                contentDescription = String.join(
+                        ". ",
+                        contentDescription,
+                        mContext.getResources().getString(R.string.pinned));
+            }
             holder.updateContentDescription(contentDescription);
             if (!info.hasDisplayIcon()) {
                 loadDirectShareIcon((SelectableTargetInfo) info);
             }
         } else if (info.isDisplayResolveInfo()) {
+            if (info.isPinned()) {
+                holder.updateContentDescription(String.join(
+                        ". ",
+                        info.getDisplayLabel(),
+                        mContext.getResources().getString(R.string.pinned)));
+            }
             DisplayResolveInfo dri = (DisplayResolveInfo) info;
             if (!dri.hasDisplayIcon()) {
                 loadIcon(dri);
@@ -384,18 +396,20 @@ public class ChooserListAdapter extends ResolverListAdapter {
                         .stream()
                         .collect(Collectors.groupingBy(target ->
                                 target.getResolvedComponentName().getPackageName()
-                                + "#" + target.getDisplayLabel()
-                                + '#' + target.getResolveInfo().userHandle.getIdentifier()
+                                        + "#" + target.getDisplayLabel()
+                                        + '#' + target.getResolveInfo().userHandle.getIdentifier()
                         ))
                         .values()
                         .stream()
                         .map(appTargets ->
                                 (appTargets.size() == 1)
-                                ? appTargets.get(0)
-                                : MultiDisplayResolveInfo.newMultiDisplayResolveInfo(appTargets))
+                                        ? appTargets.get(0)
+                                        : MultiDisplayResolveInfo.newMultiDisplayResolveInfo(
+                                                appTargets))
                         .sorted(new ChooserActivity.AzInfoComparator(mContext))
                         .collect(Collectors.toList());
             }
+
             @Override
             protected void onPostExecute(List<DisplayResolveInfo> newList) {
                 mSortedList = newList;
@@ -645,8 +659,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
      */
     @Override
     AsyncTask<List<ResolvedComponentInfo>,
-                Void,
-                List<ResolvedComponentInfo>> createSortingTask(boolean doPostProcessing) {
+            Void,
+            List<ResolvedComponentInfo>> createSortingTask(boolean doPostProcessing) {
         return new AsyncTask<List<ResolvedComponentInfo>,
                 Void,
                 List<ResolvedComponentInfo>>() {
@@ -658,6 +672,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 Trace.endSection();
                 return params[0];
             }
+
             @Override
             protected void onPostExecute(List<ResolvedComponentInfo> sortedComponents) {
                 processSortedList(sortedComponents, doPostProcessing);
