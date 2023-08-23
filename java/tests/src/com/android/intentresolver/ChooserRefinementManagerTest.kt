@@ -90,7 +90,7 @@ class ChooserRefinementManagerTest {
                     exampleTargetInfo,
                     intentSender,
                     application,
-                    FakeHandler(Looper.myLooper())
+                    FakeHandler(checkNotNull(Looper.myLooper()))
                 )
             )
             .isTrue()
@@ -126,7 +126,7 @@ class ChooserRefinementManagerTest {
                     exampleTargetInfo,
                     intentSender,
                     application,
-                    FakeHandler(Looper.myLooper())
+                    FakeHandler(checkNotNull(Looper.myLooper()))
                 )
             )
             .isTrue()
@@ -153,7 +153,7 @@ class ChooserRefinementManagerTest {
                     ImmutableTargetInfo.newBuilder().build(),
                     intentSender,
                     application,
-                    FakeHandler(Looper.myLooper())
+                    FakeHandler(checkNotNull(Looper.myLooper()))
                 )
             )
             .isFalse()
@@ -172,7 +172,7 @@ class ChooserRefinementManagerTest {
                     targetInfo,
                     intentSender,
                     application,
-                    FakeHandler(Looper.myLooper())
+                    FakeHandler(checkNotNull(Looper.myLooper()))
                 )
             )
             .isFalse()
@@ -185,7 +185,7 @@ class ChooserRefinementManagerTest {
                     exampleTargetInfo,
                     /* IntentSender */ null,
                     application,
-                    FakeHandler(Looper.myLooper())
+                    FakeHandler(checkNotNull(Looper.myLooper()))
                 )
             )
             .isFalse()
@@ -198,7 +198,7 @@ class ChooserRefinementManagerTest {
                     exampleTargetInfo,
                     intentSender,
                     application,
-                    FakeHandler(Looper.myLooper())
+                    FakeHandler(checkNotNull(Looper.myLooper()))
                 )
             )
             .isTrue()
@@ -216,7 +216,7 @@ class ChooserRefinementManagerTest {
                     exampleTargetInfo,
                     intentSender,
                     application,
-                    FakeHandler(Looper.myLooper()!!)
+                    FakeHandler(checkNotNull(Looper.myLooper())!!)
                 )
             )
             .isTrue()
