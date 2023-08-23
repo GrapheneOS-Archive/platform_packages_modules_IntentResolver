@@ -37,8 +37,8 @@ class AnnotatedUserHandlesTest {
         assertThat(info.userIdOfCallingApp).isEqualTo(42)
         assertThat(info.userHandleSharesheetLaunchedAs.identifier).isEqualTo(116)
         assertThat(info.personalProfileUserHandle.identifier).isEqualTo(117)
-        assertThat(info.workProfileUserHandle.identifier).isEqualTo(118)
-        assertThat(info.cloneProfileUserHandle.identifier).isEqualTo(119)
+        assertThat(info.workProfileUserHandle?.identifier).isEqualTo(118)
+        assertThat(info.cloneProfileUserHandle?.identifier).isEqualTo(119)
     }
 
     @Test
