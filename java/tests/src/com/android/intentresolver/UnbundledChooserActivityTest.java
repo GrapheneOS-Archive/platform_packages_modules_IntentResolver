@@ -156,6 +156,9 @@ public class UnbundledChooserActivityTest {
 
     private static final UserHandle PERSONAL_USER_HANDLE = InstrumentationRegistry
             .getInstrumentation().getTargetContext().getUser();
+    private static final UserHandle WORK_PROFILE_USER_HANDLE = UserHandle.of(10);
+    private static final UserHandle CLONE_PROFILE_USER_HANDLE = UserHandle.of(11);
+
     private static final Function<PackageManager, PackageManager> DEFAULT_PM = pm -> pm;
     private static final Function<PackageManager, PackageManager> NO_APP_PREDICTION_SERVICE_PM =
             pm -> {
@@ -545,7 +548,7 @@ public class UnbundledChooserActivityTest {
                 createResolvedComponentsForTestWithOtherProfile(2, /* userId */ 10);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
 
         ResolveInfo toChoose = personalResolvedComponentInfos.get(1).getResolveInfoAt(0);
         Intent sendIntent = createSendTextIntent();
@@ -1715,7 +1718,7 @@ public class UnbundledChooserActivityTest {
         // We need app targets for direct targets to get displayed
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
         setupResolverControllers(resolvedComponentInfos, resolvedComponentInfos);
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
 
         // set caller-provided target
         Intent chooserIntent = Intent.createChooser(createSendTextIntent(), null);
@@ -1979,7 +1982,7 @@ public class UnbundledChooserActivityTest {
     public void testWorkTab_displayedWhenWorkProfileUserAvailable() {
         Intent sendIntent = createSendTextIntent();
         sendIntent.setType(TEST_MIME_TYPE);
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
 
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
         waitForIdle();
@@ -2011,7 +2014,7 @@ public class UnbundledChooserActivityTest {
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendTextIntent();
         sendIntent.setType(TEST_MIME_TYPE);
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
 
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, "work tab test"));
@@ -2026,7 +2029,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_workProfileHasExpectedNumberOfTargets() throws InterruptedException {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
@@ -2047,7 +2050,7 @@ public class UnbundledChooserActivityTest {
 
     @Test @Ignore
     public void testWorkTab_selectingWorkTabAppOpensAppInWorkProfile() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
         int workProfileTargets = 4;
@@ -2078,7 +2081,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_crossProfileIntentsDisabled_personalToWork_emptyStateShown() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
@@ -2102,7 +2105,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_workProfileDisabled_emptyStateShown() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
@@ -2126,7 +2129,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_noWorkAppsAvailable_emptyStateShown() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(3);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
@@ -2149,7 +2152,7 @@ public class UnbundledChooserActivityTest {
     @Ignore // b/220067877
     @Test
     public void testWorkTab_xProfileOff_noAppsAvailable_workOff_xProfileOffEmptyStateShown() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(3);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
@@ -2173,7 +2176,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_noAppsAvailable_workOff_noAppsAvailableEmptyStateShown() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(3);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
@@ -2407,7 +2410,7 @@ public class UnbundledChooserActivityTest {
 
     @Test @Ignore("b/222124533")
     public void testSwitchProfileLogging() throws InterruptedException {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
@@ -2430,7 +2433,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_onePersonalTarget_emptyStateOnWorkTarget_doesNotAutoLaunch() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(2, /* userId */ 10);
@@ -2482,7 +2485,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_withInitialIntents_workTabDoesNotIncludePersonalInitialIntents() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         int workProfileTargets = 1;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(2, /* userId */ 10);
@@ -2512,7 +2515,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_xProfileIntentsDisabled_personalToWork_nonSendIntent_emptyStateShown() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
@@ -2546,7 +2549,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testWorkTab_noWorkAppsAvailable_nonSendIntent_emptyStateShown() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(3);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
@@ -2607,7 +2610,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void test_query_shortcut_loader_for_the_selected_tab() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
@@ -2640,12 +2643,12 @@ public class UnbundledChooserActivityTest {
     @Test
     public void testClonedProfilePresent_personalAdapterIsSetWithPersonalProfile() {
         // enable cloneProfile
-        markCloneProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ false, /* cloneAvailable= */ true);
         List<ResolvedComponentInfo> resolvedComponentInfos =
                 createResolvedComponentsWithCloneProfileForTest(
                         3,
                         PERSONAL_USER_HANDLE,
-                        ChooserActivityOverrideData.getInstance().cloneProfileUserHandle);
+                        CLONE_PROFILE_USER_HANDLE);
         setupResolverControllers(resolvedComponentInfos);
         Intent sendIntent = createSendTextIntent();
 
@@ -2659,8 +2662,7 @@ public class UnbundledChooserActivityTest {
 
     @Test
     public void testClonedProfilePresent_personalTabUsesExpectedAdapter() {
-        markWorkProfileUserAvailable();
-        markCloneProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ true);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(3);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(
@@ -2981,12 +2983,19 @@ public class UnbundledChooserActivityTest {
         return shortcuts;
     }
 
-    private void markWorkProfileUserAvailable() {
-        ChooserActivityOverrideData.getInstance().workProfileUserHandle = UserHandle.of(10);
-    }
-
-    private void markCloneProfileUserAvailable() {
-        ChooserActivityOverrideData.getInstance().cloneProfileUserHandle = UserHandle.of(11);
+    private void markOtherProfileAvailability(boolean workAvailable, boolean cloneAvailable) {
+        AnnotatedUserHandles.Builder handles = AnnotatedUserHandles.newBuilder();
+        handles
+                .setUserIdOfCallingApp(1234)  // Must be non-negative.
+                .setUserHandleSharesheetLaunchedAs(PERSONAL_USER_HANDLE)
+                .setPersonalProfileUserHandle(PERSONAL_USER_HANDLE);
+        if (workAvailable) {
+            handles.setWorkProfileUserHandle(WORK_PROFILE_USER_HANDLE);
+        }
+        if (cloneAvailable) {
+            handles.setCloneProfileUserHandle(CLONE_PROFILE_USER_HANDLE);
+        }
+        ChooserWrapperActivity.sOverrides.annotatedUserHandles = handles.build();
     }
 
     private void setupResolverControllers(

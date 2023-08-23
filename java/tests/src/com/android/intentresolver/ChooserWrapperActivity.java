@@ -243,21 +243,13 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
     }
 
     @Override
-    protected UserHandle getWorkProfileUserHandle() {
-        return sOverrides.workProfileUserHandle;
+    protected AnnotatedUserHandles computeAnnotatedUserHandles() {
+        return sOverrides.annotatedUserHandles;
     }
 
     @Override
     public UserHandle getCurrentUserHandle() {
         return mMultiProfilePagerAdapter.getCurrentUserHandle();
-    }
-
-    @Override
-    protected UserHandle getTabOwnerUserHandleForLaunch() {
-        if (sOverrides.tabOwnerUserHandleForLaunch == null) {
-            return super.getTabOwnerUserHandleForLaunch();
-        }
-        return sOverrides.tabOwnerUserHandleForLaunch;
     }
 
     @Override

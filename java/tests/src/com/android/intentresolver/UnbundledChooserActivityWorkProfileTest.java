@@ -98,7 +98,6 @@ public class UnbundledChooserActivityWorkProfileTest {
     public void testBlocker() {
         setUpPersonalAndWorkComponentInfos();
         sOverrides.hasCrossProfileIntents = mTestCase.hasCrossProfileIntents();
-        sOverrides.tabOwnerUserHandleForLaunch = mTestCase.getMyUserHandle();
 
         launchActivity(mTestCase.getIsSendAction());
         switchToTab(mTestCase.getTab());
@@ -261,7 +260,12 @@ public class UnbundledChooserActivityWorkProfileTest {
     }
 
     private void setUpPersonalAndWorkComponentInfos() {
-        markWorkProfileUserAvailable();
+        ChooserWrapperActivity.sOverrides.annotatedUserHandles = AnnotatedUserHandles.newBuilder()
+                .setUserIdOfCallingApp(1234)  // Must be non-negative.
+                .setUserHandleSharesheetLaunchedAs(mTestCase.getMyUserHandle())
+                .setPersonalProfileUserHandle(PERSONAL_USER_HANDLE)
+                .setWorkProfileUserHandle(WORK_USER_HANDLE)
+                .build();
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3,
@@ -299,10 +303,6 @@ public class UnbundledChooserActivityWorkProfileTest {
 
     private void waitForIdle() {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
-    }
-
-    private void markWorkProfileUserAvailable() {
-        ChooserWrapperActivity.sOverrides.workProfileUserHandle = WORK_USER_HANDLE;
     }
 
     private void assertCantAccessWorkAppsBlockerDisplayed() {

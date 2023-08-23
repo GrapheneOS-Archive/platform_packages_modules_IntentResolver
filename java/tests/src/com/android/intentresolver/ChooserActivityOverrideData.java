@@ -67,9 +67,7 @@ public class ChooserActivityOverrideData {
     public EventLog mEventLog;
     public int alternateProfileSetting;
     public Resources resources;
-    public UserHandle workProfileUserHandle;
-    public UserHandle cloneProfileUserHandle;
-    public UserHandle tabOwnerUserHandleForLaunch;
+    public AnnotatedUserHandles annotatedUserHandles;
     public boolean hasCrossProfileIntents;
     public boolean isQuietModeEnabled;
     public Integer myUserId;
@@ -89,9 +87,11 @@ public class ChooserActivityOverrideData {
         mEventLog = mock(EventLog.class);
         alternateProfileSetting = 0;
         resources = null;
-        workProfileUserHandle = null;
-        cloneProfileUserHandle = null;
-        tabOwnerUserHandleForLaunch = null;
+        annotatedUserHandles = AnnotatedUserHandles.newBuilder()
+                    .setUserIdOfCallingApp(1234)  // Must be non-negative.
+                    .setUserHandleSharesheetLaunchedAs(UserHandle.SYSTEM)
+                    .setPersonalProfileUserHandle(UserHandle.SYSTEM)
+                    .build();
         hasCrossProfileIntents = true;
         isQuietModeEnabled = false;
         myUserId = null;
