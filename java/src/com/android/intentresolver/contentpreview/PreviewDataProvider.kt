@@ -72,7 +72,6 @@ private const val TIMEOUT_MS = 1_000L
  */
 @OpenForTesting
 open class PreviewDataProvider
-@VisibleForTesting
 @JvmOverloads
 constructor(
     private val scope: CoroutineScope,
@@ -128,7 +127,8 @@ constructor(
             } else {
                 try {
                     runBlocking(scope.coroutineContext) {
-                        withTimeoutOrNull(TIMEOUT_MS) { loadPreviewType() } ?: CONTENT_PREVIEW_FILE
+                        withTimeoutOrNull(TIMEOUT_MS) { scope.async { loadPreviewType() }.await() }
+                            ?: CONTENT_PREVIEW_FILE
                     }
                 } catch (e: CancellationException) {
                     Log.w(
@@ -152,7 +152,9 @@ constructor(
                 val builder = FileInfo.Builder(record.uri)
                 try {
                     runBlocking(scope.coroutineContext) {
-                        withTimeoutOrNull(TIMEOUT_MS) { builder.readFromRecord(record) }
+                        withTimeoutOrNull(TIMEOUT_MS) {
+                            scope.async { builder.readFromRecord(record) }.await()
+                        }
                     }
                 } catch (e: CancellationException) {
                     Log.w(
