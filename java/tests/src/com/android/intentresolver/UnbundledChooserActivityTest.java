@@ -1010,6 +1010,55 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    public void testSlowUriMetadata_fallbackToFilePreview() throws InterruptedException {
+        Uri uri = createTestContentProviderUri(
+                "application/pdf", "image/png", /*streamTypeTimeout=*/4_000);
+        ArrayList<Uri> uris = new ArrayList<>(1);
+        uris.add(uri);
+        Intent sendIntent = createSendUriIntentWithPreview(uris);
+        ChooserActivityOverrideData.getInstance().imageLoader =
+                createImageLoader(uri, createBitmap());
+
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+
+        setupResolverControllers(resolvedComponentInfos);
+        assertThat(launchActivityWithTimeout(Intent.createChooser(sendIntent, null), 2_000))
+                .isTrue();
+        waitForIdle();
+
+        onView(withId(R.id.content_preview_filename)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(withText("image.png")));
+        onView(withId(R.id.content_preview_file_icon)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testSendManyFilesWithSmallMetadataDelayAndOneImage_fallbackToFilePreviewUi()
+            throws InterruptedException {
+        Uri fileUri = createTestContentProviderUri(
+                "application/pdf", "application/pdf", /*streamTypeTimeout=*/150);
+        Uri imageUri = createTestContentProviderUri("application/pdf", "image/png");
+        ArrayList<Uri> uris = new ArrayList<>(50);
+        for (int i = 0; i < 49; i++) {
+            uris.add(fileUri);
+        }
+        uris.add(imageUri);
+        Intent sendIntent = createSendUriIntentWithPreview(uris);
+        ChooserActivityOverrideData.getInstance().imageLoader =
+                createImageLoader(imageUri, createBitmap());
+
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+        setupResolverControllers(resolvedComponentInfos);
+        assertThat(launchActivityWithTimeout(Intent.createChooser(sendIntent, null), 2_000))
+                .isTrue();
+
+        waitForIdle();
+
+        onView(withId(R.id.content_preview_filename)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(withText("image.png")));
+        onView(withId(R.id.content_preview_file_icon)).check(matches(isDisplayed()));
+    }
+
+    @Test
     public void testManyVisibleImagePreview_ScrollableImagePreview() {
         Uri uri = createTestContentProviderUri("image/png", null);
 
