@@ -76,8 +76,8 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ይህ መተግበሪያ የመቅረጽ ፈቃድ አልተሰጠውም፣ ነገር ግን በዚህ ዩኤስቢ መሣሪያ በኩል ኦዲዮን መቅረጽ ይችላል።"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"የግል"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ሥራ"</string>
-    <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"የግል እይታ"</string>
-    <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"የስራ እይታ"</string>
+    <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"የግል ዕይታ"</string>
+    <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"የስራ ዕይታ"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"በእርስዎ የአይቲ አስተዳዳሪ ታግዷል"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"ይህ ይዘት በሥራ መተግበሪያዎች መጋራት አይችልም"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ይህ ይዘት በሥራ መተግበሪያዎች መከፈት አይችልም"</string>
