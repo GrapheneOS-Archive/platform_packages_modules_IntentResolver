@@ -20,6 +20,7 @@ android_test {
     static_libs: [
         "IntentResolver-core",
         "androidx.test.core",
+        "androidx.test.rules",
         "androidx.test.ext.junit",
         "androidx.test.ext.truth",
         "androidx.test.espresso.contrib",
