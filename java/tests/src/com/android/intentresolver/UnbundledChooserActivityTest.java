@@ -82,6 +82,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
@@ -89,11 +90,19 @@ import android.os.UserHandle;
 import android.provider.DeviceConfig;
 import android.service.chooser.ChooserAction;
 import android.service.chooser.ChooserTarget;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.util.HashedStringCache;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -381,6 +390,58 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
         onView(withId(android.R.id.title))
                 .check(matches(withText(R.string.whichSendApplication)));
+    }
+
+    @Test
+    public void test_shareRichTextWithRichTitle_richTextAndRichTitleDisplayed() {
+        CharSequence title = new SpannableStringBuilder()
+                .append("Rich", new UnderlineSpan(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+                .append(
+                        "Title",
+                        new ForegroundColorSpan(Color.RED),
+                        Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        CharSequence sharedText = new SpannableStringBuilder()
+                .append(
+                        "Rich",
+                        new BackgroundColorSpan(Color.YELLOW),
+                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+                .append(
+                        "Text",
+                        new StyleSpan(Typeface.ITALIC),
+                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+        Intent sendIntent = createSendTextIntent();
+        sendIntent.putExtra(Intent.EXTRA_TEXT, sharedText);
+        sendIntent.putExtra(Intent.EXTRA_TITLE, title);
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+        setupResolverControllers(resolvedComponentInfos);
+
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
+        waitForIdle();
+
+        onView(withId(com.android.internal.R.id.content_preview_title))
+                .check((view, e) -> {
+                    assertThat(view).isInstanceOf(TextView.class);
+                    CharSequence text = ((TextView) view).getText();
+                    assertThat(text).isInstanceOf(Spanned.class);
+                    Spanned spanned = (Spanned) text;
+                    assertThat(spanned.getSpans(0, spanned.length(), Object.class))
+                            .hasLength(2);
+                    assertThat(spanned.getSpans(0, 4, UnderlineSpan.class)).hasLength(1);
+                    assertThat(spanned.getSpans(4, spanned.length(), ForegroundColorSpan.class))
+                            .hasLength(1);
+                });
+
+        onView(withId(com.android.internal.R.id.content_preview_text))
+                .check((view, e) -> {
+                    assertThat(view).isInstanceOf(TextView.class);
+                    CharSequence text = ((TextView) view).getText();
+                    assertThat(text).isInstanceOf(Spanned.class);
+                    Spanned spanned = (Spanned) text;
+                    assertThat(spanned.getSpans(0, spanned.length(), Object.class))
+                            .hasLength(2);
+                    assertThat(spanned.getSpans(0, 4, BackgroundColorSpan.class)).hasLength(1);
+                    assertThat(spanned.getSpans(4, spanned.length(), StyleSpan.class)).hasLength(1);
+                });
     }
 
     @Test
@@ -1171,6 +1232,50 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
         onView(withText(sharedText))
                 .check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void test_shareImageWithRichText_RichTextIsDisplayed() {
+        final Uri uri = createTestContentProviderUri("image/png", null);
+        final CharSequence sharedText = new SpannableStringBuilder()
+                .append(
+                        "text-",
+                        new StyleSpan(Typeface.BOLD_ITALIC),
+                        Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+                .append(
+                        Long.toString(System.currentTimeMillis()),
+                        new ForegroundColorSpan(Color.RED),
+                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+        ArrayList<Uri> uris = new ArrayList<>();
+        uris.add(uri);
+
+        Intent sendIntent = createSendUriIntentWithPreview(uris);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, sharedText);
+        ChooserActivityOverrideData.getInstance().imageLoader =
+                createImageLoader(uri, createBitmap());
+
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+
+        setupResolverControllers(resolvedComponentInfos);
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
+        waitForIdle();
+        onView(withText(sharedText.toString()))
+                .check(matches(isDisplayed()))
+                .check((view, e) -> {
+                    if (e != null) {
+                        throw e;
+                    }
+                    assertThat(view).isInstanceOf(TextView.class);
+                    CharSequence text = ((TextView) view).getText();
+                    assertThat(text).isInstanceOf(Spanned.class);
+                    Spanned spanned = (Spanned) text;
+                    Object[] spans = spanned.getSpans(0, text.length(), Object.class);
+                    assertThat(spans).hasLength(2);
+                    assertThat(spanned.getSpans(0, 5, StyleSpan.class)).hasLength(1);
+                    assertThat(spanned.getSpans(5, text.length(), ForegroundColorSpan.class))
+                            .hasLength(1);
+                });
     }
 
     @Test

@@ -20,6 +20,7 @@ import static com.android.intentresolver.util.UriFilters.isOwnedByCurrentUser;
 
 import android.content.res.Resources;
 import android.net.Uri;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -93,13 +94,9 @@ class TextContentPreviewUi extends ContentPreviewUi {
 
         TextView textView = contentPreviewLayout.findViewById(
                 com.android.internal.R.id.content_preview_text);
-        String text = mSharingText.toString();
 
-        // If we're only previewing one line, then strip out newlines.
-        if (textView.getMaxLines() == 1) {
-            text = text.replace("\n", " ");
-        }
-        textView.setText(text);
+        textView.setText(
+                textView.getMaxLines() == 1 ? replaceLineBreaks(mSharingText) : mSharingText);
 
         TextView previewTitleView = contentPreviewLayout.findViewById(
                 com.android.internal.R.id.content_preview_title);
@@ -134,5 +131,19 @@ class TextContentPreviewUi extends ContentPreviewUi {
         displayHeadline(contentPreviewLayout, mHeadlineGenerator.getTextHeadline(mSharingText));
 
         return contentPreviewLayout;
+    }
+
+    @Nullable
+    private static CharSequence replaceLineBreaks(@Nullable CharSequence text) {
+        if (text == null) {
+            return null;
+        }
+        SpannableStringBuilder string = new SpannableStringBuilder(text);
+        for (int i = 0, size = string.length(); i < size; i++) {
+            if (string.charAt(i) == '\n') {
+                string.replace(i, i + 1, " ");
+            }
+        }
+        return string;
     }
 }
