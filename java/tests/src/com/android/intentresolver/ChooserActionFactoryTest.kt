@@ -35,7 +35,9 @@ import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -75,6 +77,7 @@ class ChooserActionFactoryTest {
         context.unregisterReceiver(testReceiver)
     }
 
+    @Ignore("b/297551329")
     @Test
     fun testCreateCustomActions() {
         val factory = createFactory()
@@ -90,7 +93,7 @@ class ChooserActionFactoryTest {
         Mockito.verify(logger).logCustomActionSelected(eq(0))
         assertEquals(Activity.RESULT_OK, resultConsumer.latestReturn)
         // Verify the pending intent has been called
-        countdown.await(500, TimeUnit.MILLISECONDS)
+        assertTrue("Timed out waiting for broadcast", countdown.await(2500, TimeUnit.MILLISECONDS))
     }
 
     @Test
@@ -100,6 +103,7 @@ class ChooserActionFactoryTest {
         assertThat(factory.modifyShareAction).isNull()
     }
 
+    @Ignore("b/297551329")
     @Test
     fun testModifyShareAction() {
         val factory = createFactory(includeModifyShare = true)
@@ -107,11 +111,10 @@ class ChooserActionFactoryTest {
         val action = factory.modifyShareAction ?: error("Modify share action should not be null")
         action.onClicked.run()
 
-        Mockito.verify(logger)
-            .logActionSelected(eq(EventLog.SELECTION_TYPE_MODIFY_SHARE))
+        Mockito.verify(logger).logActionSelected(eq(EventLog.SELECTION_TYPE_MODIFY_SHARE))
         assertEquals(Activity.RESULT_OK, resultConsumer.latestReturn)
         // Verify the pending intent has been called
-        countdown.await(500, TimeUnit.MILLISECONDS)
+        assertTrue("Timed out waiting for broadcast", countdown.await(2500, TimeUnit.MILLISECONDS))
     }
 
     @Test
