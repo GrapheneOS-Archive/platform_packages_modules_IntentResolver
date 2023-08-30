@@ -27,7 +27,6 @@ import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_S
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
 
 import android.annotation.IntDef;
-import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -66,9 +65,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
 import android.view.WindowInsets;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
@@ -225,6 +221,13 @@ public class ChooserActivity extends ResolverActivity implements
     private final SparseArray<ProfileRecord> mProfileRecords = new SparseArray<>();
 
     private boolean mExcludeSharedText = false;
+    /**
+     * When we intend to finish the activity with a shared element transition, we can't immediately
+     * finish() when the transition is invoked, as the receiving end may not be able to start the
+     * animation and the UI breaks if this takes too long. Instead we defer finishing until onStop
+     * in order to wait for the transition to begin.
+     */
+    private boolean mFinishWhenStopped = false;
 
     public ChooserActivity() {}
 
@@ -613,8 +616,7 @@ public class ChooserActivity extends ResolverActivity implements
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: " + getComponentName().flattenToShortString());
-        maybeCancelFinishAnimation();
-
+        mFinishWhenStopped = false;
         mRefinementManager.onActivityResume();
     }
 
@@ -715,7 +717,8 @@ public class ChooserActivity extends ResolverActivity implements
         super.onStop();
         mRefinementManager.onActivityStop(isChangingConfigurations());
 
-        if (maybeCancelFinishAnimation()) {
+        if (mFinishWhenStopped) {
+            mFinishWhenStopped = false;
             finish();
         }
     }
@@ -1331,7 +1334,10 @@ public class ChooserActivity extends ResolverActivity implements
                                 ChooserActivity.this, sharedElement, sharedElementName);
                         safelyStartActivityAsUser(
                                 targetInfo, getPersonalProfileUserHandle(), options.toBundle());
-                        startFinishAnimation();
+                        // Can't finish right away because the shared element transition may not
+                        // be ready to start.
+                        mFinishWhenStopped = true;
+
                     }
                 },
                 (status) -> {
@@ -1716,25 +1722,6 @@ public class ChooserActivity extends ResolverActivity implements
         contentPreviewContainer.setVisibility(View.GONE);
     }
 
-    private void startFinishAnimation() {
-        View rootView = findRootView();
-        if (rootView != null) {
-            rootView.startAnimation(new FinishAnimation(this, rootView));
-        }
-    }
-
-    private boolean maybeCancelFinishAnimation() {
-        View rootView = findRootView();
-        Animation animation = (rootView == null) ? null : rootView.getAnimation();
-        if (animation instanceof FinishAnimation) {
-            boolean hasEnded = animation.hasEnded();
-            animation.cancel();
-            rootView.clearAnimation();
-            return !hasEnded;
-        }
-        return false;
-    }
-
     private View findRootView() {
         if (mContentView == null) {
             mContentView = findViewById(android.R.id.content);
@@ -1812,71 +1799,6 @@ public class ChooserActivity extends ResolverActivity implements
                 mScrollStatus = SCROLL_STATUS_IDLE;
                 setVerticalScrollEnabled(true);
             }
-        }
-    }
-
-    /**
-     * Used in combination with the scene transition when launching the image editor
-     */
-    private static class FinishAnimation extends AlphaAnimation implements
-            Animation.AnimationListener {
-        @Nullable
-        private Activity mActivity;
-        @Nullable
-        private View mRootView;
-        private final float mFromAlpha;
-
-        FinishAnimation(@NonNull Activity activity, @NonNull View rootView) {
-            super(rootView.getAlpha(), 0.0f);
-            mActivity = activity;
-            mRootView = rootView;
-            mFromAlpha = rootView.getAlpha();
-            setInterpolator(new LinearInterpolator());
-            long duration = activity.getWindow().getTransitionBackgroundFadeDuration();
-            setDuration(duration);
-            // The scene transition animation looks better when it's not overlapped with this
-            // fade-out animation thus the delay.
-            // It is most likely that the image editor will cause this activity to stop and this
-            // animation will be cancelled in the background without running (i.e. we'll animate
-            // only when this activity remains partially visible after the image editor launch).
-            setStartOffset(duration);
-            super.setAnimationListener(this);
-        }
-
-        @Override
-        public void setAnimationListener(AnimationListener listener) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void cancel() {
-            if (mRootView != null) {
-                mRootView.setAlpha(mFromAlpha);
-            }
-            cleanup();
-            super.cancel();
-        }
-
-        @Override
-        public void onAnimationStart(Animation animation) {
-        }
-
-        @Override
-        public void onAnimationEnd(Animation animation) {
-            Activity activity = mActivity;
-            cleanup();
-            if (activity != null) {
-                activity.finish();
-            }
-        }
-
-        @Override
-        public void onAnimationRepeat(Animation animation) {
-        }
-
-        private void cleanup() {
-            mActivity = null;
-            mRootView = null;
         }
     }
 
