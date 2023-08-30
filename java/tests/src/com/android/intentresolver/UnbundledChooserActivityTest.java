@@ -146,6 +146,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import dagger.hilt.android.testing.HiltAndroidRule;
+import dagger.hilt.android.testing.HiltAndroidTest;
+
 /**
  * Instrumentation tests for ChooserActivity.
  * <p>
@@ -153,6 +156,7 @@ import java.util.function.Function;
  * <p>
  */
 @RunWith(Parameterized.class)
+@HiltAndroidTest
 public class UnbundledChooserActivityTest {
 
     private static final UserHandle PERSONAL_USER_HANDLE = InstrumentationRegistry
@@ -187,7 +191,10 @@ public class UnbundledChooserActivityTest {
         cleanOverrideData();
     }
 
-    @Rule
+    @Rule(order = 0)
+    public HiltAndroidRule mHiltAndroidRule = new HiltAndroidRule(this);
+
+    @Rule(order = 1)
     public ActivityTestRule<ChooserWrapperActivity> mActivityRule =
             new ActivityTestRule<>(ChooserWrapperActivity.class, false, false);
 

@@ -263,7 +263,7 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
     @Override
     public Context createContextAsUser(UserHandle user, int flags) {
         // return the current context as a work profile doesn't really exist in these tests
-        return getApplicationContext();
+        return this;
     }
 
     @Override

@@ -44,6 +44,7 @@ android_test {
         "androidx.lifecycle_lifecycle-common-java8",
         "androidx.lifecycle_lifecycle-extensions",
         "androidx.lifecycle_lifecycle-runtime-testing",
+        "hilt_android_testing",
         "IntentResolver-core",
         "junit",
         "kotlinx_coroutines_test",

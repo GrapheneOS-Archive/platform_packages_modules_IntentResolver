@@ -258,7 +258,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
         createProfileRecords(
                 new AppPredictorFactory(
-                        this, // TODO: Review w/team, possible side effects?
+                        this,
                         mChooserRequest.getSharedText(),
                         mChooserRequest.getTargetIntentFilter()),
                 mChooserRequest.getTargetIntentFilter());
@@ -275,10 +275,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 /* supportsAlwaysUseOption= */ false,
                 new DefaultTargetDataLoader(this, getLifecycle(), false),
                 /* safeForwardingMode= */ true);
-
-        if (mFeatureFlags.exampleNewSharingMethod()) {
-            // Sample flag usage
-        }
 
         mIntegratedDeviceComponents = getIntegratedDeviceComponents();
 
@@ -387,7 +383,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         ShortcutLoader shortcutLoader = ActivityManager.isLowRamDeviceStatic()
                     ? null
                     : createShortcutLoader(
-                            this, // TODO: Review w/team, possible side effects?
+                            this,
                             appPredictor,
                             userHandle,
                             targetIntentFilter,
