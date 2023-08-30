@@ -22,7 +22,7 @@ import android.net.Uri
 import android.util.Size
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
-import com.android.intentresolver.TestLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import com.android.intentresolver.any
 import com.android.intentresolver.anyOrNull
 import com.android.intentresolver.mock
@@ -78,7 +78,7 @@ class ImagePreviewImageLoaderTest {
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
-        lifecycleOwner.state = Lifecycle.State.CREATED
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         // create test subject after we've updated the lifecycle dispatcher
         testSubject =
             ImagePreviewImageLoader(
@@ -91,7 +91,7 @@ class ImagePreviewImageLoaderTest {
 
     @After
     fun cleanup() {
-        lifecycleOwner.state = Lifecycle.State.DESTROYED
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         Dispatchers.resetMain()
     }
 
@@ -164,7 +164,7 @@ class ImagePreviewImageLoaderTest {
 
     @Test(expected = CancellationException::class)
     fun invoke_onClosedImageLoaderScope_throwsCancellationException() = runTest {
-        lifecycleOwner.state = Lifecycle.State.DESTROYED
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         testSubject(uriOne)
     }
 
@@ -181,7 +181,7 @@ class ImagePreviewImageLoaderTest {
             )
         coroutineScope {
             val deferred = async(start = UNDISPATCHED) { testSubject(uriOne, false) }
-            lifecycleOwner.state = Lifecycle.State.DESTROYED
+            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             scheduler.advanceUntilIdle()
             deferred.await()
         }
