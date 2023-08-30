@@ -21,6 +21,7 @@ import android.view.View
 import android.view.Window
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.testing.TestLifecycleOwner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -44,35 +45,34 @@ class EnterTransitionAnimationDelegateTest {
     private val dispatcher = StandardTestDispatcher(scheduler)
     private val lifecycleOwner = TestLifecycleOwner()
 
-    private val transitionTargetView = mock<View> {
-        // avoid the request-layout path in the delegate
-        whenever(isInLayout).thenReturn(true)
-    }
+    private val transitionTargetView =
+        mock<View> {
+            // avoid the request-layout path in the delegate
+            whenever(isInLayout).thenReturn(true)
+        }
 
     private val windowMock = mock<Window>()
-    private val resourcesMock = mock<Resources> {
-        whenever(getInteger(anyInt())).thenReturn(TIMEOUT_MS)
-    }
-    private val activity = mock<ComponentActivity> {
-        whenever(lifecycle).thenReturn(lifecycleOwner.lifecycle)
-        whenever(resources).thenReturn(resourcesMock)
-        whenever(isActivityTransitionRunning).thenReturn(true)
-        whenever(window).thenReturn(windowMock)
-    }
+    private val resourcesMock =
+        mock<Resources> { whenever(getInteger(anyInt())).thenReturn(TIMEOUT_MS) }
+    private val activity =
+        mock<ComponentActivity> {
+            whenever(lifecycle).thenReturn(lifecycleOwner.lifecycle)
+            whenever(resources).thenReturn(resourcesMock)
+            whenever(isActivityTransitionRunning).thenReturn(true)
+            whenever(window).thenReturn(windowMock)
+        }
 
-    private val testSubject = EnterTransitionAnimationDelegate(activity) {
-        transitionTargetView
-    }
+    private val testSubject = EnterTransitionAnimationDelegate(activity) { transitionTargetView }
 
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
-        lifecycleOwner.state = Lifecycle.State.CREATED
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
 
     @After
     fun cleanup() {
-        lifecycleOwner.state = Lifecycle.State.DESTROYED
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         Dispatchers.resetMain()
     }
 

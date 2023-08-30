@@ -20,7 +20,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.Lifecycle
-import com.android.intentresolver.TestLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
