@@ -24,6 +24,7 @@
         coreApp="true">
 
     <application
+        android:name=".MainApplication"
         android:hardwareAccelerated="true"
         android:label="@string/app_label"
         android:directBootAware="true"
