@@ -16,12 +16,11 @@
 
 package com.android.intentresolver
 
+import android.app.Application
 import android.content.Context
 import android.os.UserHandle
-import com.android.intentresolver.dagger.DaggerTestApplicationComponent
 
-class TestApplication : IntentResolverApplication() {
-    override fun createApplicationComponentBuilder() = DaggerTestApplicationComponent.builder()
+class TestApplication : Application() {
 
     // return the current context as a work profile doesn't really exist in these tests
     override fun createContextAsUser(user: UserHandle, flags: Int): Context = this
