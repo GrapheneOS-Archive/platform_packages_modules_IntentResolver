@@ -18,8 +18,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="46dp"
-    android:layout_height="46dp">
+    android:layout_width="@dimen/chooser_preview_image_height_tall"
+    android:layout_height="@dimen/chooser_preview_image_height_tall">
 
     <com.android.intentresolver.widget.RoundedRectImageView
             android:id="@+id/image"
