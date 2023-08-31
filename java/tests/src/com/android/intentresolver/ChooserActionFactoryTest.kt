@@ -25,47 +25,44 @@ import android.content.IntentFilter
 import android.content.res.Resources
 import android.graphics.drawable.Icon
 import android.service.chooser.ChooserAction
-import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.intentresolver.flags.FeatureFlagRepository
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.function.Consumer
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
-import java.util.concurrent.Callable
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.function.Consumer
 
 @RunWith(AndroidJUnit4::class)
 class ChooserActionFactoryTest {
     private val context = InstrumentationRegistry.getInstrumentation().getContext()
 
     private val logger = mock<ChooserActivityLogger>()
-    private val flags = mock<FeatureFlagRepository>()
     private val actionLabel = "Action label"
     private val modifyShareLabel = "Modify share"
     private val testAction = "com.android.intentresolver.testaction"
     private val countdown = CountDownLatch(1)
-    private val testReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            // Just doing at most a single countdown per test.
-            countdown.countDown()
+    private val testReceiver: BroadcastReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                // Just doing at most a single countdown per test.
+                countdown.countDown()
+            }
         }
-    }
-    private object resultConsumer : Consumer<Int> {
-        var latestReturn = Integer.MIN_VALUE
+    private val resultConsumer =
+        object : Consumer<Int> {
+            var latestReturn = Integer.MIN_VALUE
 
-        override fun accept(resultCode: Int) {
-            latestReturn = resultCode
+            override fun accept(resultCode: Int) {
+                latestReturn = resultCode
+            }
         }
-
-    }
 
     @Before
     fun setup() {
@@ -91,7 +88,7 @@ class ChooserActionFactoryTest {
 
         Mockito.verify(logger).logCustomActionSelected(eq(0))
         assertEquals(Activity.RESULT_OK, resultConsumer.latestReturn)
-        // Verify the pendingintent has been called
+        // Verify the pending intent has been called
         countdown.await(500, TimeUnit.MILLISECONDS)
     }
 
@@ -109,42 +106,119 @@ class ChooserActionFactoryTest {
         val action = factory.modifyShareAction ?: error("Modify share action should not be null")
         action.onClicked.run()
 
-        Mockito.verify(logger).logActionSelected(
-            eq(ChooserActivityLogger.SELECTION_TYPE_MODIFY_SHARE))
+        Mockito.verify(logger)
+            .logActionSelected(eq(ChooserActivityLogger.SELECTION_TYPE_MODIFY_SHARE))
         assertEquals(Activity.RESULT_OK, resultConsumer.latestReturn)
-        // Verify the pendingintent has been called
+        // Verify the pending intent has been called
         countdown.await(500, TimeUnit.MILLISECONDS)
     }
 
+    @Test
+    fun nonSendAction_noCopyRunnable() {
+        val targetIntent =
+            Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                putExtra(Intent.EXTRA_TEXT, "Text to show")
+            }
+
+        val chooserRequest =
+            mock<ChooserRequestParameters> {
+                whenever(this.targetIntent).thenReturn(targetIntent)
+                whenever(chooserActions).thenReturn(ImmutableList.of())
+            }
+        val testSubject =
+            ChooserActionFactory(
+                context,
+                chooserRequest,
+                mock(),
+                logger,
+                {},
+                { null },
+                mock(),
+                {},
+            )
+        assertThat(testSubject.copyButtonRunnable).isNull()
+    }
+
+    @Test
+    fun sendActionNoText_noCopyRunnable() {
+        val targetIntent = Intent(Intent.ACTION_SEND)
+
+        val chooserRequest =
+            mock<ChooserRequestParameters> {
+                whenever(this.targetIntent).thenReturn(targetIntent)
+                whenever(chooserActions).thenReturn(ImmutableList.of())
+            }
+        val testSubject =
+            ChooserActionFactory(
+                context,
+                chooserRequest,
+                mock(),
+                logger,
+                {},
+                { null },
+                mock(),
+                {},
+            )
+        assertThat(testSubject.copyButtonRunnable).isNull()
+    }
+
+    @Test
+    fun sendActionWithText_nonNullCopyRunnable() {
+        val targetIntent = Intent(Intent.ACTION_SEND).apply { putExtra(Intent.EXTRA_TEXT, "Text") }
+
+        val chooserRequest =
+            mock<ChooserRequestParameters> {
+                whenever(this.targetIntent).thenReturn(targetIntent)
+                whenever(chooserActions).thenReturn(ImmutableList.of())
+            }
+        val testSubject =
+            ChooserActionFactory(
+                context,
+                chooserRequest,
+                mock(),
+                logger,
+                {},
+                { null },
+                mock(),
+                {},
+            )
+        assertThat(testSubject.copyButtonRunnable).isNotNull()
+    }
+
     private fun createFactory(includeModifyShare: Boolean = false): ChooserActionFactory {
-        val testPendingIntent = PendingIntent.getActivity(context, 0, Intent(testAction),0)
+        val testPendingIntent = PendingIntent.getActivity(context, 0, Intent(testAction), 0)
         val targetIntent = Intent()
-        val action = ChooserAction.Builder(
-            Icon.createWithResource("", Resources.ID_NULL),
-            actionLabel,
-            testPendingIntent
-        ).build()
+        val action =
+            ChooserAction.Builder(
+                    Icon.createWithResource("", Resources.ID_NULL),
+                    actionLabel,
+                    testPendingIntent
+                )
+                .build()
         val chooserRequest = mock<ChooserRequestParameters>()
         whenever(chooserRequest.targetIntent).thenReturn(targetIntent)
         whenever(chooserRequest.chooserActions).thenReturn(ImmutableList.of(action))
 
         if (includeModifyShare) {
-            val modifyShare = ChooserAction.Builder(
-                Icon.createWithResource("", Resources.ID_NULL),
-                modifyShareLabel,
-                testPendingIntent
-            ).build()
+            val modifyShare =
+                ChooserAction.Builder(
+                        Icon.createWithResource("", Resources.ID_NULL),
+                        modifyShareLabel,
+                        testPendingIntent
+                    )
+                    .build()
             whenever(chooserRequest.modifyShareAction).thenReturn(modifyShare)
         }
 
         return ChooserActionFactory(
             context,
             chooserRequest,
-            mock<ChooserIntegratedDeviceComponents>(),
+            mock(),
             logger,
-            Consumer<Boolean>{},
-            Callable<View?>{null},
-            mock<ChooserActionFactory.ActionActivityStarter>(),
-            resultConsumer)
+            {},
+            { null },
+            mock(),
+            resultConsumer
+        )
     }
 }
