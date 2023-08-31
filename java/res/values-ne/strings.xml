@@ -53,17 +53,26 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g> पिन गर्नुहोस्"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> लाई अनपिन गर्नुहोस्"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"सम्पादन गर्नुहोस्"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # फाइल}other{{file_name} + # वटा फाइल}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{# भन्दा बढी फाइल}other{# भन्दा बढी फाइलहरू}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{थप + # वटा फाइल}other{थप + # वटा फाइल}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"टेक्स्ट सेयर गरिँदै छ"</string>
     <string name="sharing_link" msgid="2307694372813942916">"लिंक सेयर गरिँदै छ"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{फोटो सेयर गरिँदै छ}other{# वटा फोटो सेयर गरिँदै छ}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{भिडियो सेयर गरिँदै छ}other{# वटा भिडियो सेयर गरिँदै छ}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# सामग्री सेयर गरिँदै छ}other{# वटा सामग्री सेयर गरिँदै छ}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"टेक्स्ट भएको फोटो सेयर गरिँदै छ"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"लिंक भएको फोटो सेयर गरिँदै छ"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# वटा फाइल सेयर गरिँदै छ}other{# वटा फाइल सेयर गरिँदै छ}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{टेक्स्ट भएको फोटो सेयर गरिँदै छ}other{टेक्स्ट भएका # वटा फोटो सेयर गरिँदै छन्}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{लिंक भएको फोटो सेयर गरिँदै छ}other{लिंक भएका # वटा फोटो सेयर गरिँदै छन्}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{टेक्स्ट भएको भिडियो सेयर गरिँदै छ}other{टेक्स्ट भएका # वटा भिडियो सेयर गरिँदै छन्}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{लिंक भएको भिडियो सेयर गरिँदै छ}other{लिंक भएका # वटा भिडियो सेयर गरिँदै छन्}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{टेक्स्ट भएको फाइल सेयर गरिँदै छ}other{टेक्स्ट भएका # वटा फाइल सेयर गरिँदै छन्}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{लिंक भएको फाइल सेयर गरिँदै छ}other{लिंक भएका # वटा फाइल सेयर गरिँदै छन्}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{फोटो मात्र}other{फोटोहरू मात्र}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{भिडियो मात्र}other{भिडियोहरू मात्र}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{फाइल मात्र}other{फाइलहरू मात्र}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"फोटो प्रिभ्यू थम्बनेल"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"भिडियो प्रिभ्यू थम्बनेल"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"फाइल प्रिभ्यू थम्बनेल"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"कुनै पनि व्यक्तिसँग सेयर गर्ने सिफारिस गरिएको छैन"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"अनुप्रयोगहरूको सूची"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"यो एपलाई रेकर्ड गर्ने अनुमति प्रदान गरिएको छैन तर यसले यो USB यन्त्रमार्फत अडियो क्याप्चर गर्न सक्छ।"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"व्यक्तिगत"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"काम"</string>
@@ -74,8 +83,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"यो सामग्री कामसम्बन्धी एपहरूमार्फत खोल्न मिल्दैन"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"यो सामग्री व्यक्तिगत एपहरूमार्फत सेयर गर्न मिल्दैन"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"यो सामग्री व्यक्तिगत एपहरूमार्फत खोल्न मिल्दैन"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"कार्य प्रोफाइल पज गरिएको छ"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"अन गर्न ट्याप गर्नुहोस्"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"कामसम्बन्धी एपहरू पज गरिएका छन्"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"अनपज गर्नुहोस्"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"यो सामग्री खोल्न मिल्ने कुनै पनि कामसम्बन्धी एप छैन"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"यो सामग्री खोल्न मिल्ने कुनै पनि व्यक्तिगत एप छैन"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"<xliff:g id="APP">%s</xliff:g> तपाईंको व्यक्तिगत प्रोफाइलमा खोल्ने हो?"</string>

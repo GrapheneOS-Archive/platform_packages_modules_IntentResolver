@@ -53,17 +53,26 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g>-г бэхлэх"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g>-г тогтоосныг болиулах"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Засах"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # файл}other{{file_name} + # файл}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # файл}other{+ # файл}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{Өөр + # файл}other{Өөр + # файл}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Текст хуваалцаж байна"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Холбоос хуваалцаж байна"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Зураг хуваалцаж байна}other{# зураг хуваалцаж байна}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Видео хуваалцаж байна}other{# видео хуваалцаж байна}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# зүйл хуваалцаж байна}other{# зүйл хуваалцаж байна}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"Тексттэй зураг хуваалцаж байна"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"Холбоостой зураг хуваалцаж байна"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# файл хуваалцаж байна}other{# файл хуваалцаж байна}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Тексттэй зураг хуваалцаж байна}other{Тексттэй # зураг хуваалцаж байна}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Холбоостой зураг хуваалцаж байна}other{Холбоостой # зураг хуваалцаж байна}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Тексттэй видео хуваалцаж байна}other{Тексттэй # видео хуваалцаж байна}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Холбоостой видео хуваалцаж байна}other{Холбоостой # видео хуваалцаж байна}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Тексттэй файл хуваалцаж байна}other{Тексттэй # файл хуваалцаж байна}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Холбоостой файл хуваалцаж байна}other{Холбоостой # файл хуваалцаж байна}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Зөвхөн зураг}other{Зөвхөн зургууд}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Зөвхөн видео}other{Зөвхөн видеонууд}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Зөвхөн файл}other{Зөвхөн файлууд}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Зургийн урьдчилан үзэх өнгөц зураг"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Видеоны урьдчилан үзэх өнгөц зураг"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Файлын урьдчилан үзэх өнгөц зураг"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Хуваалцахыг санал болгосон хүн байхгүй"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Аппын жагсаалт"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Энэ апликейшнд бичих зөвшөөрөл олгогдоогүй ч энэ USB төхөөрөмжөөр дамжуулан аудио бичиж чадсан."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Хувийн"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Ажил"</string>
@@ -74,8 +83,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Энэ контентыг ажлын аппуудаар нээх боломжгүй"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Энэ контентыг хувийн аппуудаар хуваалцах боломжгүй"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Энэ контентыг хувийн аппуудаар нээх боломжгүй"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Ажлын профайлыг түр зогсоосон"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Асаахын тулд товших"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Ажлын аппуудыг түр зогсоосон"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Үргэлжлүүлэх"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Ямар ч ажлын апп байхгүй байна"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Ямар ч хувийн апп байхгүй байна"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Хувийн профайл дээрээ <xliff:g id="APP">%s</xliff:g>-г нээх үү?"</string>

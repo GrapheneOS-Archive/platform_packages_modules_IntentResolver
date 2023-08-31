@@ -53,17 +53,26 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"固定<xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"取消置顶<xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"编辑"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} 以及另外 # 个文件}other{{file_name} 以及另外 # 个文件}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{另外 # 个文件}other{另外 # 个文件}}"</string>
-    <string name="sharing_text" msgid="8137537443603304062">"正在分享文本"</string>
-    <string name="sharing_link" msgid="2307694372813942916">"正在分享链接"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{正在分享图片}other{正在分享 # 张图片}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{还有 # 个文件}other{还有 # 个文件}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"分享文本"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"分享链接"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{分享图片}other{分享 # 张图片}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{正在分享视频}other{正在分享 # 个视频}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{正在分享 # 个项目}other{正在分享 # 个项目}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"正在分享带有文本的图片"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"正在分享带有链接的图片"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{正在分享 # 个文件}other{正在分享 # 个文件}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{正在分享带有文本的图片}other{正在分享带有文本的 # 个图片}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{正在分享带有链接的图片}other{正在分享带有链接的 # 个图片}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{正在分享带有文本的视频}other{正在分享带有文本的 # 个视频}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{正在分享带有链接的视频}other{正在分享带有链接的 # 个视频}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{正在分享带有文本的文件}other{正在分享带有文本的 # 个文件}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{正在分享带有链接的文件}other{正在分享带有链接的 # 个文件}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{仅限图片}other{仅限图片}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{仅限视频}other{仅限视频}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{仅限文件}other{仅限文件}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"图片预览缩略图"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"视频预览缩略图"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"文件预览缩略图"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"没有任何推荐的分享对象"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"应用列表"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"此应用未获得录音权限，但能通过此 USB 设备录制音频。"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"个人"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"工作"</string>
@@ -74,8 +83,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"无法使用工作应用打开该内容"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"无法使用个人应用分享该内容"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"无法使用个人应用打开该内容"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"工作资料已被暂停"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"点按即可开启"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"工作应用已暂停"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"解除暂停"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"没有支持该内容的工作应用"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"没有支持该内容的个人应用"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"要使用个人资料打开 <xliff:g id="APP">%s</xliff:g> 吗？"</string>
