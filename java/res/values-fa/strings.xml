@@ -32,7 +32,7 @@
     <string name="whichEditApplicationLabel" msgid="5992662938338600364">"ویرایش"</string>
     <string name="whichSendApplication" msgid="59510564281035884">"هم‌رسانی"</string>
     <string name="whichSendApplicationNamed" msgid="495577664218765855">"هم‌رسانی با <xliff:g id="APP">%1$s</xliff:g>"</string>
-    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"اشتراک‌گذاری"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"هم‌رسانی"</string>
     <string name="whichSendToApplication" msgid="2724450540348806267">"ارسال با استفاده از"</string>
     <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"ارسال بااستفاده از <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"ارسال"</string>
