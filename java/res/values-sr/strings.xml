@@ -58,12 +58,12 @@
     <string name="sharing_text" msgid="8137537443603304062">"Дели се текст"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Дели се линк"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Дели се слика}one{Дели се # слика}few{Деле се # слике}other{Дели се # слика}}"</string>
-    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Дели се видео}one{Дели се # видео}few{Деле се # видео снимка}other{Дели се # видео снимака}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Дели се видео}one{Дели се # видео}few{Деле се # видео снимка}other{Дели се # видеа}}"</string>
     <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Дели се # фајл}one{Дели се # фајл}few{Деле се # фајла}other{Дели се # фајлова}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Дели се слика са текстом}one{Дели се # слика са текстом}few{Деле се # слике са текстом}other{Дели се # слика са текстом}}"</string>
     <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Дели се слика са линком}one{Дели се # слика са линком}few{Деле се # слике са линком}other{Дели се # слика са линком}}"</string>
-    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Дели се видео са текстом}one{Дели се # видео са текстом}few{Деле се # видео снимка са текстом}other{Дели се # видео снимака са текстом}}"</string>
-    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Дели се видео са линком}one{Дели се # видео са линком}few{Деле се # видео снимка са линком}other{Дели се # видео снимака са линком}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Дели се видео са текстом}one{Дели се # видео са текстом}few{Деле се # видео снимка са текстом}other{Дели се # видеа са текстом}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Дели се видео са линком}one{Дели се # видео са линком}few{Деле се # видео снимка са линком}other{Дели се # видеа са линком}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Дели се фајл са текстом}one{Дели се # фајл са текстом}few{Деле се # фајла са текстом}other{Дели се # фајлова са текстом}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Дели се фајл са линком}one{Дели се # фајл са линком}few{Деле се # фајла са линком}other{Дели се # фајлова са линком}}"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Само слика}one{Само слике}few{Само слике}other{Само слике}}"</string>
