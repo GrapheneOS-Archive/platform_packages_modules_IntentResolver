@@ -78,12 +78,19 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
             | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
             | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION;
 
+    // Boolean extra used to inform the editor that it may want to customize the editing experience
+    // for the sharesheet editing flow.
+    private static final String EDIT_SOURCE = "edit_source";
+    private static final String EDIT_SOURCE_SHARESHEET = "sharesheet";
+
     private static final String CHIP_LABEL_METADATA_KEY = "android.service.chooser.chip_label";
     private static final String CHIP_ICON_METADATA_KEY = "android.service.chooser.chip_icon";
 
     private static final String IMAGE_EDITOR_SHARED_ELEMENT = "screenshot_preview_image";
 
     private final Context mContext;
+
+    @Nullable
     private final Runnable mCopyButtonRunnable;
     private final Runnable mEditButtonRunnable;
     private final ImmutableList<ChooserAction> mCustomActions;
@@ -140,7 +147,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
     @VisibleForTesting
     ChooserActionFactory(
             Context context,
-            Runnable copyButtonRunnable,
+            @Nullable Runnable copyButtonRunnable,
             Runnable editButtonRunnable,
             List<ChooserAction> customActions,
             @Nullable ChooserAction modifyShareAction,
@@ -219,49 +226,24 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
         return mExcludeSharedTextAction;
     }
 
+    @Nullable
     private static Runnable makeCopyButtonRunnable(
             Context context,
             Intent targetIntent,
             String referrerPackageName,
             Consumer<Integer> finishCallback,
             ChooserActivityLogger logger) {
+        final ClipData clipData;
+        try {
+            clipData = extractTextToCopy(targetIntent);
+        } catch (Throwable t) {
+            Log.e(TAG, "Failed to extract data to copy", t);
+            return  null;
+        }
+        if (clipData == null) {
+            return null;
+        }
         return () -> {
-            if (targetIntent == null) {
-                finishCallback.accept(null);
-                return;
-            }
-
-            final String action = targetIntent.getAction();
-
-            ClipData clipData = null;
-            if (Intent.ACTION_SEND.equals(action)) {
-                String extraText = targetIntent.getStringExtra(Intent.EXTRA_TEXT);
-                Uri extraStream = targetIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-
-                if (extraText != null) {
-                    clipData = ClipData.newPlainText(null, extraText);
-                } else if (extraStream != null) {
-                    clipData = ClipData.newUri(context.getContentResolver(), null, extraStream);
-                } else {
-                    Log.w(TAG, "No data available to copy to clipboard");
-                    return;
-                }
-            } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
-                final ArrayList<Uri> streams = targetIntent.getParcelableArrayListExtra(
-                        Intent.EXTRA_STREAM);
-                clipData = ClipData.newUri(context.getContentResolver(), null, streams.get(0));
-                for (int i = 1; i < streams.size(); i++) {
-                    clipData.addItem(
-                            context.getContentResolver(),
-                            new ClipData.Item(streams.get(i)));
-                }
-            } else {
-                // expected to only be visible with ACTION_SEND or ACTION_SEND_MULTIPLE
-                // so warn about unexpected action
-                Log.w(TAG, "Action (" + action + ") not supported for copying to clipboard");
-                return;
-            }
-
             ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(
                     Context.CLIPBOARD_SERVICE);
             clipboardManager.setPrimaryClipAsPackage(clipData, referrerPackageName);
@@ -269,6 +251,30 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
             logger.logActionSelected(ChooserActivityLogger.SELECTION_TYPE_COPY);
             finishCallback.accept(Activity.RESULT_OK);
         };
+    }
+
+    @Nullable
+    private static ClipData extractTextToCopy(Intent targetIntent) {
+        if (targetIntent == null) {
+            return null;
+        }
+
+        final String action = targetIntent.getAction();
+
+        ClipData clipData = null;
+        if (Intent.ACTION_SEND.equals(action)) {
+            String extraText = targetIntent.getStringExtra(Intent.EXTRA_TEXT);
+
+            if (extraText != null) {
+                clipData = ClipData.newPlainText(null, extraText);
+            } else {
+                Log.w(TAG, "No data available to copy to clipboard");
+            }
+        } else {
+            // expected to only be visible with ACTION_SEND (when a text is shared)
+            Log.d(TAG, "Action (" + action + ") not supported for copying to clipboard");
+        }
+        return clipData;
     }
 
     private static TargetInfo getEditSharingTarget(
@@ -284,6 +290,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
         resolveIntent.setFlags(originalIntent.getFlags() & URI_PERMISSION_INTENT_FLAGS);
         resolveIntent.setComponent(editorComponent);
         resolveIntent.setAction(Intent.ACTION_EDIT);
+        resolveIntent.putExtra(EDIT_SOURCE, EDIT_SOURCE_SHARESHEET);
         String originalAction = originalIntent.getAction();
         if (Intent.ACTION_SEND.equals(originalAction)) {
             if (resolveIntent.getData() == null) {
