@@ -47,6 +47,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -435,7 +436,7 @@ public class UnbundledChooserActivityTest {
         String previewTitle = "My Content Preview Title";
         Uri uri = Uri.parse(
                 "android.resource://com.android.frameworks.coretests/"
-                        + R.drawable.test320x240);
+                + com.android.intentresolver.tests.R.drawable.test320x240);
         Intent sendIntent = createSendTextIntentWithPreview(previewTitle, uri);
         ChooserActivityOverrideData.getInstance().imageLoader =
                 createImageLoader(uri, createBitmap());
@@ -1835,11 +1836,13 @@ public class UnbundledChooserActivityTest {
                 broadcastInvoked.countDown();
             }
         };
-        testContext.registerReceiver(testReceiver, new IntentFilter(testAction));
+        testContext.registerReceiver(testReceiver, new IntentFilter(testAction),
+                Context.RECEIVER_EXPORTED);
 
         try {
             onView(withText(customActionLabel)).perform(click());
-            broadcastInvoked.await();
+            assertTrue("Timeout waiting for broadcast",
+                    broadcastInvoked.await(5000, TimeUnit.MILLISECONDS));
         } finally {
             testContext.unregisterReceiver(testReceiver);
         }
@@ -1875,11 +1878,14 @@ public class UnbundledChooserActivityTest {
                 broadcastInvoked.countDown();
             }
         };
-        testContext.registerReceiver(testReceiver, new IntentFilter(modifyShareAction));
+        testContext.registerReceiver(testReceiver, new IntentFilter(modifyShareAction),
+                Context.RECEIVER_EXPORTED);
 
         try {
             onView(withText(label)).perform(click());
-            broadcastInvoked.await();
+            assertTrue("Timeout waiting for broadcast",
+                    broadcastInvoked.await(5000, TimeUnit.MILLISECONDS));
+
         } finally {
             testContext.unregisterReceiver(testReceiver);
         }
