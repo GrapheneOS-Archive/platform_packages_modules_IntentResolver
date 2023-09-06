@@ -17,6 +17,7 @@
  */
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
         package="com.android.intentresolver"
         android:versionCode="0"
         android:versionName="2021-11"
@@ -57,6 +58,11 @@
                 android:configChanges="screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden"
                 android:visibleToInstantApps="true"
                 android:exported="false"/>
+
+        <provider android:name="androidx.startup.InitializationProvider"
+                android:authorities="${applicationId}.androidx-startup"
+                tools:replace="android:authorities"
+                tools:node="remove" />
 
     </application>
 
