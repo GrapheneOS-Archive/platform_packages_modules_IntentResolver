@@ -16,16 +16,18 @@
 
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="@dimen/chooser_preview_image_width"
-    android:layout_height="@dimen/chooser_preview_image_height_tall">
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/chooser_preview_image_height_tall"
+    android:paddingHorizontal="@dimen/chooser_edge_margin_normal_half">
 
     <TextView
         android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:drawableTop="@drawable/ic_file_copy"
-        android:drawablePadding="8dp"
+        android:drawableStart="@drawable/ic_file_copy"
+        android:drawablePadding="4dp"
+        android:gravity="bottom"
         android:textAppearance="@style/TextAppearance.ChooserDefault" />
 
 </FrameLayout>
