@@ -31,7 +31,7 @@
     <string name="whichEditApplicationNamed" msgid="3150137489226219100">"Modifiko me <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichEditApplicationLabel" msgid="5992662938338600364">"Redakto"</string>
     <string name="whichSendApplication" msgid="59510564281035884">"Ndaj"</string>
-    <string name="whichSendApplicationNamed" msgid="495577664218765855">"Shpërndaj me <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"Ndaj me <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichSendApplicationLabel" msgid="2391198069286568035">"Ndaj"</string>
     <string name="whichSendToApplication" msgid="2724450540348806267">"Dërgo me"</string>
     <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"Dërgo duke përdorur <xliff:g id="APP">%1$s</xliff:g>"</string>
@@ -79,9 +79,9 @@
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Pamja personale"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Pamja e punës"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Bllokuar nga administratori yt i teknologjisë së informacionit"</string>
-    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Kjo përmbajtje nuk mund të shpërndahet me aplikacione pune"</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Kjo përmbajtje nuk mund të ndahet me aplikacione pune"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Kjo përmbajtje nuk mund të hapet me aplikacione pune"</string>
-    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Kjo përmbajtje nuk mund të shpërndahet me aplikacione personale"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Kjo përmbajtje nuk mund të ndahet me aplikacione personale"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Kjo përmbajtje nuk mund të hapet me aplikacione personale"</string>
     <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Aplikacionet e punës janë vendosur në pauzë"</string>
     <string name="resolver_switch_on_work" msgid="8678893259344318807">"Hiq nga pauza"</string>
