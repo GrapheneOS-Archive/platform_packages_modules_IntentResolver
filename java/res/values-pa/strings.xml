@@ -72,7 +72,7 @@
     <string name="image_preview_a11y_description" msgid="297102643932491797">"ਚਿੱਤਰ ਦੀ ਪੂਰਵ-ਝਲਕ ਦਾ ਲਘੂ-ਚਿੱਤਰ"</string>
     <string name="video_preview_a11y_description" msgid="683440858811095990">"ਵੀਡੀਓ ਦੀ ਪੂਰਵ-ਝਲਕ ਦਾ ਲਘੂ-ਚਿੱਤਰ"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"ਫ਼ਾਈਲ ਦੀ ਪੂਰਵ-ਝਲਕ ਦਾ ਲਘੂ-ਚਿੱਤਰ"</string>
-    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ਸਾਂਝਾ ਕਰਨ ਲਈ ਕੋਈ ਸਿਫ਼ਾਰਸ਼ ਕੀਤੇ ਲੋਕ ਨਹੀਂ"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ਸਾਂਝਾ ਕਰਨ ਲਈ ਕੋਈ ਸਿਫ਼ਾਰਸ਼ ਕੀਤਾ ਵਿਅਕਤੀ ਨਹੀਂ ਹੈ"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ਇਸ ਐਪ ਨੂੰ ਰਿਕਾਰਡ ਕਰਨ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ ਦਿੱਤੀ ਗਈ ਪਰ ਇਹ USB ਡੀਵਾਈਸ ਰਾਹੀਂ ਆਡੀਓ ਕੈਪਚਰ ਕਰ ਸਕਦੀ ਹੈ।"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ਨਿੱਜੀ"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ਕੰਮ ਸੰਬੰਧੀ"</string>
