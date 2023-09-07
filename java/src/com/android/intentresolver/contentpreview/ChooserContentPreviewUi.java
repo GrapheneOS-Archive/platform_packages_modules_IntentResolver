@@ -200,7 +200,7 @@ public final class ChooserContentPreviewUi {
             ImageLoader imageLoader,
             HeadlineGenerator headlineGenerator) {
         CharSequence sharingText = targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
-        String previewTitle = targetIntent.getStringExtra(Intent.EXTRA_TITLE);
+        CharSequence previewTitle = targetIntent.getCharSequenceExtra(Intent.EXTRA_TITLE);
         ClipData previewData = targetIntent.getClipData();
         Uri previewThumbnail = null;
         if (previewData != null) {

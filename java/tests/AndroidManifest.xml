@@ -34,8 +34,7 @@
     </application>
 
     <instrumentation android:name="android.testing.TestableInstrumentation"
-        android:targetPackage="com.android.intentresolver.tests"
-        android:label="Tests for IntentResolver">
+        android:targetPackage="com.android.intentresolver.tests">
     </instrumentation>
 
 </manifest>

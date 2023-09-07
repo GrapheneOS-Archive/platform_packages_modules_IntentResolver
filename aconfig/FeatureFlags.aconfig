@@ -1,0 +1,12 @@
+package: "com.android.intentresolver"
+
+# name: [a-z0-9][_a-z0-9]+
+# namespace: intentresolver
+# bug: "Feature_Bug_#" or "<none>"
+
+flag {
+  name: "example_new_sharing_method"
+  namespace: "intentresolver"
+  description: "Enables the example new sharing mechanism."
+  bug: "<none>"
+}

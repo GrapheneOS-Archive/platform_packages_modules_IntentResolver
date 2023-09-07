@@ -20,6 +20,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.ResolveInfoFlags
+import android.content.pm.ShortcutInfo
 import android.os.UserHandle
 import android.view.View
 import android.widget.FrameLayout
@@ -33,6 +34,7 @@ import com.android.intentresolver.chooser.TargetInfo
 import com.android.intentresolver.icons.TargetDataLoader
 import com.android.intentresolver.logging.EventLog
 import com.android.internal.R
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,6 +52,8 @@ class ChooserListAdapterTest {
         }
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val resolverListController = mock<ResolverListController>()
+    private val appLabel = "App"
+    private val targetLabel = "Target"
     private val mEventLog = mock<EventLog>()
     private val mTargetDataLoader = mock<TargetDataLoader>()
 
@@ -132,29 +136,77 @@ class ChooserListAdapterTest {
         verify(mTargetDataLoader, times(1)).loadAppTargetIcon(any(), any(), any())
     }
 
-    private fun createSelectableTargetInfo(): TargetInfo =
-        SelectableTargetInfo.newSelectableTargetInfo(
-            /* sourceInfo = */ DisplayResolveInfo.newDisplayResolveInfo(
-                Intent(),
-                ResolverDataProvider.createResolveInfo(2, 0, userHandle),
-                "label",
-                "extended info",
-                Intent(),
-                /* resolveInfoPresentationGetter= */ null
-            ),
+    @Test
+    fun onBindView_contentDescription() {
+        val view = createView()
+        val viewHolder = ResolverListAdapter.ViewHolder(view)
+        view.tag = viewHolder
+        val targetInfo = createSelectableTargetInfo()
+        testSubject.onBindView(view, targetInfo, 0)
+
+        assertThat(view.contentDescription).isEqualTo("$targetLabel  $appLabel")
+    }
+
+    @Test
+    fun onBindView_contentDescriptionPinned() {
+        val view = createView()
+        val viewHolder = ResolverListAdapter.ViewHolder(view)
+        view.tag = viewHolder
+        val targetInfo = createSelectableTargetInfo(true)
+        testSubject.onBindView(view, targetInfo, 0)
+
+        assertThat(view.contentDescription).isEqualTo("$targetLabel  $appLabel. Pinned")
+    }
+
+    @Test
+    fun onBindView_displayInfoContentDescriptionPinned() {
+        val view = createView()
+        val viewHolder = ResolverListAdapter.ViewHolder(view)
+        view.tag = viewHolder
+        val targetInfo = createDisplayResolveInfo(isPinned = true)
+        testSubject.onBindView(view, targetInfo, 0)
+
+        assertThat(view.contentDescription).isEqualTo("$appLabel. Pinned")
+    }
+
+    private fun createSelectableTargetInfo(isPinned: Boolean = false): TargetInfo {
+        val shortcutInfo =
+            createShortcutInfo("id-1", ComponentName("pkg", "Class"), 1).apply {
+                if (isPinned) {
+                    addFlags(ShortcutInfo.FLAG_PINNED)
+                }
+            }
+        return SelectableTargetInfo.newSelectableTargetInfo(
+            /* sourceInfo = */ createDisplayResolveInfo(isPinned),
             /* backupResolveInfo = */ mock(),
             /* resolvedIntent = */ Intent(),
             /* chooserTarget = */ createChooserTarget(
-                "Target",
+                targetLabel,
                 0.5f,
                 ComponentName("pkg", "Class"),
                 "id-1"
             ),
             /* modifiedScore = */ 1f,
-            /* shortcutInfo = */ createShortcutInfo("id-1", ComponentName("pkg", "Class"), 1),
+            shortcutInfo,
             /* appTarget */ null,
             /* referrerFillInIntent = */ Intent()
         )
+    }
+
+    private fun createDisplayResolveInfo(isPinned: Boolean = false): DisplayResolveInfo =
+        DisplayResolveInfo.newDisplayResolveInfo(
+                Intent(),
+                ResolverDataProvider.createResolveInfo(2, 0, userHandle),
+                appLabel,
+                "extended info",
+                Intent(),
+                /* resolveInfoPresentationGetter= */ null
+            )
+            .apply {
+                if (isPinned) {
+                    setPinned(true)
+                }
+            }
 
     private fun createView(): View {
         val view = FrameLayout(context)
