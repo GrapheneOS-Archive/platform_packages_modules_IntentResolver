@@ -72,7 +72,7 @@
     <string name="image_preview_a11y_description" msgid="297102643932491797">"Lakaran kecil pratonton imej"</string>
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Lakaran kecil pratonton video"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Lakaran kecil pratonton fail"</string>
-    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Tiada orang yang disyorkan untuk berkongsi"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Tiada orang yang disyorkan untuk membuat perkongsian"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Apl ini belum diberikan kebenaran merakam tetapi dapat merakam audio melalui peranti USB ini."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Peribadi"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Kerja"</string>
