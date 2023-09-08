@@ -17,8 +17,9 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
-    android:layout_width="@dimen/chooser_preview_image_width"
-    android:layout_height="@dimen/chooser_preview_image_height_tall">
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/chooser_preview_image_height_tall"
+    android:padding="8dp">
 
     <ProgressBar
         android:id="@+id/loading_indicator"
