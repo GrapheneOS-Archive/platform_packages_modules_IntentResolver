@@ -24,6 +24,7 @@ import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CROS
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_PERSONAL;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_WORK;
 
+import static androidx.lifecycle.LifecycleKt.getCoroutineScope;
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
 
 import android.annotation.IntDef;
@@ -406,7 +407,7 @@ public class ChooserActivity extends ResolverActivity implements
             Consumer<ShortcutLoader.Result> callback) {
         return new ShortcutLoader(
                 context,
-                getLifecycle(),
+                getCoroutineScope(getLifecycle()),
                 appPredictor,
                 userHandle,
                 targetIntentFilter,
