@@ -77,9 +77,6 @@ android_library {
         "guava",
         "SystemUIFlagsLib",
     ],
-    optimize: {
-        proguard_flags_files: ["proguard.flags"],
-    },
 }
 
 java_defaults {
@@ -102,6 +99,10 @@ android_app {
     ],
     optimize: {
         enabled: true,
+        optimize: true,
+        shrink: true,
+        shrink_resources: true,
+        proguard_flags_files: ["proguard.flags"],
     },
     visibility: ["//visibility:public"],
     apex_available: [
