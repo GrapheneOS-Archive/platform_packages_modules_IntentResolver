@@ -17,7 +17,6 @@
 package com.android.intentresolver;
 
 import static android.app.Activity.RESULT_OK;
-
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.longClick;
@@ -29,7 +28,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-
 import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_CHOOSER_TARGET;
 import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_DEFAULT;
 import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE;
@@ -37,11 +35,8 @@ import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_SHORTCUTS_F
 import static com.android.intentresolver.ChooserListAdapter.CALLER_TARGET_SCORE_BOOST;
 import static com.android.intentresolver.ChooserListAdapter.SHORTCUT_TARGET_SCORE_BOOST;
 import static com.android.intentresolver.MatcherUtils.first;
-
 import static com.google.common.truth.Truth.assertThat;
-
 import static junit.framework.Assert.assertNull;
-
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -105,7 +100,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -122,7 +116,6 @@ import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
-import com.android.systemui.flags.BooleanFlag;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -131,8 +124,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.ArgumentCaptor;
@@ -155,26 +146,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Instrumentation tests for the IntentResolver module's Sharesheet (ChooserActivity).
- * TODO: remove methods that supported running these tests against arbitrary ChooserActivity
- * subclasses. Those were left over from an earlier version where IntentResolver's ChooserActivity
- * inherited from the framework version at com.android.internal.app.ChooserActivity, and this test
- * file inherited from the framework's version as well. Once the migration to the IntentResolver
- * package is complete, that aspect of the test design can revert to match the style of the
- * framework tests prior to ag/16482932.
- * TODO: this can simply be renamed to "ChooserActivityTest" if that's ever unambiguous (i.e., if
- * there's no risk of confusion with the framework tests that currently share the same name).
+ * Instrumentation tests for ChooserActivity.
+ * <p>
+ * Legacy test suite migrated from framework CoreTests.
+ * <p>
  */
 @RunWith(Parameterized.class)
 public class UnbundledChooserActivityTest {
-
-    /* --------
-     * Subclasses should copy the following section verbatim (or alternatively could specify some
-     * additional @Parameterized.Parameters, as long as the correct parameters are used to
-     * initialize the ChooserActivityTest). The subclasses should also be @RunWith the
-     * `Parameterized` runner.
-     * --------
-     */
 
     private static final UserHandle PERSONAL_USER_HANDLE = InstrumentationRegistry
             .getInstrumentation().getTargetContext().getUser();
@@ -186,56 +164,18 @@ public class UnbundledChooserActivityTest {
                 return mock;
             };
 
-    private static final List<BooleanFlag> ALL_FLAGS =
-            Arrays.asList();
-
-    private static final Map<BooleanFlag, Boolean> ALL_FLAGS_OFF =
-            createAllFlagsOverride(false);
-    private static final Map<BooleanFlag, Boolean> ALL_FLAGS_ON =
-            createAllFlagsOverride(true);
-
     @Parameterized.Parameters
     public static Collection packageManagers() {
-        if (ALL_FLAGS.isEmpty()) {
-            // No flags to toggle between, so just two configurations.
-            return Arrays.asList(new Object[][] {
-                    // Default PackageManager and all flags off
-                    { DEFAULT_PM, ALL_FLAGS_OFF},
-                    // No App Prediction Service and all flags off
-                    { NO_APP_PREDICTION_SERVICE_PM, ALL_FLAGS_OFF },
-            });
-        }
         return Arrays.asList(new Object[][] {
-                // Default PackageManager and all flags off
-                { DEFAULT_PM, ALL_FLAGS_OFF},
-                // Default PackageManager and all flags on
-                { DEFAULT_PM, ALL_FLAGS_ON},
-                // No App Prediction Service and all flags off
-                { NO_APP_PREDICTION_SERVICE_PM, ALL_FLAGS_OFF },
-                // No App Prediction Service and all flags on
-                { NO_APP_PREDICTION_SERVICE_PM, ALL_FLAGS_ON }
+                // Default PackageManager
+                { DEFAULT_PM },
+                // No App Prediction Service
+                { NO_APP_PREDICTION_SERVICE_PM}
         });
     }
 
-    private static Map<BooleanFlag, Boolean> createAllFlagsOverride(boolean value) {
-        HashMap<BooleanFlag, Boolean> overrides = new HashMap<>(ALL_FLAGS.size());
-        for (BooleanFlag flag : ALL_FLAGS) {
-            overrides.put(flag, value);
-        }
-        return overrides;
-    }
-
-    /* --------
-     * Subclasses can override the following methods to customize test behavior.
-     * --------
-     */
-
-    /**
-     * Perform any necessary per-test initialization steps (subclasses may add additional steps
-     * before and/or after calling up to the superclass implementation).
-     */
-    @CallSuper
-    protected void setup() {
+    @Before
+    public void setUp() {
         // TODO: use the other form of `adoptShellPermissionIdentity()` where we explicitly list the
         // permissions we require (which we'll read from the manifest at runtime).
         InstrumentationRegistry
@@ -244,67 +184,11 @@ public class UnbundledChooserActivityTest {
                 .adoptShellPermissionIdentity();
 
         cleanOverrideData();
-        ChooserActivityOverrideData.getInstance().featureFlagRepository =
-                new TestFeatureFlagRepository(mFlags);
     }
-
-    /**
-     * Given an intent that was constructed in a test, perform any additional configuration to
-     * specify the appropriate concrete ChooserActivity subclass. The activity launched by this
-     * intent must descend from android.intentresolver.ChooserActivity (for our ActivityTestRule), and
-     * must also implement the android.intentresolver.IChooserWrapper interface (since test code will
-     * assume the ability to make unsafe downcasts).
-     */
-    protected Intent getConcreteIntentForLaunch(Intent clientIntent) {
-        clientIntent.setClass(
-                InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                com.android.intentresolver.ChooserWrapperActivity.class);
-        return clientIntent;
-    }
-
-    /**
-     * Whether {@code #testIsAppPredictionServiceAvailable} should verify the behavior after
-     * changing the availability conditions at runtime. In the unbundled chooser, the availability
-     * is cached at start and will never be re-evaluated.
-     * TODO: remove when we no longer want to test the system's on-the-fly evaluation.
-     */
-    protected boolean shouldTestTogglingAppPredictionServiceAvailabilityAtRuntime() {
-        return false;
-    }
-
-    /* --------
-     * The code in this section is unorthodox and can be simplified/reverted when we no longer need
-     * to support the parallel chooser implementations.
-     * --------
-     */
 
     @Rule
-    public final TestRule mRule;
-
-    // Shared test code references the activity under test as ChooserActivity, the common ancestor
-    // of any (inheritance-based) chooser implementation. For testing purposes, that activity will
-    // usually be cast to IChooserWrapper to expose instrumentation.
-    private ActivityTestRule<ChooserActivity> mActivityRule =
-            new ActivityTestRule<>(ChooserActivity.class, false, false) {
-                @Override
-                public ChooserActivity launchActivity(Intent clientIntent) {
-                    return super.launchActivity(getConcreteIntentForLaunch(clientIntent));
-                }
-            };
-
-    @Before
-    public final void doPolymorphicSetup() {
-        // The base class needs a @Before-annotated setup for when it runs against the system
-        // chooser, while subclasses need to be able to specify their own setup behavior. Notably
-        // the unbundled chooser, running in user-space, needs to take additional steps before it
-        // can run #cleanOverrideData() (which writes to DeviceConfig).
-        setup();
-    }
-
-    /* --------
-     * Subclasses can ignore the remaining code and inherit the full suite of tests.
-     * --------
-     */
+    public ActivityTestRule<ChooserWrapperActivity> mActivityRule =
+            new ActivityTestRule<>(ChooserWrapperActivity.class, false, false);
 
     private static final String TEST_MIME_TYPE = "application/TestType";
 
@@ -313,18 +197,10 @@ public class UnbundledChooserActivityTest {
     private static final int CONTENT_PREVIEW_TEXT = 3;
 
     private final Function<PackageManager, PackageManager> mPackageManagerOverride;
-    private final Map<BooleanFlag, Boolean> mFlags;
-
 
     public UnbundledChooserActivityTest(
-                Function<PackageManager, PackageManager> packageManagerOverride,
-                Map<BooleanFlag, Boolean> flags) {
+                Function<PackageManager, PackageManager> packageManagerOverride) {
         mPackageManagerOverride = packageManagerOverride;
-        mFlags = flags;
-
-        mRule = RuleChain
-                .outerRule(new FeatureFlagRule(flags))
-                .around(mActivityRule);
     }
 
     private void setDeviceConfigProperty(
