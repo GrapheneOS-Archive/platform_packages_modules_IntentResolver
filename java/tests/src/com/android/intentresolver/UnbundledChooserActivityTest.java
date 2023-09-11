@@ -2751,7 +2751,7 @@ public class UnbundledChooserActivityTest {
         final ChooserActivity activity = mActivityRule.launchActivity(
                 Intent.createChooser(new Intent("ACTION_FOO"), "foo"));
         waitForIdle();
-        assertThat(activity).isInstanceOf(com.android.intentresolver.ChooserWrapperActivity.class);
+        assertThat(activity).isInstanceOf(ChooserWrapperActivity.class);
     }
 
     private ResolveInfo createFakeResolveInfo() {

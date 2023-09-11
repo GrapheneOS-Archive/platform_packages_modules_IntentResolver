@@ -17,6 +17,7 @@
 package com.android.intentresolver.v2;
 
 import static android.app.Activity.RESULT_OK;
+
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.longClick;
@@ -29,16 +30,20 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
+import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_CHOOSER_TARGET;
+import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_DEFAULT;
+import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE;
+import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER;
 import static com.android.intentresolver.ChooserListAdapter.CALLER_TARGET_SCORE_BOOST;
 import static com.android.intentresolver.ChooserListAdapter.SHORTCUT_TARGET_SCORE_BOOST;
 import static com.android.intentresolver.MatcherUtils.first;
-import static com.android.intentresolver.v2.ChooserActivity.TARGET_TYPE_CHOOSER_TARGET;
-import static com.android.intentresolver.v2.ChooserActivity.TARGET_TYPE_DEFAULT;
-import static com.android.intentresolver.v2.ChooserActivity.TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE;
-import static com.android.intentresolver.v2.ChooserActivity.TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+
 import static junit.framework.Assert.assertNull;
+
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -126,8 +131,15 @@ import com.android.intentresolver.contentpreview.ImageLoader;
 import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.logging.FakeEventLog;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
+import com.android.intentresolver.v2.platform.ImageEditor;
+import com.android.intentresolver.v2.platform.ImageEditorModule;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
+
+import dagger.hilt.android.testing.BindValue;
+import dagger.hilt.android.testing.HiltAndroidRule;
+import dagger.hilt.android.testing.HiltAndroidTest;
+import dagger.hilt.android.testing.UninstallModules;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -148,6 +160,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -157,17 +170,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import dagger.hilt.android.testing.HiltAndroidRule;
-import dagger.hilt.android.testing.HiltAndroidTest;
-
 /**
  * Instrumentation tests for ChooserActivity.
  * <p>
  * Legacy test suite migrated from framework CoreTests.
- * <p>
  */
 @RunWith(Parameterized.class)
 @HiltAndroidTest
+@UninstallModules(ImageEditorModule.class)
 public class UnbundledChooserActivityTest {
 
     private static FakeEventLog getEventLog(ChooserWrapperActivity activity) {
@@ -227,6 +237,13 @@ public class UnbundledChooserActivityTest {
     }
 
     private final Function<PackageManager, PackageManager> mPackageManagerOverride;
+
+    /** An arbitrary pre-installed activity that handles this type of intent. */
+    @BindValue
+    @ImageEditor
+    final Optional<ComponentName> mImageEditor = Optional.ofNullable(
+            ComponentName.unflattenFromString("com.google.android.apps.messaging/"
+                    + ".ui.conversationlist.ShareIntentActivity"));
 
     public UnbundledChooserActivityTest(
                 Function<PackageManager, PackageManager> packageManagerOverride) {
@@ -897,10 +914,9 @@ public class UnbundledChooserActivityTest {
         // TODO(b/211669337): Determine the expected SHARESHEET_DIRECT_LOAD_COMPLETE events.
     }
 
-
-
     @Test @Ignore
     public void testEditImageLogs() {
+
         Uri uri = createTestContentProviderUri("image/png", null);
         Intent sendIntent = createSendImageIntent(uri);
         ChooserActivityOverrideData.getInstance().imageLoader =
@@ -2195,17 +2211,17 @@ public class UnbundledChooserActivityTest {
         mActivityRule.launchActivity(Intent.createChooser(sendIntent, "Scrollable preview test"));
         waitForIdle();
 
-        onView(withId(R.id.scrollable_image_preview))
+        onView(withId(com.android.intentresolver.R.id.scrollable_image_preview))
                 .check(matches(isDisplayed()));
 
         onView(withId(com.android.internal.R.id.contentPanel)).perform(swipeUp());
         waitForIdle();
 
-        onView(withId(R.id.chooser_headline_row_container))
+        onView(withId(com.android.intentresolver.R.id.chooser_headline_row_container))
                 .check(matches(isCompletelyDisplayed()));
-        onView(withId(R.id.headline))
+        onView(withId(com.android.intentresolver.R.id.headline))
                 .check(matches(isDisplayed()));
-        onView(withId(R.id.scrollable_image_preview))
+        onView(withId(com.android.intentresolver.R.id.scrollable_image_preview))
                 .check(matches(not(isDisplayed())));
     }
 
