@@ -51,8 +51,7 @@ import java.util.function.Consumer;
  * Simple wrapper around chooser activity to be able to initiate it under test. For more
  * information, see {@code com.android.internal.app.ChooserWrapperActivity}.
  */
-public class ChooserWrapperActivity
-        extends com.android.intentresolver.ChooserActivity implements IChooserWrapper {
+public class ChooserWrapperActivity extends ChooserActivity implements IChooserWrapper {
     static final ChooserActivityOverrideData sOverrides = ChooserActivityOverrideData.getInstance();
     private UsageStatsManager mUsm;
 

@@ -25,14 +25,20 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.android.intentresolver.ChooserRequestParameters
 import com.android.intentresolver.R
+import com.android.intentresolver.inject.Background
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.plus
 
 /** A trivial view model to keep a [PreviewDataProvider] instance over a configuration change */
-class PreviewViewModel(
+@HiltViewModel
+class PreviewViewModel
+@Inject
+constructor(
     private val application: Application,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    @Background private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : BasePreviewViewModel() {
     private var previewDataProvider: PreviewDataProvider? = null
     private var imageLoader: ImagePreviewImageLoader? = null

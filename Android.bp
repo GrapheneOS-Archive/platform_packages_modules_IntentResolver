@@ -69,7 +69,10 @@ android_library {
         "androidx.lifecycle_lifecycle-extensions",
         "androidx.lifecycle_lifecycle-runtime-ktx",
         "androidx.lifecycle_lifecycle-viewmodel-ktx",
+        "dagger2",
+        "hilt_android",
         "IntentResolverFlagsLib",
+        "jsr330",
         "kotlin-stdlib",
         "kotlinx_coroutines",
         "kotlinx-coroutines-android",
@@ -81,11 +84,11 @@ android_library {
 
 java_defaults {
     name: "App_Defaults",
-    manifest: "AndroidManifest-app.xml",
     min_sdk_version: "current",
     platform_apis: true,
     certificate: "platform",
     privileged: true,
+    manifest: "AndroidManifest-app.xml",
     required: [
         "privapp_whitelist_com.android.intentresolver",
     ],
