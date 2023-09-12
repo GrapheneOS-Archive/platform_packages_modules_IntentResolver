@@ -43,6 +43,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.MainThread;
+import androidx.annotation.WorkerThread;
+
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.NotSelectableTargetInfo;
@@ -567,7 +570,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
     protected boolean shouldAddResolveInfo(DisplayResolveInfo dri) {
         // Checks if this info is already listed in callerTargets.
         for (TargetInfo existingInfo : mCallerTargets) {
-            if (mResolverListCommunicator.resolveInfoMatch(
+            if (ResolveInfoHelpers.resolveInfoMatch(
                     dri.getResolveInfo(), existingInfo.getResolveInfo())) {
                 return false;
             }
@@ -658,30 +661,23 @@ public class ChooserListAdapter extends ResolverListAdapter {
      * in the head of input list and fill the tail with other elements in undetermined order.
      */
     @Override
-    AsyncTask<List<ResolvedComponentInfo>,
-            Void,
-            List<ResolvedComponentInfo>> createSortingTask(boolean doPostProcessing) {
-        return new AsyncTask<List<ResolvedComponentInfo>,
-                Void,
-                List<ResolvedComponentInfo>>() {
-            @Override
-            protected List<ResolvedComponentInfo> doInBackground(
-                    List<ResolvedComponentInfo>... params) {
-                Trace.beginSection("ChooserListAdapter#SortingTask");
-                mResolverListController.topK(params[0], mMaxRankedTargets);
-                Trace.endSection();
-                return params[0];
-            }
-
-            @Override
-            protected void onPostExecute(List<ResolvedComponentInfo> sortedComponents) {
-                processSortedList(sortedComponents, doPostProcessing);
-                if (doPostProcessing) {
-                    mResolverListCommunicator.updateProfileViewButton();
-                    notifyDataSetChanged();
-                }
-            }
-        };
+    @WorkerThread
+    protected void sortComponents(List<ResolvedComponentInfo> components) {
+        Trace.beginSection("ChooserListAdapter#SortingTask");
+        mResolverListController.topK(components, mMaxRankedTargets);
+        Trace.endSection();
     }
 
+    @Override
+    @MainThread
+    protected void onComponentsSorted(
+            @Nullable List<ResolvedComponentInfo> sortedComponents, boolean doPostProcessing) {
+        processSortedList(sortedComponents, doPostProcessing);
+        if (doPostProcessing) {
+            mResolverListCommunicator.updateProfileViewButton();
+            //TODO: this method is different from super's only in that `notifyDataSetChanged` is
+            // called conditionally here; is it really important?
+            notifyDataSetChanged();
+        }
+    }
 }

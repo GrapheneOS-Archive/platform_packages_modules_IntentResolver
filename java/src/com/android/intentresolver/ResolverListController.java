@@ -254,7 +254,6 @@ public class ResolverListController {
         isComputed = true;
     }
 
-    @VisibleForTesting
     @WorkerThread
     public void sort(List<ResolvedComponentInfo> inputList) {
         try {
@@ -273,7 +272,6 @@ public class ResolverListController {
         }
     }
 
-    @VisibleForTesting
     @WorkerThread
     public void topK(List<ResolvedComponentInfo> inputList, int k) {
         if (inputList == null || inputList.isEmpty() || k <= 0) {
