@@ -51,11 +51,9 @@ import android.database.Cursor;
 import android.graphics.Insets;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.os.storage.StorageManager;
 import android.service.chooser.ChooserTarget;
 import android.util.Log;
 import android.util.Slog;
@@ -100,7 +98,6 @@ import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
-import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.text.Collator;
@@ -421,19 +418,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     }
 
     static SharedPreferences getPinnedSharedPrefs(Context context) {
-        // The code below is because in the android:ui process, no one can hear you scream.
-        // The package info in the context isn't initialized in the way it is for normal apps,
-        // so the standard, name-based context.getSharedPreferences doesn't work. Instead, we
-        // build the path manually below using the same policy that appears in ContextImpl.
-        // This fails silently under the hood if there's a problem, so if we find ourselves in
-        // the case where we don't have access to credential encrypted storage we just won't
-        // have our pinned target info.
-        final File prefsFile = new File(new File(
-                Environment.getDataUserCePackageDirectory(StorageManager.UUID_PRIVATE_INTERNAL,
-                        context.getUserId(), context.getPackageName()),
-                "shared_prefs"),
-                PINNED_SHARED_PREFS_NAME + ".xml");
-        return context.getSharedPreferences(prefsFile, MODE_PRIVATE);
+        return context.getSharedPreferences(PINNED_SHARED_PREFS_NAME, MODE_PRIVATE);
     }
 
     @Override
