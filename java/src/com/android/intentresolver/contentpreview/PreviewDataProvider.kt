@@ -264,44 +264,46 @@ constructor(
 
         private val query by lazy { readQueryResult() }
 
-        private fun readQueryResult(): QueryResult {
-            val cursor =
-                contentResolver.querySafe(uri)?.takeIf { it.moveToFirst() } ?: return QueryResult()
+        private fun readQueryResult(): QueryResult =
+            contentResolver.querySafe(uri)?.use { cursor ->
+                if (!cursor.moveToFirst()) return@use null
 
-            var flagColIdx = -1
-            var displayIconUriColIdx = -1
-            var nameColIndex = -1
-            var titleColIndex = -1
-            // TODO: double-check why Cursor#getColumnInded didn't work
-            cursor.columnNames.forEachIndexed { i, columnName ->
-                when (columnName) {
-                    DocumentsContract.Document.COLUMN_FLAGS -> flagColIdx = i
-                    MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI -> displayIconUriColIdx = i
-                    OpenableColumns.DISPLAY_NAME -> nameColIndex = i
-                    Downloads.Impl.COLUMN_TITLE -> titleColIndex = i
-                }
-            }
-
-            val supportsThumbnail =
-                flagColIdx >= 0 && ((cursor.getInt(flagColIdx) and FLAG_SUPPORTS_THUMBNAIL) != 0)
-
-            var title = ""
-            if (nameColIndex >= 0) {
-                title = cursor.getString(nameColIndex) ?: ""
-            }
-            if (TextUtils.isEmpty(title) && titleColIndex >= 0) {
-                title = cursor.getString(titleColIndex) ?: ""
-            }
-
-            val iconUri =
-                if (displayIconUriColIdx >= 0) {
-                    cursor.getString(displayIconUriColIdx)?.let(Uri::parse)
-                } else {
-                    null
+                var flagColIdx = -1
+                var displayIconUriColIdx = -1
+                var nameColIndex = -1
+                var titleColIndex = -1
+                // TODO: double-check why Cursor#getColumnInded didn't work
+                cursor.columnNames.forEachIndexed { i, columnName ->
+                    when (columnName) {
+                        DocumentsContract.Document.COLUMN_FLAGS -> flagColIdx = i
+                        MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI -> displayIconUriColIdx = i
+                        OpenableColumns.DISPLAY_NAME -> nameColIndex = i
+                        Downloads.Impl.COLUMN_TITLE -> titleColIndex = i
+                    }
                 }
 
-            return QueryResult(supportsThumbnail, title, iconUri)
-        }
+                val supportsThumbnail =
+                    flagColIdx >= 0 &&
+                        ((cursor.getInt(flagColIdx) and FLAG_SUPPORTS_THUMBNAIL) != 0)
+
+                var title = ""
+                if (nameColIndex >= 0) {
+                    title = cursor.getString(nameColIndex) ?: ""
+                }
+                if (TextUtils.isEmpty(title) && titleColIndex >= 0) {
+                    title = cursor.getString(titleColIndex) ?: ""
+                }
+
+                val iconUri =
+                    if (displayIconUriColIdx >= 0) {
+                        cursor.getString(displayIconUriColIdx)?.let(Uri::parse)
+                    } else {
+                        null
+                    }
+
+                QueryResult(supportsThumbnail, title, iconUri)
+            }
+                ?: QueryResult()
     }
 
     private class QueryResult(
