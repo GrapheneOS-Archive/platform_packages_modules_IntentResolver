@@ -32,7 +32,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
-import com.android.intentresolver.flags.FeatureFlagRepository;
 import com.android.intentresolver.util.UriFilters;
 
 import com.google.common.collect.ImmutableList;
@@ -104,8 +103,7 @@ public class ChooserRequestParameters {
     public ChooserRequestParameters(
             final Intent clientIntent,
             String referrerPackageName,
-            final Uri referrer,
-            FeatureFlagRepository featureFlags) {
+            final Uri referrer) {
         final Intent requestedTarget = parseTargetIntentExtra(
                 clientIntent.getParcelableExtra(Intent.EXTRA_INTENT));
         mTarget = intentWithModifiedLaunchFlags(requestedTarget);

@@ -23,9 +23,7 @@ import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CROSS_PROFILE_BLOCKED_TITLE;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_PERSONAL;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_WORK;
-
 import static androidx.lifecycle.LifecycleKt.getCoroutineScope;
-
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
 
 import android.annotation.IntDef;
@@ -85,8 +83,6 @@ import com.android.intentresolver.contentpreview.BasePreviewViewModel;
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi;
 import com.android.intentresolver.contentpreview.HeadlineGeneratorImpl;
 import com.android.intentresolver.contentpreview.PreviewViewModel;
-import com.android.intentresolver.flags.FeatureFlagRepository;
-import com.android.intentresolver.flags.FeatureFlagRepositoryFactory;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.icons.DefaultTargetDataLoader;
 import com.android.intentresolver.icons.TargetDataLoader;
@@ -118,6 +114,8 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+
+import javax.inject.Inject;
 
 /**
  * The Chooser Activity handles intent resolution specifically for sharing intents -
@@ -175,6 +173,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     @Retention(RetentionPolicy.SOURCE)
     public @interface ShareTargetType {}
 
+    @Inject public FeatureFlags mFeatureFlags;
+
     private ChooserIntegratedDeviceComponents mIntegratedDeviceComponents;
 
     /* TODO: this is `nullable` because we have to defer the assignment til onCreate(). We make the
@@ -188,7 +188,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     private ChooserRefinementManager mRefinementManager;
 
-    private FeatureFlagRepository mFeatureFlagRepository;
     private ChooserContentPreviewUi mChooserContentPreviewUi;
 
     private boolean mShouldDisplayLandscape;
@@ -242,15 +241,11 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
         getEventLog().logSharesheetTriggered();
 
-        mFeatureFlagRepository = createFeatureFlagRepository();
-        mIntegratedDeviceComponents = getIntegratedDeviceComponents();
-
         try {
             mChooserRequest = new ChooserRequestParameters(
                     getIntent(),
                     getReferrerPackageName(),
-                    getReferrer(),
-                    mFeatureFlagRepository);
+                    getReferrer());
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "Caller provided invalid Chooser request parameters", e);
             finish();
@@ -265,7 +260,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
         createProfileRecords(
                 new AppPredictorFactory(
-                        getApplicationContext(),
+                        this, // TODO: Review w/team, possible side effects?
                         mChooserRequest.getSharedText(),
                         mChooserRequest.getTargetIntentFilter()),
                 mChooserRequest.getTargetIntentFilter());
@@ -283,7 +278,10 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 new DefaultTargetDataLoader(this, getLifecycle(), false),
                 /* safeForwardingMode= */ true);
 
-        mFeatureFlagRepository = createFeatureFlagRepository();
+        if (mFeatureFlags.exampleNewSharingMethod()) {
+            // Sample flag usage
+        }
+
         mIntegratedDeviceComponents = getIntegratedDeviceComponents();
 
         mRefinementManager = new ViewModelProvider(this).get(ChooserRefinementManager.class);
@@ -371,10 +369,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         return R.style.Theme_DeviceDefault_Chooser;
     }
 
-    protected FeatureFlagRepository createFeatureFlagRepository() {
-        return new FeatureFlagRepositoryFactory().create(getApplicationContext());
-    }
-
     private void createProfileRecords(
             AppPredictorFactory factory, IntentFilter targetIntentFilter) {
         UserHandle mainUserHandle = getPersonalProfileUserHandle();
@@ -395,7 +389,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         ShortcutLoader shortcutLoader = ActivityManager.isLowRamDeviceStatic()
                     ? null
                     : createShortcutLoader(
-                            getApplicationContext(),
+                            this, // TODO: Review w/team, possible side effects?
                             appPredictor,
                             userHandle,
                             targetIntentFilter,

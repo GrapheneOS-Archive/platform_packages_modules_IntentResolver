@@ -29,7 +29,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class ChooserRequestParametersTest {
-    val flags = TestFeatureFlagRepository(mapOf())
 
     @Test
     fun testChooserActions() {
@@ -41,7 +40,7 @@ class ChooserRequestParametersTest {
                 putExtra(Intent.EXTRA_INTENT, intent)
                 putExtra(Intent.EXTRA_CHOOSER_CUSTOM_ACTIONS, actions)
             }
-        val request = ChooserRequestParameters(chooserIntent, "", Uri.EMPTY, flags)
+        val request = ChooserRequestParameters(chooserIntent, "", Uri.EMPTY)
         assertThat(request.chooserActions).containsExactlyElementsIn(actions).inOrder()
     }
 
@@ -50,7 +49,7 @@ class ChooserRequestParametersTest {
         val intent = Intent(Intent.ACTION_SEND)
         val chooserIntent =
             Intent(Intent.ACTION_CHOOSER).apply { putExtra(Intent.EXTRA_INTENT, intent) }
-        val request = ChooserRequestParameters(chooserIntent, "", Uri.EMPTY, flags)
+        val request = ChooserRequestParameters(chooserIntent, "", Uri.EMPTY)
         assertThat(request.chooserActions).isEmpty()
     }
 
@@ -64,7 +63,7 @@ class ChooserRequestParametersTest {
                 putExtra(Intent.EXTRA_CHOOSER_CUSTOM_ACTIONS, chooserActions)
             }
 
-        val request = ChooserRequestParameters(chooserIntent, "", Uri.EMPTY, flags)
+        val request = ChooserRequestParameters(chooserIntent, "", Uri.EMPTY)
 
         val expectedActions = chooserActions.sliceArray(0 until 5)
         assertThat(request.chooserActions).containsExactlyElementsIn(expectedActions).inOrder()
