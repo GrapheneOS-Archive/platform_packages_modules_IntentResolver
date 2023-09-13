@@ -72,7 +72,7 @@
     <string name="image_preview_a11y_description" msgid="297102643932491797">"Vignette d\'aperçu de l\'image"</string>
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Vignette d\'aperçu de la vidéo"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Vignette d\'aperçu du fichier"</string>
-    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Aucune recommandation de personnes avec lesquelles effectuer un partage"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Aucun destinataire recommandé"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Cette application n\'a pas reçu l\'autorisation d\'enregistrer des contenus audio, mais peut le faire via ce périphérique USB."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Personnel"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Professionnel"</string>
