@@ -31,7 +31,7 @@
     <string name="whichEditApplicationNamed" msgid="3150137489226219100">"Modifiko me <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichEditApplicationLabel" msgid="5992662938338600364">"Redakto"</string>
     <string name="whichSendApplication" msgid="59510564281035884">"Ndaj"</string>
-    <string name="whichSendApplicationNamed" msgid="495577664218765855">"Shpërndaj me <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"Ndaj me <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichSendApplicationLabel" msgid="2391198069286568035">"Ndaj"</string>
     <string name="whichSendToApplication" msgid="2724450540348806267">"Dërgo me"</string>
     <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"Dërgo duke përdorur <xliff:g id="APP">%1$s</xliff:g>"</string>

@@ -57,11 +57,11 @@
     <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{その他 # ファイル}other{その他 # ファイル}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"テキストを共有中"</string>
     <string name="sharing_link" msgid="2307694372813942916">"リンクを共有中"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{画像を共有中}other{# 枚の画像を共有中}}"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{画像を共有しています}other{# 枚の画像を共有しています}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{動画を共有中}other{# 個の動画を共有中}}"</string>
     <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# 個のファイルを共有中}other{# 個のファイルを共有中}}"</string>
-    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{テキスト付き画像を共有中}other{テキスト付き画像を # 件共有中}}"</string>
-    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{リンク付き画像を共有中}other{リンク付き画像を # 件共有中}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{テキスト付き画像を共有しています}other{テキスト付き画像を # 件共有しています}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{リンク付き画像を共有しています}other{リンク付き画像を # 件共有しています}}"</string>
     <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{テキスト付き動画を共有中}other{テキスト付き動画を # 件共有中}}"</string>
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{リンク付き動画を共有中}other{リンク付き動画を # 件共有中}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{テキスト付きファイルを共有中}other{テキスト付きファイルを # 件共有中}}"</string>
