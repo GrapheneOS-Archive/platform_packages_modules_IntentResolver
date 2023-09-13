@@ -85,7 +85,6 @@ import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.icons.DefaultTargetDataLoader;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.logging.EventLog;
-import com.android.intentresolver.logging.EventLogImpl;
 import com.android.intentresolver.measurements.Tracer;
 import com.android.intentresolver.model.AbstractResolverComparator;
 import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
@@ -172,6 +171,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     public @interface ShareTargetType {}
 
     @Inject public FeatureFlags mFeatureFlags;
+    @Inject public EventLog mEventLog;
 
     private ChooserIntegratedDeviceComponents mIntegratedDeviceComponents;
 
@@ -189,9 +189,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private ChooserContentPreviewUi mChooserContentPreviewUi;
 
     private boolean mShouldDisplayLandscape;
-    // statsd logger wrapper
-    protected EventLog mEventLog;
-
     private long mChooserShownTime;
     protected boolean mIsSuccessfullySelected;
 
@@ -237,8 +234,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         final long intentReceivedTime = System.currentTimeMillis();
         mLatencyTracker.onActionStart(ACTION_LOAD_SHARE_SHEET);
 
-        getEventLog().logSharesheetTriggered();
-
         try {
             mChooserRequest = new ChooserRequestParameters(
                     getIntent(),
@@ -275,6 +270,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 /* supportsAlwaysUseOption= */ false,
                 new DefaultTargetDataLoader(this, getLifecycle(), false),
                 /* safeForwardingMode= */ true);
+
+        getEventLog().logSharesheetTriggered();
 
         mIntegratedDeviceComponents = getIntegratedDeviceComponents();
 
@@ -1107,9 +1104,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     }
 
     protected EventLog getEventLog() {
-        if (mEventLog == null) {
-            mEventLog = new EventLogImpl();
-        }
         return mEventLog;
     }
 
@@ -1573,6 +1567,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 getResources().getDimensionPixelSize(R.dimen.chooser_header_scroll_elevation);
         mChooserMultiProfilePagerAdapter.getActiveAdapterView().addOnScrollListener(
                 new RecyclerView.OnScrollListener() {
+                    @Override
                     public void onScrollStateChanged(RecyclerView view, int scrollState) {
                         if (scrollState == RecyclerView.SCROLL_STATE_IDLE) {
                             if (mScrollStatus == SCROLL_STATUS_SCROLLING_VERTICAL) {
@@ -1587,6 +1582,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                         }
                     }
 
+                    @Override
                     public void onScrolled(RecyclerView view, int dx, int dy) {
                         if (view.getChildCount() > 0) {
                             View child = view.getLayoutManager().findViewByPosition(0);

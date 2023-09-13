@@ -37,6 +37,7 @@ import com.android.intentresolver.logging.EventLogImpl.SharesheetStartedEvent;
 import com.android.intentresolver.logging.EventLogImpl.SharesheetTargetSelectedEvent;
 import com.android.intentresolver.contentpreview.ContentPreviewType;
 import com.android.internal.logging.InstanceId;
+import com.android.internal.logging.InstanceIdSequence;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.UiEventLogger;
 import com.android.internal.logging.UiEventLogger.UiEventEnum;
@@ -59,10 +60,12 @@ public final class EventLogImplTest {
 
     private EventLogImpl mChooserLogger;
 
+    private final InstanceIdSequence mSequence = EventLogImpl.newIdSequence();
+
     @Before
     public void setUp() {
-        //Mockito.reset(mUiEventLog, mFrameworkLog, mMetricsLogger);
-        mChooserLogger = new EventLogImpl(mUiEventLog, mFrameworkLog, mMetricsLogger);
+        mChooserLogger = new EventLogImpl(mUiEventLog, mFrameworkLog, mMetricsLogger,
+                mSequence.newInstanceId());
     }
 
     @After
@@ -320,7 +323,8 @@ public final class EventLogImplTest {
     public void testDifferentLoggerInstancesUseDifferentInstanceIds() {
         ArgumentCaptor<Integer> idIntCaptor = ArgumentCaptor.forClass(Integer.class);
         EventLogImpl chooserLogger2 =
-                new EventLogImpl(mUiEventLog, mFrameworkLog, mMetricsLogger);
+                new EventLogImpl(mUiEventLog, mFrameworkLog, mMetricsLogger,
+                        mSequence.newInstanceId());
 
         final int targetType = EventLogImpl.SELECTION_TYPE_COPY;
         final String packageName = "com.test.foo";

@@ -21,7 +21,8 @@ import com.android.internal.util.FrameworkStatsLog
 internal annotation class ForUiEvent(vararg val uiEventId: Int)
 
 /** Isolates the specific method signatures to use for each of the logged UiEvents. */
-internal interface FrameworkStatsLogger {
+interface FrameworkStatsLogger {
+
     @ForUiEvent(FrameworkStatsLog.SHARESHEET_STARTED)
     fun write(
         frameworkEventId: Int,
@@ -35,8 +36,23 @@ internal interface FrameworkStatsLogger {
         previewType: Int,
         intentType: Int,
         numCustomActions: Int,
-        modifyShareActionProvided: Boolean
-    )
+        modifyShareActionProvided: Boolean,
+    ) {
+        FrameworkStatsLog.write(
+            frameworkEventId, /* event_id = 1 */
+            appEventId, /* package_name = 2 */
+            packageName, /* instance_id = 3 */
+            instanceId, /* mime_type = 4 */
+            mimeType, /* num_app_provided_direct_targets */
+            numAppProvidedDirectTargets, /* num_app_provided_app_targets */
+            numAppProvidedAppTargets, /* is_workprofile */
+            isWorkProfile, /* previewType = 8 */
+            previewType, /* intentType = 9 */
+            intentType, /* num_provided_custom_actions = 10 */
+            numCustomActions, /* modify_share_action_provided = 11 */
+            modifyShareActionProvided
+        )
+    }
 
     @ForUiEvent(FrameworkStatsLog.RANKING_SELECTED)
     fun write(
@@ -45,6 +61,15 @@ internal interface FrameworkStatsLogger {
         packageName: String?,
         instanceId: Int,
         positionPicked: Int,
-        isPinned: Boolean
-    )
+        isPinned: Boolean,
+    ) {
+        FrameworkStatsLog.write(
+            frameworkEventId, /* event_id = 1 */
+            appEventId, /* package_name = 2 */
+            packageName, /* instance_id = 3 */
+            instanceId, /* position_picked = 4 */
+            positionPicked, /* is_pinned = 5 */
+            isPinned
+        )
+    }
 }
