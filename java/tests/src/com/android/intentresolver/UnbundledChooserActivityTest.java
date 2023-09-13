@@ -113,6 +113,7 @@ import androidx.test.rule.ActivityTestRule;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.contentpreview.ImageLoader;
 import com.android.intentresolver.logging.EventLog;
+import com.android.intentresolver.logging.EventLogImpl;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
@@ -845,7 +846,7 @@ public class UnbundledChooserActivityTest {
         onView(withId(R.id.copy)).perform(click());
 
         EventLog logger = activity.getEventLog();
-        verify(logger, times(1)).logActionSelected(eq(EventLog.SELECTION_TYPE_COPY));
+        verify(logger, times(1)).logActionSelected(eq(EventLogImpl.SELECTION_TYPE_COPY));
     }
 
     @Test
@@ -1466,7 +1467,7 @@ public class UnbundledChooserActivityTest {
         ArgumentCaptor<HashedStringCache.HashResult> hashCaptor =
                 ArgumentCaptor.forClass(HashedStringCache.HashResult.class);
         verify(activity.getEventLog(), times(1)).logShareTargetSelected(
-                eq(EventLog.SELECTION_TYPE_SERVICE),
+                eq(EventLogImpl.SELECTION_TYPE_SERVICE),
                 /* packageName= */ any(),
                 /* positionPicked= */ anyInt(),
                 /* directTargetAlsoRanked= */ eq(-1),
@@ -1547,7 +1548,7 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
 
         verify(activity.getEventLog(), times(1)).logShareTargetSelected(
-                eq(EventLog.SELECTION_TYPE_SERVICE),
+                eq(EventLogImpl.SELECTION_TYPE_SERVICE),
                 /* packageName= */ any(),
                 /* positionPicked= */ anyInt(),
                 /* directTargetAlsoRanked= */ eq(0),
@@ -1963,7 +1964,7 @@ public class UnbundledChooserActivityTest {
 
         EventLog logger = wrapper.getEventLog();
         verify(logger, times(1)).logShareTargetSelected(
-                eq(EventLog.SELECTION_TYPE_SERVICE),
+                eq(EventLogImpl.SELECTION_TYPE_SERVICE),
                 /* packageName= */ any(),
                 /* positionPicked= */ anyInt(),
                 // The packages sholdn't match for app target and direct target:
@@ -2296,7 +2297,7 @@ public class UnbundledChooserActivityTest {
         EventLog logger = activity.getEventLog();
         ArgumentCaptor<Integer> typeCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(logger, times(1)).logShareTargetSelected(
-                eq(EventLog.SELECTION_TYPE_SERVICE),
+                eq(EventLogImpl.SELECTION_TYPE_SERVICE),
                 /* packageName= */ any(),
                 /* positionPicked= */ anyInt(),
                 /* directTargetAlsoRanked= */ anyInt(),

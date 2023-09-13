@@ -32,7 +32,7 @@ import com.android.intentresolver.chooser.DisplayResolveInfo
 import com.android.intentresolver.chooser.SelectableTargetInfo
 import com.android.intentresolver.chooser.TargetInfo
 import com.android.intentresolver.icons.TargetDataLoader
-import com.android.intentresolver.logging.EventLog
+import com.android.intentresolver.logging.EventLogImpl
 import com.android.internal.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -54,7 +54,7 @@ class ChooserListAdapterTest {
     private val resolverListController = mock<ResolverListController>()
     private val appLabel = "App"
     private val targetLabel = "Target"
-    private val mEventLog = mock<EventLog>()
+    private val mEventLog = mock<EventLogImpl>()
     private val mTargetDataLoader = mock<TargetDataLoader>()
 
     private val testSubject by lazy {

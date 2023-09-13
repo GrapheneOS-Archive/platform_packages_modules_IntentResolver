@@ -32,10 +32,9 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import android.content.Intent;
 import android.metrics.LogMaker;
 
-import com.android.intentresolver.logging.EventLog.FrameworkStatsLogger;
-import com.android.intentresolver.logging.EventLog.SharesheetStandardEvent;
-import com.android.intentresolver.logging.EventLog.SharesheetStartedEvent;
-import com.android.intentresolver.logging.EventLog.SharesheetTargetSelectedEvent;
+import com.android.intentresolver.logging.EventLogImpl.SharesheetStandardEvent;
+import com.android.intentresolver.logging.EventLogImpl.SharesheetStartedEvent;
+import com.android.intentresolver.logging.EventLogImpl.SharesheetTargetSelectedEvent;
 import com.android.intentresolver.contentpreview.ContentPreviewType;
 import com.android.internal.logging.InstanceId;
 import com.android.internal.logging.MetricsLogger;
@@ -53,17 +52,17 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class EventLogTest {
+public final class EventLogImplTest {
     @Mock private UiEventLogger mUiEventLog;
     @Mock private FrameworkStatsLogger mFrameworkLog;
     @Mock private MetricsLogger mMetricsLogger;
 
-    private EventLog mChooserLogger;
+    private EventLogImpl mChooserLogger;
 
     @Before
     public void setUp() {
         //Mockito.reset(mUiEventLog, mFrameworkLog, mMetricsLogger);
-        mChooserLogger = new EventLog(mUiEventLog, mFrameworkLog, mMetricsLogger);
+        mChooserLogger = new EventLogImpl(mUiEventLog, mFrameworkLog, mMetricsLogger);
     }
 
     @After
@@ -151,7 +150,7 @@ public final class EventLogTest {
 
     @Test
     public void testLogShareTargetSelected() {
-        final int targetType = EventLog.SELECTION_TYPE_SERVICE;
+        final int targetType = EventLogImpl.SELECTION_TYPE_SERVICE;
         final String packageName = "com.test.foo";
         final int positionPicked = 123;
         final int directTargetAlsoRanked = -1;
@@ -189,7 +188,7 @@ public final class EventLogTest {
 
     @Test
     public void testLogActionSelected() {
-        mChooserLogger.logActionSelected(EventLog.SELECTION_TYPE_COPY);
+        mChooserLogger.logActionSelected(EventLogImpl.SELECTION_TYPE_COPY);
 
         verify(mFrameworkLog).write(
                 eq(FrameworkStatsLog.RANKING_SELECTED),
@@ -320,10 +319,10 @@ public final class EventLogTest {
     @Test
     public void testDifferentLoggerInstancesUseDifferentInstanceIds() {
         ArgumentCaptor<Integer> idIntCaptor = ArgumentCaptor.forClass(Integer.class);
-        EventLog chooserLogger2 =
-                new EventLog(mUiEventLog, mFrameworkLog, mMetricsLogger);
+        EventLogImpl chooserLogger2 =
+                new EventLogImpl(mUiEventLog, mFrameworkLog, mMetricsLogger);
 
-        final int targetType = EventLog.SELECTION_TYPE_COPY;
+        final int targetType = EventLogImpl.SELECTION_TYPE_COPY;
         final String packageName = "com.test.foo";
         final int positionPicked = 123;
         final int directTargetAlsoRanked = -1;
@@ -370,7 +369,7 @@ public final class EventLogTest {
         ArgumentCaptor<Integer> idIntCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<InstanceId> idObjectCaptor = ArgumentCaptor.forClass(InstanceId.class);
 
-        final int targetType = EventLog.SELECTION_TYPE_COPY;
+        final int targetType = EventLogImpl.SELECTION_TYPE_COPY;
         final String packageName = "com.test.foo";
         final int positionPicked = 123;
         final int directTargetAlsoRanked = -1;
@@ -403,20 +402,20 @@ public final class EventLogTest {
 
     @Test
     public void testTargetSelectionCategories() {
-        assertThat(EventLog.getTargetSelectionCategory(
-                EventLog.SELECTION_TYPE_SERVICE))
+        assertThat(EventLogImpl.getTargetSelectionCategory(
+                EventLogImpl.SELECTION_TYPE_SERVICE))
                         .isEqualTo(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET);
-        assertThat(EventLog.getTargetSelectionCategory(
-                EventLog.SELECTION_TYPE_APP))
+        assertThat(EventLogImpl.getTargetSelectionCategory(
+                EventLogImpl.SELECTION_TYPE_APP))
                         .isEqualTo(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_APP_TARGET);
-        assertThat(EventLog.getTargetSelectionCategory(
-                EventLog.SELECTION_TYPE_STANDARD))
+        assertThat(EventLogImpl.getTargetSelectionCategory(
+                EventLogImpl.SELECTION_TYPE_STANDARD))
                         .isEqualTo(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_STANDARD_TARGET);
-        assertThat(EventLog.getTargetSelectionCategory(
-                EventLog.SELECTION_TYPE_COPY)).isEqualTo(0);
-        assertThat(EventLog.getTargetSelectionCategory(
-                EventLog.SELECTION_TYPE_NEARBY)).isEqualTo(0);
-        assertThat(EventLog.getTargetSelectionCategory(
-                EventLog.SELECTION_TYPE_EDIT)).isEqualTo(0);
+        assertThat(EventLogImpl.getTargetSelectionCategory(
+                EventLogImpl.SELECTION_TYPE_COPY)).isEqualTo(0);
+        assertThat(EventLogImpl.getTargetSelectionCategory(
+                EventLogImpl.SELECTION_TYPE_NEARBY)).isEqualTo(0);
+        assertThat(EventLogImpl.getTargetSelectionCategory(
+                EventLogImpl.SELECTION_TYPE_EDIT)).isEqualTo(0);
     }
 }

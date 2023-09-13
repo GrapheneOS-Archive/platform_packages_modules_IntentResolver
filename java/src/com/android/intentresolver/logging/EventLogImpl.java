@@ -38,51 +38,10 @@ import com.android.internal.util.FrameworkStatsLog;
 
 /**
  * Helper for writing Sharesheet atoms to statsd log.
- * @hide
  */
-public class EventLog {
+public class EventLogImpl implements EventLog {
     private static final String TAG = "ChooserActivity";
     private static final boolean DEBUG = true;
-
-    public static final int SELECTION_TYPE_SERVICE = 1;
-    public static final int SELECTION_TYPE_APP = 2;
-    public static final int SELECTION_TYPE_STANDARD = 3;
-    public static final int SELECTION_TYPE_COPY = 4;
-    public static final int SELECTION_TYPE_NEARBY = 5;
-    public static final int SELECTION_TYPE_EDIT = 6;
-    public static final int SELECTION_TYPE_MODIFY_SHARE = 7;
-    public static final int SELECTION_TYPE_CUSTOM_ACTION = 8;
-
-    /**
-     * This shim is provided only for testing. In production, clients will only ever use a
-     * {@link DefaultFrameworkStatsLogger}.
-     */
-    @VisibleForTesting
-    interface FrameworkStatsLogger {
-        /** Overload to use for logging {@code FrameworkStatsLog.SHARESHEET_STARTED}. */
-        void write(
-                int frameworkEventId,
-                int appEventId,
-                String packageName,
-                int instanceId,
-                String mimeType,
-                int numAppProvidedDirectTargets,
-                int numAppProvidedAppTargets,
-                boolean isWorkProfile,
-                int previewType,
-                int intentType,
-                int numCustomActions,
-                boolean modifyShareActionProvided);
-
-        /** Overload to use for logging {@code FrameworkStatsLog.RANKING_SELECTED}. */
-        void write(
-                int frameworkEventId,
-                int appEventId,
-                String packageName,
-                int instanceId,
-                int positionPicked,
-                boolean isPinned);
-    }
 
     private static final int SHARESHEET_INSTANCE_ID_MAX = (1 << 13);
 
@@ -95,12 +54,12 @@ public class EventLog {
     private final FrameworkStatsLogger mFrameworkStatsLogger;
     private final MetricsLogger mMetricsLogger;
 
-    public EventLog() {
+    public EventLogImpl() {
         this(new UiEventLoggerImpl(), new DefaultFrameworkStatsLogger(), new MetricsLogger());
     }
 
     @VisibleForTesting
-    EventLog(
+    EventLogImpl(
             UiEventLogger uiEventLogger,
             FrameworkStatsLogger frameworkLogger,
             MetricsLogger metricsLogger) {
@@ -110,6 +69,7 @@ public class EventLog {
     }
 
     /** Records metrics for the start time of the {@link ChooserActivity}. */
+    @Override
     public void logChooserActivityShown(
             boolean isWorkProfile, String targetMimeType, long systemCost) {
         mMetricsLogger.write(new LogMaker(MetricsEvent.ACTION_ACTIVITY_CHOOSER_SHOWN)
@@ -120,6 +80,7 @@ public class EventLog {
     }
 
     /** Logs a UiEventReported event for the system sharesheet completing initial start-up. */
+    @Override
     public void logShareStarted(
             String packageName,
             String mimeType,
@@ -149,6 +110,7 @@ public class EventLog {
      *
      * @param positionPicked index of the custom action within the list of custom actions.
      */
+    @Override
     public void logCustomActionSelected(int positionPicked) {
         mFrameworkStatsLogger.write(FrameworkStatsLog.RANKING_SELECTED,
                 /* event_id = 1 */
@@ -164,6 +126,7 @@ public class EventLog {
      * TODO: document parameters and/or consider breaking up by targetType so we don't have to
      * support an overly-generic signature.
      */
+    @Override
     public void logShareTargetSelected(
             int targetType,
             String packageName,
@@ -209,6 +172,7 @@ public class EventLog {
     }
 
     /** Log when direct share targets were received. */
+    @Override
     public void logDirectShareTargetReceived(int category, int latency) {
         mMetricsLogger.write(new LogMaker(category).setSubtype(latency));
     }
@@ -217,12 +181,14 @@ public class EventLog {
      * Log when we display a preview UI of the specified {@code previewType} as part of our
      * Sharesheet session.
      */
+    @Override
     public void logActionShareWithPreview(int previewType) {
         mMetricsLogger.write(
                 new LogMaker(MetricsEvent.ACTION_SHARE_WITH_PREVIEW).setSubtype(previewType));
     }
 
     /** Log when the user selects an action button with the specified {@code targetType}. */
+    @Override
     public void logActionSelected(int targetType) {
         if (targetType == SELECTION_TYPE_COPY) {
             LogMaker targetLogMaker = new LogMaker(
@@ -238,6 +204,7 @@ public class EventLog {
     }
 
     /** Log a warning that we couldn't display the content preview from the supplied {@code uri}. */
+    @Override
     public void logContentPreviewWarning(Uri uri) {
         // The ContentResolver already logs the exception. Log something more informative.
         Log.w(TAG, "Could not load (" + uri.toString() + ") thumbnail/name for preview. If "
@@ -248,11 +215,13 @@ public class EventLog {
     }
 
     /** Logs a UiEventReported event for the system sharesheet being triggered by the user. */
+    @Override
     public void logSharesheetTriggered() {
         log(SharesheetStandardEvent.SHARESHEET_TRIGGERED, getInstanceId());
     }
 
     /** Logs a UiEventReported event for the system sharesheet completing loading app targets. */
+    @Override
     public void logSharesheetAppLoadComplete() {
         log(SharesheetStandardEvent.SHARESHEET_APP_LOAD_COMPLETE, getInstanceId());
     }
@@ -260,6 +229,7 @@ public class EventLog {
     /**
      * Logs a UiEventReported event for the system sharesheet completing loading service targets.
      */
+    @Override
     public void logSharesheetDirectLoadComplete() {
         log(SharesheetStandardEvent.SHARESHEET_DIRECT_LOAD_COMPLETE, getInstanceId());
     }
@@ -267,6 +237,7 @@ public class EventLog {
     /**
      * Logs a UiEventReported event for the system sharesheet timing out loading service targets.
      */
+    @Override
     public void logSharesheetDirectLoadTimeout() {
         log(SharesheetStandardEvent.SHARESHEET_DIRECT_LOAD_TIMEOUT, getInstanceId());
     }
@@ -275,11 +246,13 @@ public class EventLog {
      * Logs a UiEventReported event for the system sharesheet switching
      * between work and main profile.
      */
+    @Override
     public void logSharesheetProfileChanged() {
         log(SharesheetStandardEvent.SHARESHEET_PROFILE_CHANGED, getInstanceId());
     }
 
     /** Logs a UiEventReported event for the system sharesheet getting expanded or collapsed. */
+    @Override
     public void logSharesheetExpansionChanged(boolean isCollapsed) {
         log(isCollapsed ? SharesheetStandardEvent.SHARESHEET_COLLAPSED :
                 SharesheetStandardEvent.SHARESHEET_EXPANDED, getInstanceId());
@@ -288,6 +261,7 @@ public class EventLog {
     /**
      * Logs a UiEventReported event for the system sharesheet app share ranking timing out.
      */
+    @Override
     public void logSharesheetAppShareRankingTimeout() {
         log(SharesheetStandardEvent.SHARESHEET_APP_SHARE_RANKING_TIMEOUT, getInstanceId());
     }
@@ -295,6 +269,7 @@ public class EventLog {
     /**
      * Logs a UiEventReported event for the system sharesheet when direct share row is empty.
      */
+    @Override
     public void logSharesheetEmptyDirectShareRow() {
         log(SharesheetStandardEvent.SHARESHEET_EMPTY_DIRECT_SHARE_ROW, getInstanceId());
     }
