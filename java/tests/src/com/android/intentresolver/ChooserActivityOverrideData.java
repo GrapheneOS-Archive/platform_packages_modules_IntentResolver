@@ -29,7 +29,6 @@ import android.os.UserHandle;
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.contentpreview.ImageLoader;
-import com.android.intentresolver.logging.EventLogImpl;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 
 import java.util.function.Consumer;
@@ -64,7 +63,6 @@ public class ChooserActivityOverrideData {
     public Cursor resolverCursor;
     public boolean resolverForceException;
     public ImageLoader imageLoader;
-    public EventLogImpl mEventLog;
     public int alternateProfileSetting;
     public Resources resources;
     public UserHandle workProfileUserHandle;
@@ -86,7 +84,6 @@ public class ChooserActivityOverrideData {
         resolverForceException = false;
         resolverListController = mock(ChooserActivity.ChooserListController.class);
         workResolverListController = mock(ChooserActivity.ChooserListController.class);
-        mEventLog = mock(EventLogImpl.class);
         alternateProfileSetting = 0;
         resources = null;
         workProfileUserHandle = null;

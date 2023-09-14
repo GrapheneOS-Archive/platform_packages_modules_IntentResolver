@@ -36,6 +36,7 @@ import static com.android.intentresolver.ChooserListAdapter.CALLER_TARGET_SCORE_
 import static com.android.intentresolver.ChooserListAdapter.SHORTCUT_TARGET_SCORE_BOOST;
 import static com.android.intentresolver.MatcherUtils.first;
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -44,9 +45,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -93,7 +92,6 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
-import android.util.HashedStringCache;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.View;
@@ -113,10 +111,13 @@ import androidx.test.rule.ActivityTestRule;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.contentpreview.ImageLoader;
 import com.android.intentresolver.logging.EventLog;
-import com.android.intentresolver.logging.EventLogImpl;
+import com.android.intentresolver.logging.FakeEventLog;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
+
+import dagger.hilt.android.testing.HiltAndroidRule;
+import dagger.hilt.android.testing.HiltAndroidTest;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -146,9 +147,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import dagger.hilt.android.testing.HiltAndroidRule;
-import dagger.hilt.android.testing.HiltAndroidTest;
-
 /**
  * Instrumentation tests for ChooserActivity.
  * <p>
@@ -158,6 +156,10 @@ import dagger.hilt.android.testing.HiltAndroidTest;
 @RunWith(Parameterized.class)
 @HiltAndroidTest
 public class UnbundledChooserActivityTest {
+
+    private static FakeEventLog getEventLog(ChooserWrapperActivity activity) {
+        return (FakeEventLog) activity.mEventLog;
+    }
 
     private static final UserHandle PERSONAL_USER_HANDLE = InstrumentationRegistry
             .getInstrumentation().getTargetContext().getUser();
@@ -179,6 +181,20 @@ public class UnbundledChooserActivityTest {
         });
     }
 
+    private static final String TEST_MIME_TYPE = "application/TestType";
+
+    private static final int CONTENT_PREVIEW_IMAGE = 1;
+    private static final int CONTENT_PREVIEW_FILE = 2;
+    private static final int CONTENT_PREVIEW_TEXT = 3;
+
+
+    @Rule(order = 0)
+    public HiltAndroidRule mHiltAndroidRule = new HiltAndroidRule(this);
+
+    @Rule(order = 1)
+    public ActivityTestRule<ChooserWrapperActivity> mActivityRule =
+            new ActivityTestRule<>(ChooserWrapperActivity.class, false, false);
+
     @Before
     public void setUp() {
         // TODO: use the other form of `adoptShellPermissionIdentity()` where we explicitly list the
@@ -189,20 +205,8 @@ public class UnbundledChooserActivityTest {
                 .adoptShellPermissionIdentity();
 
         cleanOverrideData();
+        mHiltAndroidRule.inject();
     }
-
-    @Rule(order = 0)
-    public HiltAndroidRule mHiltAndroidRule = new HiltAndroidRule(this);
-
-    @Rule(order = 1)
-    public ActivityTestRule<ChooserWrapperActivity> mActivityRule =
-            new ActivityTestRule<>(ChooserWrapperActivity.class, false, false);
-
-    private static final String TEST_MIME_TYPE = "application/TestType";
-
-    private static final int CONTENT_PREVIEW_IMAGE = 1;
-    private static final int CONTENT_PREVIEW_FILE = 2;
-    private static final int CONTENT_PREVIEW_TEXT = 3;
 
     private final Function<PackageManager, PackageManager> mPackageManagerOverride;
 
@@ -845,15 +849,16 @@ public class UnbundledChooserActivityTest {
 
         setupResolverControllers(resolvedComponentInfos);
 
-        final IChooserWrapper activity = (IChooserWrapper)
+        ChooserWrapperActivity activity =
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
         onView(withId(R.id.copy)).check(matches(isDisplayed()));
         onView(withId(R.id.copy)).perform(click());
-
-        EventLog logger = activity.getEventLog();
-        verify(logger, times(1)).logActionSelected(eq(EventLogImpl.SELECTION_TYPE_COPY));
+        FakeEventLog eventLog = getEventLog(activity);
+        assertThat(eventLog.getActionSelected())
+                .isEqualTo(new FakeEventLog.ActionSelected(
+                        /* targetType = */ EventLog.SELECTION_TYPE_COPY));
     }
 
     @Test
@@ -864,8 +869,7 @@ public class UnbundledChooserActivityTest {
 
         setupResolverControllers(resolvedComponentInfos);
 
-        final IChooserWrapper activity = (IChooserWrapper)
-                mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
         onView(withId(com.android.internal.R.id.chooser_nearby_button))
@@ -888,8 +892,7 @@ public class UnbundledChooserActivityTest {
 
         setupResolverControllers(resolvedComponentInfos);
 
-        final IChooserWrapper activity = (IChooserWrapper)
-                mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
         onView(withId(com.android.internal.R.id.chooser_edit_button)).check(matches(isDisplayed()));
@@ -1200,12 +1203,15 @@ public class UnbundledChooserActivityTest {
         Intent sendIntent = createSendTextIntent();
         sendIntent.setType(TEST_MIME_TYPE);
 
-        final IChooserWrapper activity = (IChooserWrapper)
+        ChooserWrapperActivity activity =
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, "logger test"));
-        EventLog logger = activity.getEventLog();
         waitForIdle();
 
-        verify(logger).logChooserActivityShown(eq(false), eq(TEST_MIME_TYPE), anyLong());
+        FakeEventLog eventLog = getEventLog(activity);
+        FakeEventLog.ChooserActivityShown event = eventLog.getChooserActivityShown();
+        assertThat(event).isNotNull();
+        assertThat(event.isWorkProfile()).isFalse();
+        assertThat(event.getTargetMimeType()).isEqualTo(TEST_MIME_TYPE);
     }
 
     @Test
@@ -1215,25 +1221,31 @@ public class UnbundledChooserActivityTest {
         ChooserActivityOverrideData.getInstance().alternateProfileSetting =
                 MetricsEvent.MANAGED_PROFILE;
 
-        final IChooserWrapper activity = (IChooserWrapper)
+        ChooserWrapperActivity activity =
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, "logger test"));
-        EventLog logger = activity.getEventLog();
         waitForIdle();
 
-        verify(logger).logChooserActivityShown(eq(true), eq(TEST_MIME_TYPE), anyLong());
+        FakeEventLog eventLog = getEventLog(activity);
+        FakeEventLog.ChooserActivityShown event = eventLog.getChooserActivityShown();
+        assertThat(event).isNotNull();
+        assertThat(event.isWorkProfile()).isTrue();
+        assertThat(event.getTargetMimeType()).isEqualTo(TEST_MIME_TYPE);
     }
 
     @Test
     public void testEmptyPreviewLogging() {
         Intent sendIntent = createSendTextIntentWithPreview(null, null);
 
-        final IChooserWrapper activity = (IChooserWrapper)
-                mActivityRule.launchActivity(
-                        Intent.createChooser(sendIntent, "empty preview logger test"));
-        EventLog logger = activity.getEventLog();
+        ChooserWrapperActivity activity =
+                mActivityRule.launchActivity(Intent.createChooser(sendIntent,
+                        "empty preview logger test"));
         waitForIdle();
 
-        verify(logger).logChooserActivityShown(eq(false), eq(null), anyLong());
+        FakeEventLog eventLog = getEventLog(activity);
+        FakeEventLog.ChooserActivityShown event = eventLog.getChooserActivityShown();
+        assertThat(event).isNotNull();
+        assertThat(event.isWorkProfile()).isFalse();
+        assertThat(event.getTargetMimeType()).isNull();
     }
 
     @Test
@@ -1244,13 +1256,14 @@ public class UnbundledChooserActivityTest {
 
         setupResolverControllers(resolvedComponentInfos);
 
-        final IChooserWrapper activity = (IChooserWrapper)
+        ChooserWrapperActivity activity =
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
-        // Second invocation is from onCreate
-        EventLog logger = activity.getEventLog();
-        Mockito.verify(logger, times(1)).logActionShareWithPreview(eq(CONTENT_PREVIEW_TEXT));
+        FakeEventLog eventLog = getEventLog(activity);
+        assertThat(eventLog.getActionShareWithPreview())
+                .isEqualTo(new FakeEventLog.ActionShareWithPreview(
+                        /* previewType = */ CONTENT_PREVIEW_TEXT));
     }
 
     @Test
@@ -1268,11 +1281,14 @@ public class UnbundledChooserActivityTest {
 
         setupResolverControllers(resolvedComponentInfos);
 
-        final IChooserWrapper activity = (IChooserWrapper)
+        ChooserWrapperActivity activity =
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        EventLog logger = activity.getEventLog();
-        Mockito.verify(logger, times(1)).logActionShareWithPreview(eq(CONTENT_PREVIEW_IMAGE));
+
+        FakeEventLog eventLog = getEventLog(activity);
+        assertThat(eventLog.getActionShareWithPreview())
+                .isEqualTo(new FakeEventLog.ActionShareWithPreview(
+                        /* previewType = */ CONTENT_PREVIEW_IMAGE));
     }
 
     @Test
@@ -1421,7 +1437,7 @@ public class UnbundledChooserActivityTest {
                 createShortcutLoaderFactory();
 
         // Start activity
-        final IChooserWrapper activity = (IChooserWrapper)
+        ChooserWrapperActivity activity =
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
@@ -1471,22 +1487,15 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        ArgumentCaptor<HashedStringCache.HashResult> hashCaptor =
-                ArgumentCaptor.forClass(HashedStringCache.HashResult.class);
-        verify(activity.getEventLog(), times(1)).logShareTargetSelected(
-                eq(EventLogImpl.SELECTION_TYPE_SERVICE),
-                /* packageName= */ any(),
-                /* positionPicked= */ anyInt(),
-                /* directTargetAlsoRanked= */ eq(-1),
-                /* numCallerProvided= */ anyInt(),
-                /* directTargetHashed= */ hashCaptor.capture(),
-                /* isPinned= */ anyBoolean(),
-                /* successfullySelected= */ anyBoolean(),
-                /* selectionCost= */ anyLong());
-        String hashedName = hashCaptor.getValue().hashedString;
-        assertThat(
-                "Hash is not predictable but must be obfuscated",
-                hashedName, is(not(name)));
+        FakeEventLog eventLog = getEventLog(activity);
+        assertThat(eventLog.getShareTargetSelected()).hasSize(1);
+        FakeEventLog.ShareTargetSelected call = eventLog.getShareTargetSelected().get(0);
+        assertThat(call.getTargetType()).isEqualTo(EventLog.SELECTION_TYPE_SERVICE);
+        assertThat(call.getDirectTargetAlsoRanked()).isEqualTo(-1);
+        var hashResult = call.getDirectTargetHashed();
+        var hash = hashResult == null ? "" : hashResult.hashedString;
+        assertWithMessage("Hash is not predictable but must be obfuscated")
+                .that(hash).isNotEqualTo(name);
     }
 
     // This test is too long and too slow and should not be taken as an example for future tests.
@@ -1502,7 +1511,7 @@ public class UnbundledChooserActivityTest {
                 createShortcutLoaderFactory();
 
         // Start activity
-        final IChooserWrapper activity = (IChooserWrapper)
+        ChooserWrapperActivity activity =
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
@@ -1554,16 +1563,12 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        verify(activity.getEventLog(), times(1)).logShareTargetSelected(
-                eq(EventLogImpl.SELECTION_TYPE_SERVICE),
-                /* packageName= */ any(),
-                /* positionPicked= */ anyInt(),
-                /* directTargetAlsoRanked= */ eq(0),
-                /* numCallerProvided= */ anyInt(),
-                /* directTargetHashed= */ any(),
-                /* isPinned= */ anyBoolean(),
-                /* successfullySelected= */ anyBoolean(),
-                /* selectionCost= */ anyLong());
+        FakeEventLog eventLog = getEventLog(activity);
+        assertThat(eventLog.getShareTargetSelected()).hasSize(1);
+        FakeEventLog.ShareTargetSelected call = eventLog.getShareTargetSelected().get(0);
+
+        assertThat(call.getTargetType()).isEqualTo(EventLog.SELECTION_TYPE_SERVICE);
+        assertThat(call.getDirectTargetAlsoRanked()).isEqualTo(0);
     }
 
     @Test
@@ -1935,14 +1940,14 @@ public class UnbundledChooserActivityTest {
         ResolveInfo ri = ResolverDataProvider.createResolveInfo(16, 0, PERSONAL_USER_HANDLE);
 
         // Start activity
-        final IChooserWrapper wrapper = (IChooserWrapper)
+        ChooserWrapperActivity activity =
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         // Insert the direct share target
         Map<ChooserTarget, ShortcutInfo> directShareToShortcutInfos = new HashMap<>();
         directShareToShortcutInfos.put(serviceTargets.get(0), null);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> wrapper.getAdapter().addServiceResults(
-                        wrapper.createTestDisplayResolveInfo(sendIntent,
+                () -> activity.getAdapter().addServiceResults(
+                        activity.createTestDisplayResolveInfo(sendIntent,
                                 ri,
                                 "testLabel",
                                 "testInfo",
@@ -1957,11 +1962,11 @@ public class UnbundledChooserActivityTest {
         assertThat(
                 String.format("Chooser should have %d targets (%d apps, 1 direct, 15 A-Z)",
                         appTargetsExpected + 16, appTargetsExpected),
-                wrapper.getAdapter().getCount(), is(appTargetsExpected + 16));
+                activity.getAdapter().getCount(), is(appTargetsExpected + 16));
         assertThat("Chooser should have exactly one selectable direct target",
-                wrapper.getAdapter().getSelectableServiceTargetCount(), is(1));
+                activity.getAdapter().getSelectableServiceTargetCount(), is(1));
         assertThat("The resolver info must match the resolver info used to create the target",
-                wrapper.getAdapter().getItem(0).getResolveInfo(), is(ri));
+                activity.getAdapter().getItem(0).getResolveInfo(), is(ri));
 
         // Click on the direct target
         String name = serviceTargets.get(0).getTitle().toString();
@@ -1969,18 +1974,16 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        EventLog logger = wrapper.getEventLog();
-        verify(logger, times(1)).logShareTargetSelected(
-                eq(EventLogImpl.SELECTION_TYPE_SERVICE),
-                /* packageName= */ any(),
-                /* positionPicked= */ anyInt(),
-                // The packages sholdn't match for app target and direct target:
-                /* directTargetAlsoRanked= */ eq(-1),
-                /* numCallerProvided= */ anyInt(),
-                /* directTargetHashed= */ any(),
-                /* isPinned= */ anyBoolean(),
-                /* successfullySelected= */ anyBoolean(),
-                /* selectionCost= */ anyLong());
+        FakeEventLog eventLog = getEventLog(activity);
+        var invocations = eventLog.getShareTargetSelected();
+        assertWithMessage("Only one ShareTargetSelected event logged")
+                .that(invocations).hasSize(1);
+        FakeEventLog.ShareTargetSelected call = invocations.get(0);
+        assertWithMessage("targetType should be SELECTION_TYPE_SERVICE")
+                .that(call.getTargetType()).isEqualTo(EventLog.SELECTION_TYPE_SERVICE);
+        assertWithMessage(
+                "The packages shouldn't match for app target and direct target")
+                .that(call.getDirectTargetAlsoRanked()).isEqualTo(-1);
     }
 
     @Test
@@ -2253,7 +2256,7 @@ public class UnbundledChooserActivityTest {
                 };
 
         // Start activity
-        final IChooserWrapper activity = (IChooserWrapper)
+        ChooserWrapperActivity activity =
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
@@ -2301,18 +2304,10 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        EventLog logger = activity.getEventLog();
-        ArgumentCaptor<Integer> typeCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(logger, times(1)).logShareTargetSelected(
-                eq(EventLogImpl.SELECTION_TYPE_SERVICE),
-                /* packageName= */ any(),
-                /* positionPicked= */ anyInt(),
-                /* directTargetAlsoRanked= */ anyInt(),
-                /* numCallerProvided= */ anyInt(),
-                /* directTargetHashed= */ any(),
-                /* isPinned= */ anyBoolean(),
-                /* successfullySelected= */ anyBoolean(),
-                /* selectionCost= */ anyLong());
+        FakeEventLog eventLog = getEventLog(activity);
+        assertThat(eventLog.getShareTargetSelected()).hasSize(1);
+        FakeEventLog.ShareTargetSelected call = eventLog.getShareTargetSelected().get(0);
+        assertThat(call.getTargetType()).isEqualTo(EventLog.SELECTION_TYPE_SERVICE);
     }
 
     @Test

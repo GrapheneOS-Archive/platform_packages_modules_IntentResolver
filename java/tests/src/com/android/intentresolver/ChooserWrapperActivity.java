@@ -39,7 +39,6 @@ import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.icons.TargetDataLoader;
-import com.android.intentresolver.logging.EventLogImpl;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
@@ -201,11 +200,6 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
         return TestContentPreviewViewModel.Companion.wrap(
                 super.createPreviewViewModelFactory(),
                 sOverrides.imageLoader);
-    }
-
-    @Override
-    public EventLogImpl getEventLog() {
-        return sOverrides.mEventLog;
     }
 
     @Override
