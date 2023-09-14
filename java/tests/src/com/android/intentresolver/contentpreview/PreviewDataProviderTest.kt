@@ -192,8 +192,9 @@ class PreviewDataProviderTest {
         val uri = Uri.parse("content://org.pkg.app/test.pdf")
         val targetIntent = Intent(Intent.ACTION_SEND).apply { putExtra(Intent.EXTRA_STREAM, uri) }
         whenever(contentResolver.getType(uri)).thenReturn("application/pdf")
-        whenever(contentResolver.query(uri, METADATA_COLUMNS, null, null))
-            .thenReturn(MatrixCursor(columns).apply { addRow(values) })
+        val cursor = MatrixCursor(columns).apply { addRow(values) }
+        whenever(contentResolver.query(uri, METADATA_COLUMNS, null, null)).thenReturn(cursor)
+
         val testSubject =
             PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
@@ -202,6 +203,23 @@ class PreviewDataProviderTest {
         assertThat(testSubject.firstFileInfo?.uri).isEqualTo(uri)
         assertThat(testSubject.firstFileInfo?.previewUri).isNotNull()
         verify(contentResolver, times(1)).getType(any())
+        assertThat(cursor.isClosed).isTrue()
+    }
+
+    @Test
+    fun test_emptyQueryResult_cursorGetsClosed() {
+        val uri = Uri.parse("content://org.pkg.app/test.pdf")
+        val targetIntent = Intent(Intent.ACTION_SEND).apply { putExtra(Intent.EXTRA_STREAM, uri) }
+        whenever(contentResolver.getType(uri)).thenReturn("application/pdf")
+        val cursor = MatrixCursor(emptyArray())
+        whenever(contentResolver.query(uri, METADATA_COLUMNS, null, null)).thenReturn(cursor)
+
+        val testSubject =
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
+
+        assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
+        verify(contentResolver, times(1)).query(uri, METADATA_COLUMNS, null, null)
+        assertThat(cursor.isClosed).isTrue()
     }
 
     @Test
