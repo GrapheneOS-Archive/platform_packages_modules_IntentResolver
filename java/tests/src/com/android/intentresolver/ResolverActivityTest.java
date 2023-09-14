@@ -77,6 +77,9 @@ public class ResolverActivityTest {
 
     private static final UserHandle PERSONAL_USER_HANDLE = androidx.test.platform.app
             .InstrumentationRegistry.getInstrumentation().getTargetContext().getUser();
+    private static final UserHandle WORK_PROFILE_USER_HANDLE = UserHandle.of(10);
+    private static final UserHandle CLONE_PROFILE_USER_HANDLE = UserHandle.of(11);
+
     protected Intent getConcreteIntentForLaunch(Intent clientIntent) {
         clientIntent.setClass(
                 androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext(),
@@ -238,9 +241,9 @@ public class ResolverActivityTest {
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(2, /* userId */ 10,
                         PERSONAL_USER_HANDLE);
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
-                sOverrides.workProfileUserHandle);
+                WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
 
         ResolveInfo toChoose = personalResolvedComponentInfos.get(1).getResolveInfoAt(0);
@@ -350,7 +353,7 @@ public class ResolverActivityTest {
     @Test
     public void testWorkTab_displayedWhenWorkProfileUserAvailable() {
         Intent sendIntent = createSendImageIntent();
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
 
         mActivityRule.launchActivity(sendIntent);
         waitForIdle();
@@ -373,9 +376,9 @@ public class ResolverActivityTest {
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId = */ 10,
                         PERSONAL_USER_HANDLE);
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
-                sOverrides.workProfileUserHandle);
+                WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos,
                 new ArrayList<>(workResolvedComponentInfos));
         Intent sendIntent = createSendImageIntent();
@@ -393,12 +396,12 @@ public class ResolverActivityTest {
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10,
                         PERSONAL_USER_HANDLE);
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
-                sOverrides.workProfileUserHandle);
+                WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
         waitForIdle();
@@ -412,9 +415,9 @@ public class ResolverActivityTest {
     public void testWorkTab_personalTabUsesExpectedAdapter() {
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, PERSONAL_USER_HANDLE);
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
-                sOverrides.workProfileUserHandle);
+                WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
 
@@ -428,12 +431,12 @@ public class ResolverActivityTest {
 
     @Test
     public void testWorkTab_workProfileHasExpectedNumberOfTargets() throws InterruptedException {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10,
                         PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
-                sOverrides.workProfileUserHandle);
+                WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
 
@@ -448,12 +451,12 @@ public class ResolverActivityTest {
 
     @Test
     public void testWorkTab_selectingWorkTabAppOpensAppInWorkProfile() throws InterruptedException {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10,
                         PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
-                sOverrides.workProfileUserHandle);
+                WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         ResolveInfo[] chosen = new ResolveInfo[1];
@@ -480,11 +483,11 @@ public class ResolverActivityTest {
     @Test
     public void testWorkTab_noPersonalApps_workTabHasExpectedNumberOfTargets()
             throws InterruptedException {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(1, PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
-                sOverrides.workProfileUserHandle);
+                WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
 
@@ -499,11 +502,11 @@ public class ResolverActivityTest {
 
     @Test
     public void testWorkTab_headerIsVisibleInPersonalTab() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(1, PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
-                sOverrides.workProfileUserHandle);
+                WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createOpenWebsiteIntent();
 
@@ -517,11 +520,11 @@ public class ResolverActivityTest {
 
     @Test
     public void testWorkTab_switchTabs_headerStaysSame() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(1, PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
-                sOverrides.workProfileUserHandle);
+                WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createOpenWebsiteIntent();
 
@@ -543,12 +546,12 @@ public class ResolverActivityTest {
     @Test
     public void testWorkTab_noPersonalApps_canStartWorkApps()
             throws InterruptedException {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId= */ 10,
                         PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
-                sOverrides.workProfileUserHandle);
+                WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         ResolveInfo[] chosen = new ResolveInfo[1];
@@ -576,14 +579,13 @@ public class ResolverActivityTest {
 
     @Test
     public void testWorkTab_crossProfileIntentsDisabled_personalToWork_emptyStateShown() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10,
                         PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(workProfileTargets,
-                        sOverrides.workProfileUserHandle);
+                createResolvedComponentsForTest(workProfileTargets, WORK_PROFILE_USER_HANDLE);
         sOverrides.hasCrossProfileIntents = false;
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
@@ -602,14 +604,13 @@ public class ResolverActivityTest {
 
     @Test
     public void testWorkTab_workProfileDisabled_emptyStateShown() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(3, /* userId */ 10,
                         PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(workProfileTargets,
-                        sOverrides.workProfileUserHandle);
+                createResolvedComponentsForTest(workProfileTargets, WORK_PROFILE_USER_HANDLE);
         sOverrides.isQuietModeEnabled = true;
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
@@ -628,11 +629,11 @@ public class ResolverActivityTest {
 
     @Test
     public void testWorkTab_noWorkAppsAvailable_emptyStateShown() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(3, PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(0, sOverrides.workProfileUserHandle);
+                createResolvedComponentsForTest(0, WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         sendIntent.setType("TestType");
@@ -650,11 +651,11 @@ public class ResolverActivityTest {
 
     @Test
     public void testWorkTab_xProfileOff_noAppsAvailable_workOff_xProfileOffEmptyStateShown() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(3, PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(0, sOverrides.workProfileUserHandle);
+                createResolvedComponentsForTest(0, WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         sendIntent.setType("TestType");
@@ -674,11 +675,11 @@ public class ResolverActivityTest {
 
     @Test
     public void testMiniResolver() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(1, PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(1, sOverrides.workProfileUserHandle);
+                createResolvedComponentsForTest(1, WORK_PROFILE_USER_HANDLE);
         // Personal profile only has a browser
         personalResolvedComponentInfos.get(0).getResolveInfoAt(0).handleAllWebDataURI = true;
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
@@ -692,11 +693,11 @@ public class ResolverActivityTest {
 
     @Test
     public void testMiniResolver_noCurrentProfileTarget() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(0, PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(1, sOverrides.workProfileUserHandle);
+                createResolvedComponentsForTest(1, WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         sendIntent.setType("TestType");
@@ -720,11 +721,11 @@ public class ResolverActivityTest {
 
     @Test
     public void testWorkTab_noAppsAvailable_workOff_noAppsAvailableEmptyStateShown() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTest(3, PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(0, sOverrides.workProfileUserHandle);
+                createResolvedComponentsForTest(0, WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         sendIntent.setType("TestType");
@@ -743,14 +744,13 @@ public class ResolverActivityTest {
 
     @Test
     public void testWorkTab_onePersonalTarget_emptyStateOnWorkTarget_doesNotAutoLaunch() {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
         int workProfileTargets = 4;
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsForTestWithOtherProfile(2, /* userId */ 10,
                         PERSONAL_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(workProfileTargets,
-                        sOverrides.workProfileUserHandle);
+                createResolvedComponentsForTest(workProfileTargets, WORK_PROFILE_USER_HANDLE);
         sOverrides.hasCrossProfileIntents = false;
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
@@ -769,7 +769,7 @@ public class ResolverActivityTest {
 
     @Test
     public void testLayoutWithDefault_withWorkTab_neverShown() throws RemoteException {
-        markWorkProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
 
         // In this case we prefer the other profile and don't display anything about the last
         // chosen activity.
@@ -794,54 +794,53 @@ public class ResolverActivityTest {
     @Test
     public void testClonedProfilePresent_personalAdapterIsSetWithPersonalProfile() {
         // enable cloneProfile
-        markCloneProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ false, /* cloneAvailable= */ true);
         List<ResolvedComponentInfo> resolvedComponentInfos =
                 createResolvedComponentsWithCloneProfileForTest(
                         3,
                         PERSONAL_USER_HANDLE,
-                        sOverrides.cloneProfileUserHandle);
+                        CLONE_PROFILE_USER_HANDLE);
         setupResolverControllers(resolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
         waitForIdle();
 
-        assertThat(activity.getCurrentUserHandle(), is(activity.getPersonalProfileUserHandle()));
+        assertThat(activity.getCurrentUserHandle(), is(PERSONAL_USER_HANDLE));
         assertThat(activity.getAdapter().getCount(), is(3));
     }
 
     @Test
     public void testClonedProfilePresent_personalTabUsesExpectedAdapter() {
-        markWorkProfileUserAvailable();
         // enable cloneProfile
-        markCloneProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ true);
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsWithCloneProfileForTest(
                         3,
                         PERSONAL_USER_HANDLE,
-                        sOverrides.cloneProfileUserHandle);
+                        CLONE_PROFILE_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos = createResolvedComponentsForTest(4,
-                sOverrides.workProfileUserHandle);
+                WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
 
         final ResolverWrapperActivity activity = mActivityRule.launchActivity(sendIntent);
         waitForIdle();
 
-        assertThat(activity.getCurrentUserHandle(), is(activity.getPersonalProfileUserHandle()));
+        assertThat(activity.getCurrentUserHandle(), is(PERSONAL_USER_HANDLE));
         assertThat(activity.getAdapter().getCount(), is(3));
     }
 
     @Test
     public void testClonedProfilePresent_layoutWithDefault_neverShown() throws Exception {
         // enable cloneProfile
-        markCloneProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ false, /* cloneAvailable= */ true);
         Intent sendIntent = createSendImageIntent();
         List<ResolvedComponentInfo> resolvedComponentInfos =
                 createResolvedComponentsWithCloneProfileForTest(
                         2,
                         PERSONAL_USER_HANDLE,
-                        sOverrides.cloneProfileUserHandle);
+                        CLONE_PROFILE_USER_HANDLE);
 
         setupResolverControllers(resolvedComponentInfos);
         when(sOverrides.resolverListController.getLastChosen())
@@ -859,13 +858,13 @@ public class ResolverActivityTest {
     @Test
     public void testClonedProfilePresent_alwaysButtonDisabled() throws Exception {
         // enable cloneProfile
-        markCloneProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ false, /* cloneAvailable= */ true);
         Intent sendIntent = createSendImageIntent();
         List<ResolvedComponentInfo> resolvedComponentInfos =
                 createResolvedComponentsWithCloneProfileForTest(
                         3,
                         PERSONAL_USER_HANDLE,
-                        sOverrides.cloneProfileUserHandle);
+                        CLONE_PROFILE_USER_HANDLE);
 
         setupResolverControllers(resolvedComponentInfos);
         when(sOverrides.resolverListController.getLastChosen())
@@ -892,17 +891,16 @@ public class ResolverActivityTest {
     @Test
     public void testClonedProfilePresent_personalProfileActivityIsStartedInCorrectUser()
             throws Exception {
-        markWorkProfileUserAvailable();
         // enable cloneProfile
-        markCloneProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ true);
 
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsWithCloneProfileForTest(
                         3,
                         PERSONAL_USER_HANDLE,
-                        sOverrides.cloneProfileUserHandle);
+                        CLONE_PROFILE_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(3, sOverrides.workProfileUserHandle);
+                createResolvedComponentsForTest(3, WORK_PROFILE_USER_HANDLE);
         sOverrides.hasCrossProfileIntents = false;
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
@@ -928,17 +926,16 @@ public class ResolverActivityTest {
     @Test
     public void testClonedProfilePresent_workProfileActivityIsStartedInCorrectUser()
             throws Exception {
-        markWorkProfileUserAvailable();
         // enable cloneProfile
-        markCloneProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ true);
 
         List<ResolvedComponentInfo> personalResolvedComponentInfos =
                 createResolvedComponentsWithCloneProfileForTest(
                         3,
                         PERSONAL_USER_HANDLE,
-                        sOverrides.cloneProfileUserHandle);
+                        CLONE_PROFILE_USER_HANDLE);
         List<ResolvedComponentInfo> workResolvedComponentInfos =
-                createResolvedComponentsForTest(3, sOverrides.workProfileUserHandle);
+                createResolvedComponentsForTest(3, WORK_PROFILE_USER_HANDLE);
         setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
         sendIntent.setType("TestType");
@@ -967,12 +964,12 @@ public class ResolverActivityTest {
     public void testClonedProfilePresent_personalProfileResolverComparatorHasCorrectUsers()
             throws Exception {
         // enable cloneProfile
-        markCloneProfileUserAvailable();
+        markOtherProfileAvailability(/* workAvailable= */ false, /* cloneAvailable= */ true);
         List<ResolvedComponentInfo> resolvedComponentInfos =
                 createResolvedComponentsWithCloneProfileForTest(
                         3,
                         PERSONAL_USER_HANDLE,
-                        sOverrides.cloneProfileUserHandle);
+                        CLONE_PROFILE_USER_HANDLE);
         setupResolverControllers(resolvedComponentInfos);
         Intent sendIntent = createSendImageIntent();
 
@@ -981,8 +978,8 @@ public class ResolverActivityTest {
         List<UserHandle> result = activity
                 .getResolverRankerServiceUserHandleList(PERSONAL_USER_HANDLE);
 
-        assertThat(result.containsAll(Lists.newArrayList(PERSONAL_USER_HANDLE,
-                sOverrides.cloneProfileUserHandle)), is(true));
+        assertThat(result.containsAll(
+                Lists.newArrayList(PERSONAL_USER_HANDLE, CLONE_PROFILE_USER_HANDLE)), is(true));
     }
 
     private Intent createSendImageIntent() {
@@ -1059,17 +1056,24 @@ public class ResolverActivityTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
-    private void markWorkProfileUserAvailable() {
-        ResolverWrapperActivity.sOverrides.workProfileUserHandle = UserHandle.of(10);
+    private void markOtherProfileAvailability(boolean workAvailable, boolean cloneAvailable) {
+        AnnotatedUserHandles.Builder handles = AnnotatedUserHandles.newBuilder();
+        handles
+                .setUserIdOfCallingApp(1234)  // Must be non-negative.
+                .setUserHandleSharesheetLaunchedAs(PERSONAL_USER_HANDLE)
+                .setPersonalProfileUserHandle(PERSONAL_USER_HANDLE);
+        if (workAvailable) {
+            handles.setWorkProfileUserHandle(WORK_PROFILE_USER_HANDLE);
+        }
+        if (cloneAvailable) {
+            handles.setCloneProfileUserHandle(CLONE_PROFILE_USER_HANDLE);
+        }
+        sOverrides.annotatedUserHandles = handles.build();
     }
 
     private void setupResolverControllers(
             List<ResolvedComponentInfo> personalResolvedComponentInfos) {
         setupResolverControllers(personalResolvedComponentInfos, new ArrayList<>());
-    }
-
-    private void markCloneProfileUserAvailable() {
-        ResolverWrapperActivity.sOverrides.cloneProfileUserHandle = UserHandle.of(11);
     }
 
     private void setupResolverControllers(

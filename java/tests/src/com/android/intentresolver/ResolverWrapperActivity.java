@@ -57,13 +57,6 @@ public class ResolverWrapperActivity extends ResolverActivity {
         super(/* isIntentPicker= */ true);
     }
 
-    // ResolverActivity inspects the launched-from UID at onCreate and needs to see some
-    // non-negative value in the test.
-    @Override
-    public int getLaunchedFromUid() {
-        return 1234;
-    }
-
     public CountingIdlingResource getLabelIdlingResource() {
         return mLabelIdlingResource;
     }
@@ -161,13 +154,8 @@ public class ResolverWrapperActivity extends ResolverActivity {
     }
 
     @Override
-    protected UserHandle getWorkProfileUserHandle() {
-        return sOverrides.workProfileUserHandle;
-    }
-
-    @Override
-    protected UserHandle getCloneProfileUserHandle() {
-        return sOverrides.cloneProfileUserHandle;
+    protected AnnotatedUserHandles computeAnnotatedUserHandles() {
+        return sOverrides.annotatedUserHandles;
     }
 
     @Override
@@ -193,9 +181,7 @@ public class ResolverWrapperActivity extends ResolverActivity {
         public ResolverListController resolverListController;
         public ResolverListController workResolverListController;
         public Boolean isVoiceInteraction;
-        public UserHandle workProfileUserHandle;
-        public UserHandle cloneProfileUserHandle;
-        public UserHandle tabOwnerUserHandleForLaunch;
+        public AnnotatedUserHandles annotatedUserHandles;
         public Integer myUserId;
         public boolean hasCrossProfileIntents;
         public boolean isQuietModeEnabled;
@@ -208,9 +194,11 @@ public class ResolverWrapperActivity extends ResolverActivity {
             createPackageManager = null;
             resolverListController = mock(ResolverListController.class);
             workResolverListController = mock(ResolverListController.class);
-            workProfileUserHandle = null;
-            cloneProfileUserHandle = null;
-            tabOwnerUserHandleForLaunch = null;
+            annotatedUserHandles = AnnotatedUserHandles.newBuilder()
+                    .setUserIdOfCallingApp(1234)  // Must be non-negative.
+                    .setUserHandleSharesheetLaunchedAs(UserHandle.SYSTEM)
+                    .setPersonalProfileUserHandle(UserHandle.SYSTEM)
+                    .build();
             myUserId = null;
             hasCrossProfileIntents = true;
             isQuietModeEnabled = false;
