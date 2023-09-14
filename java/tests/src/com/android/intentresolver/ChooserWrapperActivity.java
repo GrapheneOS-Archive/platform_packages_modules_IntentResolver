@@ -39,7 +39,7 @@ import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.icons.TargetDataLoader;
-import com.android.intentresolver.logging.EventLog;
+import com.android.intentresolver.logging.EventLogImpl;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
@@ -204,7 +204,7 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
     }
 
     @Override
-    public EventLog getEventLog() {
+    public EventLogImpl getEventLog() {
         return sOverrides.mEventLog;
     }
 
@@ -263,7 +263,7 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
     @Override
     public Context createContextAsUser(UserHandle user, int flags) {
         // return the current context as a work profile doesn't really exist in these tests
-        return getApplicationContext();
+        return this;
     }
 
     @Override

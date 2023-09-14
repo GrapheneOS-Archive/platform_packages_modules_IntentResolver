@@ -28,12 +28,13 @@ import android.graphics.drawable.Icon
 import android.service.chooser.ChooserAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.intentresolver.logging.EventLog
+import com.android.intentresolver.logging.EventLogImpl
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
+import com.android.intentresolver.logging.EventLog
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

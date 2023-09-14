@@ -85,6 +85,7 @@ import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.icons.DefaultTargetDataLoader;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.logging.EventLog;
+import com.android.intentresolver.logging.EventLogImpl;
 import com.android.intentresolver.measurements.Tracer;
 import com.android.intentresolver.model.AbstractResolverComparator;
 import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
@@ -257,7 +258,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
         createProfileRecords(
                 new AppPredictorFactory(
-                        this, // TODO: Review w/team, possible side effects?
+                        this,
                         mChooserRequest.getSharedText(),
                         mChooserRequest.getTargetIntentFilter()),
                 mChooserRequest.getTargetIntentFilter());
@@ -274,10 +275,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 /* supportsAlwaysUseOption= */ false,
                 new DefaultTargetDataLoader(this, getLifecycle(), false),
                 /* safeForwardingMode= */ true);
-
-        if (mFeatureFlags.exampleNewSharingMethod()) {
-            // Sample flag usage
-        }
 
         mIntegratedDeviceComponents = getIntegratedDeviceComponents();
 
@@ -386,7 +383,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         ShortcutLoader shortcutLoader = ActivityManager.isLowRamDeviceStatic()
                     ? null
                     : createShortcutLoader(
-                            this, // TODO: Review w/team, possible side effects?
+                            this,
                             appPredictor,
                             userHandle,
                             targetIntentFilter,
@@ -1111,7 +1108,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     protected EventLog getEventLog() {
         if (mEventLog == null) {
-            mEventLog = new EventLog();
+            mEventLog = new EventLogImpl();
         }
         return mEventLog;
     }

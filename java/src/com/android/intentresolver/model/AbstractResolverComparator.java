@@ -30,10 +30,11 @@ import android.os.Message;
 import android.os.UserHandle;
 import android.util.Log;
 
-import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.ResolverActivity;
+import com.android.intentresolver.ResolverListController;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.logging.EventLog;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -75,6 +76,7 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
     private EventLog mEventLog;
 
     protected final Handler mHandler = new Handler(Looper.getMainLooper()) {
+        @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case RANKER_SERVICE_RESULT:

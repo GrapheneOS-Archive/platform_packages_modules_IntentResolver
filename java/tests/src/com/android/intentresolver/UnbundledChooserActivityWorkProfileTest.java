@@ -64,15 +64,22 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import dagger.hilt.android.testing.HiltAndroidRule;
+import dagger.hilt.android.testing.HiltAndroidTest;
+
 @DeviceFilter.MediumType
 @RunWith(Parameterized.class)
+@HiltAndroidTest
 public class UnbundledChooserActivityWorkProfileTest {
 
     private static final UserHandle PERSONAL_USER_HANDLE = InstrumentationRegistry
             .getInstrumentation().getTargetContext().getUser();
     private static final UserHandle WORK_USER_HANDLE = UserHandle.of(10);
 
-    @Rule
+    @Rule(order = 0)
+    public HiltAndroidRule mHiltAndroidRule = new HiltAndroidRule(this);
+
+    @Rule(order = 1)
     public ActivityTestRule<ChooserWrapperActivity> mActivityRule =
             new ActivityTestRule<>(ChooserWrapperActivity.class, false,
                     false);
