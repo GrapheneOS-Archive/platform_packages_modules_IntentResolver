@@ -23,7 +23,6 @@ import android.content.pm.ResolveInfo;
 import android.os.UserHandle;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
-import com.android.intentresolver.logging.EventLog;
 
 import java.util.concurrent.Executor;
 
@@ -42,6 +41,5 @@ public interface IChooserWrapper {
             CharSequence pLabel, CharSequence pInfo, Intent replacementIntent,
             @Nullable TargetPresentationGetter resolveInfoPresentationGetter);
     UserHandle getCurrentUserHandle();
-    EventLog getEventLog();
     Executor getMainExecutor();
 }

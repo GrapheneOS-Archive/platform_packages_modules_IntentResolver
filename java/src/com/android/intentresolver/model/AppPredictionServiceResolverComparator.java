@@ -31,9 +31,9 @@ import android.os.Message;
 import android.os.UserHandle;
 import android.util.Log;
 
-import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.logging.EventLog;
 
 import com.google.android.collect.Lists;
 

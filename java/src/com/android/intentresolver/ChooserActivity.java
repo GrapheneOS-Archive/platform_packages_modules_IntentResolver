@@ -171,6 +171,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     public @interface ShareTargetType {}
 
     @Inject public FeatureFlags mFeatureFlags;
+    @Inject public EventLog mEventLog;
 
     private ChooserIntegratedDeviceComponents mIntegratedDeviceComponents;
 
@@ -188,9 +189,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private ChooserContentPreviewUi mChooserContentPreviewUi;
 
     private boolean mShouldDisplayLandscape;
-    // statsd logger wrapper
-    protected EventLog mEventLog;
-
     private long mChooserShownTime;
     protected boolean mIsSuccessfullySelected;
 
@@ -236,8 +234,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         final long intentReceivedTime = System.currentTimeMillis();
         mLatencyTracker.onActionStart(ACTION_LOAD_SHARE_SHEET);
 
-        getEventLog().logSharesheetTriggered();
-
         try {
             mChooserRequest = new ChooserRequestParameters(
                     getIntent(),
@@ -257,7 +253,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
         createProfileRecords(
                 new AppPredictorFactory(
-                        this, // TODO: Review w/team, possible side effects?
+                        this,
                         mChooserRequest.getSharedText(),
                         mChooserRequest.getTargetIntentFilter()),
                 mChooserRequest.getTargetIntentFilter());
@@ -275,9 +271,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 new DefaultTargetDataLoader(this, getLifecycle(), false),
                 /* safeForwardingMode= */ true);
 
-        if (mFeatureFlags.exampleNewSharingMethod()) {
-            // Sample flag usage
-        }
+        getEventLog().logSharesheetTriggered();
 
         mIntegratedDeviceComponents = getIntegratedDeviceComponents();
 
@@ -368,13 +362,13 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     private void createProfileRecords(
             AppPredictorFactory factory, IntentFilter targetIntentFilter) {
-        UserHandle mainUserHandle = getPersonalProfileUserHandle();
+        UserHandle mainUserHandle = getAnnotatedUserHandles().personalProfileUserHandle;
         ProfileRecord record = createProfileRecord(mainUserHandle, targetIntentFilter, factory);
         if (record.shortcutLoader == null) {
             Tracer.INSTANCE.endLaunchToShortcutTrace();
         }
 
-        UserHandle workUserHandle = getWorkProfileUserHandle();
+        UserHandle workUserHandle = getAnnotatedUserHandles().workProfileUserHandle;
         if (workUserHandle != null) {
             createProfileRecord(workUserHandle, targetIntentFilter, factory);
         }
@@ -386,7 +380,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         ShortcutLoader shortcutLoader = ActivityManager.isLowRamDeviceStatic()
                     ? null
                     : createShortcutLoader(
-                            this, // TODO: Review w/team, possible side effects?
+                            this,
                             appPredictor,
                             userHandle,
                             targetIntentFilter,
@@ -467,9 +461,12 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                         /* devicePolicyEventId= */ RESOLVER_EMPTY_STATE_NO_SHARING_TO_WORK,
                         /* devicePolicyEventCategory= */ ResolverActivity.METRICS_CATEGORY_CHOOSER);
 
-        return new NoCrossProfileEmptyStateProvider(getPersonalProfileUserHandle(),
-                noWorkToPersonalEmptyState, noPersonalToWorkEmptyState,
-                createCrossProfileIntentsChecker(), getTabOwnerUserHandleForLaunch());
+        return new NoCrossProfileEmptyStateProvider(
+                getAnnotatedUserHandles().personalProfileUserHandle,
+                noWorkToPersonalEmptyState,
+                noPersonalToWorkEmptyState,
+                createCrossProfileIntentsChecker(),
+                getAnnotatedUserHandles().tabOwnerUserHandleForLaunch);
     }
 
     private ChooserMultiProfilePagerAdapter createChooserMultiProfilePagerAdapterForOneProfile(
@@ -483,7 +480,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 initialIntents,
                 rList,
                 filterLastUsed,
-                /* userHandle */ getPersonalProfileUserHandle(),
+                /* userHandle */ getAnnotatedUserHandles().personalProfileUserHandle,
                 targetDataLoader);
         return new ChooserMultiProfilePagerAdapter(
                 /* context */ this,
@@ -491,7 +488,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 createEmptyStateProvider(/* workProfileUserHandle= */ null),
                 /* workProfileQuietModeChecker= */ () -> false,
                 /* workProfileUserHandle= */ null,
-                getCloneProfileUserHandle(),
+                getAnnotatedUserHandles().cloneProfileUserHandle,
                 mMaxTargetsPerRow);
     }
 
@@ -507,7 +504,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 selectedProfile == PROFILE_PERSONAL ? initialIntents : null,
                 rList,
                 filterLastUsed,
-                /* userHandle */ getPersonalProfileUserHandle(),
+                /* userHandle */ getAnnotatedUserHandles().personalProfileUserHandle,
                 targetDataLoader);
         ChooserGridAdapter workAdapter = createChooserGridAdapter(
                 /* context */ this,
@@ -515,24 +512,25 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 selectedProfile == PROFILE_WORK ? initialIntents : null,
                 rList,
                 filterLastUsed,
-                /* userHandle */ getWorkProfileUserHandle(),
+                /* userHandle */ getAnnotatedUserHandles().workProfileUserHandle,
                 targetDataLoader);
         return new ChooserMultiProfilePagerAdapter(
                 /* context */ this,
                 personalAdapter,
                 workAdapter,
-                createEmptyStateProvider(/* workProfileUserHandle= */ getWorkProfileUserHandle()),
+                createEmptyStateProvider(getAnnotatedUserHandles().workProfileUserHandle),
                 () -> mWorkProfileAvailability.isQuietModeEnabled(),
                 selectedProfile,
-                getWorkProfileUserHandle(),
-                getCloneProfileUserHandle(),
+                getAnnotatedUserHandles().workProfileUserHandle,
+                getAnnotatedUserHandles().cloneProfileUserHandle,
                 mMaxTargetsPerRow);
     }
 
     private int findSelectedProfile() {
         int selectedProfile = getSelectedProfileExtra();
         if (selectedProfile == -1) {
-            selectedProfile = getProfileForUser(getTabOwnerUserHandleForLaunch());
+            selectedProfile = getProfileForUser(
+                    getAnnotatedUserHandles().tabOwnerUserHandleForLaunch);
         }
         return selectedProfile;
     }
@@ -1085,7 +1083,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         ProfileRecord record = getProfileRecord(userHandle);
         // We cannot use APS service when clone profile is present as APS service cannot sort
         // cross profile targets as of now.
-        return (record == null || getCloneProfileUserHandle() != null) ? null : record.appPredictor;
+        return ((record == null) || (getAnnotatedUserHandles().cloneProfileUserHandle != null))
+                ? null : record.appPredictor;
     }
 
     /**
@@ -1110,9 +1109,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     }
 
     protected EventLog getEventLog() {
-        if (mEventLog == null) {
-            mEventLog = new EventLog();
-        }
         return mEventLog;
     }
 
@@ -1226,8 +1222,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             int maxTargetsPerRow,
             TargetDataLoader targetDataLoader) {
         UserHandle initialIntentsUserSpace = isLaunchedAsCloneProfile()
-                && userHandle.equals(getPersonalProfileUserHandle())
-                ? getCloneProfileUserHandle() : userHandle;
+                && userHandle.equals(getAnnotatedUserHandles().personalProfileUserHandle)
+                ? getAnnotatedUserHandles().cloneProfileUserHandle : userHandle;
         return new ChooserListAdapter(
                 context,
                 payloadIntents,
@@ -1248,7 +1244,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     @Override
     protected void onWorkProfileStatusUpdated() {
-        UserHandle workUser = getWorkProfileUserHandle();
+        UserHandle workUser = getAnnotatedUserHandles().workProfileUserHandle;
         ProfileRecord record = workUser == null ? null : getProfileRecord(workUser);
         if (record != null && record.shortcutLoader != null) {
             record.shortcutLoader.reset();
@@ -1303,7 +1299,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 new ChooserActionFactory.ActionActivityStarter() {
                     @Override
                     public void safelyStartActivityAsPersonalProfileUser(TargetInfo targetInfo) {
-                        safelyStartActivityAsUser(targetInfo, getPersonalProfileUserHandle());
+                        safelyStartActivityAsUser(
+                                targetInfo, getAnnotatedUserHandles().personalProfileUserHandle);
                         finish();
                     }
 
@@ -1313,11 +1310,12 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
                                 ChooserActivity.this, sharedElement, sharedElementName);
                         safelyStartActivityAsUser(
-                                targetInfo, getPersonalProfileUserHandle(), options.toBundle());
+                                targetInfo,
+                                getAnnotatedUserHandles().personalProfileUserHandle,
+                                options.toBundle());
                         // Can't finish right away because the shared element transition may not
                         // be ready to start.
                         mFinishWhenStopped = true;
-
                     }
                 },
                 (status) -> {
@@ -1470,7 +1468,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
      * Returns {@link #PROFILE_PERSONAL}, otherwise.
      **/
     private int getProfileForUser(UserHandle currentUserHandle) {
-        if (currentUserHandle.equals(getWorkProfileUserHandle())) {
+        if (currentUserHandle.equals(getAnnotatedUserHandles().workProfileUserHandle)) {
             return PROFILE_WORK;
         }
         // We return personal profile, as it is the default when there is no work profile, personal
@@ -1576,6 +1574,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 getResources().getDimensionPixelSize(R.dimen.chooser_header_scroll_elevation);
         mChooserMultiProfilePagerAdapter.getActiveAdapterView().addOnScrollListener(
                 new RecyclerView.OnScrollListener() {
+                    @Override
                     public void onScrollStateChanged(RecyclerView view, int scrollState) {
                         if (scrollState == RecyclerView.SCROLL_STATE_IDLE) {
                             if (mScrollStatus == SCROLL_STATUS_SCROLLING_VERTICAL) {
@@ -1590,6 +1589,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                         }
                     }
 
+                    @Override
                     public void onScrolled(RecyclerView view, int dx, int dy) {
                         if (view.getChildCount() > 0) {
                             View child = view.getLayoutManager().findViewByPosition(0);

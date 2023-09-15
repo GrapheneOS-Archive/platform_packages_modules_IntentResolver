@@ -39,7 +39,6 @@ import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.icons.TargetDataLoader;
-import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
@@ -204,11 +203,6 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
     }
 
     @Override
-    public EventLog getEventLog() {
-        return sOverrides.mEventLog;
-    }
-
-    @Override
     public Cursor queryResolver(ContentResolver resolver, Uri uri) {
         if (sOverrides.resolverCursor != null) {
             return sOverrides.resolverCursor;
@@ -243,8 +237,8 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
     }
 
     @Override
-    protected UserHandle getWorkProfileUserHandle() {
-        return sOverrides.workProfileUserHandle;
+    protected AnnotatedUserHandles computeAnnotatedUserHandles() {
+        return sOverrides.annotatedUserHandles;
     }
 
     @Override
@@ -253,17 +247,9 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
     }
 
     @Override
-    protected UserHandle getTabOwnerUserHandleForLaunch() {
-        if (sOverrides.tabOwnerUserHandleForLaunch == null) {
-            return super.getTabOwnerUserHandleForLaunch();
-        }
-        return sOverrides.tabOwnerUserHandleForLaunch;
-    }
-
-    @Override
     public Context createContextAsUser(UserHandle user, int flags) {
         // return the current context as a work profile doesn't really exist in these tests
-        return getApplicationContext();
+        return this;
     }
 
     @Override
