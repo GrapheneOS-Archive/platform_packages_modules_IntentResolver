@@ -72,7 +72,7 @@
     <string name="image_preview_a11y_description" msgid="297102643932491797">"ଇମେଜ ପ୍ରିଭ୍ୟୁର ଥମ୍ବନେଲ"</string>
     <string name="video_preview_a11y_description" msgid="683440858811095990">"ଭିଡିଓ ପ୍ରିଭ୍ୟୁର ଥମ୍ବନେଲ"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"ଫାଇଲ ପ୍ରିଭ୍ୟୁର ଥମ୍ବନେଲ"</string>
-    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ଏହାକୁ ସେୟାର୍ କରିବା ପାଇଁ କୌଣସି ସୁପାରିଶ କରାଯାଇଥିବା ଲୋକ ନାହାଁନ୍ତି"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ଏହାକୁ ସେୟାର କରିବା ପାଇଁ କୌଣସି ସୁପାରିଶ କରାଯାଇଥିବା ଲୋକ ନାହାଁନ୍ତି"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ଏହି ଆପ୍‌କୁ ରେକର୍ଡ କରିବାକୁ ଅନୁମତି ଦିଆଯାଇ ନାହିଁ କିନ୍ତୁ ଏହି USB ଡିଭାଇସ୍ ଜରିଆରେ ଅଡିଓ କ୍ୟାପ୍‍ଚର୍‍ କରିପାରିବ।"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ବ୍ୟକ୍ତିଗତ"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ୱାର୍କ"</string>
@@ -95,6 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"ଟେକ୍ସଟକୁ ଅନ୍ତର୍ଭୁକ୍ତ କରନ୍ତୁ"</string>
     <string name="exclude_link" msgid="1332778255031992228">"ଲିଙ୍କକୁ ବାଦ ଦିଅନ୍ତୁ"</string>
     <string name="include_link" msgid="827855767220339802">"ଲିଙ୍କକୁ ଅନ୍ତର୍ଭୁକ୍ତ କରନ୍ତୁ"</string>
-    <!-- no translation found for pinned (7623664001331394139) -->
-    <skip />
+    <string name="pinned" msgid="7623664001331394139">"ପିନ କରାଯାଇଛି"</string>
 </resources>
