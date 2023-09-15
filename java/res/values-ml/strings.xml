@@ -95,6 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"ടെക്‌സ്റ്റ് ഉൾപ്പെടുത്തുക"</string>
     <string name="exclude_link" msgid="1332778255031992228">"ലിങ്ക് ഒഴിവാക്കുക"</string>
     <string name="include_link" msgid="827855767220339802">"ലിങ്ക് ഉൾപ്പെടുത്തുക"</string>
-    <!-- no translation found for pinned (7623664001331394139) -->
-    <skip />
+    <string name="pinned" msgid="7623664001331394139">"പിൻ ചെയ്‌തത്"</string>
 </resources>

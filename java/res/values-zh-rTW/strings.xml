@@ -95,6 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"加回文字"</string>
     <string name="exclude_link" msgid="1332778255031992228">"排除連結"</string>
     <string name="include_link" msgid="827855767220339802">"加回連結"</string>
-    <!-- no translation found for pinned (7623664001331394139) -->
-    <skip />
+    <string name="pinned" msgid="7623664001331394139">"已固定"</string>
 </resources>
