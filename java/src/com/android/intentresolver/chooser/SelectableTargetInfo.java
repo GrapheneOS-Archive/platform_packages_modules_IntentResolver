@@ -16,7 +16,6 @@
 
 package com.android.intentresolver.chooser;
 
-import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.prediction.AppTarget;
 import android.content.ComponentName;
@@ -32,6 +31,8 @@ import android.service.chooser.ChooserTarget;
 import android.text.SpannableStringBuilder;
 import android.util.HashedStringCache;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 

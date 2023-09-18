@@ -28,8 +28,6 @@ import static androidx.lifecycle.LifecycleKt.getCoroutineScope;
 
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
 
-import android.annotation.IntDef;
-import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
@@ -67,8 +65,10 @@ import android.view.ViewTreeObserver;
 import android.view.WindowInsets;
 import android.widget.TextView;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -165,7 +165,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private static final int SCROLL_STATUS_SCROLLING_VERTICAL = 1;
     private static final int SCROLL_STATUS_SCROLLING_HORIZONTAL = 2;
 
-    @IntDef(flag = false, prefix = { "TARGET_TYPE_" }, value = {
+    @IntDef({
             TARGET_TYPE_DEFAULT,
             TARGET_TYPE_CHOOSER_TARGET,
             TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER,
@@ -605,7 +605,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         ViewPager viewPager = findViewById(com.android.internal.R.id.profile_pager);
         if (viewPager.isLayoutRtl()) {
@@ -1592,7 +1592,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         mChooserMultiProfilePagerAdapter.getActiveAdapterView().addOnScrollListener(
                 new RecyclerView.OnScrollListener() {
                     @Override
-                    public void onScrollStateChanged(RecyclerView view, int scrollState) {
+                    public void onScrollStateChanged(@NonNull RecyclerView view, int scrollState) {
                         if (scrollState == RecyclerView.SCROLL_STATE_IDLE) {
                             if (mScrollStatus == SCROLL_STATUS_SCROLLING_VERTICAL) {
                                 mScrollStatus = SCROLL_STATUS_IDLE;
@@ -1607,7 +1607,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                     }
 
                     @Override
-                    public void onScrolled(RecyclerView view, int dx, int dy) {
+                    public void onScrolled(@NonNull RecyclerView view, int dx, int dy) {
                         if (view.getChildCount() > 0) {
                             View child = view.getLayoutManager().findViewByPosition(0);
                             if (child == null || child.getTop() < 0) {

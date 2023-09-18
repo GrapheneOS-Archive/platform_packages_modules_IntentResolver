@@ -19,7 +19,6 @@ package com.android.intentresolver;
 import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE;
 import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_SHORTCUTS_FROM_SHORTCUT_MANAGER;
 
-import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.prediction.AppTarget;
 import android.content.ComponentName;
@@ -45,6 +44,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;

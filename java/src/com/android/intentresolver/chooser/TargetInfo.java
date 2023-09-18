@@ -17,20 +17,27 @@
 package com.android.intentresolver.chooser;
 
 
-import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.prediction.AppTarget;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.service.chooser.ChooserTarget;
 import android.text.TextUtils;
 import android.util.HashedStringCache;
+
+import androidx.annotation.Nullable;
+
+import com.android.intentresolver.ChooserListAdapter;
+import com.android.intentresolver.ChooserRefinementManager;
+import com.android.intentresolver.ResolverActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -187,9 +194,9 @@ public interface TargetInfo {
      * Attempt to apply a {@code proposedRefinement} that the {@link ChooserRefinementManager}
      * received from the caller's refinement flow. This may succeed only if the target has a source
      * intent that matches the filtering parameters of the proposed refinement (according to
-     * {@link Intent#filterEquals()}). Then the first such match is the "base intent," and the
-     * proposed refinement is merged into that base (via {@link Intent#fillIn()}; this can never
-     * result in a change to the {@link Intent#filterEquals()} status of the base, but may e.g. add
+     * {@link Intent#filterEquals}). Then the first such match is the "base intent," and the
+     * proposed refinement is merged into that base (via {@link Intent#fillIn}; this can never
+     * result in a change to the {@link Intent#filterEquals} status of the base, but may e.g. add
      * new "extras" that weren't previously given in the base intent).
      *
      * @return a copy of this {@link TargetInfo} where the "base intent to send" is the result of
@@ -280,7 +287,7 @@ public interface TargetInfo {
     }
 
     /**
-     * @return the {@link ShortcutManager} data for any shortcut associated with this target.
+     * @return the {@link ShortcutInfo} for any shortcut associated with this target.
      */
     @Nullable
     default ShortcutInfo getDirectShareShortcutInfo() {
@@ -422,7 +429,7 @@ public interface TargetInfo {
 
     /**
      * @return true if this target should be logged with the "direct_share" metrics category in
-     * {@link ResolverActivity#maybeLogCrossProfileTargetLaunch()}. This is defined for legacy
+     * {@link ResolverActivity#maybeLogCrossProfileTargetLaunch}. This is defined for legacy
      * compatibility and is <em>not</em> likely to be a good indicator of whether this is actually a
      * "direct share" target (e.g. because it historically also applies to "empty" and "placeholder"
      * targets).

@@ -288,8 +288,9 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
                 + getFooterRowCount();
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case VIEW_TYPE_CONTENT_PREVIEW:
                 return new ItemViewHolder(
@@ -325,7 +326,7 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
                 return new FooterViewHolder(sp, viewType);
             default:
                 // Since we catch all possible viewTypes above, no chance this is being called.
-                return null;
+                throw new IllegalStateException("unmatched view type");
         }
     }
 

@@ -16,8 +16,6 @@
 
 package com.android.intentresolver;
 
-import android.annotation.Nullable;
-import android.annotation.UiThread;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
@@ -28,6 +26,8 @@ import android.os.Parcel;
 import android.os.ResultReceiver;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import javax.inject.Inject;
+
 
 /**
  * Helper class to manage Sharesheet's "refinement" flow, where callers supply a "refinement

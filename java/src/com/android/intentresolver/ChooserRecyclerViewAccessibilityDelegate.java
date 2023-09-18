@@ -16,12 +16,12 @@
 
 package com.android.intentresolver;
 
-import android.annotation.NonNull;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate;
 

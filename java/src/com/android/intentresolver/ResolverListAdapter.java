@@ -16,8 +16,6 @@
 
 package com.android.intentresolver;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -43,6 +41,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;

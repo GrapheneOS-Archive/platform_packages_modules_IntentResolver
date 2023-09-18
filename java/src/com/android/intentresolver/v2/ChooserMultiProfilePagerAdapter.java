@@ -181,6 +181,7 @@ public class ChooserMultiProfilePagerAdapter extends MultiProfilePagerAdapter<
             mBottomOffset = bottomOffset;
         }
 
+        @Override
         public Optional<Integer> get() {
             int initialBottomPadding = mContext.getResources().getDimensionPixelSize(
                     R.dimen.resolver_empty_state_container_padding_bottom);

@@ -41,24 +41,28 @@ import java.util.function.Supplier;
 
 /**
  * Skeletal {@link PagerAdapter} implementation for a UI with per-profile tabs (as in Sharesheet).
- *
+ * <p>
  * TODO: attempt to further restrict visibility/improve encapsulation in the methods we expose.
+ * <p>
  * TODO: deprecate and audit/fix usages of any methods that refer to the "active" or "inactive"
+ * <p>
  * adapters; these were marked {@link VisibleForTesting} and their usage seems like an accident
  * waiting to happen since clients seem to make assumptions about which adapter will be "active" in
  * a particular context, and more explicit APIs would make sure those were valid.
+ * <p>
  * TODO: consider renaming legacy methods (e.g. why do we know it's a "list", not just a "page"?)
+ * <p>
+ * TODO: this is part of an in-progress refactor to merge with `GenericMultiProfilePagerAdapter`.
+ * As originally noted there, we've reduced explicit references to the `ResolverListAdapter` base
+ * type and may be able to drop the type constraint.
  *
  * @param <PageViewT> the type of the widget that represents the contents of a page in this adapter
  * @param <SinglePageAdapterT> the type of a "root" adapter class to be instantiated and included in
  * the per-profile records.
  * @param <ListAdapterT> the concrete type of a {@link ResolverListAdapter} implementation to
  * control the contents of a given per-profile list. This is provided for convenience, since it must
- * be possible to get the list adapter from the page adapter via our {@link mListAdapterExtractor}.
- *
- * TODO: this is part of an in-progress refactor to merge with `GenericMultiProfilePagerAdapter`.
- * As originally noted there, we've reduced explicit references to the `ResolverListAdapter` base
- * type and may be able to drop the type constraint.
+ * be possible to get the list adapter from the page adapter via our
+ * <code>mListAdapterExtractor</code>.
  */
 public class MultiProfilePagerAdapter<
         PageViewT extends ViewGroup,

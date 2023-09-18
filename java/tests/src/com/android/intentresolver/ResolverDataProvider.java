@@ -29,6 +29,8 @@ import android.test.mock.MockContext;
 import android.test.mock.MockPackageManager;
 import android.test.mock.MockResources;
 
+import androidx.annotation.NonNull;
+
 /**
  * Utility class used by resolver tests to create mock data
  */
@@ -195,28 +197,31 @@ public class ResolverDataProvider {
             @Override
             public Resources getResources() {
                 return new MockResources() {
+                    @NonNull
                     @Override
                     public String getString(int id) throws NotFoundException {
                         if (id == 1) return appLabel;
                         if (id == 2) return activityLabel;
                         if (id == 3) return resolveInfoLabel;
-                        return null;
+                        throw new NotFoundException();
                     }
                 };
             }
         };
 
         ApplicationInfo appInfo = new ApplicationInfo() {
+            @NonNull
             @Override
-            public CharSequence loadLabel(PackageManager pm) {
+            public CharSequence loadLabel(@NonNull PackageManager pm) {
                 return appLabel;
             }
         };
         appInfo.labelRes = 1;
 
         ActivityInfo activityInfo = new ActivityInfo() {
+            @NonNull
             @Override
-            public CharSequence loadLabel(PackageManager pm) {
+            public CharSequence loadLabel(@NonNull PackageManager pm) {
                 return activityLabel;
             }
         };
@@ -224,8 +229,9 @@ public class ResolverDataProvider {
         activityInfo.applicationInfo = appInfo;
 
         ResolveInfo resolveInfo = new ResolveInfo() {
+            @NonNull
             @Override
-            public CharSequence loadLabel(PackageManager pm) {
+            public CharSequence loadLabel(@NonNull PackageManager pm) {
                 return resolveInfoLabel;
             }
         };

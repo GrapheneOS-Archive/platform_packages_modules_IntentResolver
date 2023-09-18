@@ -16,13 +16,14 @@
 
 package com.android.intentresolver.chooser;
 
-import android.annotation.Nullable;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.UserHandle;
+
+import androidx.annotation.Nullable;
 
 import com.android.intentresolver.R;
 

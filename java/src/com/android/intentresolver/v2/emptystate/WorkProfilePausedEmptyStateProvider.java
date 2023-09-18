@@ -18,13 +18,14 @@ package com.android.intentresolver.v2.emptystate;
 
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_WORK_PAUSED_TITLE;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.app.admin.DevicePolicyEventLogger;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.os.UserHandle;
 import android.stats.devicepolicy.nano.DevicePolicyEnums;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.intentresolver.MultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener;
 import com.android.intentresolver.R;

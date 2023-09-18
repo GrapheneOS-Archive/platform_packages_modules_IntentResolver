@@ -19,7 +19,6 @@ package com.android.intentresolver.widget;
 
 import static android.content.res.Resources.ID_NULL;
 
-import android.annotation.IdRes;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -45,6 +44,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.OverScroller;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ScrollingView;
 import androidx.recyclerview.widget.RecyclerView;
@@ -998,7 +999,7 @@ public class ResolverDrawerLayout extends ViewGroup {
     }
 
     @Override
-    public void onDrawForeground(Canvas canvas) {
+    public void onDrawForeground(@NonNull Canvas canvas) {
         if (mScrollIndicatorDrawable != null) {
             mScrollIndicatorDrawable.draw(canvas);
         }

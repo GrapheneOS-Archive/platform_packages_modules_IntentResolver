@@ -16,14 +16,15 @@
 
 package com.android.intentresolver.shortcuts;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.app.prediction.AppTarget;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.os.Bundle;
 import android.service.chooser.ChooserTarget;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;

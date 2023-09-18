@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.os.UserHandle;
 
+import androidx.annotation.Nullable;
+
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 
 import java.util.concurrent.Executor;
@@ -41,7 +43,7 @@ public interface IChooserWrapper {
             ResolveInfo pri,
             CharSequence pLabel,
             CharSequence pInfo,
-            Intent replacementIntent);
+            @Nullable Intent replacementIntent);
     UserHandle getCurrentUserHandle();
     Executor getMainExecutor();
 }

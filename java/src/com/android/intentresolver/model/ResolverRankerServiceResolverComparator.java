@@ -17,7 +17,6 @@
 
 package com.android.intentresolver.model;
 
-import android.annotation.Nullable;
 import android.app.usage.UsageStats;
 import android.content.ComponentName;
 import android.content.Context;
@@ -38,6 +37,8 @@ import android.service.resolver.IResolverRankerService;
 import android.service.resolver.ResolverRankerService;
 import android.service.resolver.ResolverTarget;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.TargetInfo;

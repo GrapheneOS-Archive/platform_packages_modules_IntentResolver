@@ -18,7 +18,6 @@ package com.android.intentresolver.model;
 
 import static android.app.prediction.AppTargetEvent.ACTION_LAUNCH;
 
-import android.annotation.Nullable;
 import android.app.prediction.AppPredictor;
 import android.app.prediction.AppTarget;
 import android.app.prediction.AppTargetEvent;
@@ -30,6 +29,8 @@ import android.content.pm.ResolveInfo;
 import android.os.Message;
 import android.os.UserHandle;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.TargetInfo;

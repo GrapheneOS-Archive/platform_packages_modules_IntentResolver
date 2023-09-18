@@ -16,13 +16,14 @@
 
 package com.android.intentresolver.logging;
 
-import android.annotation.Nullable;
 import android.content.Intent;
 import android.metrics.LogMaker;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.HashedStringCache;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.android.intentresolver.ChooserActivity;
 import com.android.intentresolver.contentpreview.ContentPreviewType;
@@ -36,8 +37,6 @@ import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.util.FrameworkStatsLog;
 
 import javax.inject.Inject;
-
-import dagger.hilt.android.scopes.ActivityScoped;
 
 /**
  * Helper for writing Sharesheet atoms to statsd log.
