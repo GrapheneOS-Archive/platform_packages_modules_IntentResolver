@@ -2262,20 +2262,6 @@ public class ResolverActivity extends FragmentActivity implements
         mRetainInOnStop = retainInOnStop;
     }
 
-    /**
-     * Check a simple match for the component of two ResolveInfos.
-     */
-    @Override // ResolverListCommunicator
-    public final boolean resolveInfoMatch(ResolveInfo lhs, ResolveInfo rhs) {
-        return lhs == null ? rhs == null
-                : lhs.activityInfo == null ? rhs.activityInfo == null
-                : Objects.equals(lhs.activityInfo.name, rhs.activityInfo.name)
-                && Objects.equals(lhs.activityInfo.packageName, rhs.activityInfo.packageName)
-                        // Comparing against resolveInfo.userHandle in case cloned apps are present,
-                        // as they will have the same activityInfo.
-                && Objects.equals(lhs.userHandle, rhs.userHandle);
-    }
-
     private boolean inactiveListAdapterHasItems() {
         if (!shouldShowTabs()) {
             return false;
