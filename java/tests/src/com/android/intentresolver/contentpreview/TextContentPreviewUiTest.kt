@@ -17,6 +17,7 @@
 package com.android.intentresolver.contentpreview
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.testing.TestLifecycleOwner
@@ -51,18 +52,19 @@ class TextContentPreviewUiTest {
     private val context
         get() = InstrumentationRegistry.getInstrumentation().context
 
+    private val testSubject =
+        TextContentPreviewUi(
+            lifecycleOwner.lifecycle,
+            text,
+            title,
+            /*previewThumbnail=*/ null,
+            actionFactory,
+            imageLoader,
+            headlineGenerator,
+        )
+
     @Test
     fun test_display_headlineIsDisplayed() {
-        val testSubject =
-            TextContentPreviewUi(
-                lifecycleOwner.lifecycle,
-                text,
-                title,
-                /*previewThumbnail=*/ null,
-                actionFactory,
-                imageLoader,
-                headlineGenerator,
-            )
         val layoutInflater = LayoutInflater.from(context)
         val gridLayout = layoutInflater.inflate(R.layout.chooser_grid, null, false) as ViewGroup
 
@@ -76,6 +78,28 @@ class TextContentPreviewUiTest {
 
         assertThat(previewView).isNotNull()
         val headlineView = previewView?.findViewById<TextView>(R.id.headline)
+        assertThat(headlineView).isNotNull()
+        assertThat(headlineView?.text).isEqualTo(text)
+    }
+
+    @Test
+    fun test_displayWithExternalHeaderView_externalHeaderIsDisplayed() {
+        val layoutInflater = LayoutInflater.from(context)
+        val gridLayout =
+            layoutInflater.inflate(R.layout.chooser_grid_scrollable_preview, null, false)
+                as ViewGroup
+        val externalHeaderView =
+            gridLayout.requireViewById<View>(R.id.chooser_headline_row_container)
+
+        assertThat(externalHeaderView.findViewById<View>(R.id.headline)).isNull()
+
+        val previewView =
+            testSubject.display(context.resources, layoutInflater, gridLayout, externalHeaderView)
+
+        assertThat(previewView).isNotNull()
+        assertThat(previewView.findViewById<View>(R.id.headline)).isNull()
+
+        val headlineView = externalHeaderView.findViewById<TextView>(R.id.headline)
         assertThat(headlineView).isNotNull()
         assertThat(headlineView?.text).isEqualTo(text)
     }
