@@ -23,7 +23,9 @@ import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CROSS_PROFILE_BLOCKED_TITLE;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_PERSONAL;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_WORK;
+
 import static androidx.lifecycle.LifecycleKt.getCoroutineScope;
+
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
 
 import android.annotation.IntDef;
@@ -664,7 +666,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         ViewGroup layout = mChooserContentPreviewUi.displayContentPreview(
                 getResources(),
                 getLayoutInflater(),
-                parent);
+                parent,
+                /*headlineViewParent=*/null);
 
         if (layout != null) {
             adjustPreviewWidth(getResources().getConfiguration().orientation, layout);

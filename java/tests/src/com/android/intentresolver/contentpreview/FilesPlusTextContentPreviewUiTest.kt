@@ -167,7 +167,7 @@ class FilesPlusTextContentPreviewUiTest {
         val gridLayout = layoutInflater.inflate(R.layout.chooser_grid, null, false) as ViewGroup
 
         val previewView =
-            testSubject.display(context.resources, LayoutInflater.from(context), gridLayout)
+            testSubject.display(context.resources, LayoutInflater.from(context), gridLayout, null)
 
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verify(headlineGenerator, never()).getImagesHeadline(sharedFileCount)
@@ -201,7 +201,12 @@ class FilesPlusTextContentPreviewUiTest {
         val gridLayout = layoutInflater.inflate(R.layout.chooser_grid, null, false) as ViewGroup
 
         loadedFileMetadata?.let(testSubject::updatePreviewMetadata)
-        return testSubject.display(context.resources, LayoutInflater.from(context), gridLayout)
+        return testSubject.display(
+            context.resources,
+            LayoutInflater.from(context),
+            gridLayout,
+            /*headlineViewParent=*/ null
+        )
     }
 
     private fun createFileInfosWithMimeTypes(vararg mimeTypes: String): List<FileInfo> {
