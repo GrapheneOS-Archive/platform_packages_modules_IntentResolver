@@ -18,6 +18,7 @@ package com.android.intentresolver.contentpreview
 
 import android.net.Uri
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.testing.TestLifecycleOwner
@@ -28,6 +29,7 @@ import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
 import com.android.intentresolver.widget.ActionRow
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.function.Consumer
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,12 +76,34 @@ class FilesPlusTextContentPreviewUiTest {
     }
 
     @Test
+    fun test_displayImagesPlusTextWithoutUriMetadataExternalHeader_showImagesHeadline() {
+        val sharedFileCount = 2
+        val (previewView, headerParent) = testLoadingExternalHeadline("image/*", sharedFileCount)
+
+        verify(headlineGenerator, times(1)).getImagesHeadline(sharedFileCount)
+        verifyInternalHeadlineAbsence(previewView)
+        verifyPreviewHeadline(headerParent, HEADLINE_IMAGES)
+        verifySharedText(previewView)
+    }
+
+    @Test
     fun test_displayVideosPlusTextWithoutUriMetadata_showVideosHeadline() {
         val sharedFileCount = 2
         val previewView = testLoadingHeadline("video/*", sharedFileCount)
 
         verify(headlineGenerator, times(1)).getVideosHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_VIDEOS)
+        verifySharedText(previewView)
+    }
+
+    @Test
+    fun test_displayVideosPlusTextWithoutUriMetadataExternalHeader_showVideosHeadline() {
+        val sharedFileCount = 2
+        val (previewView, headerParent) = testLoadingExternalHeadline("video/*", sharedFileCount)
+
+        verify(headlineGenerator, times(1)).getVideosHeadline(sharedFileCount)
+        verifyInternalHeadlineAbsence(previewView)
+        verifyPreviewHeadline(headerParent, HEADLINE_VIDEOS)
         verifySharedText(previewView)
     }
 
@@ -94,12 +118,35 @@ class FilesPlusTextContentPreviewUiTest {
     }
 
     @Test
+    fun test_displayDocsPlusTextWithoutUriMetadataExternalHeader_showFilesHeadline() {
+        val sharedFileCount = 2
+        val (previewView, headerParent) =
+            testLoadingExternalHeadline("application/pdf", sharedFileCount)
+
+        verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
+        verifyInternalHeadlineAbsence(previewView)
+        verifyPreviewHeadline(headerParent, HEADLINE_FILES)
+        verifySharedText(previewView)
+    }
+
+    @Test
     fun test_displayMixedContentPlusTextWithoutUriMetadata_showFilesHeadline() {
         val sharedFileCount = 2
         val previewView = testLoadingHeadline("*/*", sharedFileCount)
 
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_FILES)
+        verifySharedText(previewView)
+    }
+
+    @Test
+    fun test_displayMixedContentPlusTextWithoutUriMetadataExternalHeader_showFilesHeadline() {
+        val sharedFileCount = 2
+        val (previewView, headerParent) = testLoadingExternalHeadline("*/*", sharedFileCount)
+
+        verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
+        verifyInternalHeadlineAbsence(previewView)
+        verifyPreviewHeadline(headerParent, HEADLINE_FILES)
         verifySharedText(previewView)
     }
 
@@ -115,6 +162,19 @@ class FilesPlusTextContentPreviewUiTest {
     }
 
     @Test
+    fun test_displayImagesPlusTextWithUriMetadataSetExternalHeader_showImagesHeadline() {
+        val loadedFileMetadata = createFileInfosWithMimeTypes("image/png", "image/jpeg")
+        val sharedFileCount = loadedFileMetadata.size
+        val (previewView, headerParent) =
+            testLoadingExternalHeadline("image/*", sharedFileCount, loadedFileMetadata)
+
+        verify(headlineGenerator, times(1)).getImagesHeadline(sharedFileCount)
+        verifyInternalHeadlineAbsence(previewView)
+        verifyPreviewHeadline(headerParent, HEADLINE_IMAGES)
+        verifySharedText(previewView)
+    }
+
+    @Test
     fun test_displayVideosPlusTextWithUriMetadataSet_showVideosHeadline() {
         val loadedFileMetadata = createFileInfosWithMimeTypes("video/mp4", "video/mp4")
         val sharedFileCount = loadedFileMetadata.size
@@ -122,6 +182,19 @@ class FilesPlusTextContentPreviewUiTest {
 
         verify(headlineGenerator, times(1)).getVideosHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_VIDEOS)
+        verifySharedText(previewView)
+    }
+
+    @Test
+    fun test_displayVideosPlusTextWithUriMetadataSetExternalHeader_showVideosHeadline() {
+        val loadedFileMetadata = createFileInfosWithMimeTypes("video/mp4", "video/mp4")
+        val sharedFileCount = loadedFileMetadata.size
+        val (previewView, headerParent) =
+            testLoadingExternalHeadline("video/*", sharedFileCount, loadedFileMetadata)
+
+        verify(headlineGenerator, times(1)).getVideosHeadline(sharedFileCount)
+        verifyInternalHeadlineAbsence(previewView)
+        verifyPreviewHeadline(headerParent, HEADLINE_VIDEOS)
         verifySharedText(previewView)
     }
 
@@ -137,6 +210,19 @@ class FilesPlusTextContentPreviewUiTest {
     }
 
     @Test
+    fun test_displayImagesAndVideosPlusTextWithUriMetadataSetExternalHeader_showFilesHeadline() {
+        val loadedFileMetadata = createFileInfosWithMimeTypes("image/png", "video/mp4")
+        val sharedFileCount = loadedFileMetadata.size
+        val (previewView, headerParent) =
+            testLoadingExternalHeadline("*/*", sharedFileCount, loadedFileMetadata)
+
+        verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
+        verifyInternalHeadlineAbsence(previewView)
+        verifyPreviewHeadline(headerParent, HEADLINE_FILES)
+        verifySharedText(previewView)
+    }
+
+    @Test
     fun test_displayDocsPlusTextWithUriMetadataSet_showFilesHeadline() {
         val loadedFileMetadata = createFileInfosWithMimeTypes("application/pdf", "application/pdf")
         val sharedFileCount = loadedFileMetadata.size
@@ -145,6 +231,19 @@ class FilesPlusTextContentPreviewUiTest {
 
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_FILES)
+        verifySharedText(previewView)
+    }
+
+    @Test
+    fun test_displayDocsPlusTextWithUriMetadataSetExternalHeader_showFilesHeadline() {
+        val loadedFileMetadata = createFileInfosWithMimeTypes("application/pdf", "application/pdf")
+        val sharedFileCount = loadedFileMetadata.size
+        val (previewView, headerParent) =
+            testLoadingExternalHeadline("application/pdf", sharedFileCount, loadedFileMetadata)
+
+        verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
+        verifyInternalHeadlineAbsence(previewView)
+        verifyPreviewHeadline(headerParent, HEADLINE_FILES)
         verifySharedText(previewView)
     }
 
@@ -167,7 +266,7 @@ class FilesPlusTextContentPreviewUiTest {
         val gridLayout = layoutInflater.inflate(R.layout.chooser_grid, null, false) as ViewGroup
 
         val previewView =
-            testSubject.display(context.resources, LayoutInflater.from(context), gridLayout)
+            testSubject.display(context.resources, LayoutInflater.from(context), gridLayout, null)
 
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verify(headlineGenerator, never()).getImagesHeadline(sharedFileCount)
@@ -180,10 +279,56 @@ class FilesPlusTextContentPreviewUiTest {
         verifyPreviewHeadline(previewView, HEADLINE_IMAGES)
     }
 
+    @Test
+    fun test_uriMetadataIsMoreSpecificThanIntentMimeTypeExternalHeader_headlineGetsUpdated() {
+        val sharedFileCount = 2
+        val testSubject =
+            FilesPlusTextContentPreviewUi(
+                lifecycleOwner.lifecycle,
+                /*isSingleImage=*/ false,
+                sharedFileCount,
+                SHARED_TEXT,
+                /*intentMimeType=*/ "*/*",
+                actionFactory,
+                imageLoader,
+                DefaultMimeTypeClassifier,
+                headlineGenerator
+            )
+        val layoutInflater = LayoutInflater.from(context)
+        val gridLayout =
+            layoutInflater.inflate(R.layout.chooser_grid_scrollable_preview, null, false)
+                as ViewGroup
+        val externalHeaderView =
+            gridLayout.requireViewById<View>(R.id.chooser_headline_row_container)
+
+        assertWithMessage("External headline should not be inflated by default")
+            .that(externalHeaderView.findViewById<View>(R.id.headline))
+            .isNull()
+
+        val previewView =
+            testSubject.display(
+                context.resources,
+                LayoutInflater.from(context),
+                gridLayout,
+                externalHeaderView
+            )
+
+        verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
+        verify(headlineGenerator, never()).getImagesHeadline(sharedFileCount)
+        verifyInternalHeadlineAbsence(previewView)
+        verifyPreviewHeadline(externalHeaderView, HEADLINE_FILES)
+
+        testSubject.updatePreviewMetadata(createFileInfosWithMimeTypes("image/png", "image/jpg"))
+
+        verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
+        verify(headlineGenerator, times(1)).getImagesHeadline(sharedFileCount)
+        verifyPreviewHeadline(externalHeaderView, HEADLINE_IMAGES)
+    }
+
     private fun testLoadingHeadline(
         intentMimeType: String,
         sharedFileCount: Int,
-        loadedFileMetadata: List<FileInfo>? = null
+        loadedFileMetadata: List<FileInfo>? = null,
     ): ViewGroup? {
         val testSubject =
             FilesPlusTextContentPreviewUi(
@@ -201,7 +346,49 @@ class FilesPlusTextContentPreviewUiTest {
         val gridLayout = layoutInflater.inflate(R.layout.chooser_grid, null, false) as ViewGroup
 
         loadedFileMetadata?.let(testSubject::updatePreviewMetadata)
-        return testSubject.display(context.resources, LayoutInflater.from(context), gridLayout)
+        return testSubject.display(
+            context.resources,
+            LayoutInflater.from(context),
+            gridLayout,
+            /*headlineViewParent=*/ null
+        )
+    }
+
+    private fun testLoadingExternalHeadline(
+        intentMimeType: String,
+        sharedFileCount: Int,
+        loadedFileMetadata: List<FileInfo>? = null,
+    ): Pair<ViewGroup?, View> {
+        val testSubject =
+            FilesPlusTextContentPreviewUi(
+                lifecycleOwner.lifecycle,
+                /*isSingleImage=*/ false,
+                sharedFileCount,
+                SHARED_TEXT,
+                intentMimeType,
+                actionFactory,
+                imageLoader,
+                DefaultMimeTypeClassifier,
+                headlineGenerator
+            )
+        val layoutInflater = LayoutInflater.from(context)
+        val gridLayout =
+            layoutInflater.inflate(R.layout.chooser_grid_scrollable_preview, null, false)
+                as ViewGroup
+        val externalHeaderView =
+            gridLayout.requireViewById<View>(R.id.chooser_headline_row_container)
+
+        assertWithMessage("External headline should not be inflated by default")
+            .that(externalHeaderView.findViewById<View>(R.id.headline))
+            .isNull()
+
+        loadedFileMetadata?.let(testSubject::updatePreviewMetadata)
+        return testSubject.display(
+            context.resources,
+            LayoutInflater.from(context),
+            gridLayout,
+            externalHeaderView
+        ) to externalHeaderView
     }
 
     private fun createFileInfosWithMimeTypes(vararg mimeTypes: String): List<FileInfo> {
@@ -209,9 +396,9 @@ class FilesPlusTextContentPreviewUiTest {
         return mimeTypes.map { mimeType -> FileInfo.Builder(uri).withMimeType(mimeType).build() }
     }
 
-    private fun verifyPreviewHeadline(previewView: ViewGroup?, expectedText: String) {
-        assertThat(previewView).isNotNull()
-        val headlineView = previewView?.findViewById<TextView>(R.id.headline)
+    private fun verifyPreviewHeadline(headerViewParent: View?, expectedText: String) {
+        assertThat(headerViewParent).isNotNull()
+        val headlineView = headerViewParent?.findViewById<TextView>(R.id.headline)
         assertThat(headlineView).isNotNull()
         assertThat(headlineView?.text).isEqualTo(expectedText)
     }
@@ -221,5 +408,14 @@ class FilesPlusTextContentPreviewUiTest {
         val textContentView = previewView?.findViewById<TextView>(R.id.content_preview_text)
         assertThat(textContentView).isNotNull()
         assertThat(textContentView?.text).isEqualTo(SHARED_TEXT)
+    }
+
+    private fun verifyInternalHeadlineAbsence(previewView: ViewGroup?) {
+        assertWithMessage("Preview parent should not be null").that(previewView).isNotNull()
+        assertWithMessage(
+                "Preview headline should not be inflated when an external headline is used"
+            )
+            .that(previewView?.findViewById<View>(R.id.headline))
+            .isNull()
     }
 }

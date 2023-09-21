@@ -10,3 +10,10 @@ flag {
   description: "Enables the example new sharing mechanism."
   bug: "<none>"
 }
+
+flag {
+  name: "scrollable_preview"
+  namespace: "intentresolver"
+  description: "Makes preview scrollable with multiple profiles"
+  bug: "287102904"
+}

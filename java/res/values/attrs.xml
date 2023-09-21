@@ -32,6 +32,11 @@
              will push all ignoreOffset siblings below it when the drawer is moved i.e. setting the
              top limit the ignoreOffset elements. -->
         <attr name="ignoreOffsetTopLimit" format="reference" />
+        <!-- Specifies whether ResolverDrawerLayout should use an alternative nested fling logic
+        adjusted for the scrollable preview feature.
+        Controlled by the flag com.android.intentresolver.Flags#FLAG_SCROLLABLE_PREVIEW.
+        -->
+        <attr name="useScrollablePreviewNestedFlingLogic" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="ResolverDrawerLayout_LayoutParams">

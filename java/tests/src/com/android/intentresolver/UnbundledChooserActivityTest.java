@@ -17,6 +17,7 @@
 package com.android.intentresolver;
 
 import static android.app.Activity.RESULT_OK;
+
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.longClick;
@@ -24,10 +25,12 @@ import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
+import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
 import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_CHOOSER_TARGET;
 import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_DEFAULT;
 import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_SHORTCUTS_FROM_PREDICTION_SERVICE;
@@ -35,9 +38,12 @@ import static com.android.intentresolver.ChooserActivity.TARGET_TYPE_SHORTCUTS_F
 import static com.android.intentresolver.ChooserListAdapter.CALLER_TARGET_SCORE_BOOST;
 import static com.android.intentresolver.ChooserListAdapter.SHORTCUT_TARGET_SCORE_BOOST;
 import static com.android.intentresolver.MatcherUtils.first;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+
 import static junit.framework.Assert.assertNull;
+
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -82,6 +88,9 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.platform.test.annotations.RequiresFlagsEnabled;
+import android.platform.test.flag.junit.CheckFlagsRule;
+import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.provider.DeviceConfig;
 import android.service.chooser.ChooserAction;
 import android.service.chooser.ChooserTarget;
@@ -190,11 +199,13 @@ public class UnbundledChooserActivityTest {
     private static final int CONTENT_PREVIEW_FILE = 2;
     private static final int CONTENT_PREVIEW_TEXT = 3;
 
-
     @Rule(order = 0)
-    public HiltAndroidRule mHiltAndroidRule = new HiltAndroidRule(this);
+    public CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
 
     @Rule(order = 1)
+    public HiltAndroidRule mHiltAndroidRule = new HiltAndroidRule(this);
+
+    @Rule(order = 2)
     public ActivityTestRule<ChooserWrapperActivity> mActivityRule =
             new ActivityTestRule<>(ChooserWrapperActivity.class, false, false);
 
@@ -2158,6 +2169,42 @@ public class UnbundledChooserActivityTest {
 
         onView(withText(R.string.resolver_no_work_apps_available))
                 .check(matches(isDisplayed()));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_SCROLLABLE_PREVIEW)
+    public void testWorkTab_previewIsScrollable() {
+        markOtherProfileAvailability(/* workAvailable= */ true, /* cloneAvailable= */ false);
+        List<ResolvedComponentInfo> personalResolvedComponentInfos =
+                createResolvedComponentsForTest(300);
+        List<ResolvedComponentInfo> workResolvedComponentInfos =
+                createResolvedComponentsForTest(3);
+        setupResolverControllers(personalResolvedComponentInfos, workResolvedComponentInfos);
+
+        Uri uri = createTestContentProviderUri("image/png", null);
+
+        ArrayList<Uri> uris = new ArrayList<>();
+        uris.add(uri);
+
+        Intent sendIntent = createSendUriIntentWithPreview(uris);
+        ChooserActivityOverrideData.getInstance().imageLoader =
+                createImageLoader(uri, createWideBitmap());
+
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, "Scrollable preview test"));
+        waitForIdle();
+
+        onView(withId(com.android.intentresolver.R.id.scrollable_image_preview))
+                .check(matches(isDisplayed()));
+
+        onView(withId(com.android.internal.R.id.contentPanel)).perform(swipeUp());
+        waitForIdle();
+
+        onView(withId(com.android.intentresolver.R.id.chooser_headline_row_container))
+                .check(matches(isCompletelyDisplayed()));
+        onView(withId(com.android.intentresolver.R.id.headline))
+                .check(matches(isDisplayed()));
+        onView(withId(com.android.intentresolver.R.id.scrollable_image_preview))
+                .check(matches(not(isDisplayed())));
     }
 
     @Ignore // b/220067877

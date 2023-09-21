@@ -24,9 +24,12 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
@@ -40,7 +43,10 @@ abstract class ContentPreviewUi {
     public abstract int getType();
 
     public abstract ViewGroup display(
-            Resources resources, LayoutInflater layoutInflater, ViewGroup parent);
+            Resources resources,
+            LayoutInflater layoutInflater,
+            ViewGroup parent,
+            @Nullable View headlineViewParent);
 
     protected static void updateViewWithImage(ImageView imageView, Bitmap image) {
         if (image == null) {
@@ -57,23 +63,28 @@ abstract class ContentPreviewUi {
         fadeAnim.start();
     }
 
-    protected static void displayHeadline(ViewGroup layout, String headline) {
-        if (layout != null) {
-            TextView titleView = layout.findViewById(R.id.headline);
-            if (titleView != null) {
-                if (!TextUtils.isEmpty(headline)) {
-                    titleView.setText(headline);
-                    titleView.setVisibility(View.VISIBLE);
-                } else {
-                    titleView.setVisibility(View.GONE);
-                }
-            }
+    protected static void inflateHeadline(View layout) {
+        ViewStub stub = layout.findViewById(R.id.chooser_headline_row_stub);
+        if (stub != null) {
+            stub.inflate();
+        }
+    }
+
+    protected static void displayHeadline(View layout, String headline) {
+        TextView titleView = layout == null ? null : layout.findViewById(R.id.headline);
+        if (titleView == null) {
+            return;
+        }
+        if (!TextUtils.isEmpty(headline)) {
+            titleView.setText(headline);
+            titleView.setVisibility(View.VISIBLE);
+        } else {
+            titleView.setVisibility(View.GONE);
         }
     }
 
     protected static void displayModifyShareAction(
-            ViewGroup layout,
-            ChooserContentPreviewUi.ActionFactory actionFactory) {
+            View layout, ChooserContentPreviewUi.ActionFactory actionFactory) {
         ActionRow.Action modifyShareAction = actionFactory.getModifyShareAction();
         if (modifyShareAction != null && layout != null) {
             TextView modifyShareView = layout.findViewById(R.id.reselection_action);

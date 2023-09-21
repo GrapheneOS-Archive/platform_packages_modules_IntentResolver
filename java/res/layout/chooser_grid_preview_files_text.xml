@@ -25,7 +25,13 @@
     android:orientation="vertical"
     android:background="?androidprv:attr/materialColorSurfaceContainer">
 
-    <include layout="@layout/chooser_headline_row" />
+    <ViewStub
+        android:id="@+id/chooser_headline_row_stub"
+        android:layout="@layout/chooser_headline_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/chooser_edge_margin_normal"
+        android:layout_marginBottom="@dimen/chooser_view_spacing" />
 
     <LinearLayout
         android:layout_width="match_parent"

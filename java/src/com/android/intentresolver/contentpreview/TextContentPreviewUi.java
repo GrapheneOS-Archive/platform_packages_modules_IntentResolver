@@ -69,17 +69,27 @@ class TextContentPreviewUi extends ContentPreviewUi {
     }
 
     @Override
-    public ViewGroup display(Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
-        ViewGroup layout = displayInternal(layoutInflater, parent);
-        displayModifyShareAction(layout, mActionFactory);
+    public ViewGroup display(
+            Resources resources,
+            LayoutInflater layoutInflater,
+            ViewGroup parent,
+            @Nullable View headlineViewParent) {
+        ViewGroup layout = displayInternal(layoutInflater, parent, headlineViewParent);
+        displayModifyShareAction(
+                headlineViewParent == null ? layout : headlineViewParent, mActionFactory);
         return layout;
     }
 
     private ViewGroup displayInternal(
             LayoutInflater layoutInflater,
-            ViewGroup parent) {
+            ViewGroup parent,
+            @Nullable View headlineViewParent) {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_text, parent, false);
+        if (headlineViewParent == null) {
+            headlineViewParent = contentPreviewLayout;
+        }
+        inflateHeadline(headlineViewParent);
 
         final ActionRow actionRow =
                 contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
@@ -128,7 +138,7 @@ class TextContentPreviewUi extends ContentPreviewUi {
             copyButton.setVisibility(View.GONE);
         }
 
-        displayHeadline(contentPreviewLayout, mHeadlineGenerator.getTextHeadline(mSharingText));
+        displayHeadline(headlineViewParent, mHeadlineGenerator.getTextHeadline(mSharingText));
 
         return contentPreviewLayout;
     }

@@ -59,6 +59,7 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
     private final boolean mIsSingleImage;
     private final int mFileCount;
     private ViewGroup mContentPreviewView;
+    private View mHeadliveView;
     private boolean mIsMetadataUpdated = false;
     @Nullable
     private Uri mFirstFilePreviewUri;
@@ -98,9 +99,14 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
     }
 
     @Override
-    public ViewGroup display(Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
-        ViewGroup layout = displayInternal(layoutInflater, parent);
-        displayModifyShareAction(layout, mActionFactory);
+    public ViewGroup display(
+            Resources resources,
+            LayoutInflater layoutInflater,
+            ViewGroup parent,
+            @Nullable View headlineViewParent) {
+        ViewGroup layout = displayInternal(layoutInflater, parent, headlineViewParent);
+        displayModifyShareAction(
+                headlineViewParent == null ? layout : headlineViewParent, mActionFactory);
         return layout;
     }
 
@@ -118,13 +124,18 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
         mFirstFilePreviewUri = files.isEmpty() ? null : files.get(0).getPreviewUri();
         mIsMetadataUpdated = true;
         if (mContentPreviewView != null) {
-            updateUiWithMetadata(mContentPreviewView);
+            updateUiWithMetadata(mContentPreviewView, mHeadliveView);
         }
     }
 
-    private ViewGroup displayInternal(LayoutInflater layoutInflater, ViewGroup parent) {
+    private ViewGroup displayInternal(
+            LayoutInflater layoutInflater,
+            ViewGroup parent,
+            @Nullable View headlineViewParent) {
         mContentPreviewView = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_files_text, parent, false);
+        mHeadliveView = headlineViewParent == null ? mContentPreviewView : headlineViewParent;
+        inflateHeadline(mHeadliveView);
 
         final ActionRow actionRow =
                 mContentPreviewView.findViewById(com.android.internal.R.id.chooser_action_row);
@@ -134,12 +145,12 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
         if (!mIsSingleImage) {
             mContentPreviewView.requireViewById(R.id.image_view).setVisibility(View.GONE);
         }
-        prepareTextPreview(mContentPreviewView, mActionFactory);
+        prepareTextPreview(mContentPreviewView, mHeadliveView, mActionFactory);
         if (mIsMetadataUpdated) {
-            updateUiWithMetadata(mContentPreviewView);
+            updateUiWithMetadata(mContentPreviewView, mHeadliveView);
         } else {
             updateHeadline(
-                    mContentPreviewView,
+                    mHeadliveView,
                     mFileCount,
                     mTypeClassifier.isImageType(mIntentMimeType),
                     mTypeClassifier.isVideoType(mIntentMimeType));
@@ -148,8 +159,9 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
         return mContentPreviewView;
     }
 
-    private void updateUiWithMetadata(ViewGroup contentPreviewView) {
-        updateHeadline(contentPreviewView, mFileCount, mAllImages, mAllVideos);
+    private void updateUiWithMetadata(ViewGroup contentPreviewView, View headlineView) {
+        prepareTextPreview(contentPreviewView, headlineView, mActionFactory);
+        updateHeadline(headlineView, mFileCount, mAllImages, mAllVideos);
 
         ImageView imagePreview = mContentPreviewView.requireViewById(R.id.image_view);
         if (mIsSingleImage && mFirstFilePreviewUri != null) {
@@ -169,8 +181,8 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
     }
 
     private void updateHeadline(
-            ViewGroup contentPreview, int fileCount, boolean allImages, boolean allVideos) {
-        CheckBox includeText = contentPreview.requireViewById(R.id.include_text_action);
+            View headlineView, int fileCount, boolean allImages, boolean allVideos) {
+        CheckBox includeText = headlineView.requireViewById(R.id.include_text_action);
         String headline;
         if (includeText.getVisibility() == View.VISIBLE && includeText.isChecked()) {
             if (allImages) {
@@ -190,14 +202,15 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
             }
         }
 
-        displayHeadline(contentPreview, headline);
+        displayHeadline(headlineView, headline);
     }
 
     private void prepareTextPreview(
             ViewGroup contentPreview,
+            View headlineView,
             ChooserContentPreviewUi.ActionFactory actionFactory) {
         final TextView textView = contentPreview.requireViewById(R.id.content_preview_text);
-        CheckBox includeText = contentPreview.requireViewById(R.id.include_text_action);
+        CheckBox includeText = headlineView.requireViewById(R.id.include_text_action);
         boolean isLink = HttpUriMatcher.isHttpUri(mText.toString());
         textView.setAutoLinkMask(isLink ? Linkify.WEB_URLS : 0);
         textView.setText(mText);
@@ -213,7 +226,7 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
                 textView.setText(getNoTextString(contentPreview.getResources()));
             }
             shareTextAction.accept(!isChecked);
-            updateHeadline(contentPreview, mFileCount, mAllImages, mAllVideos);
+            updateHeadline(headlineView, mFileCount, mAllImages, mAllVideos);
         });
         if (SHOW_TOGGLE_CHECKMARK) {
             includeText.setVisibility(View.VISIBLE);
