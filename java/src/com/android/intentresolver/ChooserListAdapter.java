@@ -38,6 +38,7 @@ import android.os.UserManager;
 import android.provider.DeviceConfig;
 import android.service.chooser.ChooserTarget;
 import android.text.Layout;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -230,9 +232,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
                     ri.icon = 0;
                 }
                 ri.userHandle = initialIntentsUserSpace;
-                // TODO: remove DisplayResolveInfo dependency on presentation getter
-                DisplayResolveInfo displayResolveInfo = DisplayResolveInfo.newDisplayResolveInfo(
-                        ii, ri, ii, mTargetDataLoader.createPresentationGetter(ri));
+                DisplayResolveInfo displayResolveInfo =
+                        DisplayResolveInfo.newDisplayResolveInfo(ii, ri, ii);
                 mCallerTargets.add(displayResolveInfo);
                 if (mCallerTargets.size() == MAX_SUGGESTED_APP_TARGETS) break;
             }
@@ -275,35 +276,42 @@ public class ChooserListAdapter extends ResolverListAdapter {
     public void onBindView(View view, TargetInfo info, int position) {
         final ViewHolder holder = (ViewHolder) view.getTag();
 
+        holder.reset();
+        // Always remove the spacing listener, attach as needed to direct share targets below.
+        holder.text.removeOnLayoutChangeListener(mPinTextSpacingListener);
+
         if (info == null) {
             holder.icon.setImageDrawable(loadIconPlaceholder());
             return;
         }
 
-        holder.bindLabel(info.getDisplayLabel(), info.getExtendedInfo());
-        mAnimationTracker.animateLabel(holder.text, info);
-        if (holder.text2.getVisibility() == View.VISIBLE) {
+        final CharSequence displayLabel = Objects.requireNonNullElse(info.getDisplayLabel(), "");
+        final CharSequence extendedInfo = Objects.requireNonNullElse(info.getExtendedInfo(), "");
+        holder.bindLabel(displayLabel, extendedInfo);
+        if (!TextUtils.isEmpty(displayLabel)) {
+            mAnimationTracker.animateLabel(holder.text, info);
+        }
+        if (!TextUtils.isEmpty(extendedInfo) && holder.text2.getVisibility() == View.VISIBLE) {
             mAnimationTracker.animateLabel(holder.text2, info);
         }
+
         holder.bindIcon(info);
-        if (info.getDisplayIconHolder().getDisplayIcon() != null) {
+        if (info.hasDisplayIcon()) {
             mAnimationTracker.animateIcon(holder.icon, info);
-        } else {
-            holder.icon.clearAnimation();
         }
 
         if (info.isSelectableTargetInfo()) {
             // direct share targets should append the application name for a better readout
             DisplayResolveInfo rInfo = info.getDisplayResolveInfo();
-            CharSequence appName = rInfo != null ? rInfo.getDisplayLabel() : "";
-            CharSequence extendedInfo = info.getExtendedInfo();
-            String contentDescription = String.join(" ", info.getDisplayLabel(),
-                    extendedInfo != null ? extendedInfo : "", appName);
+            CharSequence appName =
+                    Objects.requireNonNullElse(rInfo == null ? null : rInfo.getDisplayLabel(), "");
+            String contentDescription =
+                    String.join(" ", info.getDisplayLabel(), extendedInfo, appName);
             if (info.isPinned()) {
                 contentDescription = String.join(
-                        ". ",
-                        contentDescription,
-                        mContext.getResources().getString(R.string.pinned));
+                    ". ",
+                    contentDescription,
+                    mContext.getResources().getString(R.string.pinned));
             }
             holder.updateContentDescription(contentDescription);
             if (!info.hasDisplayIcon()) {
@@ -320,42 +328,30 @@ public class ChooserListAdapter extends ResolverListAdapter {
             if (!dri.hasDisplayIcon()) {
                 loadIcon(dri);
             }
+            if (!dri.hasDisplayLabel()) {
+                loadLabel(dri);
+            }
         }
 
         // If target is loading, show a special placeholder shape in the label, make unclickable
         if (info.isPlaceHolderTargetInfo()) {
-            final int maxWidth = mContext.getResources().getDimensionPixelSize(
+            int maxTextWidth = mContext.getResources().getDimensionPixelSize(
                     R.dimen.chooser_direct_share_label_placeholder_max_width);
-            holder.text.setMaxWidth(maxWidth);
-            holder.text.setBackground(mContext.getResources().getDrawable(
-                    R.drawable.chooser_direct_share_label_placeholder, mContext.getTheme()));
-            // Prevent rippling by removing background containing ripple
-            holder.itemView.setBackground(null);
-        } else {
-            holder.text.setMaxWidth(Integer.MAX_VALUE);
-            holder.text.setBackground(null);
-            holder.itemView.setBackground(holder.defaultItemViewBackground);
+            Drawable placeholderDrawable = mContext.getResources().getDrawable(
+                    R.drawable.chooser_direct_share_label_placeholder, mContext.getTheme());
+            holder.bindPlaceholderDrawable(maxTextWidth, placeholderDrawable);
         }
-
-        // Always remove the spacing listener, attach as needed to direct share targets below.
-        holder.text.removeOnLayoutChangeListener(mPinTextSpacingListener);
 
         if (info.isMultiDisplayResolveInfo()) {
             // If the target is grouped show an indicator
-            Drawable bkg = mContext.getDrawable(R.drawable.chooser_group_background);
-            holder.text.setPaddingRelative(0, 0, bkg.getIntrinsicWidth() /* end */, 0);
-            holder.text.setBackground(bkg);
+            holder.bindGroupIndicator(
+                    mContext.getDrawable(R.drawable.chooser_group_background));
         } else if (info.isPinned() && (getPositionTargetType(position) == TARGET_STANDARD
                 || getPositionTargetType(position) == TARGET_SERVICE)) {
             // If the appShare or directShare target is pinned and in the suggested row show a
             // pinned indicator
-            Drawable bkg = mContext.getDrawable(R.drawable.chooser_pinned_background);
-            holder.text.setPaddingRelative(bkg.getIntrinsicWidth() /* start */, 0, 0, 0);
-            holder.text.setBackground(bkg);
+            holder.bindPinnedIndicator(mContext.getDrawable(R.drawable.chooser_pinned_background));
             holder.text.addOnLayoutChangeListener(mPinTextSpacingListener);
-        } else {
-            holder.text.setBackground(null);
-            holder.text.setPaddingRelative(0, 0, 0, 0);
         }
     }
 
@@ -376,8 +372,12 @@ public class ChooserListAdapter extends ResolverListAdapter {
     }
 
     void updateAlphabeticalList() {
-        // TODO: this procedure seems like it should be relatively lightweight. Why does it need to
-        // run in an `AsyncTask`?
+        final ChooserActivity.AzInfoComparator comparator =
+                new ChooserActivity.AzInfoComparator(mContext);
+        final List<DisplayResolveInfo> allTargets = new ArrayList<>();
+        allTargets.addAll(getTargetsInCurrentDisplayList());
+        allTargets.addAll(mCallerTargets);
+
         new AsyncTask<Void, Void, List<DisplayResolveInfo>>() {
             @Override
             protected List<DisplayResolveInfo> doInBackground(Void... voids) {
@@ -390,9 +390,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
             }
 
             private List<DisplayResolveInfo> updateList() {
-                List<DisplayResolveInfo> allTargets = new ArrayList<>();
-                allTargets.addAll(getTargetsInCurrentDisplayList());
-                allTargets.addAll(mCallerTargets);
+                loadMissingLabels(allTargets);
 
                 // Consolidate multiple targets from same app.
                 return allTargets
@@ -408,8 +406,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
                                 (appTargets.size() == 1)
                                         ? appTargets.get(0)
                                         : MultiDisplayResolveInfo.newMultiDisplayResolveInfo(
-                                                appTargets))
-                        .sorted(new ChooserActivity.AzInfoComparator(mContext))
+                                            appTargets))
+                        .sorted(comparator)
                         .collect(Collectors.toList());
             }
 
@@ -417,6 +415,12 @@ public class ChooserListAdapter extends ResolverListAdapter {
             protected void onPostExecute(List<DisplayResolveInfo> newList) {
                 mSortedList = newList;
                 notifyDataSetChanged();
+            }
+
+            private void loadMissingLabels(List<DisplayResolveInfo> targets) {
+                for (DisplayResolveInfo target: targets) {
+                    mTargetDataLoader.getOrLoadLabel(target);
+                }
             }
         }.execute();
     }

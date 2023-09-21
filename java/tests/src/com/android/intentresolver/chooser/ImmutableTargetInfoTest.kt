@@ -21,7 +21,6 @@ import android.app.prediction.AppTarget
 import android.app.prediction.AppTargetId
 import android.content.ComponentName
 import android.content.Intent
-import android.content.pm.ResolveInfo
 import android.os.Bundle
 import android.os.UserHandle
 import com.android.intentresolver.createShortcutInfo
@@ -52,15 +51,15 @@ class ImmutableTargetInfoTest {
         ResolverDataProvider.createResolveInfo(2, 0, PERSONAL_USER_HANDLE),
         "display1 label",
         "display1 extended info",
-        Intent("display1_resolved"),
-        /* resolveInfoPresentationGetter= */ null)
+        Intent("display1_resolved")
+    )
     private val displayTarget2 = DisplayResolveInfo.newDisplayResolveInfo(
         Intent("display2"),
         ResolverDataProvider.createResolveInfo(3, 0, PERSONAL_USER_HANDLE),
         "display2 label",
         "display2 extended info",
-        Intent("display2_resolved"),
-        /* resolveInfoPresentationGetter= */ null)
+        Intent("display2_resolved")
+    )
     private val directShareShortcutInfo = createShortcutInfo(
         "shortcutid", ResolverDataProvider.createComponentName(4), 4)
     private val directShareAppTarget = AppTarget(
@@ -73,8 +72,8 @@ class ImmutableTargetInfoTest {
         ResolverDataProvider.createResolveInfo(5, 0, PERSONAL_USER_HANDLE),
         "displayresolve label",
         "displayresolve extended info",
-        Intent("display_resolved"),
-        /* resolveInfoPresentationGetter= */ null)
+        Intent("display_resolved")
+    )
     private val hashProvider: ImmutableTargetInfo.TargetHashProvider = mock()
 
     @Test
