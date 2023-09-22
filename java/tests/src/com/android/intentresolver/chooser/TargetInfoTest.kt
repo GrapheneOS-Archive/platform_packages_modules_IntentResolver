@@ -87,8 +87,8 @@ class TargetInfoTest {
             ResolverDataProvider.createResolveInfo(1, 0, PERSONAL_USER_HANDLE),
             "label",
             "extended info",
-            resolvedIntent,
-            /* resolveInfoPresentationGetter= */ null)
+            resolvedIntent
+        )
         val chooserTarget = createChooserTarget(
             "title", 0.3f, ResolverDataProvider.createComponentName(2), "test_shortcut_id")
         val shortcutInfo = createShortcutInfo("id", ResolverDataProvider.createComponentName(3), 3)
@@ -161,8 +161,8 @@ class TargetInfoTest {
             ResolverDataProvider.createResolveInfo(1, 0),
             "label",
             "extended info",
-            resolvedIntent,
-            /* resolveInfoPresentationGetter= */ null)
+            resolvedIntent
+        )
         val chooserTarget = createChooserTarget(
             "title", 0.3f, ResolverDataProvider.createComponentName(2), "test_shortcut_id")
         val shortcutInfo = createShortcutInfo("id", ResolverDataProvider.createComponentName(3), 3)
@@ -200,8 +200,8 @@ class TargetInfoTest {
             resolveInfo,
             "label",
             "extended info",
-            intent,
-            /* resolveInfoPresentationGetter= */ null)
+            intent
+        )
         assertThat(targetInfo.isDisplayResolveInfo()).isTrue()
         assertThat(targetInfo.isMultiDisplayResolveInfo()).isFalse()
         assertThat(targetInfo.isChooserTargetInfo()).isFalse()
@@ -223,8 +223,8 @@ class TargetInfoTest {
             ResolverDataProvider.createResolveInfo(3, 0),
             "label",
             "extended info",
-            originalIntent,
-            /* resolveInfoPresentationGetter= */ null)
+            originalIntent
+        )
         originalInfo.addAlternateSourceIntent(mismatchedAlternate)
         originalInfo.addAlternateSourceIntent(targetAlternate)
         originalInfo.addAlternateSourceIntent(extraMatch)
@@ -257,8 +257,8 @@ class TargetInfoTest {
             ResolverDataProvider.createResolveInfo(3, 0),
             "label",
             "extended info",
-            originalIntent,
-            /* resolveInfoPresentationGetter= */ null)
+            originalIntent
+        )
         originalInfo.addAlternateSourceIntent(mismatchedAlternate)
 
         val refinement = Intent("PROPOSED_REFINEMENT")
@@ -277,15 +277,15 @@ class TargetInfoTest {
             resolveInfo,
             "label 1",
             "extended info 1",
-            intent,
-            /* resolveInfoPresentationGetter= */ null)
+            intent
+        )
         val secondTargetInfo = DisplayResolveInfo.newDisplayResolveInfo(
             intent,
             resolveInfo,
             "label 2",
             "extended info 2",
-            intent,
-            /* resolveInfoPresentationGetter= */ null)
+            intent
+        )
 
         val multiTargetInfo = MultiDisplayResolveInfo.newMultiDisplayResolveInfo(
             listOf(firstTargetInfo, secondTargetInfo))
@@ -328,24 +328,23 @@ class TargetInfoTest {
             resolveInfo,
             "Send Image",
             "Sends only images",
-            sendImage,
-            /* resolveInfoPresentationGetter= */ null)
+            sendImage
+        )
 
         val textOnlyTarget = DisplayResolveInfo.newDisplayResolveInfo(
             sendUri,
             resolveInfo,
             "Send Text",
             "Sends only text",
-            sendUri,
-            /* resolveInfoPresentationGetter= */ null)
+            sendUri
+        )
 
         val imageOrTextTarget = DisplayResolveInfo.newDisplayResolveInfo(
             sendImage,
             resolveInfo,
             "Send Image or Text",
             "Sends images or text",
-            sendImage,
-            /* resolveInfoPresentationGetter= */ null
+            sendImage
         ).apply {
             addAlternateSourceIntent(sendUri)
         }
@@ -377,8 +376,7 @@ class TargetInfoTest {
                 ResolverDataProvider.createResolveInfo(1, 0),
                 "Target One",
                 "Target One",
-                sendImage,
-                /* resolveInfoPresentationGetter= */ null
+                sendImage
             )
         )
         val targetTwo = mock<DisplayResolveInfo> {

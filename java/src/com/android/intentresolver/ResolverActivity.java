@@ -33,7 +33,6 @@ import static android.content.PermissionChecker.PID_UNKNOWN;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_PERSONAL;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_WORK;
 import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
-
 import static com.android.internal.annotations.VisibleForTesting.Visibility.PROTECTED;
 
 import android.annotation.Nullable;
@@ -198,6 +197,8 @@ public class ResolverActivity extends FragmentActivity implements
 
     private PackageMonitor mPersonalPackageMonitor;
     private PackageMonitor mWorkPackageMonitor;
+
+    private TargetDataLoader mTargetDataLoader;
 
     @VisibleForTesting
     protected AbstractMultiProfilePagerAdapter mMultiProfilePagerAdapter;
@@ -427,6 +428,7 @@ public class ResolverActivity extends FragmentActivity implements
 
         mSupportsAlwaysUseOption = supportsAlwaysUseOption;
         mSafeForwardingMode = safeForwardingMode;
+        mTargetDataLoader = targetDataLoader;
 
         // The last argument of createResolverListAdapter is whether to do special handling
         // of the last used choice to highlight it in the list.  We need to always
@@ -1387,7 +1389,7 @@ public class ResolverActivity extends FragmentActivity implements
     }
 
     final Option optionForChooserTarget(TargetInfo target, int index) {
-        return new Option(target.getDisplayLabel(), index);
+        return new Option(getOrLoadDisplayLabel(target), index);
     }
 
     public final Intent getTargetIntent() {
@@ -1463,8 +1465,11 @@ public class ResolverActivity extends FragmentActivity implements
             return getString(defaultTitleRes);
         } else {
             return named
-                    ? getString(title.namedTitleRes, mMultiProfilePagerAdapter
-                            .getActiveListAdapter().getFilteredItem().getDisplayLabel())
+                    ? getString(
+                            title.namedTitleRes,
+                            getOrLoadDisplayLabel(
+                                    mMultiProfilePagerAdapter
+                                        .getActiveListAdapter().getFilteredItem()))
                     : getString(title.titleRes);
         }
     }
@@ -1801,9 +1806,10 @@ public class ResolverActivity extends FragmentActivity implements
 
         ((TextView) findViewById(com.android.internal.R.id.open_cross_profile)).setText(
                 getResources().getString(
-                        inWorkProfile ? R.string.miniresolver_open_in_personal
+                        inWorkProfile
+                                ? R.string.miniresolver_open_in_personal
                                 : R.string.miniresolver_open_in_work,
-                        otherProfileResolveInfo.getDisplayLabel()));
+                        getOrLoadDisplayLabel(otherProfileResolveInfo)));
         ((Button) findViewById(com.android.internal.R.id.use_same_profile_browser)).setText(
                 inWorkProfile ? R.string.miniresolver_use_work_browser
                         : R.string.miniresolver_use_personal_browser);
@@ -2396,5 +2402,13 @@ public class ResolverActivity extends FragmentActivity implements
             userList.add(getAnnotatedUserHandles().cloneProfileUserHandle);
         }
         return userList;
+    }
+
+    private CharSequence getOrLoadDisplayLabel(TargetInfo info) {
+        if (info.isDisplayResolveInfo()) {
+            mTargetDataLoader.getOrLoadLabel((DisplayResolveInfo) info);
+        }
+        CharSequence displayLabel = info.getDisplayLabel();
+        return displayLabel == null ? "" : displayLabel;
     }
 }

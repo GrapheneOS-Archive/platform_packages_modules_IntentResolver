@@ -18,7 +18,6 @@ package com.android.intentresolver.icons
 
 import android.app.ActivityManager
 import android.content.Context
-import android.content.pm.ResolveInfo
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
 import android.os.UserHandle
@@ -105,8 +104,14 @@ class DefaultTargetDataLoader(
             .executeOnExecutor(executor)
     }
 
-    override fun createPresentationGetter(info: ResolveInfo): TargetPresentationGetter =
-        presentationFactory.makePresentationGetter(info)
+    override fun getOrLoadLabel(info: DisplayResolveInfo) {
+        if (!info.hasDisplayLabel()) {
+            val result =
+                LoadLabelTask.loadLabel(context, info, isAudioCaptureDevice, presentationFactory)
+            info.displayLabel = result[0]
+            info.extendedInfo = result[1]
+        }
+    }
 
     private fun addTask(id: Int, task: AsyncTask<*, *, *>) {
         synchronized(activeTasks) { activeTasks.put(id, task) }

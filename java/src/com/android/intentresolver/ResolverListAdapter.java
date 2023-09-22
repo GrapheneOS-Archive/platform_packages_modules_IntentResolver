@@ -397,8 +397,8 @@ public class ResolverListAdapter extends BaseAdapter {
                     otherProfileInfo,
                     mPm,
                     mTargetIntent,
-                    mResolverListCommunicator,
-                    mTargetDataLoader);
+                    mResolverListCommunicator
+            );
         } else {
             mOtherProfile = null;
             try {
@@ -518,8 +518,7 @@ public class ResolverListAdapter extends BaseAdapter {
                             ri,
                             ri.loadLabel(mPm),
                             null,
-                            ii,
-                            mTargetDataLoader.createPresentationGetter(ri)));
+                            ii));
                 }
             }
 
@@ -571,8 +570,7 @@ public class ResolverListAdapter extends BaseAdapter {
         final DisplayResolveInfo dri = DisplayResolveInfo.newDisplayResolveInfo(
                 intent,
                 add,
-                (replaceIntent != null) ? replaceIntent : defaultIntent,
-                mTargetDataLoader.createPresentationGetter(add));
+                (replaceIntent != null) ? replaceIntent : defaultIntent);
         dri.setPinned(rci.isPinned());
         if (rci.isPinned()) {
             Log.i(TAG, "Pinned item: " + rci.name);
@@ -757,7 +755,7 @@ public class ResolverListAdapter extends BaseAdapter {
         }
     }
 
-    private void loadLabel(DisplayResolveInfo info) {
+    protected final void loadLabel(DisplayResolveInfo info) {
         if (mRequestedLabels.add(info)) {
             mTargetDataLoader.loadLabel(info, (result) -> onLabelLoaded(info, result));
         }
@@ -875,8 +873,7 @@ public class ResolverListAdapter extends BaseAdapter {
             ResolvedComponentInfo resolvedComponentInfo,
             PackageManager pm,
             Intent targetIntent,
-            ResolverListCommunicator resolverListCommunicator,
-            TargetDataLoader targetDataLoader) {
+            ResolverListCommunicator resolverListCommunicator) {
         ResolveInfo resolveInfo = resolvedComponentInfo.getResolveInfoAt(0);
 
         Intent pOrigIntent = resolverListCommunicator.getReplacementIntent(
@@ -885,16 +882,12 @@ public class ResolverListAdapter extends BaseAdapter {
         Intent replacementIntent = resolverListCommunicator.getReplacementIntent(
                 resolveInfo.activityInfo, targetIntent);
 
-        TargetPresentationGetter presentationGetter =
-                targetDataLoader.createPresentationGetter(resolveInfo);
-
         return DisplayResolveInfo.newDisplayResolveInfo(
                 resolvedComponentInfo.getIntentAt(0),
                 resolveInfo,
                 resolveInfo.loadLabel(pm),
                 resolveInfo.loadLabel(pm),
-                pOrigIntent != null ? pOrigIntent : replacementIntent,
-                presentationGetter);
+                pOrigIntent != null ? pOrigIntent : replacementIntent);
     }
 
     /**
@@ -937,6 +930,24 @@ public class ResolverListAdapter extends BaseAdapter {
         public TextView text;
         public TextView text2;
         public ImageView icon;
+
+        public final void reset() {
+            text.setText("");
+            text.setMaxLines(2);
+            text.setMaxWidth(Integer.MAX_VALUE);
+            text.setBackground(null);
+            text.setPaddingRelative(0, 0, 0, 0);
+
+            text2.setVisibility(View.GONE);
+            text2.setText("");
+
+            itemView.setContentDescription(null);
+            itemView.setBackground(defaultItemViewBackground);
+
+            icon.setImageDrawable(null);
+            icon.setColorFilter(null);
+            icon.clearAnimation();
+        }
 
         @VisibleForTesting
         public ViewHolder(View view) {
@@ -981,6 +992,23 @@ public class ResolverListAdapter extends BaseAdapter {
             } else {
                 icon.setColorFilter(null);
             }
+        }
+
+        public void bindPlaceholderDrawable(int maxTextWidth, Drawable drawable) {
+            text.setMaxWidth(maxTextWidth);
+            text.setBackground(drawable);
+            // Prevent rippling by removing background containing ripple
+            itemView.setBackground(null);
+        }
+
+        public void bindGroupIndicator(Drawable indicator) {
+            text.setPaddingRelative(0, 0, /*end = */indicator.getIntrinsicWidth(), 0);
+            text.setBackground(indicator);
+        }
+
+        public void bindPinnedIndicator(Drawable indicator) {
+            text.setPaddingRelative(/*start = */indicator.getIntrinsicWidth(), 0, 0, 0);
+            text.setBackground(indicator);
         }
     }
 }

@@ -273,10 +273,9 @@ public class ResolverWrapperActivity extends ResolverActivity {
                     });
         }
 
-        @NonNull
         @Override
-        public TargetPresentationGetter createPresentationGetter(@NonNull ResolveInfo info) {
-            return mTargetDataLoader.createPresentationGetter(info);
+        public void getOrLoadLabel(@NonNull DisplayResolveInfo info) {
+            mTargetDataLoader.getOrLoadLabel(info);
         }
     }
 }
