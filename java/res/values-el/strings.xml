@@ -44,9 +44,9 @@
     <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"Λήψη εικόνας"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"Χρήση άλλης εφαρμογής"</string>
     <string name="chooseActivity" msgid="6659724877523973446">"Επιλέξτε μια ενέργεια"</string>
-    <string name="noApplications" msgid="1139487441772284671">"Δεν υπάρχουν εφαρμογές, οι οποίες μπορούν να εκτελέσουν αυτήν την ενέργεια."</string>
-    <string name="forward_intent_to_owner" msgid="6454987608971162379">"Χρησιμοποιείτε αυτήν την εφαρμογή εκτός του προφίλ εργασίας σας"</string>
-    <string name="forward_intent_to_work" msgid="2906094223089139419">"Χρησιμοποιείτε αυτήν την εφαρμογή στο προφίλ εργασίας"</string>
+    <string name="noApplications" msgid="1139487441772284671">"Δεν υπάρχουν εφαρμογές, οι οποίες μπορούν να εκτελέσουν αυτή την ενέργεια."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"Χρησιμοποιείτε αυτή την εφαρμογή εκτός του προφίλ εργασίας σας"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"Χρησιμοποιείτε αυτή την εφαρμογή στο προφίλ εργασίας"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"Πάντα"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"Μόνο μία φορά"</string>
     <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"Η εφαρμογή <xliff:g id="APP">%1$s</xliff:g> δεν υποστηρίζει προφίλ εργασίας"</string>
@@ -73,7 +73,7 @@
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Μικρογραφία προεπισκόπησης βίντεο"</string>
     <string name="file_preview_a11y_description" msgid="7397224827802410602">"Μικρογραφία προεπισκόπησης αρχείου"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Δεν υπάρχουν προτεινόμενα άτομα για κοινοποίηση"</string>
-    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Δεν έχει εκχωρηθεί άδεια εγγραφής σε αυτήν την εφαρμογή, αλλά μέσω αυτής της συσκευής USB θα μπορεί να εγγράφει ήχο."</string>
+    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Δεν έχει εκχωρηθεί άδεια εγγραφής σε αυτή την εφαρμογή, αλλά μέσω αυτής της συσκευής USB θα μπορεί να εγγράφει ήχο."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Προσωπικό"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Εργασία"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Προσωπική προβολή"</string>
