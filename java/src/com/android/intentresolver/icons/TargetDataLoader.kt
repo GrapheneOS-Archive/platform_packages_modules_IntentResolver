@@ -39,7 +39,7 @@ abstract class TargetDataLoader {
     )
 
     /** Load target label */
-    abstract fun loadLabel(info: DisplayResolveInfo, callback: Consumer<Array<CharSequence?>>)
+    abstract fun loadLabel(info: DisplayResolveInfo, callback: Consumer<LabelInfo>)
 
     /** Loads DisplayResolveInfo's display label synchronously, if needed */
     abstract fun getOrLoadLabel(info: DisplayResolveInfo)

@@ -28,16 +28,16 @@ import com.android.intentresolver.chooser.DisplayResolveInfo;
 
 import java.util.function.Consumer;
 
-class LoadLabelTask extends AsyncTask<Void, Void, CharSequence[]> {
+class LoadLabelTask extends AsyncTask<Void, Void, LabelInfo> {
     private final Context mContext;
     private final DisplayResolveInfo mDisplayResolveInfo;
     private final boolean mIsAudioCaptureDevice;
     protected final TargetPresentationGetter.Factory mPresentationFactory;
-    private final Consumer<CharSequence[]> mCallback;
+    private final Consumer<LabelInfo> mCallback;
 
     LoadLabelTask(Context context, DisplayResolveInfo dri,
             boolean isAudioCaptureDevice, TargetPresentationGetter.Factory presentationFactory,
-            Consumer<CharSequence[]> callback) {
+            Consumer<LabelInfo> callback) {
         mContext = context;
         mDisplayResolveInfo = dri;
         mIsAudioCaptureDevice = isAudioCaptureDevice;
@@ -46,7 +46,7 @@ class LoadLabelTask extends AsyncTask<Void, Void, CharSequence[]> {
     }
 
     @Override
-    protected CharSequence[] doInBackground(Void... voids) {
+    protected LabelInfo doInBackground(Void... voids) {
         try {
             Trace.beginSection("app-label");
             return loadLabel(
@@ -56,7 +56,7 @@ class LoadLabelTask extends AsyncTask<Void, Void, CharSequence[]> {
         }
     }
 
-    static CharSequence[] loadLabel(
+    static LabelInfo loadLabel(
             Context context,
             DisplayResolveInfo displayResolveInfo,
             boolean isAudioCaptureDevice,
@@ -79,21 +79,19 @@ class LoadLabelTask extends AsyncTask<Void, Void, CharSequence[]> {
 
             if (!hasRecordPermission) {
                 // Doesn't have record permission, so warn the user
-                return new CharSequence[]{
+                return new LabelInfo(
                         pg.getLabel(),
-                        context.getString(R.string.usb_device_resolve_prompt_warn)
-                };
+                        context.getString(R.string.usb_device_resolve_prompt_warn));
             }
         }
 
-        return new CharSequence[]{
+        return new LabelInfo(
                 pg.getLabel(),
-                pg.getSubLabel()
-        };
+                pg.getSubLabel());
     }
 
     @Override
-    protected void onPostExecute(CharSequence[] result) {
+    protected void onPostExecute(LabelInfo result) {
         mCallback.accept(result);
     }
 }
