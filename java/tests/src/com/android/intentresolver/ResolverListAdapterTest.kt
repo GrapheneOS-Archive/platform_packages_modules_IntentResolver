@@ -22,15 +22,22 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.ResolveInfo
+import android.os.Handler
+import android.os.Looper
 import android.os.UserHandle
 import android.view.LayoutInflater
+import com.android.intentresolver.ResolverListAdapter.ResolverListCommunicator
 import com.android.intentresolver.icons.TargetDataLoader
 import com.android.intentresolver.util.TestExecutor
 import com.android.intentresolver.util.TestImmediateHandler
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Test
 import org.mockito.Mockito.anyBoolean
+import org.mockito.Mockito.inOrder
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
 
 private const val PKG_NAME = "org.pkg.app"
 private const val PKG_NAME_TWO = "org.pkgtwo.app"
@@ -661,6 +668,255 @@ class ResolverListAdapterTest {
         assertThat(testSubject.getItem(0)?.resolveInfo)
             .isEqualTo(resolvedTargets[0].getResolveInfoAt(0))
         assertThat(testSubject.unfilteredResolveList).hasSize(2)
+    }
+
+    @Test
+    fun testPostListReadyAtEndOfRebuild_synchronous() {
+        val communicator = mock<ResolverListCommunicator> {}
+        val testSubject =
+            ResolverListAdapter(
+                context,
+                payloadIntents,
+                /*initialIntents=*/ null,
+                /*rList=*/ null,
+                /*filterLastUsed=*/ true,
+                resolverListController,
+                userHandle,
+                targetIntent,
+                communicator,
+                /*initialIntentsUserSpace=*/ userHandle,
+                targetDataLoader,
+                executor,
+                testHandler,
+            )
+        val doPostProcessing = false
+
+        executor.runUntilIdle()
+
+        testSubject.rebuildList(doPostProcessing)
+        verify(communicator).onPostListReady(testSubject, doPostProcessing, true)
+    }
+
+    @Test
+    fun testPostListReadyAtEndOfRebuild_stages() {
+        // We need at least two targets to trigger asynchronous sorting/"staged" progress callbacks.
+        val resolvedTargets =
+            createResolvedComponents(
+                ComponentName(PKG_NAME, CLASS_NAME),
+                ComponentName(PKG_NAME_TWO, CLASS_NAME),
+            )
+        // TODO: there's a lot of boilerplate required for this test even to trigger the expected
+        // conditions; if the configuration is incorrect, the test may accidentally pass for the
+        // wrong reasons. Separating responsibilities to other components will help minimize the
+        // *amount* of boilerplate, but we should also consider setting up test defaults that work
+        // according to our usual expectations so that we don't overlook false-negative results.
+        whenever(
+                resolverListController.getResolversForIntentAsUser(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                )
+            )
+            .thenReturn(resolvedTargets)
+        val communicator =
+            mock<ResolverListCommunicator> {
+                whenever(getReplacementIntent(any(), any())).thenAnswer { invocation ->
+                    invocation.arguments[1]
+                }
+            }
+        val testSubject =
+            ResolverListAdapter(
+                context,
+                payloadIntents,
+                /*initialIntents=*/ null,
+                /*rList=*/ null,
+                /*filterLastUsed=*/ true,
+                resolverListController,
+                userHandle,
+                targetIntent,
+                communicator,
+                /*initialIntentsUserSpace=*/ userHandle,
+                targetDataLoader,
+                executor,
+                testHandler,
+            )
+        val doPostProcessing = false
+
+        testSubject.rebuildList(doPostProcessing)
+
+        executor.runUntilIdle()
+
+        val inOrder = inOrder(communicator)
+        inOrder.verify(communicator).onPostListReady(testSubject, doPostProcessing, false)
+        inOrder.verify(communicator).onPostListReady(testSubject, doPostProcessing, true)
+    }
+
+    @Test
+    fun testPostListReadyAtEndOfRebuild_queued() {
+        // Set up a runnable that blocks the callback handler until we're ready to start
+        // processing queued messages. This is to test against a legacy bug where subsequent
+        // list-ready notifications could be dropped if the older one wasn't yet dequeued, even if
+        // the newer ones had different parameters.
+        // TODO: after removing the logic responsible for this "dropping" we could migrate off the
+        // `Handler` API (to `Executor` or similar) and use a simpler mechanism to test.
+        val callbackHandler = Handler(Looper.getMainLooper())
+        val unblockCallbacksSignal = CountDownLatch(1)
+        val countdownBlockingRunnable = Runnable { unblockCallbacksSignal.await() }
+        callbackHandler.post(countdownBlockingRunnable)
+
+        // We need at least two targets to trigger asynchronous sorting/"staged" progress callbacks.
+        val resolvedTargets =
+            createResolvedComponents(
+                ComponentName(PKG_NAME, CLASS_NAME),
+                ComponentName(PKG_NAME_TWO, CLASS_NAME),
+            )
+        // TODO: there's a lot of boilerplate required for this test even to trigger the expected
+        // conditions; if the configuration is incorrect, the test may accidentally pass for the
+        // wrong reasons. Separating responsibilities to other components will help minimize the
+        // *amount* of boilerplate, but we should also consider setting up test defaults that work
+        // according to our usual expectations so that we don't overlook false-negative results.
+        whenever(
+                resolverListController.getResolversForIntentAsUser(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                )
+            )
+            .thenReturn(resolvedTargets)
+        val communicator =
+            mock<ResolverListCommunicator> {
+                whenever(getReplacementIntent(any(), any())).thenAnswer { invocation ->
+                    invocation.arguments[1]
+                }
+            }
+        val testSubject =
+            ResolverListAdapter(
+                context,
+                payloadIntents,
+                /*initialIntents=*/ null,
+                /*rList=*/ null,
+                /*filterLastUsed=*/ true,
+                resolverListController,
+                userHandle,
+                targetIntent,
+                communicator,
+                /*initialIntentsUserSpace=*/ userHandle,
+                targetDataLoader,
+                executor,
+                callbackHandler
+            )
+        val doPostProcessing = false
+        testSubject.rebuildList(doPostProcessing)
+
+        // Finish all the background work (enqueueing both the "partial" and "complete" progress
+        // callbacks) before dequeueing either callback.
+        executor.runUntilIdle()
+
+        // Allow the handler to flush out and process both callbacks.
+        unblockCallbacksSignal.countDown()
+
+        // Finally, force a synchronization in the other direction to ensure that we've finished
+        // processing any callbacks before we start making assertions about them.
+        // TODO: there are less "ad-hoc" ways to write this (e.g. with a special `Handler` subclass
+        // for tests), but we should switch off using `Handler` altogether (in favor of `Executor`
+        // or otherwise), and then it'll be much simpler to clean up this boilerplate.
+        val unblockAssertionsSignal = CountDownLatch(1)
+        val countdownAssertionsRunnable = Runnable { unblockAssertionsSignal.countDown() }
+        callbackHandler.post(countdownAssertionsRunnable)
+        unblockAssertionsSignal.await()
+
+        // TODO: we may not necessarily care to assert that there's a "partial progress" callback in
+        // this case, since there won't be a chance to reflect the "partial" state in the UI before
+        // the "completion" is queued (and if we depend on seeing an intermediate state, that could
+        // be a bad sign for our handling in the "synchronous" case?). But we should probably at
+        // least assert that the "partial" callback never arrives *after* the completion?
+        val inOrder = inOrder(communicator)
+        inOrder.verify(communicator).onPostListReady(testSubject, doPostProcessing, false)
+        inOrder.verify(communicator).onPostListReady(testSubject, doPostProcessing, true)
+    }
+
+    @Test
+    fun testPostListReadyAtEndOfRebuild_skippedIfStillQueuedOnDestroy() {
+        // Set up a runnable that blocks the callback handler until we're ready to start
+        // processing queued messages.
+        // TODO: after removing the logic responsible for this "dropping" we could migrate off the
+        // `Handler` API (to `Executor` or similar) and use a simpler mechanism to test.
+        val callbackHandler = Handler(Looper.getMainLooper())
+        val unblockCallbacksSignal = CountDownLatch(1)
+        val countdownBlockingRunnable = Runnable { unblockCallbacksSignal.await() }
+        callbackHandler.post(countdownBlockingRunnable)
+
+        // We need at least two targets to trigger asynchronous sorting/"staged" progress callbacks.
+        val resolvedTargets =
+            createResolvedComponents(
+                ComponentName(PKG_NAME, CLASS_NAME),
+                ComponentName(PKG_NAME_TWO, CLASS_NAME),
+            )
+        // TODO: there's a lot of boilerplate required for this test even to trigger the expected
+        // conditions; if the configuration is incorrect, the test may accidentally pass for the
+        // wrong reasons. Separating responsibilities to other components will help minimize the
+        // *amount* of boilerplate, but we should also consider setting up test defaults that work
+        // according to our usual expectations so that we don't overlook false-negative results.
+        whenever(
+                resolverListController.getResolversForIntentAsUser(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                )
+            )
+            .thenReturn(resolvedTargets)
+        val communicator =
+            mock<ResolverListCommunicator> {
+                whenever(getReplacementIntent(any(), any())).thenAnswer { invocation ->
+                    invocation.arguments[1]
+                }
+            }
+        val testSubject =
+            ResolverListAdapter(
+                context,
+                payloadIntents,
+                /*initialIntents=*/ null,
+                /*rList=*/ null,
+                /*filterLastUsed=*/ true,
+                resolverListController,
+                userHandle,
+                targetIntent,
+                communicator,
+                /*initialIntentsUserSpace=*/ userHandle,
+                targetDataLoader,
+                executor,
+                callbackHandler
+            )
+        val doPostProcessing = false
+        testSubject.rebuildList(doPostProcessing)
+
+        // Finish all the background work (enqueueing both the "partial" and "complete" progress
+        // callbacks) before dequeueing either callback.
+        executor.runUntilIdle()
+
+        // Notify that our activity is being destroyed while the callbacks are still queued.
+        testSubject.onDestroy()
+
+        // Allow the handler to flush out, but now the callbacks are gone.
+        unblockCallbacksSignal.countDown()
+
+        // Finally, force a synchronization in the other direction to ensure that we've finished
+        // processing any callbacks before we start making assertions about them.
+        // TODO: there are less "ad-hoc" ways to write this (e.g. with a special `Handler` subclass
+        // for tests), but we should switch off using `Handler` altogether (in favor of `Executor`
+        // or otherwise), and then it'll be much simpler to clean up this boilerplate.
+        val unblockAssertionsSignal = CountDownLatch(1)
+        val countdownAssertionsRunnable = Runnable { unblockAssertionsSignal.countDown() }
+        callbackHandler.post(countdownAssertionsRunnable)
+        unblockAssertionsSignal.await()
+
+        verify(communicator, never()).onPostListReady(eq(testSubject), eq(doPostProcessing), any())
     }
 
     private fun createResolvedComponents(
