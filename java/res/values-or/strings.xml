@@ -30,7 +30,7 @@
     <string name="whichEditApplication" msgid="5097563012157950614">"ସହିତ ଏଡିଟ କରନ୍ତୁ"</string>
     <string name="whichEditApplicationNamed" msgid="3150137489226219100">"<xliff:g id="APP">%1$s</xliff:g> ମାଧ୍ୟମରେ ଏଡିଟ କରନ୍ତୁ"</string>
     <string name="whichEditApplicationLabel" msgid="5992662938338600364">"ଏଡିଟ କରନ୍ତୁ"</string>
-    <string name="whichSendApplication" msgid="59510564281035884">"ସେୟାର୍ କରନ୍ତୁ"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"ସେୟାର କରନ୍ତୁ"</string>
     <string name="whichSendApplicationNamed" msgid="495577664218765855">"<xliff:g id="APP">%1$s</xliff:g> ସହ ସେୟାର କରନ୍ତୁ"</string>
     <string name="whichSendApplicationLabel" msgid="2391198069286568035">"ସେୟାର୍‌ କରନ୍ତୁ"</string>
     <string name="whichSendToApplication" msgid="2724450540348806267">"ଏହା ଜରିଆରେ ପଠାନ୍ତୁ"</string>

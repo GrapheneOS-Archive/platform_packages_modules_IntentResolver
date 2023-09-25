@@ -95,6 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"包括文本"</string>
     <string name="exclude_link" msgid="1332778255031992228">"排除链接"</string>
     <string name="include_link" msgid="827855767220339802">"包括链接"</string>
-    <!-- no translation found for pinned (7623664001331394139) -->
-    <skip />
+    <string name="pinned" msgid="7623664001331394139">"已固定"</string>
 </resources>
