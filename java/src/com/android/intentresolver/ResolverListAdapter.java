@@ -821,7 +821,7 @@ public class ResolverListAdapter extends BaseAdapter {
         return mUserHandle;
     }
 
-    protected List<ResolvedComponentInfo> getResolversForUser(UserHandle userHandle) {
+    public final List<ResolvedComponentInfo> getResolversForUser(UserHandle userHandle) {
         return mResolverListController.getResolversForIntentAsUser(
                 /* shouldGetResolvedFilter= */ true,
                 mResolverListCommunicator.shouldGetActivityMetadata(),
@@ -830,7 +830,8 @@ public class ResolverListAdapter extends BaseAdapter {
                 userHandle);
     }
 
-    protected List<Intent> getIntents() {
+    public final List<Intent> getIntents() {
+        // TODO: immutable copy?
         return mIntents;
     }
 

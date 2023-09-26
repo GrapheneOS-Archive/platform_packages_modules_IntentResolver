@@ -16,14 +16,7 @@
 package com.android.intentresolver;
 
 import android.annotation.IntDef;
-import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.UserIdInt;
-import android.app.AppGlobals;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.IPackageManager;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.view.View;
@@ -34,13 +27,13 @@ import android.widget.TextView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.android.intentresolver.emptystate.EmptyState;
+import com.android.intentresolver.emptystate.EmptyStateProvider;
 import com.android.internal.annotations.VisibleForTesting;
 
 import com.google.common.collect.ImmutableList;
 
 import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -450,32 +443,6 @@ public class MultiProfilePagerAdapter<
         }
     }
 
-    /**
-     * Utility class to check if there are cross profile intents, it is in a separate class so
-     * it could be mocked in tests
-     */
-    public static class CrossProfileIntentsChecker {
-
-        private final ContentResolver mContentResolver;
-
-        public CrossProfileIntentsChecker(@NonNull ContentResolver contentResolver) {
-            mContentResolver = contentResolver;
-        }
-
-        /**
-         * Returns {@code true} if at least one of the provided {@code intents} can be forwarded
-         * from {@code source} (user id) to {@code target} (user id).
-         */
-        public boolean hasCrossProfileIntents(List<Intent> intents, @UserIdInt int source,
-                @UserIdInt int target) {
-            IPackageManager packageManager = AppGlobals.getPackageManager();
-
-            return intents.stream().anyMatch(intent ->
-                    null != IntentForwarderActivity.canForward(intent, source, target,
-                            packageManager, mContentResolver));
-        }
-    }
-
     protected void showEmptyState(
             ListAdapterT activeListAdapter,
             EmptyState emptyState,
@@ -618,108 +585,6 @@ public class MultiProfilePagerAdapter<
          * @see ViewPager.OnPageChangeListener#onPageScrollStateChanged
          */
         void onProfilePageStateChanged(int state);
-    }
-
-    /**
-     * Returns an empty state to show for the current profile page (tab) if necessary.
-     * This could be used e.g. to show a blocker on a tab if device management policy doesn't
-     * allow to use it or there are no apps available.
-     */
-    public interface EmptyStateProvider {
-        /**
-         * When a non-null empty state is returned the corresponding profile page will show
-         * this empty state
-         * @param resolverListAdapter the current adapter
-         */
-        @Nullable
-        default EmptyState getEmptyState(ResolverListAdapter resolverListAdapter) {
-            return null;
-        }
-    }
-
-    /**
-     * Empty state provider that combines multiple providers. Providers earlier in the list have
-     * priority, that is if there is a provider that returns non-null empty state then all further
-     * providers will be ignored.
-     */
-    public static class CompositeEmptyStateProvider implements EmptyStateProvider {
-
-        private final EmptyStateProvider[] mProviders;
-
-        public CompositeEmptyStateProvider(EmptyStateProvider... providers) {
-            mProviders = providers;
-        }
-
-        @Nullable
-        @Override
-        public EmptyState getEmptyState(ResolverListAdapter resolverListAdapter) {
-            for (EmptyStateProvider provider : mProviders) {
-                EmptyState emptyState = provider.getEmptyState(resolverListAdapter);
-                if (emptyState != null) {
-                    return emptyState;
-                }
-            }
-            return null;
-        }
-    }
-
-    /**
-     * Describes how the blocked empty state should look like for a profile tab
-     */
-    public interface EmptyState {
-        /**
-         * Title that will be shown on the empty state
-         */
-        @Nullable
-        default String getTitle() {
-            return null;
-        }
-
-        /**
-         * Subtitle that will be shown underneath the title on the empty state
-         */
-        @Nullable
-        default String getSubtitle()  {
-            return null;
-        }
-
-        /**
-         * If non-null then a button will be shown and this listener will be called
-         * when the button is clicked
-         */
-        @Nullable
-        default ClickListener getButtonClickListener()  {
-            return null;
-        }
-
-        /**
-         * If true then default text ('No apps can perform this action') and style for the empty
-         * state will be applied, title and subtitle will be ignored.
-         */
-        default boolean useDefaultEmptyView() {
-            return false;
-        }
-
-        /**
-         * Returns true if for this empty state we should skip rebuilding of the apps list
-         * for this tab.
-         */
-        default boolean shouldSkipDataRebuild() {
-            return false;
-        }
-
-        /**
-         * Called when empty state is shown, could be used e.g. to track analytics events
-         */
-        default void onEmptyStateShown() {}
-
-        interface ClickListener {
-            void onClick(TabControl currentTab);
-        }
-
-        interface TabControl {
-            void showSpinner();
-        }
     }
 
     /**

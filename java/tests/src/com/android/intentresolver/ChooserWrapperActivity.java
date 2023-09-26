@@ -34,9 +34,9 @@ import android.os.UserHandle;
 
 import androidx.lifecycle.ViewModelProvider;
 
-import com.android.intentresolver.MultiProfilePagerAdapter.CrossProfileIntentsChecker;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.shortcuts.ShortcutLoader;

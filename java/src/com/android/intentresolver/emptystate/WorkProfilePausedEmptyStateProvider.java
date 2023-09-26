@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver;
+package com.android.intentresolver.emptystate;
 
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_WORK_PAUSED_TITLE;
 
@@ -26,9 +26,10 @@ import android.content.Context;
 import android.os.UserHandle;
 import android.stats.devicepolicy.nano.DevicePolicyEnums;
 
-import com.android.intentresolver.MultiProfilePagerAdapter.EmptyState;
-import com.android.intentresolver.MultiProfilePagerAdapter.EmptyStateProvider;
 import com.android.intentresolver.MultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener;
+import com.android.intentresolver.R;
+import com.android.intentresolver.ResolverListAdapter;
+import com.android.intentresolver.WorkProfileAvailabilityManager;
 
 /**
  * Chooser/ResolverActivity empty state provider that returns empty state which is shown when
@@ -65,7 +66,7 @@ public class WorkProfilePausedEmptyStateProvider implements EmptyStateProvider {
 
         final String title = mContext.getSystemService(DevicePolicyManager.class)
                 .getResources().getString(RESOLVER_WORK_PAUSED_TITLE,
-                () -> mContext.getString(R.string.resolver_turn_on_work_apps));
+                    () -> mContext.getString(R.string.resolver_turn_on_work_apps));
 
         return new WorkProfileOffEmptyState(title, (tab) -> {
             tab.showSpinner();
