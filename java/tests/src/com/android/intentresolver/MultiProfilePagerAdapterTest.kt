@@ -20,8 +20,8 @@ import android.os.UserHandle
 import android.view.View
 import android.widget.ListView
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.PROFILE_PERSONAL
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.PROFILE_WORK
+import com.android.intentresolver.MultiProfilePagerAdapter.PROFILE_PERSONAL
+import com.android.intentresolver.MultiProfilePagerAdapter.PROFILE_WORK
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import java.util.Optional
@@ -29,7 +29,7 @@ import org.junit.Test
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 
-class GenericMultiProfilePagerAdapterTest {
+class MultiProfilePagerAdapterTest {
     private val PERSONAL_USER_HANDLE = UserHandle.of(10)
     private val WORK_USER_HANDLE = UserHandle.of(20)
 
@@ -40,14 +40,13 @@ class GenericMultiProfilePagerAdapterTest {
         val personalListAdapter =
             mock<ResolverListAdapter> { whenever(getUserHandle()).thenReturn(PERSONAL_USER_HANDLE) }
         val pagerAdapter =
-            GenericMultiProfilePagerAdapter(
-                context,
+            MultiProfilePagerAdapter(
                 { listAdapter: ResolverListAdapter -> listAdapter },
                 { listView: ListView, bindAdapter: ResolverListAdapter ->
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(personalListAdapter),
-                object : AbstractMultiProfilePagerAdapter.EmptyStateProvider {},
+                object : MultiProfilePagerAdapter.EmptyStateProvider {},
                 { false },
                 PROFILE_PERSONAL,
                 null,
@@ -75,14 +74,13 @@ class GenericMultiProfilePagerAdapterTest {
         val workListAdapter =
             mock<ResolverListAdapter> { whenever(getUserHandle()).thenReturn(WORK_USER_HANDLE) }
         val pagerAdapter =
-            GenericMultiProfilePagerAdapter(
-                context,
+            MultiProfilePagerAdapter(
                 { listAdapter: ResolverListAdapter -> listAdapter },
                 { listView: ListView, bindAdapter: ResolverListAdapter ->
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(personalListAdapter, workListAdapter),
-                object : AbstractMultiProfilePagerAdapter.EmptyStateProvider {},
+                object : MultiProfilePagerAdapter.EmptyStateProvider {},
                 { false },
                 PROFILE_PERSONAL,
                 WORK_USER_HANDLE, // TODO: why does this test pass even if this is null?
@@ -115,14 +113,13 @@ class GenericMultiProfilePagerAdapterTest {
         val workListAdapter =
             mock<ResolverListAdapter> { whenever(getUserHandle()).thenReturn(WORK_USER_HANDLE) }
         val pagerAdapter =
-            GenericMultiProfilePagerAdapter(
-                context,
+            MultiProfilePagerAdapter(
                 { listAdapter: ResolverListAdapter -> listAdapter },
                 { listView: ListView, bindAdapter: ResolverListAdapter ->
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(personalListAdapter, workListAdapter),
-                object : AbstractMultiProfilePagerAdapter.EmptyStateProvider {},
+                object : MultiProfilePagerAdapter.EmptyStateProvider {},
                 { false },
                 PROFILE_WORK, // <-- This test specifically requests we start on work profile.
                 WORK_USER_HANDLE, // TODO: why does this test pass even if this is null?
@@ -156,14 +153,13 @@ class GenericMultiProfilePagerAdapterTest {
                 whenever(getPaddingBottom()).thenReturn(4)
             }
         val pagerAdapter =
-            GenericMultiProfilePagerAdapter(
-                context,
+            MultiProfilePagerAdapter(
                 { listAdapter: ResolverListAdapter -> listAdapter },
                 { listView: ListView, bindAdapter: ResolverListAdapter ->
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(),
-                object : AbstractMultiProfilePagerAdapter.EmptyStateProvider {},
+                object : MultiProfilePagerAdapter.EmptyStateProvider {},
                 { false },
                 PROFILE_PERSONAL,
                 null,
@@ -185,14 +181,13 @@ class GenericMultiProfilePagerAdapterTest {
                 whenever(getPaddingBottom()).thenReturn(4)
             }
         val pagerAdapter =
-            GenericMultiProfilePagerAdapter(
-                context,
+            MultiProfilePagerAdapter(
                 { listAdapter: ResolverListAdapter -> listAdapter },
                 { listView: ListView, bindAdapter: ResolverListAdapter ->
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(),
-                object : AbstractMultiProfilePagerAdapter.EmptyStateProvider {},
+                object : MultiProfilePagerAdapter.EmptyStateProvider {},
                 { false },
                 PROFILE_PERSONAL,
                 null,
@@ -220,14 +215,13 @@ class GenericMultiProfilePagerAdapterTest {
                 whenever(getUnfilteredCount()).thenReturn(1)
             }
         val pagerAdapter =
-            GenericMultiProfilePagerAdapter(
-                context,
+            MultiProfilePagerAdapter(
                 { listAdapter: ResolverListAdapter -> listAdapter },
                 { listView: ListView, bindAdapter: ResolverListAdapter ->
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(personalListAdapter, workListAdapter),
-                object : AbstractMultiProfilePagerAdapter.EmptyStateProvider {},
+                object : MultiProfilePagerAdapter.EmptyStateProvider {},
                 { true }, // <-- Work mode is quiet.
                 PROFILE_WORK,
                 WORK_USER_HANDLE,
@@ -255,14 +249,13 @@ class GenericMultiProfilePagerAdapterTest {
                 whenever(getUnfilteredCount()).thenReturn(1)
             }
         val pagerAdapter =
-            GenericMultiProfilePagerAdapter(
-                context,
+            MultiProfilePagerAdapter(
                 { listAdapter: ResolverListAdapter -> listAdapter },
                 { listView: ListView, bindAdapter: ResolverListAdapter ->
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(personalListAdapter, workListAdapter),
-                object : AbstractMultiProfilePagerAdapter.EmptyStateProvider {},
+                object : MultiProfilePagerAdapter.EmptyStateProvider {},
                 { false }, // <-- Work mode is not quiet.
                 PROFILE_WORK,
                 WORK_USER_HANDLE,

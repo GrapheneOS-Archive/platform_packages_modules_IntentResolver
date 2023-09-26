@@ -98,12 +98,12 @@ import android.widget.Toast;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
 
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CompositeEmptyStateProvider;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyStateProvider;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.Profile;
+import com.android.intentresolver.MultiProfilePagerAdapter.CompositeEmptyStateProvider;
+import com.android.intentresolver.MultiProfilePagerAdapter.CrossProfileIntentsChecker;
+import com.android.intentresolver.MultiProfilePagerAdapter.EmptyStateProvider;
+import com.android.intentresolver.MultiProfilePagerAdapter.MyUserIdProvider;
+import com.android.intentresolver.MultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener;
+import com.android.intentresolver.MultiProfilePagerAdapter.Profile;
 import com.android.intentresolver.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
@@ -201,7 +201,7 @@ public class ResolverActivity extends FragmentActivity implements
     private TargetDataLoader mTargetDataLoader;
 
     @VisibleForTesting
-    protected AbstractMultiProfilePagerAdapter mMultiProfilePagerAdapter;
+    protected MultiProfilePagerAdapter mMultiProfilePagerAdapter;
 
     protected WorkProfileAvailabilityManager mWorkProfileAvailability;
 
@@ -228,8 +228,8 @@ public class ResolverActivity extends FragmentActivity implements
     static final String EXTRA_CALLING_USER =
             "com.android.internal.app.ResolverActivity.EXTRA_CALLING_USER";
 
-    protected static final int PROFILE_PERSONAL = AbstractMultiProfilePagerAdapter.PROFILE_PERSONAL;
-    protected static final int PROFILE_WORK = AbstractMultiProfilePagerAdapter.PROFILE_WORK;
+    protected static final int PROFILE_PERSONAL = MultiProfilePagerAdapter.PROFILE_PERSONAL;
+    protected static final int PROFILE_WORK = MultiProfilePagerAdapter.PROFILE_WORK;
 
     private UserHandle mHeaderCreatorUser;
 
@@ -496,12 +496,12 @@ public class ResolverActivity extends FragmentActivity implements
                         + (categories != null ? Arrays.toString(categories.toArray()) : ""));
     }
 
-    protected AbstractMultiProfilePagerAdapter createMultiProfilePagerAdapter(
+    protected MultiProfilePagerAdapter createMultiProfilePagerAdapter(
             Intent[] initialIntents,
             List<ResolveInfo> resolutionList,
             boolean filterLastUsed,
             TargetDataLoader targetDataLoader) {
-        AbstractMultiProfilePagerAdapter resolverMultiProfilePagerAdapter = null;
+        MultiProfilePagerAdapter resolverMultiProfilePagerAdapter = null;
         if (shouldShowTabs()) {
             resolverMultiProfilePagerAdapter =
                     createResolverMultiProfilePagerAdapterForTwoProfiles(
@@ -521,7 +521,7 @@ public class ResolverActivity extends FragmentActivity implements
             return new EmptyStateProvider() {};
         }
 
-        final AbstractMultiProfilePagerAdapter.EmptyState
+        final MultiProfilePagerAdapter.EmptyState
                 noWorkToPersonalEmptyState =
                 new DevicePolicyBlockerEmptyState(/* context= */ this,
                         /* devicePolicyStringTitleId= */ RESOLVER_CROSS_PROFILE_BLOCKED_TITLE,
@@ -533,7 +533,7 @@ public class ResolverActivity extends FragmentActivity implements
                         /* devicePolicyEventCategory= */
                                 ResolverActivity.METRICS_CATEGORY_RESOLVER);
 
-        final AbstractMultiProfilePagerAdapter.EmptyState noPersonalToWorkEmptyState =
+        final MultiProfilePagerAdapter.EmptyState noPersonalToWorkEmptyState =
                 new DevicePolicyBlockerEmptyState(/* context= */ this,
                         /* devicePolicyStringTitleId= */ RESOLVER_CROSS_PROFILE_BLOCKED_TITLE,
                         /* defaultTitleResource= */ R.string.resolver_cross_profile_blocked,
@@ -2080,7 +2080,7 @@ public class ResolverActivity extends FragmentActivity implements
         viewPager.setVisibility(View.VISIBLE);
         tabHost.setCurrentTab(mMultiProfilePagerAdapter.getCurrentPage());
         mMultiProfilePagerAdapter.setOnProfileSelectedListener(
-                new AbstractMultiProfilePagerAdapter.OnProfileSelectedListener() {
+                new MultiProfilePagerAdapter.OnProfileSelectedListener() {
                     @Override
                     public void onProfileSelected(int index) {
                         tabHost.setCurrentTab(index);

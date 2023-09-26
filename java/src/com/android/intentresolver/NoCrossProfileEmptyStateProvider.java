@@ -24,9 +24,9 @@ import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.os.UserHandle;
 
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyState;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.EmptyStateProvider;
+import com.android.intentresolver.MultiProfilePagerAdapter.CrossProfileIntentsChecker;
+import com.android.intentresolver.MultiProfilePagerAdapter.EmptyState;
+import com.android.intentresolver.MultiProfilePagerAdapter.EmptyStateProvider;
 
 /**
  * Empty state provider that does not allow cross profile sharing, it will return a blocker
