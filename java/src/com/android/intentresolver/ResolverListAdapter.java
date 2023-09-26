@@ -58,6 +58,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ResolverListAdapter extends BaseAdapter {
     private static final String TAG = "ResolverListAdapter";
@@ -82,6 +83,7 @@ public class ResolverListAdapter extends BaseAdapter {
     private final Set<DisplayResolveInfo> mRequestedLabels = new HashSet<>();
     private final Executor mBgExecutor;
     private final Handler mMainHandler;
+    private final AtomicBoolean mDestroyed = new AtomicBoolean();
 
     private ResolveInfo mLastChosen;
     private DisplayResolveInfo mOtherProfile;
@@ -93,7 +95,6 @@ public class ResolverListAdapter extends BaseAdapter {
 
     private int mLastChosenPosition = -1;
     private final boolean mFilterLastUsed;
-    private Runnable mPostListReadyRunnable;
     private boolean mIsTabLoaded;
     // Represents the UserSpace in which the Initial Intents should be resolved.
     private final UserHandle mInitialIntentsUserSpace;
@@ -546,17 +547,17 @@ public class ResolverListAdapter extends BaseAdapter {
      * @param rebuildCompleted Whether the list has been completely rebuilt
      */
     void postListReadyRunnable(boolean doPostProcessing, boolean rebuildCompleted) {
-        if (mPostListReadyRunnable == null) {
-            mPostListReadyRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    mResolverListCommunicator.onPostListReady(ResolverListAdapter.this,
-                            doPostProcessing, rebuildCompleted);
-                    mPostListReadyRunnable = null;
+        Runnable listReadyRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (mDestroyed.get()) {
+                    return;
                 }
-            };
-            mMainHandler.post(mPostListReadyRunnable);
-        }
+                mResolverListCommunicator.onPostListReady(ResolverListAdapter.this,
+                        doPostProcessing, rebuildCompleted);
+            }
+        };
+        mMainHandler.post(listReadyRunnable);
     }
 
     private void addResolveInfoWithAlternates(ResolvedComponentInfo rci) {
@@ -772,10 +773,8 @@ public class ResolverListAdapter extends BaseAdapter {
     }
 
     public void onDestroy() {
-        if (mPostListReadyRunnable != null) {
-            mMainHandler.removeCallbacks(mPostListReadyRunnable);
-            mPostListReadyRunnable = null;
-        }
+        mDestroyed.set(true);
+
         if (mResolverListController != null) {
             mResolverListController.destroy();
         }
