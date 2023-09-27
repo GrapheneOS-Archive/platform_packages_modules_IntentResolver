@@ -68,6 +68,7 @@ import android.view.WindowInsets;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -1018,7 +1019,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         mIsSuccessfullySelected = true;
     }
 
-    private void maybeRemoveSharedText(@androidx.annotation.NonNull TargetInfo targetInfo) {
+    private void maybeRemoveSharedText(@NonNull TargetInfo targetInfo) {
         Intent targetIntent = targetInfo.getTargetIntent();
         if (targetIntent == null) {
             return;
@@ -1499,19 +1500,21 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     }
 
     @Override
-    public void onListRebuilt(ResolverListAdapter listAdapter, boolean rebuildComplete) {
+    protected void onListRebuilt(ResolverListAdapter listAdapter, boolean rebuildComplete) {
         setupScrollListener();
         maybeSetupGlobalLayoutListener();
 
         ChooserListAdapter chooserListAdapter = (ChooserListAdapter) listAdapter;
-        if (chooserListAdapter.getUserHandle()
-                .equals(mChooserMultiProfilePagerAdapter.getCurrentUserHandle())) {
+        UserHandle listProfileUserHandle = chooserListAdapter.getUserHandle();
+        if (listProfileUserHandle.equals(mChooserMultiProfilePagerAdapter.getCurrentUserHandle())) {
             mChooserMultiProfilePagerAdapter.getActiveAdapterView()
                     .setAdapter(mChooserMultiProfilePagerAdapter.getCurrentRootAdapter());
             mChooserMultiProfilePagerAdapter
                     .setupListAdapter(mChooserMultiProfilePagerAdapter.getCurrentPage());
         }
 
+        //TODO: move this block inside ChooserListAdapter (should be called when
+        // ResolverListAdapter#mPostListReadyRunnable is executed.
         if (chooserListAdapter.getDisplayResolveInfoCount() == 0) {
             chooserListAdapter.notifyDataSetChanged();
         } else {
@@ -1519,25 +1522,28 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         }
 
         if (rebuildComplete) {
-            long duration = Tracer.INSTANCE.endAppTargetLoadingSection(listAdapter.getUserHandle());
+            long duration = Tracer.INSTANCE.endAppTargetLoadingSection(listProfileUserHandle);
             if (duration >= 0) {
                 Log.d(TAG, "app target loading time " + duration + " ms");
             }
             addCallerChooserTargets();
             getEventLog().logSharesheetAppLoadComplete();
-            maybeQueryAdditionalPostProcessingTargets(chooserListAdapter);
+            maybeQueryAdditionalPostProcessingTargets(
+                    listProfileUserHandle,
+                    chooserListAdapter.getDisplayResolveInfos());
             mLatencyTracker.onActionEnd(ACTION_LOAD_SHARE_SHEET);
         }
     }
 
-    private void maybeQueryAdditionalPostProcessingTargets(ChooserListAdapter chooserListAdapter) {
-        UserHandle userHandle = chooserListAdapter.getUserHandle();
+    private void maybeQueryAdditionalPostProcessingTargets(
+            UserHandle userHandle,
+            DisplayResolveInfo[] displayResolveInfos) {
         ProfileRecord record = getProfileRecord(userHandle);
         if (record == null || record.shortcutLoader == null) {
             return;
         }
         record.loadingStartTime = SystemClock.elapsedRealtime();
-        record.shortcutLoader.updateAppTargets(chooserListAdapter.getDisplayResolveInfos());
+        record.shortcutLoader.updateAppTargets(displayResolveInfos);
     }
 
     @MainThread

@@ -63,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 public class ChooserListAdapter extends ResolverListAdapter {
@@ -99,7 +100,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
     private final ShortcutSelectionLogic mShortcutSelectionLogic;
 
     // Sorted list of DisplayResolveInfos for the alphabetical app section.
-    private List<DisplayResolveInfo> mSortedList = new ArrayList<>();
+    private final List<DisplayResolveInfo> mSortedList = new ArrayList<>();
 
     private final ItemRevealAnimationTracker mAnimationTracker = new ItemRevealAnimationTracker();
 
@@ -150,6 +151,45 @@ public class ChooserListAdapter extends ResolverListAdapter {
             int maxRankedTargets,
             UserHandle initialIntentsUserSpace,
             TargetDataLoader targetDataLoader) {
+        this(
+                context,
+                payloadIntents,
+                initialIntents,
+                rList,
+                filterLastUsed,
+                resolverListController,
+                userHandle,
+                targetIntent,
+                resolverListCommunicator,
+                packageManager,
+                eventLog,
+                chooserRequest,
+                maxRankedTargets,
+                initialIntentsUserSpace,
+                targetDataLoader,
+                AsyncTask.SERIAL_EXECUTOR,
+                context.getMainExecutor());
+    }
+
+    @VisibleForTesting
+    public ChooserListAdapter(
+            Context context,
+            List<Intent> payloadIntents,
+            Intent[] initialIntents,
+            List<ResolveInfo> rList,
+            boolean filterLastUsed,
+            ResolverListController resolverListController,
+            UserHandle userHandle,
+            Intent targetIntent,
+            ResolverListCommunicator resolverListCommunicator,
+            PackageManager packageManager,
+            EventLog eventLog,
+            ChooserRequestParameters chooserRequest,
+            int maxRankedTargets,
+            UserHandle initialIntentsUserSpace,
+            TargetDataLoader targetDataLoader,
+            Executor bgExecutor,
+            Executor mainExecutor) {
         // Don't send the initial intents through the shared ResolverActivity path,
         // we want to separate them into a different section.
         super(
@@ -163,7 +203,9 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 targetIntent,
                 resolverListCommunicator,
                 initialIntentsUserSpace,
-                targetDataLoader);
+                targetDataLoader,
+                bgExecutor,
+                mainExecutor);
 
         mChooserRequest = chooserRequest;
         mMaxRankedTargets = maxRankedTargets;
@@ -413,7 +455,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
 
             @Override
             protected void onPostExecute(List<DisplayResolveInfo> newList) {
-                mSortedList = newList;
+                mSortedList.clear();
+                mSortedList.addAll(newList);
                 notifyDataSetChanged();
             }
 

@@ -19,16 +19,16 @@ package com.android.intentresolver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
-import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.UserHandle
+import android.os.UserManager
 import android.view.LayoutInflater
+import com.android.intentresolver.ResolverDataProvider.createActivityInfo
 import com.android.intentresolver.ResolverListAdapter.ResolverListCommunicator
 import com.android.intentresolver.icons.TargetDataLoader
 import com.android.intentresolver.util.TestExecutor
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Test
 import org.mockito.Mockito.anyBoolean
 import org.mockito.Mockito.inOrder
@@ -36,14 +36,19 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 
 private const val PKG_NAME = "org.pkg.app"
-private const val PKG_NAME_TWO = "org.pkgtwo.app"
+private const val PKG_NAME_TWO = "org.pkg.two.app"
+private const val PKG_NAME_THREE = "org.pkg.three.app"
 private const val CLASS_NAME = "org.pkg.app.TheClass"
 
 class ResolverListAdapterTest {
     private val layoutInflater = mock<LayoutInflater>()
+    private val packageManager = mock<PackageManager>()
+    private val userManager = mock<UserManager> { whenever(isManagedProfile).thenReturn(false) }
     private val context =
         mock<Context> {
             whenever(getSystemService(Context.LAYOUT_INFLATER_SERVICE)).thenReturn(layoutInflater)
+            whenever(getSystemService(Context.USER_SERVICE)).thenReturn(userManager)
+            whenever(packageManager).thenReturn(this@ResolverListAdapterTest.packageManager)
         }
     private val targetIntent = Intent(Intent.ACTION_SEND)
     private val payloadIntents = listOf(targetIntent)
@@ -53,7 +58,7 @@ class ResolverListAdapterTest {
             whenever(filterLowPriority(any(), anyBoolean())).thenReturn(null)
         }
     private val resolverListCommunicator = FakeResolverListCommunicator()
-    private val userHandle = UserHandle.of(0)
+    private val userHandle = UserHandle.of(UserHandle.USER_CURRENT)
     private val targetDataLoader = mock<TargetDataLoader>()
     private val backgroundExecutor = TestExecutor()
     private val immediateExecutor = TestExecutor(immediate = true)
@@ -666,6 +671,150 @@ class ResolverListAdapterTest {
     }
 
     @Test
+    fun test_twoTargetsWithNonOverlappingInitialIntent_threeTargetsInAdapter() {
+        val resolvedTargets =
+            createResolvedComponents(
+                ComponentName(PKG_NAME, CLASS_NAME),
+                ComponentName(PKG_NAME_TWO, CLASS_NAME),
+            )
+        whenever(
+                resolverListController.getResolversForIntentAsUser(
+                    true,
+                    resolverListCommunicator.shouldGetActivityMetadata(),
+                    resolverListCommunicator.shouldGetOnlyDefaultActivities(),
+                    payloadIntents,
+                    userHandle
+                )
+            )
+            .thenReturn(resolvedTargets)
+        val initialComponent = ComponentName(PKG_NAME_THREE, CLASS_NAME)
+        val initialIntents =
+            arrayOf(Intent(Intent.ACTION_SEND).apply { component = initialComponent })
+        whenever(packageManager.getActivityInfo(eq(initialComponent), eq(0)))
+            .thenReturn(createActivityInfo(initialComponent))
+        val testSubject =
+            ResolverListAdapter(
+                context,
+                payloadIntents,
+                initialIntents,
+                /*rList=*/ null,
+                /*filterLastUsed=*/ true,
+                resolverListController,
+                userHandle,
+                targetIntent,
+                resolverListCommunicator,
+                /*initialIntentsUserSpace=*/ userHandle,
+                targetDataLoader,
+                backgroundExecutor,
+                immediateExecutor,
+            )
+        val doPostProcessing = true
+
+        val isLoaded = testSubject.rebuildList(doPostProcessing)
+
+        assertThat(isLoaded).isFalse()
+        val placeholderCount = resolvedTargets.size - 1
+        assertThat(testSubject.count).isEqualTo(placeholderCount)
+        assertThat(testSubject.placeholderCount).isEqualTo(placeholderCount)
+        assertThat(testSubject.hasFilteredItem()).isFalse()
+        assertThat(testSubject.filteredItem).isNull()
+        assertThat(testSubject.filteredPosition).isLessThan(0)
+        assertThat(testSubject.unfilteredResolveList).containsExactlyElementsIn(resolvedTargets)
+        assertThat(testSubject.isTabLoaded).isFalse()
+        assertThat(backgroundExecutor.pendingCommandCount).isEqualTo(1)
+        assertThat(resolverListCommunicator.updateProfileViewButtonCount).isEqualTo(0)
+        assertThat(resolverListCommunicator.sendVoiceCommandCount).isEqualTo(0)
+
+        backgroundExecutor.runUntilIdle()
+
+        // we don't reset placeholder count (legacy logic, likely an oversight?)
+        assertThat(testSubject.placeholderCount).isEqualTo(placeholderCount)
+        assertThat(testSubject.hasFilteredItem()).isFalse()
+        assertThat(testSubject.count).isEqualTo(resolvedTargets.size + initialIntents.size)
+        assertThat(testSubject.getItem(0)?.targetIntent?.component)
+            .isEqualTo(initialIntents[0].component)
+        assertThat(testSubject.filteredItem).isNull()
+        assertThat(testSubject.filteredPosition).isLessThan(0)
+        assertThat(testSubject.unfilteredResolveList).containsExactlyElementsIn(resolvedTargets)
+        assertThat(testSubject.isTabLoaded).isTrue()
+        assertThat(resolverListCommunicator.updateProfileViewButtonCount).isEqualTo(1)
+        assertThat(resolverListCommunicator.sendVoiceCommandCount).isEqualTo(1)
+        assertThat(backgroundExecutor.pendingCommandCount).isEqualTo(0)
+    }
+
+    @Test
+    fun test_twoTargetsWithOverlappingInitialIntent_twoTargetsInAdapter() {
+        val resolvedTargets =
+            createResolvedComponents(
+                ComponentName(PKG_NAME, CLASS_NAME),
+                ComponentName(PKG_NAME_TWO, CLASS_NAME),
+            )
+        whenever(
+                resolverListController.getResolversForIntentAsUser(
+                    true,
+                    resolverListCommunicator.shouldGetActivityMetadata(),
+                    resolverListCommunicator.shouldGetOnlyDefaultActivities(),
+                    payloadIntents,
+                    userHandle
+                )
+            )
+            .thenReturn(resolvedTargets)
+        val initialComponent = ComponentName(PKG_NAME_TWO, CLASS_NAME)
+        val initialIntents =
+            arrayOf(Intent(Intent.ACTION_SEND).apply { component = initialComponent })
+        whenever(packageManager.getActivityInfo(eq(initialComponent), eq(0)))
+            .thenReturn(createActivityInfo(initialComponent))
+        val testSubject =
+            ResolverListAdapter(
+                context,
+                payloadIntents,
+                initialIntents,
+                /*rList=*/ null,
+                /*filterLastUsed=*/ true,
+                resolverListController,
+                userHandle,
+                targetIntent,
+                resolverListCommunicator,
+                /*initialIntentsUserSpace=*/ userHandle,
+                targetDataLoader,
+                backgroundExecutor,
+                immediateExecutor,
+            )
+        val doPostProcessing = true
+
+        val isLoaded = testSubject.rebuildList(doPostProcessing)
+
+        assertThat(isLoaded).isFalse()
+        val placeholderCount = resolvedTargets.size - 1
+        assertThat(testSubject.count).isEqualTo(placeholderCount)
+        assertThat(testSubject.placeholderCount).isEqualTo(placeholderCount)
+        assertThat(testSubject.hasFilteredItem()).isFalse()
+        assertThat(testSubject.filteredItem).isNull()
+        assertThat(testSubject.filteredPosition).isLessThan(0)
+        assertThat(testSubject.unfilteredResolveList).containsExactlyElementsIn(resolvedTargets)
+        assertThat(testSubject.isTabLoaded).isFalse()
+        assertThat(backgroundExecutor.pendingCommandCount).isEqualTo(1)
+        assertThat(resolverListCommunicator.updateProfileViewButtonCount).isEqualTo(0)
+        assertThat(resolverListCommunicator.sendVoiceCommandCount).isEqualTo(0)
+
+        backgroundExecutor.runUntilIdle()
+
+        // we don't reset placeholder count (legacy logic, likely an oversight?)
+        assertThat(testSubject.placeholderCount).isEqualTo(placeholderCount)
+        assertThat(testSubject.hasFilteredItem()).isFalse()
+        assertThat(testSubject.count).isEqualTo(resolvedTargets.size)
+        assertThat(testSubject.getItem(0)?.targetIntent?.component)
+            .isEqualTo(initialIntents[0].component)
+        assertThat(testSubject.filteredItem).isNull()
+        assertThat(testSubject.filteredPosition).isLessThan(0)
+        assertThat(testSubject.unfilteredResolveList).containsExactlyElementsIn(resolvedTargets)
+        assertThat(testSubject.isTabLoaded).isTrue()
+        assertThat(resolverListCommunicator.updateProfileViewButtonCount).isEqualTo(1)
+        assertThat(resolverListCommunicator.sendVoiceCommandCount).isEqualTo(1)
+        assertThat(backgroundExecutor.pendingCommandCount).isEqualTo(0)
+    }
+
+    @Test
     fun testPostListReadyAtEndOfRebuild_synchronous() {
         val communicator = mock<ResolverListCommunicator> {}
         val testSubject =
@@ -892,47 +1041,8 @@ class ResolverListAdapterTest {
 
     private fun createResolveInfo(packageName: String, className: String): ResolveInfo =
         mock<ResolveInfo> {
-            activityInfo =
-                ActivityInfo().apply {
-                    name = className
-                    this.packageName = packageName
-                    applicationInfo = ApplicationInfo().apply { this.packageName = packageName }
-                }
-            targetUserId = UserHandle.USER_CURRENT
+            activityInfo = createActivityInfo(ComponentName(packageName, className))
+            targetUserId = this@ResolverListAdapterTest.userHandle.identifier
+            userHandle = this@ResolverListAdapterTest.userHandle
         }
-}
-
-private class FakeResolverListCommunicator(private val layoutWithDefaults: Boolean = true) :
-    ResolverListAdapter.ResolverListCommunicator {
-    private val sendVoiceCounter = AtomicInteger()
-    private val updateProfileViewButtonCounter = AtomicInteger()
-
-    val sendVoiceCommandCount
-        get() = sendVoiceCounter.get()
-    val updateProfileViewButtonCount
-        get() = updateProfileViewButtonCounter.get()
-
-    override fun getReplacementIntent(activityInfo: ActivityInfo?, defIntent: Intent): Intent {
-        return defIntent
-    }
-
-    override fun onPostListReady(
-        listAdapter: ResolverListAdapter?,
-        updateUi: Boolean,
-        rebuildCompleted: Boolean,
-    ) = Unit
-
-    override fun sendVoiceChoicesIfNeeded() {
-        sendVoiceCounter.incrementAndGet()
-    }
-
-    override fun updateProfileViewButton() {
-        updateProfileViewButtonCounter.incrementAndGet()
-    }
-
-    override fun useLayoutWithDefault(): Boolean = layoutWithDefaults
-
-    override fun shouldGetActivityMetadata(): Boolean = true
-
-    override fun onHandlePackagesChanged(listAdapter: ResolverListAdapter?) {}
 }
