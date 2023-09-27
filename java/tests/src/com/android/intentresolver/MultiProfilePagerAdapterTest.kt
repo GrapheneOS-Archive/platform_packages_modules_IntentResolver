@@ -22,6 +22,7 @@ import android.widget.ListView
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.intentresolver.MultiProfilePagerAdapter.PROFILE_PERSONAL
 import com.android.intentresolver.MultiProfilePagerAdapter.PROFILE_WORK
+import com.android.intentresolver.emptystate.EmptyStateProvider
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import java.util.Optional
@@ -46,7 +47,7 @@ class MultiProfilePagerAdapterTest {
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(personalListAdapter),
-                object : MultiProfilePagerAdapter.EmptyStateProvider {},
+                object : EmptyStateProvider {},
                 { false },
                 PROFILE_PERSONAL,
                 null,
@@ -80,7 +81,7 @@ class MultiProfilePagerAdapterTest {
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(personalListAdapter, workListAdapter),
-                object : MultiProfilePagerAdapter.EmptyStateProvider {},
+                object : EmptyStateProvider {},
                 { false },
                 PROFILE_PERSONAL,
                 WORK_USER_HANDLE, // TODO: why does this test pass even if this is null?
@@ -119,7 +120,7 @@ class MultiProfilePagerAdapterTest {
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(personalListAdapter, workListAdapter),
-                object : MultiProfilePagerAdapter.EmptyStateProvider {},
+                object : EmptyStateProvider {},
                 { false },
                 PROFILE_WORK, // <-- This test specifically requests we start on work profile.
                 WORK_USER_HANDLE, // TODO: why does this test pass even if this is null?
@@ -159,7 +160,7 @@ class MultiProfilePagerAdapterTest {
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(),
-                object : MultiProfilePagerAdapter.EmptyStateProvider {},
+                object : EmptyStateProvider {},
                 { false },
                 PROFILE_PERSONAL,
                 null,
@@ -187,7 +188,7 @@ class MultiProfilePagerAdapterTest {
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(),
-                object : MultiProfilePagerAdapter.EmptyStateProvider {},
+                object : EmptyStateProvider {},
                 { false },
                 PROFILE_PERSONAL,
                 null,
@@ -221,7 +222,7 @@ class MultiProfilePagerAdapterTest {
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(personalListAdapter, workListAdapter),
-                object : MultiProfilePagerAdapter.EmptyStateProvider {},
+                object : EmptyStateProvider {},
                 { true }, // <-- Work mode is quiet.
                 PROFILE_WORK,
                 WORK_USER_HANDLE,
@@ -255,7 +256,7 @@ class MultiProfilePagerAdapterTest {
                     listView.setAdapter(bindAdapter)
                 },
                 ImmutableList.of(personalListAdapter, workListAdapter),
-                object : MultiProfilePagerAdapter.EmptyStateProvider {},
+                object : EmptyStateProvider {},
                 { false }, // <-- Work mode is not quiet.
                 PROFILE_WORK,
                 WORK_USER_HANDLE,

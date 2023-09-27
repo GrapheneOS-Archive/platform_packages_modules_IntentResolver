@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver;
+package com.android.intentresolver.emptystate;
 
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_NO_PERSONAL_APPS;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_NO_WORK_APPS;
@@ -28,8 +28,8 @@ import android.content.pm.ResolveInfo;
 import android.os.UserHandle;
 import android.stats.devicepolicy.nano.DevicePolicyEnums;
 
-import com.android.intentresolver.MultiProfilePagerAdapter.EmptyState;
-import com.android.intentresolver.MultiProfilePagerAdapter.EmptyStateProvider;
+import com.android.intentresolver.ResolvedComponentInfo;
+import com.android.intentresolver.ResolverListAdapter;
 import com.android.internal.R;
 
 import java.util.List;
@@ -76,12 +76,12 @@ public class NoAppsAvailableEmptyStateProvider implements EmptyStateProvider {
                 title = mContext.getSystemService(
                         DevicePolicyManager.class).getResources().getString(
                         RESOLVER_NO_PERSONAL_APPS,
-                        () -> mContext.getString(R.string.resolver_no_personal_apps_available));
+                            () -> mContext.getString(R.string.resolver_no_personal_apps_available));
             } else {
                 title = mContext.getSystemService(
                         DevicePolicyManager.class).getResources().getString(
                         RESOLVER_NO_WORK_APPS,
-                        () -> mContext.getString(R.string.resolver_no_work_apps_available));
+                            () -> mContext.getString(R.string.resolver_no_work_apps_available));
             }
 
             return new NoAppsAvailableEmptyState(

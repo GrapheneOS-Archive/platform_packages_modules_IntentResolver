@@ -33,6 +33,7 @@ import static android.content.PermissionChecker.PID_UNKNOWN;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_PERSONAL;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_WORK;
 import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
+
 import static com.android.internal.annotations.VisibleForTesting.Visibility.PROTECTED;
 
 import android.annotation.Nullable;
@@ -98,15 +99,19 @@ import android.widget.Toast;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
 
-import com.android.intentresolver.MultiProfilePagerAdapter.CompositeEmptyStateProvider;
-import com.android.intentresolver.MultiProfilePagerAdapter.CrossProfileIntentsChecker;
-import com.android.intentresolver.MultiProfilePagerAdapter.EmptyStateProvider;
 import com.android.intentresolver.MultiProfilePagerAdapter.MyUserIdProvider;
 import com.android.intentresolver.MultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener;
 import com.android.intentresolver.MultiProfilePagerAdapter.Profile;
-import com.android.intentresolver.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.emptystate.CompositeEmptyStateProvider;
+import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
+import com.android.intentresolver.emptystate.EmptyState;
+import com.android.intentresolver.emptystate.EmptyStateProvider;
+import com.android.intentresolver.emptystate.NoAppsAvailableEmptyStateProvider;
+import com.android.intentresolver.emptystate.NoCrossProfileEmptyStateProvider;
+import com.android.intentresolver.emptystate.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
+import com.android.intentresolver.emptystate.WorkProfilePausedEmptyStateProvider;
 import com.android.intentresolver.icons.DefaultTargetDataLoader;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
@@ -521,9 +526,9 @@ public class ResolverActivity extends FragmentActivity implements
             return new EmptyStateProvider() {};
         }
 
-        final MultiProfilePagerAdapter.EmptyState
-                noWorkToPersonalEmptyState =
-                new DevicePolicyBlockerEmptyState(/* context= */ this,
+        final EmptyState noWorkToPersonalEmptyState =
+                new DevicePolicyBlockerEmptyState(
+                        /* context= */ this,
                         /* devicePolicyStringTitleId= */ RESOLVER_CROSS_PROFILE_BLOCKED_TITLE,
                         /* defaultTitleResource= */ R.string.resolver_cross_profile_blocked,
                         /* devicePolicyStringSubtitleId= */ RESOLVER_CANT_ACCESS_PERSONAL,
@@ -533,8 +538,9 @@ public class ResolverActivity extends FragmentActivity implements
                         /* devicePolicyEventCategory= */
                                 ResolverActivity.METRICS_CATEGORY_RESOLVER);
 
-        final MultiProfilePagerAdapter.EmptyState noPersonalToWorkEmptyState =
-                new DevicePolicyBlockerEmptyState(/* context= */ this,
+        final EmptyState noPersonalToWorkEmptyState =
+                new DevicePolicyBlockerEmptyState(
+                        /* context= */ this,
                         /* devicePolicyStringTitleId= */ RESOLVER_CROSS_PROFILE_BLOCKED_TITLE,
                         /* defaultTitleResource= */ R.string.resolver_cross_profile_blocked,
                         /* devicePolicyStringSubtitleId= */ RESOLVER_CANT_ACCESS_WORK,
