@@ -38,7 +38,7 @@ import java.util.function.Supplier;
  * A {@link PagerAdapter} which describes the work and personal profile share sheet screens.
  */
 @VisibleForTesting
-public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAdapter<
+public class ChooserMultiProfilePagerAdapter extends MultiProfilePagerAdapter<
         RecyclerView, ChooserGridAdapter, ChooserListAdapter> {
     private static final int SINGLE_CELL_SPAN_SIZE = 1;
 
@@ -103,7 +103,6 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
             BottomPaddingOverrideSupplier bottomPaddingOverrideSupplier,
             FeatureFlags featureFlags) {
         super(
-                context,
                         gridAdapter -> gridAdapter.getListAdapter(),
                 adapterBinder,
                 gridAdapters,
@@ -149,7 +148,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
     }
 
     @Override
-    boolean rebuildActiveTab(boolean doPostProcessing) {
+    public boolean rebuildActiveTab(boolean doPostProcessing) {
         if (doPostProcessing) {
             Tracer.INSTANCE.beginAppTargetLoadingSection(getActiveListAdapter().getUserHandle());
         }
@@ -157,7 +156,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
     }
 
     @Override
-    boolean rebuildInactiveTab(boolean doPostProcessing) {
+    public boolean rebuildInactiveTab(boolean doPostProcessing) {
         if (getItemCount() != 1 && doPostProcessing) {
             Tracer.INSTANCE.beginAppTargetLoadingSection(getInactiveListAdapter().getUserHandle());
         }

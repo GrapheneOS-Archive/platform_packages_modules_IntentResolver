@@ -36,7 +36,7 @@ import java.util.function.Supplier;
  */
 @VisibleForTesting
 public class ResolverMultiProfilePagerAdapter extends
-        GenericMultiProfilePagerAdapter<ListView, ResolverListAdapter, ResolverListAdapter> {
+        MultiProfilePagerAdapter<ListView, ResolverListAdapter, ResolverListAdapter> {
     private final BottomPaddingOverrideSupplier mBottomPaddingOverrideSupplier;
 
     ResolverMultiProfilePagerAdapter(
@@ -86,7 +86,6 @@ public class ResolverMultiProfilePagerAdapter extends
             UserHandle cloneProfileUserHandle,
             BottomPaddingOverrideSupplier bottomPaddingOverrideSupplier) {
         super(
-                context,
                         listAdapter -> listAdapter,
                         (listView, bindAdapter) -> listView.setAdapter(bindAdapter),
                 listAdapters,
