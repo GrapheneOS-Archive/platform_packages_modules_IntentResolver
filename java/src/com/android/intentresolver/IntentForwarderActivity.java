@@ -309,7 +309,7 @@ public class IntentForwarderActivity extends Activity  {
      * Check whether the intent can be forwarded to target user. Return the intent used for
      * forwarding if it can be forwarded, {@code null} otherwise.
      */
-    static Intent canForward(Intent incomingIntent, int sourceUserId, int targetUserId,
+    public static Intent canForward(Intent incomingIntent, int sourceUserId, int targetUserId,
             IPackageManager packageManager, ContentResolver contentResolver)  {
         Intent forwardIntent = new Intent(incomingIntent);
         forwardIntent.addFlags(

@@ -24,6 +24,7 @@ import android.widget.ListView;
 
 import androidx.viewpager.widget.PagerAdapter;
 
+import com.android.intentresolver.emptystate.EmptyStateProvider;
 import com.android.internal.annotations.VisibleForTesting;
 
 import com.google.common.collect.ImmutableList;

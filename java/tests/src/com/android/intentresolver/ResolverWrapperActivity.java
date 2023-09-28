@@ -34,10 +34,10 @@ import android.util.Pair;
 import androidx.annotation.NonNull;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
-import com.android.intentresolver.MultiProfilePagerAdapter.CrossProfileIntentsChecker;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
 import com.android.intentresolver.icons.TargetDataLoader;
 
 import java.util.List;

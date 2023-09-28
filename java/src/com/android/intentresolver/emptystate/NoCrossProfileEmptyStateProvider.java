@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver;
+package com.android.intentresolver.emptystate;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -24,9 +24,7 @@ import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.os.UserHandle;
 
-import com.android.intentresolver.MultiProfilePagerAdapter.CrossProfileIntentsChecker;
-import com.android.intentresolver.MultiProfilePagerAdapter.EmptyState;
-import com.android.intentresolver.MultiProfilePagerAdapter.EmptyStateProvider;
+import com.android.intentresolver.ResolverListAdapter;
 
 /**
  * Empty state provider that does not allow cross profile sharing, it will return a blocker
