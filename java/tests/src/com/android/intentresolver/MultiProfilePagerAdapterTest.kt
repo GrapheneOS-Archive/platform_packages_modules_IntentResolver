@@ -17,7 +17,9 @@
 package com.android.intentresolver
 
 import android.os.UserHandle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ListView
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.intentresolver.MultiProfilePagerAdapter.PROFILE_PERSONAL
@@ -26,6 +28,7 @@ import com.android.intentresolver.emptystate.EmptyStateProvider
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import java.util.Optional
+import java.util.function.Supplier
 import org.junit.Test
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
@@ -35,6 +38,10 @@ class MultiProfilePagerAdapterTest {
     private val WORK_USER_HANDLE = UserHandle.of(20)
 
     private val context = InstrumentationRegistry.getInstrumentation().getContext()
+    private val inflater = Supplier {
+        LayoutInflater.from(context).inflate(R.layout.resolver_list_per_profile, null, false)
+            as ViewGroup
+    }
 
     @Test
     fun testSinglePageProfileAdapter() {
@@ -52,7 +59,7 @@ class MultiProfilePagerAdapterTest {
                 PROFILE_PERSONAL,
                 null,
                 null,
-                { ListView(context) },
+                inflater,
                 { Optional.empty() }
             )
         assertThat(pagerAdapter.count).isEqualTo(1)
@@ -86,7 +93,7 @@ class MultiProfilePagerAdapterTest {
                 PROFILE_PERSONAL,
                 WORK_USER_HANDLE, // TODO: why does this test pass even if this is null?
                 null,
-                { ListView(context) },
+                inflater,
                 { Optional.empty() }
             )
         assertThat(pagerAdapter.count).isEqualTo(2)
@@ -125,7 +132,7 @@ class MultiProfilePagerAdapterTest {
                 PROFILE_WORK, // <-- This test specifically requests we start on work profile.
                 WORK_USER_HANDLE, // TODO: why does this test pass even if this is null?
                 null,
-                { ListView(context) },
+                inflater,
                 { Optional.empty() }
             )
         assertThat(pagerAdapter.count).isEqualTo(2)
@@ -165,7 +172,7 @@ class MultiProfilePagerAdapterTest {
                 PROFILE_PERSONAL,
                 null,
                 null,
-                { ListView(context) },
+                inflater,
                 { Optional.empty() }
             )
         pagerAdapter.setupContainerPadding(container)
@@ -193,7 +200,7 @@ class MultiProfilePagerAdapterTest {
                 PROFILE_PERSONAL,
                 null,
                 null,
-                { ListView(context) },
+                inflater,
                 { Optional.of(42) }
             )
         pagerAdapter.setupContainerPadding(container)
@@ -227,7 +234,7 @@ class MultiProfilePagerAdapterTest {
                 PROFILE_WORK,
                 WORK_USER_HANDLE,
                 null,
-                { ListView(context) },
+                inflater,
                 { Optional.empty() }
             )
         assertThat(pagerAdapter.shouldShowEmptyStateScreen(workListAdapter)).isTrue()
@@ -261,7 +268,7 @@ class MultiProfilePagerAdapterTest {
                 PROFILE_WORK,
                 WORK_USER_HANDLE,
                 null,
-                { ListView(context) },
+                inflater,
                 { Optional.empty() }
             )
         assertThat(pagerAdapter.shouldShowEmptyStateScreen(workListAdapter)).isFalse()
