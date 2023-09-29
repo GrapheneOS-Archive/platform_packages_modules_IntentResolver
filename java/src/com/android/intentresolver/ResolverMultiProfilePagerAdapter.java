@@ -40,7 +40,7 @@ public class ResolverMultiProfilePagerAdapter extends
         MultiProfilePagerAdapter<ListView, ResolverListAdapter, ResolverListAdapter> {
     private final BottomPaddingOverrideSupplier mBottomPaddingOverrideSupplier;
 
-    ResolverMultiProfilePagerAdapter(
+    public ResolverMultiProfilePagerAdapter(
             Context context,
             ResolverListAdapter adapter,
             EmptyStateProvider emptyStateProvider,
@@ -58,14 +58,14 @@ public class ResolverMultiProfilePagerAdapter extends
                 new BottomPaddingOverrideSupplier());
     }
 
-    ResolverMultiProfilePagerAdapter(Context context,
-            ResolverListAdapter personalAdapter,
-            ResolverListAdapter workAdapter,
-            EmptyStateProvider emptyStateProvider,
-            Supplier<Boolean> workProfileQuietModeChecker,
-            @Profile int defaultProfile,
-            UserHandle workProfileUserHandle,
-            UserHandle cloneProfileUserHandle) {
+    public ResolverMultiProfilePagerAdapter(Context context,
+                                            ResolverListAdapter personalAdapter,
+                                            ResolverListAdapter workAdapter,
+                                            EmptyStateProvider emptyStateProvider,
+                                            Supplier<Boolean> workProfileQuietModeChecker,
+                                            @Profile int defaultProfile,
+                                            UserHandle workProfileUserHandle,
+                                            UserHandle cloneProfileUserHandle) {
         this(
                 context,
                 ImmutableList.of(personalAdapter, workAdapter),

@@ -333,7 +333,7 @@ public class ResolverListController {
                 && ai.name.equals(b.name.getClassName());
     }
 
-    boolean isComponentFiltered(ComponentName componentName) {
+    public boolean isComponentFiltered(ComponentName componentName) {
         return false;
     }
 

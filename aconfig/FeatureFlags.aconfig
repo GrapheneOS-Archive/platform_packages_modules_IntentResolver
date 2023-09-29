@@ -24,3 +24,10 @@ flag {
   description: "Enables caching target icons and labels in a local DB"
   bug: "285314844"
 }
+
+flag {
+  name: "modular_framework"
+  namespace: "intentresolver"
+  description: "Enables the new modular framework"
+  bug: "302113519"
+}

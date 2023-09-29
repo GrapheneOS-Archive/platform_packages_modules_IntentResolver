@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver;
+package com.android.intentresolver.v2;
 
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_ACCESS_PERSONAL;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_ACCESS_WORK;
@@ -23,9 +23,9 @@ import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CROSS_PROFILE_BLOCKED_TITLE;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_PERSONAL;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_WORK;
-
 import static androidx.lifecycle.LifecycleKt.getCoroutineScope;
-
+import static com.android.intentresolver.v2.ResolverActivity.PROFILE_PERSONAL;
+import static com.android.intentresolver.v2.ResolverActivity.PROFILE_WORK;
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
 
 import android.annotation.IntDef;
@@ -74,6 +74,23 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import com.android.intentresolver.ChooserActionFactory;
+import com.android.intentresolver.ChooserGridLayoutManager;
+import com.android.intentresolver.ChooserIntegratedDeviceComponents;
+import com.android.intentresolver.ChooserListAdapter;
+import com.android.intentresolver.ChooserMultiProfilePagerAdapter;
+import com.android.intentresolver.ChooserRefinementManager;
+import com.android.intentresolver.ChooserRequestParameters;
+import com.android.intentresolver.ChooserStackedAppDialogFragment;
+import com.android.intentresolver.ChooserTargetActionsDialogFragment;
+import com.android.intentresolver.EnterTransitionAnimationDelegate;
+import com.android.intentresolver.FeatureFlags;
+import com.android.intentresolver.IntentForwarderActivity;
+import com.android.intentresolver.R;
+import com.android.intentresolver.ResolverListAdapter;
+import com.android.intentresolver.ResolverListController;
+import com.android.intentresolver.ResolverViewPager;
+import com.android.intentresolver.SecureSettings;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
@@ -96,11 +113,10 @@ import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.intentresolver.widget.ImagePreviewView;
+import com.android.intentresolver.v2.Hilt_ChooserActivity;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.content.PackageMonitor;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
-
-import dagger.hilt.android.AndroidEntryPoint;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -117,6 +133,8 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 
 /**
  * The Chooser Activity handles intent resolution specifically for sharing intents -

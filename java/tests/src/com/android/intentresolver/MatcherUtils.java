@@ -29,7 +29,7 @@ public class MatcherUtils {
     /**
      * Returns a {@link Matcher} which only matches the first occurrence of a set criteria.
      */
-    static <T> Matcher<T> first(final Matcher<T> matcher) {
+    public static <T> Matcher<T> first(final Matcher<T> matcher) {
         return new BaseMatcher<T>() {
             boolean isFirstMatch = true;
 

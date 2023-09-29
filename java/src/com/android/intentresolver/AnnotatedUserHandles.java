@@ -105,7 +105,7 @@ public final class AnnotatedUserHandles {
                 .build();
     }
 
-    @VisibleForTesting static Builder newBuilder() {
+    @VisibleForTesting public static Builder newBuilder() {
         return new Builder();
     }
 
@@ -173,7 +173,7 @@ public final class AnnotatedUserHandles {
     }
 
     @VisibleForTesting
-    static class Builder {
+    public static class Builder {
         private int mUserIdOfCallingApp;
         private UserHandle mUserHandleSharesheetLaunchedAs;
         private UserHandle mPersonalProfileUserHandle;
