@@ -29,6 +29,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.android.intentresolver.emptystate.EmptyState;
 import com.android.intentresolver.emptystate.EmptyStateProvider;
+import com.android.intentresolver.emptystate.EmptyStateUiHelper;
 import com.android.internal.annotations.VisibleForTesting;
 
 import com.google.common.collect.ImmutableList;
@@ -424,7 +425,7 @@ public class MultiProfilePagerAdapter<
             clickListener = v -> emptyState.getButtonClickListener().onClick(() -> {
                 ProfileDescriptor<PageViewT, SinglePageAdapterT> descriptor = getItem(
                         userHandleToPageIndex(listAdapter.getUserHandle()));
-                MultiProfilePagerAdapter.this.showSpinner(descriptor.getEmptyStateView());
+                descriptor.mEmptyStateUi.showSpinner();
             });
         }
 
@@ -451,9 +452,9 @@ public class MultiProfilePagerAdapter<
                 userHandleToPageIndex(activeListAdapter.getUserHandle()));
         descriptor.mRootView.findViewById(
                 com.android.internal.R.id.resolver_list).setVisibility(View.GONE);
+        descriptor.mEmptyStateUi.resetViewVisibilities();
+
         ViewGroup emptyStateView = descriptor.getEmptyStateView();
-        resetViewVisibilitiesForEmptyState(emptyStateView);
-        emptyStateView.setVisibility(View.VISIBLE);
 
         View container = emptyStateView.findViewById(
                 com.android.internal.R.id.resolver_empty_state_container);
@@ -504,36 +505,12 @@ public class MultiProfilePagerAdapter<
                     paddingBottom));
     }
 
-    private void showSpinner(View emptyStateView) {
-        emptyStateView.findViewById(com.android.internal.R.id.resolver_empty_state_title)
-                .setVisibility(View.INVISIBLE);
-        emptyStateView.findViewById(com.android.internal.R.id.resolver_empty_state_button)
-                .setVisibility(View.INVISIBLE);
-        emptyStateView.findViewById(com.android.internal.R.id.resolver_empty_state_progress)
-                .setVisibility(View.VISIBLE);
-        emptyStateView.findViewById(com.android.internal.R.id.empty).setVisibility(View.GONE);
-    }
-
-    private void resetViewVisibilitiesForEmptyState(View emptyStateView) {
-        emptyStateView.findViewById(com.android.internal.R.id.resolver_empty_state_title)
-                .setVisibility(View.VISIBLE);
-        emptyStateView.findViewById(com.android.internal.R.id.resolver_empty_state_subtitle)
-                .setVisibility(View.VISIBLE);
-        emptyStateView.findViewById(com.android.internal.R.id.resolver_empty_state_button)
-                .setVisibility(View.INVISIBLE);
-        emptyStateView.findViewById(com.android.internal.R.id.resolver_empty_state_progress)
-                .setVisibility(View.GONE);
-        emptyStateView.findViewById(com.android.internal.R.id.empty).setVisibility(View.GONE);
-    }
-
     protected void showListView(ListAdapterT activeListAdapter) {
         ProfileDescriptor<PageViewT, SinglePageAdapterT> descriptor = getItem(
                 userHandleToPageIndex(activeListAdapter.getUserHandle()));
         descriptor.mRootView.findViewById(
                 com.android.internal.R.id.resolver_list).setVisibility(View.VISIBLE);
-        View emptyStateView = descriptor.mRootView.findViewById(
-                com.android.internal.R.id.resolver_empty_state);
-        emptyStateView.setVisibility(View.GONE);
+        descriptor.mEmptyStateUi.hide();
     }
 
     public boolean shouldShowEmptyStateScreen(ListAdapterT listAdapter) {
@@ -547,6 +524,10 @@ public class MultiProfilePagerAdapter<
     // should be the owner of all per-profile data (especially now that the API is generic)?
     private static class ProfileDescriptor<PageViewT, SinglePageAdapterT> {
         final ViewGroup mRootView;
+        final EmptyStateUiHelper mEmptyStateUi;
+
+        // TODO: post-refactoring, we may not need to retain these ivars directly (since they may
+        // be encapsulated within the `EmptyStateUiHelper`?).
         private final ViewGroup mEmptyStateView;
 
         private final SinglePageAdapterT mAdapter;
@@ -557,6 +538,7 @@ public class MultiProfilePagerAdapter<
             mAdapter = adapter;
             mEmptyStateView = rootView.findViewById(com.android.internal.R.id.resolver_empty_state);
             mView = (PageViewT) rootView.findViewById(com.android.internal.R.id.resolver_list);
+            mEmptyStateUi = new EmptyStateUiHelper(rootView);
         }
 
         protected ViewGroup getEmptyStateView() {

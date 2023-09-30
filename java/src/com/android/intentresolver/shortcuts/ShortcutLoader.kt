@@ -75,7 +75,9 @@ constructor(
 ) {
     private val shortcutToChooserTargetConverter = ShortcutToChooserTargetConverter()
     private val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
-    private val appPredictorCallback = AppPredictor.Callback { onAppPredictorCallback(it) }
+    private val appPredictorCallback =
+        ScopedAppTargetListCallback(scope) { onAppPredictorCallback(it) }.toAppPredictorCallback()
+
     private val appTargetSource =
         MutableSharedFlow<Array<DisplayResolveInfo>?>(
             replay = 1,
