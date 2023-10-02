@@ -56,7 +56,7 @@
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # fil}other{+ # filer}}"</string>
     <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{och # fil till}other{och # filer till}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Delar text"</string>
-    <string name="sharing_link" msgid="2307694372813942916">"Delar länk"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Delningslänk"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Delar bild}other{Delar # bilder}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Delar video}other{Delar # videor}}"</string>
     <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Delar # fil}other{Delar # filer}}"</string>
