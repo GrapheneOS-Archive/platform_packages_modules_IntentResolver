@@ -68,7 +68,7 @@ public class ResolverListAdapter extends BaseAdapter {
     protected final Context mContext;
     protected final LayoutInflater mInflater;
     protected final ResolverListCommunicator mResolverListCommunicator;
-    protected final ResolverListController mResolverListController;
+    public final ResolverListController mResolverListController;
 
     private final List<Intent> mIntents;
     private final Intent[] mInitialIntents;
@@ -229,7 +229,7 @@ public class ResolverListAdapter extends BaseAdapter {
                 packageName, userHandle, action);
     }
 
-    List<ResolvedComponentInfo> getUnfilteredResolveList() {
+    public List<ResolvedComponentInfo> getUnfilteredResolveList() {
         return mUnfilteredResolveList;
     }
 
@@ -808,7 +808,7 @@ public class ResolverListAdapter extends BaseAdapter {
         return mContext.getDrawable(R.drawable.resolver_icon_placeholder);
     }
 
-    void loadFilteredItemIconTaskAsync(@NonNull ImageView iconView) {
+    public void loadFilteredItemIconTaskAsync(@NonNull ImageView iconView) {
         final DisplayResolveInfo iconInfo = getFilteredItem();
         if (iconInfo != null) {
             mTargetDataLoader.loadAppTargetIcon(
@@ -834,7 +834,7 @@ public class ResolverListAdapter extends BaseAdapter {
         return mIntents;
     }
 
-    protected boolean isTabLoaded() {
+    public boolean isTabLoaded() {
         return mIsTabLoaded;
     }
 
@@ -893,7 +893,7 @@ public class ResolverListAdapter extends BaseAdapter {
      * Necessary methods to communicate between {@link ResolverListAdapter}
      * and {@link ResolverActivity}.
      */
-    interface ResolverListCommunicator {
+    public interface ResolverListCommunicator {
 
         Intent getReplacementIntent(ActivityInfo activityInfo, Intent defIntent);
 

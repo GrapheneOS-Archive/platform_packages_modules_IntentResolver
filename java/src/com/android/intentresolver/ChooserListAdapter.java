@@ -413,7 +413,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
         }
     }
 
-    void updateAlphabeticalList() {
+    public void updateAlphabeticalList() {
         final ChooserActivity.AzInfoComparator comparator =
                 new ChooserActivity.AzInfoComparator(mContext);
         final List<DisplayResolveInfo> allTargets = new ArrayList<>();

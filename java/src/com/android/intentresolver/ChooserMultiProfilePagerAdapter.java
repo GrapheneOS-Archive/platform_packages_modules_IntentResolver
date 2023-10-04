@@ -46,7 +46,7 @@ public class ChooserMultiProfilePagerAdapter extends MultiProfilePagerAdapter<
     private final ChooserProfileAdapterBinder mAdapterBinder;
     private final BottomPaddingOverrideSupplier mBottomPaddingOverrideSupplier;
 
-    ChooserMultiProfilePagerAdapter(
+    public ChooserMultiProfilePagerAdapter(
             Context context,
             ChooserGridAdapter adapter,
             EmptyStateProvider emptyStateProvider,
@@ -68,7 +68,7 @@ public class ChooserMultiProfilePagerAdapter extends MultiProfilePagerAdapter<
                 featureFlags);
     }
 
-    ChooserMultiProfilePagerAdapter(
+    public ChooserMultiProfilePagerAdapter(
             Context context,
             ChooserGridAdapter personalAdapter,
             ChooserGridAdapter workAdapter,

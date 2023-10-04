@@ -49,7 +49,7 @@ public class ChooserIntegratedDeviceComponents {
     }
 
     @VisibleForTesting
-    ChooserIntegratedDeviceComponents(
+    public ChooserIntegratedDeviceComponents(
             ComponentName editSharingComponent, ComponentName nearbySharingComponent) {
         mEditSharingComponent = editSharingComponent;
         mNearbySharingComponent = nearbySharingComponent;

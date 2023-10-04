@@ -79,11 +79,11 @@ public class MultiProfilePagerAdapter<
         void bind(PageViewT view, SinglePageAdapterT adapter);
     }
 
-    static final int PROFILE_PERSONAL = 0;
-    static final int PROFILE_WORK = 1;
+    public static final int PROFILE_PERSONAL = 0;
+    public static final int PROFILE_WORK = 1;
 
     @IntDef({PROFILE_PERSONAL, PROFILE_WORK})
-    @interface Profile {}
+    public @interface Profile {}
 
     private final Function<SinglePageAdapterT, ListAdapterT> mListAdapterExtractor;
     private final AdapterBinder<PageViewT, SinglePageAdapterT> mAdapterBinder;
@@ -197,7 +197,7 @@ public class MultiProfilePagerAdapter<
         return getItemCount();
     }
 
-    protected int getCurrentPage() {
+    public int getCurrentPage() {
         return mCurrentPage;
     }
 
@@ -234,7 +234,7 @@ public class MultiProfilePagerAdapter<
         return mItems.get(pageIndex);
     }
 
-    protected ViewGroup getEmptyStateView(int pageIndex) {
+    public ViewGroup getEmptyStateView(int pageIndex) {
         return getItem(pageIndex).getEmptyStateView();
     }
 
@@ -266,7 +266,7 @@ public class MultiProfilePagerAdapter<
      * Performs view-related initialization procedures for the adapter specified
      * by <code>pageIndex</code>.
      */
-    protected final void setupListAdapter(int pageIndex) {
+    public final void setupListAdapter(int pageIndex) {
         mAdapterBinder.bind(getListViewForIndex(pageIndex), getAdapterForIndex(pageIndex));
     }
 
@@ -278,7 +278,7 @@ public class MultiProfilePagerAdapter<
      * with <code>UserHandle.of(10)</code> returns the work profile {@link ListAdapterT}.
      */
     @Nullable
-    protected final ListAdapterT getListAdapterForUserHandle(UserHandle userHandle) {
+    public final ListAdapterT getListAdapterForUserHandle(UserHandle userHandle) {
         if (getPersonalListAdapter().getUserHandle().equals(userHandle)
                 || userHandle.equals(getCloneUserHandle())) {
             return getPersonalListAdapter();
@@ -297,7 +297,7 @@ public class MultiProfilePagerAdapter<
      * @see #getInactiveListAdapter()
      */
     @VisibleForTesting
-    protected final ListAdapterT getActiveListAdapter() {
+    public final ListAdapterT getActiveListAdapter() {
         return mListAdapterExtractor.apply(getAdapterForIndex(getCurrentPage()));
     }
 
@@ -311,7 +311,7 @@ public class MultiProfilePagerAdapter<
      */
     @VisibleForTesting
     @Nullable
-    protected final ListAdapterT getInactiveListAdapter() {
+    public final ListAdapterT getInactiveListAdapter() {
         if (getCount() < 2) {
             return null;
         }
@@ -330,16 +330,16 @@ public class MultiProfilePagerAdapter<
         return mListAdapterExtractor.apply(getAdapterForIndex(PROFILE_WORK));
     }
 
-    protected final SinglePageAdapterT getCurrentRootAdapter() {
+    public final SinglePageAdapterT getCurrentRootAdapter() {
         return getAdapterForIndex(getCurrentPage());
     }
 
-    protected final PageViewT getActiveAdapterView() {
+    public final PageViewT getActiveAdapterView() {
         return getListViewForIndex(getCurrentPage());
     }
 
     @Nullable
-    protected final PageViewT getInactiveAdapterView() {
+    public final PageViewT getInactiveAdapterView() {
         if (getCount() < 2) {
             return null;
         }
@@ -505,7 +505,7 @@ public class MultiProfilePagerAdapter<
                     paddingBottom));
     }
 
-    protected void showListView(ListAdapterT activeListAdapter) {
+    public void showListView(ListAdapterT activeListAdapter) {
         ProfileDescriptor<PageViewT, SinglePageAdapterT> descriptor = getItem(
                 userHandleToPageIndex(activeListAdapter.getUserHandle()));
         descriptor.mRootView.findViewById(

@@ -27,6 +27,8 @@
         <uses-library android:name="android.test.runner" />
         <activity android:name="com.android.intentresolver.ChooserWrapperActivity" />
         <activity android:name="com.android.intentresolver.ResolverWrapperActivity" />
+        <activity android:name="com.android.intentresolver.v2.ChooserWrapperActivity" />
+        <activity android:name="com.android.intentresolver.v2.ResolverWrapperActivity" />
         <provider
             android:authorities="com.android.intentresolver.tests"
             android:name="com.android.intentresolver.TestContentProvider"
