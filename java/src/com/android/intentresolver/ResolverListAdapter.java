@@ -252,7 +252,7 @@ public class ResolverListAdapter extends BaseAdapter {
      * with {@code rebuildCompleted} true at the end of some newly-launched asynchronous work.
      * Otherwise the callback is only queued once, with {@code rebuildCompleted} true.
      */
-    protected boolean rebuildList(boolean doPostProcessing) {
+    public boolean rebuildList(boolean doPostProcessing) {
         Trace.beginSection("ResolverListAdapter#rebuildList");
         mDisplayList.clear();
         mIsTabLoaded = false;
@@ -545,7 +545,7 @@ public class ResolverListAdapter extends BaseAdapter {
      *                         after the list has been rebuilt
      * @param rebuildCompleted Whether the list has been completely rebuilt
      */
-    void postListReadyRunnable(boolean doPostProcessing, boolean rebuildCompleted) {
+    public void postListReadyRunnable(boolean doPostProcessing, boolean rebuildCompleted) {
         Runnable listReadyRunnable = new Runnable() {
             @Override
             public void run() {
@@ -838,7 +838,7 @@ public class ResolverListAdapter extends BaseAdapter {
         return mIsTabLoaded;
     }
 
-    protected void markTabLoaded() {
+    public void markTabLoaded() {
         mIsTabLoaded = true;
     }
 

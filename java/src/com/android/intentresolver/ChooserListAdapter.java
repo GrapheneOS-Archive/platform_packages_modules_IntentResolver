@@ -293,7 +293,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
     }
 
     @Override
-    protected boolean rebuildList(boolean doPostProcessing) {
+    public boolean rebuildList(boolean doPostProcessing) {
         mAnimationTracker.reset();
         mSortedList.clear();
         boolean result = super.rebuildList(doPostProcessing);

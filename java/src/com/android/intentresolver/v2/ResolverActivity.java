@@ -33,6 +33,7 @@ import static android.content.PermissionChecker.PID_UNKNOWN;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_PERSONAL;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_WORK;
 import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
+
 import static com.android.internal.annotations.VisibleForTesting.Visibility.PROTECTED;
 
 import android.annotation.Nullable;
@@ -99,14 +100,9 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
 
 import com.android.intentresolver.AnnotatedUserHandles;
-import com.android.intentresolver.MultiProfilePagerAdapter;
-import com.android.intentresolver.MultiProfilePagerAdapter.MyUserIdProvider;
-import com.android.intentresolver.MultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener;
-import com.android.intentresolver.MultiProfilePagerAdapter.Profile;
 import com.android.intentresolver.R;
 import com.android.intentresolver.ResolverListAdapter;
 import com.android.intentresolver.ResolverListController;
-import com.android.intentresolver.ResolverMultiProfilePagerAdapter;
 import com.android.intentresolver.WorkProfileAvailabilityManager;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
@@ -121,6 +117,9 @@ import com.android.intentresolver.emptystate.WorkProfilePausedEmptyStateProvider
 import com.android.intentresolver.icons.DefaultTargetDataLoader;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
+import com.android.intentresolver.v2.MultiProfilePagerAdapter.MyUserIdProvider;
+import com.android.intentresolver.v2.MultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener;
+import com.android.intentresolver.v2.MultiProfilePagerAdapter.Profile;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.content.PackageMonitor;
