@@ -21,8 +21,6 @@ import android.os.Trace;
 import android.os.UserHandle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -414,6 +412,8 @@ public class MultiProfilePagerAdapter<
      * The intention is to prevent the user from having to turn
      * the work profile on if there will not be any apps resolved
      * anyway.
+     *
+     * TODO: move this comment to the place where we configure our composite provider.
      */
     public void showEmptyResolverListEmptyState(ListAdapterT listAdapter) {
         final EmptyState emptyState = mEmptyStateProvider.getEmptyState(listAdapter);
@@ -449,48 +449,13 @@ public class MultiProfilePagerAdapter<
         }
     }
 
-    protected void showEmptyState(
+    private void showEmptyState(
             ListAdapterT activeListAdapter,
             EmptyState emptyState,
             View.OnClickListener buttonOnClick) {
         ProfileDescriptor<PageViewT, SinglePageAdapterT> descriptor = getItem(
                 userHandleToPageIndex(activeListAdapter.getUserHandle()));
-        descriptor.mRootView.findViewById(
-                com.android.internal.R.id.resolver_list).setVisibility(View.GONE);
-        descriptor.mEmptyStateUi.resetViewVisibilities();
-        descriptor.setupContainerPadding();
-
-        ViewGroup emptyStateView = descriptor.getEmptyStateView();
-
-
-        TextView titleView = emptyStateView.findViewById(
-                com.android.internal.R.id.resolver_empty_state_title);
-        String title = emptyState.getTitle();
-        if (title != null) {
-            titleView.setVisibility(View.VISIBLE);
-            titleView.setText(title);
-        } else {
-            titleView.setVisibility(View.GONE);
-        }
-
-        TextView subtitleView = emptyStateView.findViewById(
-                com.android.internal.R.id.resolver_empty_state_subtitle);
-        String subtitle = emptyState.getSubtitle();
-        if (subtitle != null) {
-            subtitleView.setVisibility(View.VISIBLE);
-            subtitleView.setText(subtitle);
-        } else {
-            subtitleView.setVisibility(View.GONE);
-        }
-
-        View defaultEmptyText = emptyStateView.findViewById(com.android.internal.R.id.empty);
-        defaultEmptyText.setVisibility(emptyState.useDefaultEmptyView() ? View.VISIBLE : View.GONE);
-
-        Button button = emptyStateView.findViewById(
-                com.android.internal.R.id.resolver_empty_state_button);
-        button.setVisibility(buttonOnClick != null ? View.VISIBLE : View.GONE);
-        button.setOnClickListener(buttonOnClick);
-
+        descriptor.mEmptyStateUi.showEmptyState(emptyState, buttonOnClick);
         activeListAdapter.markTabLoaded();
     }
 
@@ -505,8 +470,6 @@ public class MultiProfilePagerAdapter<
     public void showListView(ListAdapterT activeListAdapter) {
         ProfileDescriptor<PageViewT, SinglePageAdapterT> descriptor = getItem(
                 userHandleToPageIndex(activeListAdapter.getUserHandle()));
-        descriptor.mRootView.findViewById(
-                com.android.internal.R.id.resolver_list).setVisibility(View.VISIBLE);
         descriptor.mEmptyStateUi.hide();
     }
 
@@ -538,8 +501,10 @@ public class MultiProfilePagerAdapter<
             mAdapter = adapter;
             mEmptyStateView = rootView.findViewById(com.android.internal.R.id.resolver_empty_state);
             mView = (PageViewT) rootView.findViewById(com.android.internal.R.id.resolver_list);
-            mEmptyStateUi =
-                    new EmptyStateUiHelper(rootView, containerBottomPaddingOverrideSupplier);
+            mEmptyStateUi = new EmptyStateUiHelper(
+                    rootView,
+                    com.android.internal.R.id.resolver_list,
+                    containerBottomPaddingOverrideSupplier);
         }
 
         protected ViewGroup getEmptyStateView() {
