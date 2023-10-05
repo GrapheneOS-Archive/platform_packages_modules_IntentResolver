@@ -21,19 +21,27 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import android.app.usage.UsageStatsManager;
+import android.annotation.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.util.Pair;
+
+import androidx.annotation.NonNull;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.android.intentresolver.AbstractMultiProfilePagerAdapter.CrossProfileIntentsChecker;
-import com.android.intentresolver.AbstractMultiProfilePagerAdapter.MyUserIdProvider;
+import com.android.intentresolver.chooser.DisplayResolveInfo;
+import com.android.intentresolver.chooser.SelectableTargetInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.icons.TargetDataLoader;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /*
@@ -41,7 +49,9 @@ import java.util.function.Function;
  */
 public class ResolverWrapperActivity extends ResolverActivity {
     static final OverrideData sOverrides = new OverrideData();
-    private UsageStatsManager mUsm;
+
+    private final CountingIdlingResource mLabelIdlingResource =
+            new CountingIdlingResource("LoadLabelTask");
 
     public ResolverWrapperActivity() {
         super(/* isIntentPicker= */ true);
@@ -54,11 +64,20 @@ public class ResolverWrapperActivity extends ResolverActivity {
         return 1234;
     }
 
+    public CountingIdlingResource getLabelIdlingResource() {
+        return mLabelIdlingResource;
+    }
+
     @Override
-    public ResolverListAdapter createResolverListAdapter(Context context,
-            List<Intent> payloadIntents, Intent[] initialIntents, List<ResolveInfo> rList,
-            boolean filterLastUsed, UserHandle userHandle) {
-        return new ResolverWrapperAdapter(
+    public ResolverListAdapter createResolverListAdapter(
+            Context context,
+            List<Intent> payloadIntents,
+            Intent[] initialIntents,
+            List<ResolveInfo> rList,
+            boolean filterLastUsed,
+            UserHandle userHandle,
+            TargetDataLoader targetDataLoader) {
+        return new ResolverListAdapter(
                 context,
                 payloadIntents,
                 initialIntents,
@@ -67,15 +86,9 @@ public class ResolverWrapperActivity extends ResolverActivity {
                 createListController(userHandle),
                 userHandle,
                 payloadIntents.get(0),  // TODO: extract upstream
-                this);
-    }
-
-    @Override
-    protected MyUserIdProvider createMyUserIdProvider() {
-        if (sOverrides.mMyUserIdProvider != null) {
-            return sOverrides.mMyUserIdProvider;
-        }
-        return super.createMyUserIdProvider();
+                this,
+                userHandle,
+                new TargetDataLoaderWrapper(targetDataLoader, mLabelIdlingResource));
     }
 
     @Override
@@ -94,8 +107,8 @@ public class ResolverWrapperActivity extends ResolverActivity {
         return super.createWorkProfileAvailabilityManager();
     }
 
-    ResolverWrapperAdapter getAdapter() {
-        return (ResolverWrapperAdapter) mMultiProfilePagerAdapter.getActiveListAdapter();
+    ResolverListAdapter getAdapter() {
+        return mMultiProfilePagerAdapter.getActiveListAdapter();
     }
 
     ResolverListAdapter getPersonalListAdapter() {
@@ -118,12 +131,13 @@ public class ResolverWrapperActivity extends ResolverActivity {
     }
 
     @Override
-    public void safelyStartActivity(TargetInfo cti) {
-        if (sOverrides.onSafelyStartCallback != null &&
-                sOverrides.onSafelyStartCallback.apply(cti)) {
+    public void safelyStartActivityInternal(TargetInfo cti, UserHandle user,
+            @Nullable Bundle options) {
+        if (sOverrides.onSafelyStartInternalCallback != null
+                && sOverrides.onSafelyStartInternalCallback.apply(new Pair<>(cti, user))) {
             return;
         }
-        super.safelyStartActivity(cti);
+        super.safelyStartActivityInternal(cti, user, options);
     }
 
     @Override
@@ -152,8 +166,19 @@ public class ResolverWrapperActivity extends ResolverActivity {
     }
 
     @Override
+    protected UserHandle getCloneProfileUserHandle() {
+        return sOverrides.cloneProfileUserHandle;
+    }
+
+    @Override
     public void startActivityAsUser(Intent intent, Bundle options, UserHandle user) {
         super.startActivityAsUser(intent, options, user);
+    }
+
+    @Override
+    protected List<UserHandle> getResolverRankerServiceUserHandleListInternal(UserHandle
+            userHandle) {
+        return super.getResolverRankerServiceUserHandleListInternal(userHandle);
     }
 
     /**
@@ -164,25 +189,28 @@ public class ResolverWrapperActivity extends ResolverActivity {
     static class OverrideData {
         @SuppressWarnings("Since15")
         public Function<PackageManager, PackageManager> createPackageManager;
-        public Function<TargetInfo, Boolean> onSafelyStartCallback;
+        public Function<Pair<TargetInfo, UserHandle>, Boolean> onSafelyStartInternalCallback;
         public ResolverListController resolverListController;
         public ResolverListController workResolverListController;
         public Boolean isVoiceInteraction;
         public UserHandle workProfileUserHandle;
+        public UserHandle cloneProfileUserHandle;
+        public UserHandle tabOwnerUserHandleForLaunch;
         public Integer myUserId;
         public boolean hasCrossProfileIntents;
         public boolean isQuietModeEnabled;
         public WorkProfileAvailabilityManager mWorkProfileAvailability;
-        public MyUserIdProvider mMyUserIdProvider;
         public CrossProfileIntentsChecker mCrossProfileIntentsChecker;
 
         public void reset() {
-            onSafelyStartCallback = null;
+            onSafelyStartInternalCallback = null;
             isVoiceInteraction = null;
             createPackageManager = null;
             resolverListController = mock(ResolverListController.class);
             workResolverListController = mock(ResolverListController.class);
             workProfileUserHandle = null;
+            cloneProfileUserHandle = null;
+            tabOwnerUserHandleForLaunch = null;
             myUserId = null;
             hasCrossProfileIntents = true;
             isQuietModeEnabled = false;
@@ -212,16 +240,55 @@ public class ResolverWrapperActivity extends ResolverActivity {
                 }
             };
 
-            mMyUserIdProvider = new MyUserIdProvider() {
-                @Override
-                public int getMyUserId() {
-                    return myUserId != null ? myUserId : UserHandle.myUserId();
-                }
-            };
-
             mCrossProfileIntentsChecker = mock(CrossProfileIntentsChecker.class);
             when(mCrossProfileIntentsChecker.hasCrossProfileIntents(any(), anyInt(), anyInt()))
                     .thenAnswer(invocation -> hasCrossProfileIntents);
+        }
+    }
+
+    private static class TargetDataLoaderWrapper extends TargetDataLoader {
+        private final TargetDataLoader mTargetDataLoader;
+        private final CountingIdlingResource mLabelIdlingResource;
+
+        private TargetDataLoaderWrapper(
+                TargetDataLoader targetDataLoader, CountingIdlingResource labelIdlingResource) {
+            mTargetDataLoader = targetDataLoader;
+            mLabelIdlingResource = labelIdlingResource;
+        }
+
+        @Override
+        public void loadAppTargetIcon(
+                @NonNull DisplayResolveInfo info,
+                @NonNull UserHandle userHandle,
+                @NonNull Consumer<Drawable> callback) {
+            mTargetDataLoader.loadAppTargetIcon(info, userHandle, callback);
+        }
+
+        @Override
+        public void loadDirectShareIcon(
+                @NonNull SelectableTargetInfo info,
+                @NonNull UserHandle userHandle,
+                @NonNull Consumer<Drawable> callback) {
+            mTargetDataLoader.loadDirectShareIcon(info, userHandle, callback);
+        }
+
+        @Override
+        public void loadLabel(
+                @NonNull DisplayResolveInfo info,
+                @NonNull Consumer<CharSequence[]> callback) {
+            mLabelIdlingResource.increment();
+            mTargetDataLoader.loadLabel(
+                    info,
+                    (result) -> {
+                        mLabelIdlingResource.decrement();
+                        callback.accept(result);
+                    });
+        }
+
+        @NonNull
+        @Override
+        public TargetPresentationGetter createPresentationGetter(@NonNull ResolveInfo info) {
+            return mTargetDataLoader.createPresentationGetter(info);
         }
     }
 }

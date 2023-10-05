@@ -20,4 +20,9 @@
     <dimen name="resolver_empty_state_container_padding_bottom">48dp</dimen>
     <dimen name="resolver_title_padding_bottom">@dimen/resolver_edge_margin</dimen>
     <dimen name="resolver_button_bar_spacing">8dp</dimen>
+
+    <dimen name="chooser_preview_width">-1px</dimen>
+    <dimen name="chooser_preview_image_height_tall">192dp</dimen>
+    <dimen name="grid_padding">10dp</dimen>
+    <dimen name="width_text_image_preview_size">56dp</dimen>
 </resources>

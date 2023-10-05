@@ -142,6 +142,12 @@ public class ChooserTargetActionsDialogFragment extends DialogFragment
         return v;
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        dismissAllowingStateLoss();
+    }
+
     class VHAdapter extends RecyclerView.Adapter<VH> {
 
         List<Pair<Drawable, CharSequence>> mItems;

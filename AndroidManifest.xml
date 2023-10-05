@@ -25,6 +25,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_SHORTCUTS" />
     <uses-permission android:name="android.permission.BIND_RESOLVER_RANKER_SERVICE" />
+    <uses-permission android:name="android.permission.GET_ANY_PROVIDER_TYPE" />
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
     <uses-permission android:name="android.permission.MANAGE_APP_PREDICTIONS" />
     <uses-permission android:name="android.permission.MANAGE_USERS" />
@@ -34,30 +35,26 @@
     <uses-permission android:name="android.permission.SET_CLIP_SOURCE" />
     <uses-permission android:name="android.permission.START_ACTIVITY_AS_CALLER" />
     <uses-permission android:name="android.permission.UNLIMITED_SHORTCUTS_API_CALLS" />
+    <uses-permission android:name="android.permission.QUERY_CLONED_APPS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:hardwareAccelerated="true"
         android:label="@string/app_label"
         android:directBootAware="true"
         android:forceQueryable="true"
+        android:requiredForAllUsers="true"
         android:supportsRtl="true">
 
-        <!-- This activity is enabled or disabled by the ChooserSelector
-             component, based on the flag flipper experiment (1500). It's
-             initially disabled here only as an extra precaution, since it
-             should be disabled by ChooserSelector on startup regardless.
-             TODO: if this graduates from its experiment (and ChooserSelector
-             is removed), this should be set to default-enabled. -->
         <activity android:name=".ChooserActivity"
                 android:theme="@style/Theme.DeviceDefault.Chooser"
                 android:finishOnCloseSystemDialogs="true"
                 android:excludeFromRecents="true"
                 android:documentLaunchMode="never"
                 android:relinquishTaskIdentity="true"
-                android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboard|keyboardHidden"
+                android:configChanges="screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden"
                 android:visibleToInstantApps="true"
-                android:exported="true"
-                android:enabled="false">
+                android:exported="true">
 
             <!-- This intent filter is assigned a priority greater than 100 so
                  that it will take precedence over the framework ChooserActivity
@@ -69,6 +66,13 @@
                 <category android:name="android.intent.category.VOICE" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".ChooserActivityReEnabler"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

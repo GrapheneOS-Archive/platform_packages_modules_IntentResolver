@@ -41,6 +41,9 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 
 class TargetInfoTest {
+    private val PERSONAL_USER_HANDLE: UserHandle = InstrumentationRegistry
+            .getInstrumentation().getTargetContext().getUser()
+
     private val context = InstrumentationRegistry.getInstrumentation().getContext()
 
     @Before
@@ -81,7 +84,7 @@ class TargetInfoTest {
         val resolvedIntent = Intent()
         val baseDisplayInfo = DisplayResolveInfo.newDisplayResolveInfo(
             resolvedIntent,
-            ResolverDataProvider.createResolveInfo(1, 0),
+            ResolverDataProvider.createResolveInfo(1, 0, PERSONAL_USER_HANDLE),
             "label",
             "extended info",
             resolvedIntent,
@@ -190,7 +193,7 @@ class TargetInfoTest {
         intent.putExtra(Intent.EXTRA_TEXT, "testing intent sending")
         intent.setType("text/plain")
 
-        val resolveInfo = ResolverDataProvider.createResolveInfo(3, 0)
+        val resolveInfo = ResolverDataProvider.createResolveInfo(3, 0, PERSONAL_USER_HANDLE)
 
         val targetInfo = DisplayResolveInfo.newDisplayResolveInfo(
             intent,
@@ -229,7 +232,7 @@ class TargetInfoTest {
         val refinement = Intent("REFINE_ME")  // First match is `targetAlternate`
         refinement.putExtra("refinement", true)
 
-        val refinedResult = originalInfo.tryToCloneWithAppliedRefinement(refinement)
+        val refinedResult = checkNotNull(originalInfo.tryToCloneWithAppliedRefinement(refinement))
         // Note `DisplayResolveInfo` targets merge refinements directly into their `resolvedIntent`.
         assertThat(refinedResult?.resolvedIntent?.getBooleanExtra("refinement", false)).isTrue()
         assertThat(refinedResult?.resolvedIntent?.getBooleanExtra("targetAlternate", false))
@@ -268,7 +271,7 @@ class TargetInfoTest {
         intent.putExtra(Intent.EXTRA_TEXT, "testing intent sending")
         intent.setType("text/plain")
 
-        val resolveInfo = ResolverDataProvider.createResolveInfo(3, 0)
+        val resolveInfo = ResolverDataProvider.createResolveInfo(3, 0, PERSONAL_USER_HANDLE)
         val firstTargetInfo = DisplayResolveInfo.newDisplayResolveInfo(
             intent,
             resolveInfo,

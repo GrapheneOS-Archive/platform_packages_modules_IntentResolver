@@ -18,7 +18,6 @@
 */
 -->
 <resources>
-
     <dimen name="chooser_width">624dp</dimen>
-
+    <dimen name="modify_share_text_toggle_max_width">250dp</dimen>
 </resources>

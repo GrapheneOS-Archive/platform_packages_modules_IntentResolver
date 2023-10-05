@@ -29,6 +29,10 @@
         <uses-library android:name="android.test.runner" />
         <activity android:name="com.android.intentresolver.ChooserWrapperActivity" />
         <activity android:name="com.android.intentresolver.ResolverWrapperActivity" />
+        <provider
+            android:authorities="com.android.intentresolver.tests"
+            android:name="com.android.intentresolver.TestContentProvider"
+            android:grantUriPermissions="true" />
     </application>
 
     <instrumentation android:name="android.testing.TestableInstrumentation"

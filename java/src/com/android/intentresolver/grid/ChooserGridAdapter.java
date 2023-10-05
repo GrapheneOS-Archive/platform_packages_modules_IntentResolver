@@ -58,7 +58,7 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
 
     /**
      * Injectable interface for any considerations that should be delegated to other components
-     * in the {@link ChooserActivity}.
+     * in the {@link com.android.intentresolver.ChooserActivity}.
      * TODO: determine whether any of these methods return parameters that can safely be
      * precomputed; whether any should be converted to `ChooserGridAdapter` setters to be
      * invoked by external callbacks; and whether any reflect requirements that should be moved
@@ -89,26 +89,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
          * behaviors on this view.
          */
         void updateProfileViewButton(View newButtonFromProfileRow);
-
-        /**
-         * @return the number of "valid" targets in the active list adapter.
-         * TODO: define "valid."
-         */
-        int getValidTargetCount();
-
-        /**
-         * Request that the client update our {@code directShareGroup} to match their desired
-         * state for the "expansion" UI.
-         */
-        void updateDirectShareExpansion(DirectShareViewHolder directShareGroup);
-
-        /**
-         * Request that the client handle a scroll event that should be taken as expanding the
-         * provided {@code directShareGroup}. Note that this currently never happens due to a
-         * hard-coded condition in {@link #canExpandDirectShare()}.
-         */
-        void handleScrollToExpandDirectShare(
-                DirectShareViewHolder directShareGroup, int y, int oldy);
     }
 
     private static final int VIEW_TYPE_DIRECT_SHARE = 0;
@@ -119,8 +99,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
     private static final int VIEW_TYPE_CALLER_AND_RANK = 5;
     private static final int VIEW_TYPE_FOOTER = 6;
 
-    private static final int NUM_EXPANSIONS_TO_HIDE_AZ_LABEL = 20;
-
     private final ChooserActivityDelegate mChooserActivityDelegate;
     private final ChooserListAdapter mChooserListAdapter;
     private final LayoutInflater mLayoutInflater;
@@ -129,20 +107,19 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
     private final boolean mShouldShowContentPreview;
     private final int mChooserWidthPixels;
     private final int mChooserRowTextOptionTranslatePixelSize;
-    private final boolean mShowAzLabelIfPoss;
 
-    private DirectShareViewHolder mDirectShareViewHolder;
     private int mChooserTargetWidth = 0;
 
     private int mFooterHeight = 0;
+
+    private boolean mAzLabelVisibility = false;
 
     public ChooserGridAdapter(
             Context context,
             ChooserActivityDelegate chooserActivityDelegate,
             ChooserListAdapter wrappedAdapter,
             boolean shouldShowContentPreview,
-            int maxTargetsPerRow,
-            int numSheetExpansions) {
+            int maxTargetsPerRow) {
         super();
 
         mChooserActivityDelegate = chooserActivityDelegate;
@@ -156,8 +133,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
         mChooserWidthPixels = context.getResources().getDimensionPixelSize(R.dimen.chooser_width);
         mChooserRowTextOptionTranslatePixelSize = context.getResources().getDimensionPixelSize(
                 R.dimen.chooser_row_text_option_translate);
-
-        mShowAzLabelIfPoss = numSheetExpansions < NUM_EXPANSIONS_TO_HIDE_AZ_LABEL;
 
         wrappedAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
@@ -190,8 +165,7 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
         }
 
         // Limit width to the maximum width of the chooser activity
-        int maxWidth = mChooserWidthPixels;
-        width = Math.min(maxWidth, width);
+        width = Math.min(mChooserWidthPixels, width);
 
         int newWidth = width / mMaxTargetsPerRow;
         if (newWidth != mChooserTargetWidth) {
@@ -265,20 +239,30 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
 
     public int getAzLabelRowCount() {
         // Only show a label if the a-z list is showing
-        return (mShowAzLabelIfPoss && mChooserListAdapter.getAlphaTargetCount() > 0) ? 1 : 0;
+        return (mChooserListAdapter.getAlphaTargetCount() > 0) ? 1 : 0;
+    }
+
+    private int getAzLabelRowPosition() {
+        int azRowCount = getAzLabelRowCount();
+        if (azRowCount == 0) {
+            return -1;
+        }
+
+        return getSystemRowCount()
+                + getProfileRowCount()
+                + getServiceTargetRowCount()
+                + getCallerAndRankedTargetRowCount();
     }
 
     @Override
     public int getItemCount() {
-        return (int) (
-                getSystemRowCount()
-                        + getProfileRowCount()
-                        + getServiceTargetRowCount()
-                        + getCallerAndRankedTargetRowCount()
-                        + getAzLabelRowCount()
-                        + mChooserListAdapter.getAlphaTargetCount()
-                        + getFooterRowCount()
-            );
+        return getSystemRowCount()
+                + getProfileRowCount()
+                + getServiceTargetRowCount()
+                + getCallerAndRankedTargetRowCount()
+                + getAzLabelRowCount()
+                + mChooserListAdapter.getAlphaTargetCount()
+                + getFooterRowCount();
     }
 
     @Override
@@ -322,8 +306,26 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
         }
     }
 
+    /**
+     * Set the app divider's visibility, when it's present.
+     */
+    public void setAzLabelVisibility(boolean isVisible) {
+        if (mAzLabelVisibility == isVisible) {
+            return;
+        }
+        mAzLabelVisibility = isVisible;
+        int azRowPos = getAzLabelRowPosition();
+        if (azRowPos >= 0) {
+            notifyItemChanged(azRowPos);
+        }
+    }
+
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        if (holder.getItemViewType() == VIEW_TYPE_AZ_LABEL) {
+            holder.itemView.setVisibility(
+                    mAzLabelVisibility ? View.VISIBLE : View.INVISIBLE);
+        }
         int viewType = ((ViewHolderBase) holder).getViewType();
         switch (viewType) {
             case VIEW_TYPE_DIRECT_SHARE:
@@ -453,12 +455,11 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
             parentGroup.addView(row1);
             parentGroup.addView(row2);
 
-            mDirectShareViewHolder = new DirectShareViewHolder(parentGroup,
-                    Lists.newArrayList(row1, row2), mMaxTargetsPerRow, viewType,
-                    mChooserActivityDelegate::getValidTargetCount);
-            loadViewsIntoGroup(mDirectShareViewHolder);
+            DirectShareViewHolder directShareViewHolder = new DirectShareViewHolder(parentGroup,
+                    Lists.newArrayList(row1, row2), mMaxTargetsPerRow, viewType);
+            loadViewsIntoGroup(directShareViewHolder);
 
-            return mDirectShareViewHolder;
+            return directShareViewHolder;
         } else {
             ViewGroup row = (ViewGroup) mLayoutInflater.inflate(
                     R.layout.chooser_row, parent, false);
@@ -572,33 +573,11 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
         return callerAndRankedCount + serviceCount + position;
     }
 
-    public void handleScroll(View v, int y, int oldy) {
-        boolean canExpandDirectShare = canExpandDirectShare();
-        if (mDirectShareViewHolder != null && canExpandDirectShare) {
-            mChooserActivityDelegate.handleScrollToExpandDirectShare(
-                    mDirectShareViewHolder, y, oldy);
-        }
-    }
-
-    /** Only expand direct share area if there is a minimum number of targets. */
-    private boolean canExpandDirectShare() {
-        // Do not enable until we have confirmed more apps are using sharing shortcuts
-        // Check git history for enablement logic
-        return false;
-    }
-
     public ChooserListAdapter getListAdapter() {
         return mChooserListAdapter;
     }
 
     public boolean shouldCellSpan(int position) {
         return getItemViewType(position) == VIEW_TYPE_NORMAL;
-    }
-
-    public void updateDirectShareExpansion() {
-        if (mDirectShareViewHolder == null || !canExpandDirectShare()) {
-            return;
-        }
-        mChooserActivityDelegate.updateDirectShareExpansion(mDirectShareViewHolder);
     }
 }
