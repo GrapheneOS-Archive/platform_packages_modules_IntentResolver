@@ -89,7 +89,6 @@ public class MultiProfilePagerAdapter<
     private final Function<SinglePageAdapterT, ListAdapterT> mListAdapterExtractor;
     private final AdapterBinder<PageViewT, SinglePageAdapterT> mAdapterBinder;
     private final Supplier<ViewGroup> mPageViewInflater;
-    private final Supplier<Optional<Integer>> mContainerBottomPaddingOverrideSupplier;
 
     private final ImmutableList<ProfileDescriptor<PageViewT, SinglePageAdapterT>> mItems;
 
@@ -123,19 +122,20 @@ public class MultiProfilePagerAdapter<
         mListAdapterExtractor = listAdapterExtractor;
         mAdapterBinder = adapterBinder;
         mPageViewInflater = pageViewInflater;
-        mContainerBottomPaddingOverrideSupplier = containerBottomPaddingOverrideSupplier;
 
         ImmutableList.Builder<ProfileDescriptor<PageViewT, SinglePageAdapterT>> items =
                 new ImmutableList.Builder<>();
         for (SinglePageAdapterT adapter : adapters) {
-            items.add(createProfileDescriptor(adapter));
+            items.add(createProfileDescriptor(adapter, containerBottomPaddingOverrideSupplier));
         }
         mItems = items.build();
     }
 
     private ProfileDescriptor<PageViewT, SinglePageAdapterT> createProfileDescriptor(
-            SinglePageAdapterT adapter) {
-        return new ProfileDescriptor<>(mPageViewInflater.get(), adapter);
+            SinglePageAdapterT adapter,
+            Supplier<Optional<Integer>> containerBottomPaddingOverrideSupplier) {
+        return new ProfileDescriptor<>(
+                mPageViewInflater.get(), adapter, containerBottomPaddingOverrideSupplier);
     }
 
     public void setOnProfileSelectedListener(OnProfileSelectedListener listener) {
@@ -235,8 +235,12 @@ public class MultiProfilePagerAdapter<
         return mItems.get(pageIndex);
     }
 
-    public ViewGroup getEmptyStateView(int pageIndex) {
+    private ViewGroup getEmptyStateView(int pageIndex) {
         return getItem(pageIndex).getEmptyStateView();
+    }
+
+    public ViewGroup getActiveEmptyStateView() {
+        return getEmptyStateView(getCurrentPage());
     }
 
     /**
@@ -454,12 +458,10 @@ public class MultiProfilePagerAdapter<
         descriptor.mRootView.findViewById(
                 com.android.internal.R.id.resolver_list).setVisibility(View.GONE);
         descriptor.mEmptyStateUi.resetViewVisibilities();
+        descriptor.setupContainerPadding();
 
         ViewGroup emptyStateView = descriptor.getEmptyStateView();
 
-        View container = emptyStateView.findViewById(
-                com.android.internal.R.id.resolver_empty_state_container);
-        setupContainerPadding(container);
 
         TextView titleView = emptyStateView.findViewById(
                 com.android.internal.R.id.resolver_empty_state_title);
@@ -493,17 +495,11 @@ public class MultiProfilePagerAdapter<
     }
 
     /**
-     * Sets up the padding of the view containing the empty state screens.
-     * <p>This method is meant to be overridden so that subclasses can customize the padding.
+     * Sets up the padding of the view containing the empty state screens for the current adapter
+     * view.
      */
-    public void setupContainerPadding(View container) {
-        Optional<Integer> bottomPaddingOverride = mContainerBottomPaddingOverrideSupplier.get();
-        bottomPaddingOverride.ifPresent(paddingBottom ->
-                container.setPadding(
-                    container.getPaddingLeft(),
-                    container.getPaddingTop(),
-                    container.getPaddingRight(),
-                    paddingBottom));
+    protected final void setupContainerPadding() {
+        getItem(getCurrentPage()).setupContainerPadding();
     }
 
     public void showListView(ListAdapterT activeListAdapter) {
@@ -534,16 +530,24 @@ public class MultiProfilePagerAdapter<
         private final SinglePageAdapterT mAdapter;
         private final PageViewT mView;
 
-        ProfileDescriptor(ViewGroup rootView, SinglePageAdapterT adapter) {
+        ProfileDescriptor(
+                ViewGroup rootView,
+                SinglePageAdapterT adapter,
+                Supplier<Optional<Integer>> containerBottomPaddingOverrideSupplier) {
             mRootView = rootView;
             mAdapter = adapter;
             mEmptyStateView = rootView.findViewById(com.android.internal.R.id.resolver_empty_state);
             mView = (PageViewT) rootView.findViewById(com.android.internal.R.id.resolver_list);
-            mEmptyStateUi = new EmptyStateUiHelper(rootView);
+            mEmptyStateUi =
+                    new EmptyStateUiHelper(rootView, containerBottomPaddingOverrideSupplier);
         }
 
         protected ViewGroup getEmptyStateView() {
             return mEmptyStateView;
+        }
+
+        private void setupContainerPadding() {
+            mEmptyStateUi.setupContainerPadding();
         }
     }
 

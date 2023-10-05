@@ -18,16 +18,36 @@ package com.android.intentresolver.v2.emptystate;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Optional;
+import java.util.function.Supplier;
+
 /**
  * Helper for building `MultiProfilePagerAdapter` tab UIs for profile tabs that are "blocked" by
  * some empty-state status.
  */
 public class EmptyStateUiHelper {
     private final View mEmptyStateView;
+    private final Supplier<Optional<Integer>> mContainerBottomPaddingOverrideSupplier;
 
-    public EmptyStateUiHelper(ViewGroup rootView) {
+    public EmptyStateUiHelper(
+            ViewGroup rootView,
+            Supplier<Optional<Integer>> containerBottomPaddingOverrideSupplier) {
         mEmptyStateView =
                 rootView.requireViewById(com.android.internal.R.id.resolver_empty_state);
+        mContainerBottomPaddingOverrideSupplier = containerBottomPaddingOverrideSupplier;
+    }
+
+    /** Sets up the padding of the view containing the empty state screens. */
+    public void setupContainerPadding() {
+        View container = mEmptyStateView.requireViewById(
+                com.android.internal.R.id.resolver_empty_state_container);
+        Optional<Integer> bottomPaddingOverride = mContainerBottomPaddingOverrideSupplier.get();
+        bottomPaddingOverride.ifPresent(paddingBottom ->
+                container.setPadding(
+                    container.getPaddingLeft(),
+                    container.getPaddingTop(),
+                    container.getPaddingRight(),
+                    paddingBottom));
     }
 
     public void resetViewVisibilities() {

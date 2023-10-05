@@ -26,7 +26,6 @@ import com.android.intentresolver.MultiProfilePagerAdapter.PROFILE_PERSONAL
 import com.android.intentresolver.MultiProfilePagerAdapter.PROFILE_WORK
 import com.android.intentresolver.R
 import com.android.intentresolver.ResolverListAdapter
-import com.android.intentresolver.any
 import com.android.intentresolver.emptystate.EmptyStateProvider
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
@@ -35,8 +34,6 @@ import com.google.common.truth.Truth.assertThat
 import java.util.Optional
 import java.util.function.Supplier
 import org.junit.Test
-import org.mockito.Mockito.never
-import org.mockito.Mockito.verify
 
 class MultiProfilePagerAdapterTest {
     private val PERSONAL_USER_HANDLE = UserHandle.of(10)
@@ -158,20 +155,15 @@ class MultiProfilePagerAdapterTest {
 
     @Test
     fun testBottomPaddingDelegate_default() {
-        val container =
-            mock<View> {
-                whenever(getPaddingLeft()).thenReturn(1)
-                whenever(getPaddingTop()).thenReturn(2)
-                whenever(getPaddingRight()).thenReturn(3)
-                whenever(getPaddingBottom()).thenReturn(4)
-            }
+        val personalListAdapter =
+            mock<ResolverListAdapter> { whenever(getUserHandle()).thenReturn(PERSONAL_USER_HANDLE) }
         val pagerAdapter =
             MultiProfilePagerAdapter(
                 { listAdapter: ResolverListAdapter -> listAdapter },
                 { listView: ListView, bindAdapter: ResolverListAdapter ->
                     listView.setAdapter(bindAdapter)
                 },
-                ImmutableList.of(),
+                ImmutableList.of(personalListAdapter),
                 object : EmptyStateProvider {},
                 { false },
                 PROFILE_PERSONAL,
@@ -180,26 +172,29 @@ class MultiProfilePagerAdapterTest {
                 inflater,
                 { Optional.empty() }
             )
-        pagerAdapter.setupContainerPadding(container)
-        verify(container, never()).setPadding(any(), any(), any(), any())
+        val container =
+            pagerAdapter
+                .getActiveEmptyStateView()
+                .requireViewById<View>(com.android.internal.R.id.resolver_empty_state_container)
+        container.setPadding(1, 2, 3, 4)
+        pagerAdapter.setupContainerPadding()
+        assertThat(container.paddingLeft).isEqualTo(1)
+        assertThat(container.paddingTop).isEqualTo(2)
+        assertThat(container.paddingRight).isEqualTo(3)
+        assertThat(container.paddingBottom).isEqualTo(4)
     }
 
     @Test
     fun testBottomPaddingDelegate_override() {
-        val container =
-            mock<View> {
-                whenever(getPaddingLeft()).thenReturn(1)
-                whenever(getPaddingTop()).thenReturn(2)
-                whenever(getPaddingRight()).thenReturn(3)
-                whenever(getPaddingBottom()).thenReturn(4)
-            }
+        val personalListAdapter =
+            mock<ResolverListAdapter> { whenever(getUserHandle()).thenReturn(PERSONAL_USER_HANDLE) }
         val pagerAdapter =
             MultiProfilePagerAdapter(
                 { listAdapter: ResolverListAdapter -> listAdapter },
                 { listView: ListView, bindAdapter: ResolverListAdapter ->
                     listView.setAdapter(bindAdapter)
                 },
-                ImmutableList.of(),
+                ImmutableList.of(personalListAdapter),
                 object : EmptyStateProvider {},
                 { false },
                 PROFILE_PERSONAL,
@@ -208,8 +203,16 @@ class MultiProfilePagerAdapterTest {
                 inflater,
                 { Optional.of(42) }
             )
-        pagerAdapter.setupContainerPadding(container)
-        verify(container).setPadding(1, 2, 3, 42)
+        val container =
+            pagerAdapter
+                .getActiveEmptyStateView()
+                .requireViewById<View>(com.android.internal.R.id.resolver_empty_state_container)
+        container.setPadding(1, 2, 3, 4)
+        pagerAdapter.setupContainerPadding()
+        assertThat(container.paddingLeft).isEqualTo(1)
+        assertThat(container.paddingTop).isEqualTo(2)
+        assertThat(container.paddingRight).isEqualTo(3)
+        assertThat(container.paddingBottom).isEqualTo(42)
     }
 
     @Test

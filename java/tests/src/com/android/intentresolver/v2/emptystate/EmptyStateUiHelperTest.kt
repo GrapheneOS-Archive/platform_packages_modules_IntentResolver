@@ -22,11 +22,19 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.util.Optional
+import java.util.function.Supplier
 import org.junit.Before
 import org.junit.Test
 
 class EmptyStateUiHelperTest {
     private val context = InstrumentationRegistry.getInstrumentation().getContext()
+
+    var shouldOverrideContainerPadding = false
+    val containerPaddingSupplier =
+        Supplier<Optional<Int>> {
+            Optional.ofNullable(if (shouldOverrideContainerPadding) 42 else null)
+        }
 
     lateinit var rootContainer: ViewGroup
     lateinit var emptyStateTitleView: View
@@ -60,7 +68,7 @@ class EmptyStateUiHelperTest {
         emptyStateDefaultTextView = rootContainer.requireViewById(com.android.internal.R.id.empty)
         emptyStateContainerView =
             rootContainer.requireViewById(com.android.internal.R.id.resolver_empty_state_container)
-        emptyStateUiHelper = EmptyStateUiHelper(rootContainer)
+        emptyStateUiHelper = EmptyStateUiHelper(rootContainer, containerPaddingSupplier)
     }
 
     @Test
@@ -108,5 +116,31 @@ class EmptyStateUiHelperTest {
         emptyStateUiHelper.hide()
 
         assertThat(emptyStateRootView.visibility).isEqualTo(View.GONE)
+    }
+
+    @Test
+    fun testBottomPaddingDelegate_default() {
+        shouldOverrideContainerPadding = false
+        emptyStateContainerView.setPadding(1, 2, 3, 4)
+
+        emptyStateUiHelper.setupContainerPadding()
+
+        assertThat(emptyStateContainerView.paddingLeft).isEqualTo(1)
+        assertThat(emptyStateContainerView.paddingTop).isEqualTo(2)
+        assertThat(emptyStateContainerView.paddingRight).isEqualTo(3)
+        assertThat(emptyStateContainerView.paddingBottom).isEqualTo(4)
+    }
+
+    @Test
+    fun testBottomPaddingDelegate_override() {
+        shouldOverrideContainerPadding = true // Set bottom padding to 42.
+        emptyStateContainerView.setPadding(1, 2, 3, 4)
+
+        emptyStateUiHelper.setupContainerPadding()
+
+        assertThat(emptyStateContainerView.paddingLeft).isEqualTo(1)
+        assertThat(emptyStateContainerView.paddingTop).isEqualTo(2)
+        assertThat(emptyStateContainerView.paddingRight).isEqualTo(3)
+        assertThat(emptyStateContainerView.paddingBottom).isEqualTo(42)
     }
 }
