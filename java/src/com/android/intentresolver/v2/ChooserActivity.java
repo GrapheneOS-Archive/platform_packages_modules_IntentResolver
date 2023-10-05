@@ -23,7 +23,9 @@ import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CROSS_PROFILE_BLOCKED_TITLE;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_PERSONAL;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_WORK;
+
 import static androidx.lifecycle.LifecycleKt.getCoroutineScope;
+
 import static com.android.intentresolver.v2.ResolverActivity.PROFILE_PERSONAL;
 import static com.android.intentresolver.v2.ResolverActivity.PROFILE_WORK;
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
@@ -78,7 +80,6 @@ import com.android.intentresolver.ChooserActionFactory;
 import com.android.intentresolver.ChooserGridLayoutManager;
 import com.android.intentresolver.ChooserIntegratedDeviceComponents;
 import com.android.intentresolver.ChooserListAdapter;
-import com.android.intentresolver.ChooserMultiProfilePagerAdapter;
 import com.android.intentresolver.ChooserRefinementManager;
 import com.android.intentresolver.ChooserRequestParameters;
 import com.android.intentresolver.ChooserStackedAppDialogFragment;
@@ -112,8 +113,8 @@ import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
-import com.android.intentresolver.widget.ImagePreviewView;
 import com.android.intentresolver.v2.Hilt_ChooserActivity;
+import com.android.intentresolver.widget.ImagePreviewView;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.content.PackageMonitor;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;

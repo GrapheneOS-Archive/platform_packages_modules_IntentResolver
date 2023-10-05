@@ -25,11 +25,11 @@ import android.view.accessibility.AccessibilityEvent;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate;
 
-class ChooserRecyclerViewAccessibilityDelegate extends RecyclerViewAccessibilityDelegate {
+public class ChooserRecyclerViewAccessibilityDelegate extends RecyclerViewAccessibilityDelegate {
     private final Rect mTempRect = new Rect();
     private final int[] mConsumed = new int[2];
 
-    ChooserRecyclerViewAccessibilityDelegate(RecyclerView recyclerView) {
+    public ChooserRecyclerViewAccessibilityDelegate(RecyclerView recyclerView) {
         super(recyclerView);
     }
 
