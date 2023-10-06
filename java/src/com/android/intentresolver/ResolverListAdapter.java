@@ -993,10 +993,7 @@ public class ResolverListAdapter extends BaseAdapter {
             }
         }
 
-        public void bindPlaceholderDrawable(int maxTextWidth, Drawable drawable) {
-            text.setMaxWidth(maxTextWidth);
-            text.setBackground(drawable);
-            // Prevent rippling by removing background containing ripple
+        public void bindPlaceholder() {
             itemView.setBackground(null);
         }
 

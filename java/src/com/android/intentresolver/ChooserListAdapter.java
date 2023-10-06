@@ -375,13 +375,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
             }
         }
 
-        // If target is loading, show a special placeholder shape in the label, make unclickable
         if (info.isPlaceHolderTargetInfo()) {
-            int maxTextWidth = mContext.getResources().getDimensionPixelSize(
-                    R.dimen.chooser_direct_share_label_placeholder_max_width);
-            Drawable placeholderDrawable = mContext.getResources().getDrawable(
-                    R.drawable.chooser_direct_share_label_placeholder, mContext.getTheme());
-            holder.bindPlaceholderDrawable(maxTextWidth, placeholderDrawable);
+            holder.bindPlaceholder();
         }
 
         if (info.isMultiDisplayResolveInfo()) {
