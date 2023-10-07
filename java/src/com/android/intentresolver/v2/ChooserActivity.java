@@ -1473,7 +1473,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 rowsToShow--;
             }
         } else {
-            ViewGroup currentEmptyStateView = getActiveEmptyStateView();
+            ViewGroup currentEmptyStateView =
+                    mChooserMultiProfilePagerAdapter.getActiveEmptyStateView();
             if (currentEmptyStateView.getVisibility() == View.VISIBLE) {
                 offset += currentEmptyStateView.getHeight();
             }
@@ -1505,11 +1506,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         // We return personal profile, as it is the default when there is no work profile, personal
         // profile represents rootUser, clonedUser & secondaryUser, covering all use cases.
         return PROFILE_PERSONAL;
-    }
-
-    private ViewGroup getActiveEmptyStateView() {
-        int currentPage = mChooserMultiProfilePagerAdapter.getCurrentPage();
-        return mChooserMultiProfilePagerAdapter.getEmptyStateView(currentPage);
     }
 
     @Override // ResolverListCommunicator
@@ -1782,8 +1778,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         if (shouldShowTabs()) {
             mChooserMultiProfilePagerAdapter
                     .setEmptyStateBottomOffset(insets.getSystemWindowInsetBottom());
-            mChooserMultiProfilePagerAdapter.setupContainerPadding(
-                    getActiveEmptyStateView().findViewById(com.android.internal.R.id.resolver_empty_state_container));
         }
 
         WindowInsets result = super.onApplyWindowInsets(v, insets);

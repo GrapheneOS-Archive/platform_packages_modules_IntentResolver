@@ -20,17 +20,32 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.intentresolver.any
+import com.android.intentresolver.emptystate.EmptyState
+import com.android.intentresolver.mock
 import com.google.common.truth.Truth.assertThat
+import java.util.Optional
+import java.util.function.Supplier
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
 
 class EmptyStateUiHelperTest {
     private val context = InstrumentationRegistry.getInstrumentation().getContext()
 
+    var shouldOverrideContainerPadding = false
+    val containerPaddingSupplier =
+        Supplier<Optional<Int>> {
+            Optional.ofNullable(if (shouldOverrideContainerPadding) 42 else null)
+        }
+
     lateinit var rootContainer: ViewGroup
-    lateinit var emptyStateTitleView: View
-    lateinit var emptyStateSubtitleView: View
+    lateinit var mainListView: View // Visible when no empty state is showing.
+    lateinit var emptyStateTitleView: TextView
+    lateinit var emptyStateSubtitleView: TextView
     lateinit var emptyStateButtonView: View
     lateinit var emptyStateProgressView: View
     lateinit var emptyStateDefaultTextView: View
@@ -47,6 +62,7 @@ class EmptyStateUiHelperTest {
                 rootContainer,
                 true
             )
+        mainListView = rootContainer.requireViewById(com.android.internal.R.id.resolver_list)
         emptyStateRootView =
             rootContainer.requireViewById(com.android.internal.R.id.resolver_empty_state)
         emptyStateTitleView =
@@ -60,7 +76,12 @@ class EmptyStateUiHelperTest {
         emptyStateDefaultTextView = rootContainer.requireViewById(com.android.internal.R.id.empty)
         emptyStateContainerView =
             rootContainer.requireViewById(com.android.internal.R.id.resolver_empty_state_container)
-        emptyStateUiHelper = EmptyStateUiHelper(rootContainer)
+        emptyStateUiHelper =
+            EmptyStateUiHelper(
+                rootContainer,
+                com.android.internal.R.id.resolver_list,
+                containerPaddingSupplier
+            )
     }
 
     @Test
@@ -104,9 +125,104 @@ class EmptyStateUiHelperTest {
     @Test
     fun testHide() {
         emptyStateRootView.visibility = View.VISIBLE
+        mainListView.visibility = View.GONE
 
         emptyStateUiHelper.hide()
 
         assertThat(emptyStateRootView.visibility).isEqualTo(View.GONE)
+        assertThat(mainListView.visibility).isEqualTo(View.VISIBLE)
+    }
+
+    @Test
+    fun testBottomPaddingDelegate_default() {
+        shouldOverrideContainerPadding = false
+        emptyStateContainerView.setPadding(1, 2, 3, 4)
+
+        emptyStateUiHelper.setupContainerPadding()
+
+        assertThat(emptyStateContainerView.paddingLeft).isEqualTo(1)
+        assertThat(emptyStateContainerView.paddingTop).isEqualTo(2)
+        assertThat(emptyStateContainerView.paddingRight).isEqualTo(3)
+        assertThat(emptyStateContainerView.paddingBottom).isEqualTo(4)
+    }
+
+    @Test
+    fun testBottomPaddingDelegate_override() {
+        shouldOverrideContainerPadding = true // Set bottom padding to 42.
+        emptyStateContainerView.setPadding(1, 2, 3, 4)
+
+        emptyStateUiHelper.setupContainerPadding()
+
+        assertThat(emptyStateContainerView.paddingLeft).isEqualTo(1)
+        assertThat(emptyStateContainerView.paddingTop).isEqualTo(2)
+        assertThat(emptyStateContainerView.paddingRight).isEqualTo(3)
+        assertThat(emptyStateContainerView.paddingBottom).isEqualTo(42)
+    }
+
+    @Test
+    fun testShowEmptyState_noOnClickHandler() {
+        mainListView.visibility = View.VISIBLE
+
+        // Note: an `EmptyState.ClickListener` isn't invoked directly by the UI helper; it has to be
+        // built into the "on-click handler" that's injected to implement the button-press. We won't
+        // display the button without a click "handler," even if it *does* have a `ClickListener`.
+        val clickListener = mock<EmptyState.ClickListener>()
+
+        val emptyState =
+            object : EmptyState {
+                override fun getTitle() = "Test title"
+                override fun getSubtitle() = "Test subtitle"
+
+                override fun getButtonClickListener() = clickListener
+            }
+        emptyStateUiHelper.showEmptyState(emptyState, null)
+
+        assertThat(mainListView.visibility).isEqualTo(View.GONE)
+        assertThat(emptyStateRootView.visibility).isEqualTo(View.VISIBLE)
+        assertThat(emptyStateTitleView.visibility).isEqualTo(View.VISIBLE)
+        assertThat(emptyStateSubtitleView.visibility).isEqualTo(View.VISIBLE)
+        assertThat(emptyStateButtonView.visibility).isEqualTo(View.GONE)
+        assertThat(emptyStateProgressView.visibility).isEqualTo(View.GONE)
+        assertThat(emptyStateDefaultTextView.visibility).isEqualTo(View.GONE)
+
+        assertThat(emptyStateTitleView.text).isEqualTo("Test title")
+        assertThat(emptyStateSubtitleView.text).isEqualTo("Test subtitle")
+
+        verify(clickListener, never()).onClick(any())
+    }
+
+    @Test
+    fun testShowEmptyState_withOnClickHandlerAndClickListener() {
+        mainListView.visibility = View.VISIBLE
+
+        val clickListener = mock<EmptyState.ClickListener>()
+        val onClickHandler = mock<View.OnClickListener>()
+
+        val emptyState =
+            object : EmptyState {
+                override fun getTitle() = "Test title"
+                override fun getSubtitle() = "Test subtitle"
+
+                override fun getButtonClickListener() = clickListener
+            }
+        emptyStateUiHelper.showEmptyState(emptyState, onClickHandler)
+
+        assertThat(mainListView.visibility).isEqualTo(View.GONE)
+        assertThat(emptyStateRootView.visibility).isEqualTo(View.VISIBLE)
+        assertThat(emptyStateTitleView.visibility).isEqualTo(View.VISIBLE)
+        assertThat(emptyStateSubtitleView.visibility).isEqualTo(View.VISIBLE)
+        assertThat(emptyStateButtonView.visibility).isEqualTo(View.VISIBLE) // Now shown.
+        assertThat(emptyStateProgressView.visibility).isEqualTo(View.GONE)
+        assertThat(emptyStateDefaultTextView.visibility).isEqualTo(View.GONE)
+
+        assertThat(emptyStateTitleView.text).isEqualTo("Test title")
+        assertThat(emptyStateSubtitleView.text).isEqualTo("Test subtitle")
+
+        emptyStateButtonView.performClick()
+
+        verify(onClickHandler).onClick(emptyStateButtonView)
+        // The test didn't explicitly configure its `OnClickListener` to relay the click event on
+        // to the `EmptyState.ClickListener`, so it still won't have fired here.
+        verify(clickListener, never()).onClick(any())
     }
 }

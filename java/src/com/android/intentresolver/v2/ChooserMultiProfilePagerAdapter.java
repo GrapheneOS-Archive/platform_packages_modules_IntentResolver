@@ -128,6 +128,7 @@ public class ChooserMultiProfilePagerAdapter extends MultiProfilePagerAdapter<
 
     public void setEmptyStateBottomOffset(int bottomOffset) {
         mBottomPaddingOverrideSupplier.setEmptyStateBottomOffset(bottomOffset);
+        setupContainerPadding();
     }
 
     /**
