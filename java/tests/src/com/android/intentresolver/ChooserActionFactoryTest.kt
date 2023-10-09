@@ -38,7 +38,6 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -78,7 +77,6 @@ class ChooserActionFactoryTest {
         context.unregisterReceiver(testReceiver)
     }
 
-    @Ignore("b/297551329")
     @Test
     fun testCreateCustomActions() {
         val factory = createFactory()
@@ -104,7 +102,6 @@ class ChooserActionFactoryTest {
         assertThat(factory.modifyShareAction).isNull()
     }
 
-    @Ignore("b/297551329")
     @Test
     fun testModifyShareAction() {
         val factory = createFactory(includeModifyShare = true)
@@ -192,7 +189,7 @@ class ChooserActionFactoryTest {
 
     private fun createFactory(includeModifyShare: Boolean = false): ChooserActionFactory {
         val testPendingIntent =
-            PendingIntent.getActivity(context, 0, Intent(testAction), PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.getBroadcast(context, 0, Intent(testAction), PendingIntent.FLAG_IMMUTABLE)
         val targetIntent = Intent()
         val action =
             ChooserAction.Builder(
