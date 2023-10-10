@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver;
+package com.android.intentresolver.v2;
 
 import android.annotation.Nullable;
 import android.app.Activity;
@@ -34,6 +34,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
+import com.android.intentresolver.ChooserRequestParameters;
+import com.android.intentresolver.R;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi;
@@ -45,6 +47,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
@@ -53,7 +56,9 @@ import java.util.function.Consumer;
  * requirements of Sharesheet / {@link ChooserActivity}.
  */
 public final class ChooserActionFactory implements ChooserContentPreviewUi.ActionFactory {
-    /** Delegate interface to launch activities when the actions are selected. */
+    /**
+     * Delegate interface to launch activities when the actions are selected.
+     */
     public interface ActionActivityStarter {
         /**
          * Request an activity launch for the provided target. Implementations may choose to exit
@@ -103,7 +108,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
     /**
      * @param context
      * @param chooserRequest data about the invocation of the current Sharesheet session.
-     * device to implement the supported action types.
+     * @param imageEditor an explicit Activity to launch for editing images
      * @param onUpdateSharedTextIsExcluded a delegate to be invoked when the "exclude shared text"
      * setting is updated. The argument is whether the shared text is to be excluded.
      * @param firstVisibleImageQuery a delegate that provides a reference to the first visible image
@@ -115,7 +120,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
     public ChooserActionFactory(
             Context context,
             ChooserRequestParameters chooserRequest,
-            ChooserIntegratedDeviceComponents integratedDeviceComponents,
+            Optional<ComponentName> imageEditor,
             EventLog log,
             Consumer<Boolean> onUpdateSharedTextIsExcluded,
             Callable</* @Nullable */ View> firstVisibleImageQuery,
@@ -133,7 +138,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
                         getEditSharingTarget(
                                 context,
                                 chooserRequest.getTargetIntent(),
-                                integratedDeviceComponents),
+                                imageEditor),
                         firstVisibleImageQuery,
                         activityStarter,
                         log),
@@ -280,15 +285,14 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
     private static TargetInfo getEditSharingTarget(
             Context context,
             Intent originalIntent,
-            ChooserIntegratedDeviceComponents integratedComponents) {
-        final ComponentName editorComponent = integratedComponents.getEditSharingComponent();
+            Optional<ComponentName> imageEditor) {
 
         final Intent resolveIntent = new Intent(originalIntent);
         // Retain only URI permission grant flags if present. Other flags may prevent the scene
         // transition animation from running (i.e FLAG_ACTIVITY_NO_ANIMATION,
         // FLAG_ACTIVITY_NEW_TASK, FLAG_ACTIVITY_NEW_DOCUMENT) but also not needed.
         resolveIntent.setFlags(originalIntent.getFlags() & URI_PERMISSION_INTENT_FLAGS);
-        resolveIntent.setComponent(editorComponent);
+        imageEditor.ifPresent(resolveIntent::setComponent);
         resolveIntent.setAction(Intent.ACTION_EDIT);
         resolveIntent.putExtra(EDIT_SOURCE, EDIT_SOURCE_SHARESHEET);
         String originalAction = originalIntent.getAction();
@@ -307,7 +311,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
         final ResolveInfo ri = context.getPackageManager().resolveActivity(
                 resolveIntent, PackageManager.GET_META_DATA);
         if (ri == null || ri.activityInfo == null) {
-            Log.e(TAG, "Device-specified editor (" + editorComponent + ") not available");
+            Log.e(TAG, "Device-specified editor (" + imageEditor + ") not available");
             return null;
         }
 
