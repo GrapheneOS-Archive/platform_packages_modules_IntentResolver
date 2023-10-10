@@ -7,7 +7,10 @@ android_test {
     name: "IntentResolverUnitTests",
 
     // Include all test java files.
-    srcs: ["src/**/*.java", "src/**/*.kt"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
 
     libs: [
         "android.test.runner",
@@ -33,7 +36,7 @@ android_test {
         "kotlinx_coroutines_test",
         "mockito-target-minus-junit4",
         "testables",
-        "truth-prebuilt",
+        "truth",
     ],
     plugins: ["dagger2-compiler"],
     test_suites: ["general-tests"],
