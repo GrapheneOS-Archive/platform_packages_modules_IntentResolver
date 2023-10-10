@@ -22,7 +22,10 @@ android_test {
     name: "IntentResolverUnitTests",
     manifest: "AndroidManifest.xml",
     // Include all test java files.
-    srcs: ["src/**/*.java", "src/**/*.kt"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
 
     libs: [
         "android.test.runner",
