@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver
+package com.android.intentresolver.v2
 
 import android.app.Activity
 import android.app.PendingIntent
@@ -28,9 +28,13 @@ import android.graphics.drawable.Icon
 import android.service.chooser.ChooserAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.intentresolver.ChooserRequestParameters
 import com.android.intentresolver.logging.EventLog
+import com.android.intentresolver.mock
+import com.android.intentresolver.whenever
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
+import java.util.Optional
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
@@ -40,11 +44,12 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 
 @RunWith(AndroidJUnit4::class)
 class ChooserActionFactoryTest {
-    private val context = InstrumentationRegistry.getInstrumentation().getContext()
+    private val context = InstrumentationRegistry.getInstrumentation().context
 
     private val logger = mock<EventLog>()
     private val actionLabel = "Action label"
@@ -131,7 +136,7 @@ class ChooserActionFactoryTest {
             ChooserActionFactory(
                 context,
                 chooserRequest,
-                mock(),
+                Optional.empty(),
                 logger,
                 {},
                 { null },
@@ -154,7 +159,7 @@ class ChooserActionFactoryTest {
             ChooserActionFactory(
                 context,
                 chooserRequest,
-                mock(),
+                Optional.empty(),
                 logger,
                 {},
                 { null },
@@ -177,7 +182,7 @@ class ChooserActionFactoryTest {
             ChooserActionFactory(
                 context,
                 chooserRequest,
-                mock(),
+                Optional.empty(),
                 logger,
                 {},
                 { null },
@@ -216,7 +221,7 @@ class ChooserActionFactoryTest {
         return ChooserActionFactory(
             context,
             chooserRequest,
-            mock(),
+            Optional.empty(),
             logger,
             {},
             { null },

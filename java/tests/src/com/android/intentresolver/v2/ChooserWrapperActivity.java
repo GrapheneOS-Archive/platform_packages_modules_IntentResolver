@@ -19,7 +19,6 @@ package com.android.intentresolver.v2;
 import android.annotation.Nullable;
 import android.app.prediction.AppPredictor;
 import android.app.usage.UsageStatsManager;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,7 +34,6 @@ import android.os.UserHandle;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.android.intentresolver.AnnotatedUserHandles;
-import com.android.intentresolver.ChooserIntegratedDeviceComponents;
 import com.android.intentresolver.ChooserListAdapter;
 import com.android.intentresolver.ChooserRequestParameters;
 import com.android.intentresolver.IChooserWrapper;
@@ -125,16 +123,6 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
     @Override
     public boolean getIsSelected() {
         return mIsSuccessfullySelected;
-    }
-
-    @Override
-    protected ChooserIntegratedDeviceComponents getIntegratedDeviceComponents() {
-        return new ChooserIntegratedDeviceComponents(
-                /* editSharingComponent=*/ null,
-                // An arbitrary pre-installed activity that handles this type of intent:
-                /* nearbySharingComponent=*/ new ComponentName(
-                        "com.google.android.apps.messaging",
-                        ".ui.conversationlist.ShareIntentActivity"));
     }
 
     @Override
