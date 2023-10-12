@@ -251,6 +251,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Tracer.INSTANCE.markLaunched();
+        super.onCreate(savedInstanceState);
+
         final long intentReceivedTime = System.currentTimeMillis();
         mLatencyTracker.onActionStart(ACTION_LOAD_SHARE_SHEET);
 
@@ -262,7 +264,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "Caller provided invalid Chooser request parameters", e);
             finish();
-            super_onCreate(null);
             return;
         }
         mPinnedSharedPrefs = getPinnedSharedPrefs(this);
@@ -278,9 +279,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                         mChooserRequest.getTargetIntentFilter()),
                 mChooserRequest.getTargetIntentFilter());
 
-
-        super.onCreate(
-                savedInstanceState,
+        init(
                 mChooserRequest.getTargetIntent(),
                 mChooserRequest.getAdditionalTargets(),
                 mChooserRequest.getTitle(),

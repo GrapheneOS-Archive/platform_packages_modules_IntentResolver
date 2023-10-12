@@ -350,57 +350,38 @@ public class ResolverActivity extends FragmentActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Use a specialized prompt when we're handling the 'Home' app startActivity()
-        final Intent intent = makeMyIntent();
-        final Set<String> categories = intent.getCategories();
-        if (Intent.ACTION_MAIN.equals(intent.getAction())
-                && categories != null
-                && categories.size() == 1
-                && categories.contains(Intent.CATEGORY_HOME)) {
-            // Note: this field is not set to true in the compatibility version.
-            mResolvingHome = true;
+        super.onCreate(savedInstanceState);
+        if (isFinishing()) {
+            // Performing a clean exit:
+            //    Skip initializing any additional resources.
+            return;
         }
+        if (mIsIntentPicker) {
+            // Use a specialized prompt when we're handling the 'Home' app startActivity()
+            final Intent intent = makeMyIntent();
+            final Set<String> categories = intent.getCategories();
+            if (Intent.ACTION_MAIN.equals(intent.getAction())
+                    && categories != null
+                    && categories.size() == 1
+                    && categories.contains(Intent.CATEGORY_HOME)) {
+                // Note: this field is not set to true in the compatibility version.
+                mResolvingHome = true;
+            }
 
-        onCreate(
-                savedInstanceState,
-                intent,
-                /* additionalTargets= */ null,
-                /* title= */ null,
-                /* defaultTitleRes= */ 0,
-                /* initialIntents= */ null,
-                /* resolutionList= */ null,
-                /* supportsAlwaysUseOption= */ true,
-                createIconLoader(),
-                /* safeForwardingMode= */ true);
+            init(
+                    intent,
+                    /* additionalTargets= */ null,
+                    /* title= */ null,
+                    /* defaultTitleRes= */ 0,
+                    /* initialIntents= */ null,
+                    /* resolutionList= */ null,
+                    /* supportsAlwaysUseOption= */ true,
+                    createIconLoader(),
+                    /* safeForwardingMode= */ true);
+        }
     }
 
-    /**
-     * Compatibility version for other bundled services that use this overload without
-     * a default title resource
-     */
-    protected void onCreate(
-            Bundle savedInstanceState,
-            Intent intent,
-            CharSequence title,
-            Intent[] initialIntents,
-            List<ResolveInfo> resolutionList,
-            boolean supportsAlwaysUseOption,
-            boolean safeForwardingMode) {
-        onCreate(
-                savedInstanceState,
-                intent,
-                null,
-                title,
-                0,
-                initialIntents,
-                resolutionList,
-                supportsAlwaysUseOption,
-                createIconLoader(),
-                safeForwardingMode);
-    }
-
-    protected void onCreate(
-            Bundle savedInstanceState,
+    protected void init(
             Intent intent,
             Intent[] additionalTargets,
             CharSequence title,
@@ -411,7 +392,6 @@ public class ResolverActivity extends FragmentActivity implements
             TargetDataLoader targetDataLoader,
             boolean safeForwardingMode) {
         setTheme(appliedThemeResId());
-        super.onCreate(savedInstanceState);
 
         // Determine whether we should show that intent is forwarded
         // from managed profile to owner or other way around.
@@ -1190,15 +1170,6 @@ public class ResolverActivity extends FragmentActivity implements
             intent.setFlags(intent.getFlags() & ~FLAG_ACTIVITY_LAUNCH_ADJACENT);
         }
         return intent;
-    }
-
-    /**
-     * Call {@link Activity#onCreate} without initializing anything further. This should
-     * only be used when the activity is about to be immediately finished to avoid wasting
-     * initializing steps and leaking resources.
-     */
-    protected final void super_onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     private ResolverMultiProfilePagerAdapter
