@@ -7,7 +7,10 @@ android_test {
     name: "IntentResolverUnitTests",
 
     // Include all test java files.
-    srcs: ["src/**/*.java", "src/**/*.kt"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
 
     libs: [
         "android.test.runner",
@@ -27,7 +30,7 @@ android_test {
         "androidx.lifecycle_lifecycle-common-java8",
         "androidx.lifecycle_lifecycle-extensions",
         "androidx.lifecycle_lifecycle-runtime-ktx",
-        "truth-prebuilt",
+        "truth",
         "testables",
         "kotlinx_coroutines_test",
     ],
