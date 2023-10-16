@@ -94,7 +94,7 @@ class DefaultTargetDataLoader(
             .executeOnExecutor(executor)
     }
 
-    override fun loadLabel(info: DisplayResolveInfo, callback: Consumer<Array<CharSequence?>>) {
+    override fun loadLabel(info: DisplayResolveInfo, callback: Consumer<LabelInfo>) {
         val taskId = nextTaskId.getAndIncrement()
         LoadLabelTask(context, info, isAudioCaptureDevice, presentationFactory) { result ->
                 removeTask(taskId)
@@ -108,8 +108,8 @@ class DefaultTargetDataLoader(
         if (!info.hasDisplayLabel()) {
             val result =
                 LoadLabelTask.loadLabel(context, info, isAudioCaptureDevice, presentationFactory)
-            info.displayLabel = result[0]
-            info.extendedInfo = result[1]
+            info.displayLabel = result.label
+            info.extendedInfo = result.subLabel
         }
     }
 
