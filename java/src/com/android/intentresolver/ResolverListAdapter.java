@@ -47,6 +47,7 @@ import androidx.annotation.WorkerThread;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.icons.LabelInfo;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -762,12 +763,12 @@ public class ResolverListAdapter extends BaseAdapter {
     }
 
     protected final void onLabelLoaded(
-            DisplayResolveInfo displayResolveInfo, CharSequence[] result) {
+            DisplayResolveInfo displayResolveInfo, LabelInfo result) {
         if (displayResolveInfo.hasDisplayLabel()) {
             return;
         }
-        displayResolveInfo.setDisplayLabel(result[0]);
-        displayResolveInfo.setExtendedInfo(result[1]);
+        displayResolveInfo.setDisplayLabel(result.getLabel());
+        displayResolveInfo.setExtendedInfo(result.getSubLabel());
         notifyDataSetChanged();
     }
 

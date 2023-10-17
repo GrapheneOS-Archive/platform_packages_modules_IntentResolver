@@ -21,7 +21,6 @@ import android.app.admin.DevicePolicyManager
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.pm.LauncherApps
-import android.content.pm.PackageManager
 import android.content.pm.ShortcutManager
 import android.os.UserManager
 import android.view.WindowManager
@@ -39,7 +38,9 @@ private fun <T> Context.requireSystemService(serviceClass: Class<T>): T {
 @InstallIn(SingletonComponent::class)
 object FrameworkModule {
 
-    @Provides fun contentResolver(@ApplicationContext ctx: Context) = ctx.contentResolver!!
+    @Provides
+    fun contentResolver(@ApplicationContext ctx: Context) =
+        requireNotNull(ctx.contentResolver) { "ContentResolver is expected but missing" }
 
     @Provides
     fun activityManager(@ApplicationContext ctx: Context) =
@@ -59,7 +60,7 @@ object FrameworkModule {
 
     @Provides
     fun packageManager(@ApplicationContext ctx: Context) =
-        ctx.requireSystemService(PackageManager::class.java)
+        requireNotNull(ctx.packageManager) { "PackageManager is expected but missing" }
 
     @Provides
     fun shortcutManager(@ApplicationContext ctx: Context) =

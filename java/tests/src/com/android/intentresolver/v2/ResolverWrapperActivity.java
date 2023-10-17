@@ -42,6 +42,7 @@ import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
+import com.android.intentresolver.icons.LabelInfo;
 import com.android.intentresolver.icons.TargetDataLoader;
 
 import java.util.List;
@@ -267,7 +268,7 @@ public class ResolverWrapperActivity extends ResolverActivity {
         @Override
         public void loadLabel(
                 @NonNull DisplayResolveInfo info,
-                @NonNull Consumer<CharSequence[]> callback) {
+                @NonNull Consumer<LabelInfo> callback) {
             mLabelIdlingResource.increment();
             mTargetDataLoader.loadLabel(
                     info,

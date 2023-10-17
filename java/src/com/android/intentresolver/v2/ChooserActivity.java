@@ -96,10 +96,7 @@ import com.android.intentresolver.contentpreview.HeadlineGeneratorImpl;
 import com.android.intentresolver.contentpreview.PreviewViewModel;
 import com.android.intentresolver.emptystate.EmptyState;
 import com.android.intentresolver.emptystate.EmptyStateProvider;
-import com.android.intentresolver.emptystate.NoCrossProfileEmptyStateProvider;
-import com.android.intentresolver.emptystate.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
 import com.android.intentresolver.grid.ChooserGridAdapter;
-import com.android.intentresolver.icons.DefaultTargetDataLoader;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.measurements.Tracer;
@@ -108,6 +105,8 @@ import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
+import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider;
+import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
 import com.android.intentresolver.v2.platform.ImageEditor;
 import com.android.intentresolver.v2.platform.NearbyShare;
 import com.android.intentresolver.widget.ImagePreviewView;
@@ -194,6 +193,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     @Inject public EventLog mEventLog;
     @Inject @ImageEditor public Optional<ComponentName> mImageEditor;
     @Inject @NearbyShare public Optional<ComponentName> mNearbyShare;
+    @Inject public TargetDataLoader mTargetDataLoader;
 
     /* TODO: this is `nullable` because we have to defer the assignment til onCreate(). We make the
      * only assignment there, and expect it to be ready by the time we ever use it --
@@ -287,7 +287,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 mChooserRequest.getInitialIntents(),
                 /* resolutionList= */ null,
                 /* supportsAlwaysUseOption= */ false,
-                new DefaultTargetDataLoader(this, getLifecycle(), false),
+                mTargetDataLoader,
                 /* safeForwardingMode= */ true);
 
         getEventLog().logSharesheetTriggered();
