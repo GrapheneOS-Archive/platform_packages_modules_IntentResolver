@@ -18,7 +18,7 @@
     xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
     style="?android:attr/borderlessButtonStyle"
     android:background="@drawable/chooser_action_button_bg"
-    android:paddingBottom="8dp"
+    android:paddingVertical="15dp"
     android:paddingHorizontal="@dimen/chooser_edge_margin_normal_half"
     android:clickable="true"
     android:drawablePadding="6dp"

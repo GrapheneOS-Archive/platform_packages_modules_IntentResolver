@@ -53,26 +53,17 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"ปักหมุด <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"เลิกปักหมุด <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"แก้ไข"</string>
+    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # ไฟล์}other{{file_name} + # ไฟล์}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{อีก # ไฟล์}other{อีก # ไฟล์}}"</string>
-    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{อีก # ไฟล์}other{อีก # ไฟล์}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"กำลังแชร์ข้อความ"</string>
     <string name="sharing_link" msgid="2307694372813942916">"กำลังแชร์ลิงก์"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{กำลังแชร์รูปภาพ}other{กำลังแชร์รูปภาพ # รายการ}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{กำลังแชร์วิดีโอ}other{กำลังแชร์วิดีโอ # รายการ}}"</string>
-    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{กำลังจะแชร์ # ไฟล์}other{กำลังจะแชร์ # ไฟล์}}"</string>
-    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{กำลังแชร์รูปภาพพร้อมข้อความ}other{กำลังแชร์รูปภาพ # รายการพร้อมข้อความ}}"</string>
-    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{กำลังแชร์รูปภาพพร้อมลิงก์}other{กำลังแชร์รูปภาพ # รายการพร้อมลิงก์}}"</string>
-    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{กำลังแชร์วิดีโอพร้อมข้อความ}other{กำลังแชร์วิดีโอ # รายการพร้อมข้อความ}}"</string>
-    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{กำลังแชร์วิดีโอพร้อมลิงก์}other{กำลังแชร์วิดีโอ # รายการพร้อมลิงก์}}"</string>
-    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{กำลังแชร์ไฟล์พร้อมข้อความ}other{กำลังแชร์ไฟล์ # รายการพร้อมข้อความ}}"</string>
-    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{กำลังแชร์ไฟล์พร้อมลิงก์}other{กำลังแชร์ไฟล์ # รายการพร้อมลิงก์}}"</string>
-    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{รูปภาพเท่านั้น}other{รูปภาพเท่านั้น}}"</string>
-    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{วิดีโอเท่านั้น}other{วิดีโอเท่านั้น}}"</string>
-    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ไฟล์เท่านั้น}other{ไฟล์เท่านั้น}}"</string>
-    <string name="image_preview_a11y_description" msgid="297102643932491797">"ภาพตัวอย่างขนาดย่อของรูปภาพ"</string>
-    <string name="video_preview_a11y_description" msgid="683440858811095990">"ภาพตัวอย่างขนาดย่อของวิดีโอ"</string>
-    <string name="file_preview_a11y_description" msgid="7397224827802410602">"ภาพตัวอย่างขนาดย่อของไฟล์"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{กำลังแชร์ # รายการ}other{กำลังแชร์ # รายการ}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"กำลังแชร์รูปภาพพร้อมข้อความ"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"กำลังแชร์รูปภาพพร้อมลิงก์"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ไม่พบใครที่แนะนำให้แชร์ด้วย"</string>
+    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"รายชื่อแอป"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"แอปนี้ไม่ได้รับอนุญาตให้บันทึกเสียงแต่อาจเก็บเสียงผ่านอุปกรณ์ USB นี้ได้"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ส่วนตัว"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"งาน"</string>
@@ -83,8 +74,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"เปิดเนื้อหานี้โดยใช้แอปงานไม่ได้"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"แชร์เนื้อหานี้โดยใช้แอปส่วนตัวไม่ได้"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"เปิดเนื้อหานี้โดยใช้แอปส่วนตัวไม่ได้"</string>
-    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"แอปงานหยุดชั่วคราว"</string>
-    <string name="resolver_switch_on_work" msgid="8678893259344318807">"ยกเลิกการหยุดชั่วคราว"</string>
+    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"โปรไฟล์งานหยุดชั่วคราว"</string>
+    <string name="resolver_switch_on_work" msgid="4615505942222617333">"แตะเพื่อเปิด"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"ไม่มีแอปงาน"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"ไม่มีแอปส่วนตัว"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"เปิด <xliff:g id="APP">%s</xliff:g> ในโปรไฟล์ส่วนตัวไหม"</string>

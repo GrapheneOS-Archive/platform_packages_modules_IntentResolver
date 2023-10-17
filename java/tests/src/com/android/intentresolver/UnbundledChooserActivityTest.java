@@ -52,6 +52,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -107,6 +108,7 @@ import androidx.test.rule.ActivityTestRule;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.contentpreview.ImageLoader;
+import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
@@ -134,6 +136,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -862,7 +868,7 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
-    public void copyTextToClipboard() throws Exception {
+    public void copyTextToClipboard() {
         Intent sendIntent = createSendTextIntent();
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
 
@@ -877,7 +883,8 @@ public class UnbundledChooserActivityTest {
         ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(
                 Context.CLIPBOARD_SERVICE);
         ClipData clipData = clipboard.getPrimaryClip();
-        assertThat("testing intent sending", is(clipData.getItemAt(0).getText()));
+        assertThat(clipData).isNotNull();
+        assertThat(clipData.getItemAt(0).getText()).isEqualTo("testing intent sending");
 
         ClipDescription clipDescription = clipData.getDescription();
         assertThat("text/plain", is(clipDescription.getMimeType(0)));
@@ -899,8 +906,8 @@ public class UnbundledChooserActivityTest {
         onView(withId(R.id.copy)).check(matches(isDisplayed()));
         onView(withId(R.id.copy)).perform(click());
 
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
-        verify(logger, times(1)).logActionSelected(eq(ChooserActivityLogger.SELECTION_TYPE_COPY));
+        EventLog logger = activity.getEventLog();
+        verify(logger, times(1)).logActionSelected(eq(EventLog.SELECTION_TYPE_COPY));
     }
 
     @Test
@@ -1003,6 +1010,55 @@ public class UnbundledChooserActivityTest {
     }
 
     @Test
+    public void testSlowUriMetadata_fallbackToFilePreview() throws InterruptedException {
+        Uri uri = createTestContentProviderUri(
+                "application/pdf", "image/png", /*streamTypeTimeout=*/4_000);
+        ArrayList<Uri> uris = new ArrayList<>(1);
+        uris.add(uri);
+        Intent sendIntent = createSendUriIntentWithPreview(uris);
+        ChooserActivityOverrideData.getInstance().imageLoader =
+                createImageLoader(uri, createBitmap());
+
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+
+        setupResolverControllers(resolvedComponentInfos);
+        assertThat(launchActivityWithTimeout(Intent.createChooser(sendIntent, null), 2_000))
+                .isTrue();
+        waitForIdle();
+
+        onView(withId(R.id.content_preview_filename)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(withText("image.png")));
+        onView(withId(R.id.content_preview_file_icon)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testSendManyFilesWithSmallMetadataDelayAndOneImage_fallbackToFilePreviewUi()
+            throws InterruptedException {
+        Uri fileUri = createTestContentProviderUri(
+                "application/pdf", "application/pdf", /*streamTypeTimeout=*/150);
+        Uri imageUri = createTestContentProviderUri("application/pdf", "image/png");
+        ArrayList<Uri> uris = new ArrayList<>(50);
+        for (int i = 0; i < 49; i++) {
+            uris.add(fileUri);
+        }
+        uris.add(imageUri);
+        Intent sendIntent = createSendUriIntentWithPreview(uris);
+        ChooserActivityOverrideData.getInstance().imageLoader =
+                createImageLoader(imageUri, createBitmap());
+
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+        setupResolverControllers(resolvedComponentInfos);
+        assertThat(launchActivityWithTimeout(Intent.createChooser(sendIntent, null), 2_000))
+                .isTrue();
+
+        waitForIdle();
+
+        onView(withId(R.id.content_preview_filename)).check(matches(isDisplayed()));
+        onView(withId(R.id.content_preview_filename)).check(matches(withText("image.png")));
+        onView(withId(R.id.content_preview_file_icon)).check(matches(isDisplayed()));
+    }
+
+    @Test
     public void testManyVisibleImagePreview_ScrollableImagePreview() {
         Uri uri = createTestContentProviderUri("image/png", null);
 
@@ -1036,6 +1092,63 @@ public class UnbundledChooserActivityTest {
                     RecyclerView recyclerView = (RecyclerView) view;
                     assertThat(recyclerView.getAdapter().getItemCount(), is(uris.size()));
                 });
+    }
+
+    @Test
+    public void testPartiallyLoadedMetadata_previewIsShownForTheLoadedPart()
+            throws InterruptedException {
+        Uri imgOneUri = createTestContentProviderUri("image/png", null);
+        Uri imgTwoUri = createTestContentProviderUri("image/png", null)
+                .buildUpon()
+                .path("image-2.png")
+                .build();
+        Uri docUri = createTestContentProviderUri("application/pdf", "image/png", 3_000);
+        ArrayList<Uri> uris = new ArrayList<>(2);
+        // two large previews to fill the screen and be presented right away and one
+        // document that would be delayed by the URI metadata reading
+        uris.add(imgOneUri);
+        uris.add(imgTwoUri);
+        uris.add(docUri);
+
+        Intent sendIntent = createSendUriIntentWithPreview(uris);
+        Map<Uri, Bitmap> bitmaps = new HashMap<>();
+        bitmaps.put(imgOneUri, createWideBitmap(Color.RED));
+        bitmaps.put(imgTwoUri, createWideBitmap(Color.GREEN));
+        bitmaps.put(docUri, createWideBitmap(Color.BLUE));
+        ChooserActivityOverrideData.getInstance().imageLoader =
+                new TestPreviewImageLoader(bitmaps);
+
+        List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
+        setupResolverControllers(resolvedComponentInfos);
+
+        assertThat(launchActivityWithTimeout(Intent.createChooser(sendIntent, null), 1_000))
+                .isTrue();
+        waitForIdle();
+
+        onView(withId(R.id.scrollable_image_preview))
+                .check((view, exception) -> {
+                    if (exception != null) {
+                        throw exception;
+                    }
+                    RecyclerView recyclerView = (RecyclerView) view;
+                    assertThat(recyclerView.getChildCount()).isAtLeast(1);
+                    // the first view is a preview
+                    View imageView = recyclerView.getChildAt(0).findViewById(R.id.image);
+                    assertThat(imageView).isNotNull();
+                })
+                .perform(RecyclerViewActions.scrollToLastPosition())
+                .check((view, exception) -> {
+                    if (exception != null) {
+                        throw exception;
+                    }
+                    RecyclerView recyclerView = (RecyclerView) view;
+                    assertThat(recyclerView.getChildCount()).isAtLeast(1);
+                    // check that the last view is a loading indicator
+                    View loadingIndicator =
+                            recyclerView.getChildAt(recyclerView.getChildCount() - 1);
+                    assertThat(loadingIndicator).isNotNull();
+                });
+        waitForIdle();
     }
 
     @Test
@@ -1099,7 +1212,7 @@ public class UnbundledChooserActivityTest {
 
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, "logger test"));
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        EventLog logger = activity.getEventLog();
         waitForIdle();
 
         verify(logger).logChooserActivityShown(eq(false), eq(TEST_MIME_TYPE), anyLong());
@@ -1114,7 +1227,7 @@ public class UnbundledChooserActivityTest {
 
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, "logger test"));
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        EventLog logger = activity.getEventLog();
         waitForIdle();
 
         verify(logger).logChooserActivityShown(eq(true), eq(TEST_MIME_TYPE), anyLong());
@@ -1127,7 +1240,7 @@ public class UnbundledChooserActivityTest {
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(
                         Intent.createChooser(sendIntent, "empty preview logger test"));
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        EventLog logger = activity.getEventLog();
         waitForIdle();
 
         verify(logger).logChooserActivityShown(eq(false), eq(null), anyLong());
@@ -1146,7 +1259,7 @@ public class UnbundledChooserActivityTest {
         waitForIdle();
 
         // Second invocation is from onCreate
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        EventLog logger = activity.getEventLog();
         Mockito.verify(logger, times(1)).logActionShareWithPreview(eq(CONTENT_PREVIEW_TEXT));
     }
 
@@ -1168,7 +1281,7 @@ public class UnbundledChooserActivityTest {
         final IChooserWrapper activity = (IChooserWrapper)
                 mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        EventLog logger = activity.getEventLog();
         Mockito.verify(logger, times(1)).logActionShareWithPreview(eq(CONTENT_PREVIEW_IMAGE));
     }
 
@@ -1370,8 +1483,8 @@ public class UnbundledChooserActivityTest {
 
         ArgumentCaptor<HashedStringCache.HashResult> hashCaptor =
                 ArgumentCaptor.forClass(HashedStringCache.HashResult.class);
-        verify(activity.getChooserActivityLogger(), times(1)).logShareTargetSelected(
-                eq(ChooserActivityLogger.SELECTION_TYPE_SERVICE),
+        verify(activity.getEventLog(), times(1)).logShareTargetSelected(
+                eq(EventLog.SELECTION_TYPE_SERVICE),
                 /* packageName= */ any(),
                 /* positionPicked= */ anyInt(),
                 /* directTargetAlsoRanked= */ eq(-1),
@@ -1451,8 +1564,8 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        verify(activity.getChooserActivityLogger(), times(1)).logShareTargetSelected(
-                eq(ChooserActivityLogger.SELECTION_TYPE_SERVICE),
+        verify(activity.getEventLog(), times(1)).logShareTargetSelected(
+                eq(EventLog.SELECTION_TYPE_SERVICE),
                 /* packageName= */ any(),
                 /* positionPicked= */ anyInt(),
                 /* directTargetAlsoRanked= */ eq(0),
@@ -1466,14 +1579,10 @@ public class UnbundledChooserActivityTest {
     @Test
     public void testShortcutTargetWithApplyAppLimits() {
         // Set up resources
-        ChooserActivityOverrideData.getInstance().resources = Mockito.spy(
+        Resources resources = Mockito.spy(
                 InstrumentationRegistry.getInstrumentation().getContext().getResources());
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resources
-                        .getInteger(R.integer.config_maxShortcutTargetsPerApp))
-                .thenReturn(1);
+        ChooserActivityOverrideData.getInstance().resources = resources;
+        doReturn(1).when(resources).getInteger(R.integer.config_maxShortcutTargetsPerApp);
         Intent sendIntent = createSendTextIntent();
         // We need app targets for direct targets to get displayed
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
@@ -1541,14 +1650,10 @@ public class UnbundledChooserActivityTest {
                 SystemUiDeviceConfigFlags.APPLY_SHARING_APP_LIMITS_IN_SYSUI,
                 Boolean.toString(false));
         // Set up resources
-        ChooserActivityOverrideData.getInstance().resources = Mockito.spy(
+        Resources resources = Mockito.spy(
                 InstrumentationRegistry.getInstrumentation().getContext().getResources());
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resources
-                        .getInteger(R.integer.config_maxShortcutTargetsPerApp))
-                .thenReturn(1);
+        ChooserActivityOverrideData.getInstance().resources = resources;
+        doReturn(1).when(resources).getInteger(R.integer.config_maxShortcutTargetsPerApp);
         Intent sendIntent = createSendTextIntent();
         // We need app targets for direct targets to get displayed
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
@@ -1620,14 +1725,10 @@ public class UnbundledChooserActivityTest {
                 SystemUiDeviceConfigFlags.APPLY_SHARING_APP_LIMITS_IN_SYSUI,
                 Boolean.toString(false));
         // Set up resources
-        ChooserActivityOverrideData.getInstance().resources = Mockito.spy(
+        Resources resources = Mockito.spy(
                 InstrumentationRegistry.getInstrumentation().getContext().getResources());
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resources
-                        .getInteger(R.integer.config_maxShortcutTargetsPerApp))
-                .thenReturn(1);
+        ChooserActivityOverrideData.getInstance().resources = resources;
+        doReturn(1).when(resources).getInteger(R.integer.config_maxShortcutTargetsPerApp);
 
         // We need app targets for direct targets to get displayed
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
@@ -1823,14 +1924,10 @@ public class UnbundledChooserActivityTest {
                         .getResources().getConfiguration());
         configuration.orientation = orientation;
 
-        ChooserActivityOverrideData.getInstance().resources = Mockito.spy(
+        Resources resources = Mockito.spy(
                 InstrumentationRegistry.getInstrumentation().getContext().getResources());
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resources
-                        .getConfiguration())
-                .thenReturn(configuration);
+        ChooserActivityOverrideData.getInstance().resources = resources;
+        doReturn(configuration).when(resources).getConfiguration();
 
         Intent sendIntent = createSendTextIntent();
         // We need app targets for direct targets to get displayed
@@ -1877,9 +1974,9 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        ChooserActivityLogger logger = wrapper.getChooserActivityLogger();
+        EventLog logger = wrapper.getEventLog();
         verify(logger, times(1)).logShareTargetSelected(
-                eq(ChooserActivityLogger.SELECTION_TYPE_SERVICE),
+                eq(EventLog.SELECTION_TYPE_SERVICE),
                 /* packageName= */ any(),
                 /* positionPicked= */ anyInt(),
                 // The packages sholdn't match for app target and direct target:
@@ -2209,10 +2306,10 @@ public class UnbundledChooserActivityTest {
                 .perform(click());
         waitForIdle();
 
-        ChooserActivityLogger logger = activity.getChooserActivityLogger();
+        EventLog logger = activity.getEventLog();
         ArgumentCaptor<Integer> typeCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(logger, times(1)).logShareTargetSelected(
-                eq(ChooserActivityLogger.SELECTION_TYPE_SERVICE),
+                eq(EventLog.SELECTION_TYPE_SERVICE),
                 /* packageName= */ any(),
                 /* positionPicked= */ anyInt(),
                 /* directTargetAlsoRanked= */ anyInt(),
@@ -2654,15 +2751,25 @@ public class UnbundledChooserActivityTest {
 
     private Uri createTestContentProviderUri(
             @Nullable String mimeType, @Nullable String streamType) {
+        return createTestContentProviderUri(mimeType, streamType, 0);
+    }
+
+    private Uri createTestContentProviderUri(
+            @Nullable String mimeType, @Nullable String streamType, long streamTypeTimeout) {
         String packageName =
                 InstrumentationRegistry.getInstrumentation().getContext().getPackageName();
         Uri.Builder builder = Uri.parse("content://" + packageName + "/image.png")
                 .buildUpon();
         if (mimeType != null) {
-            builder.appendQueryParameter("mimeType", mimeType);
+            builder.appendQueryParameter(TestContentProvider.PARAM_MIME_TYPE, mimeType);
         }
         if (streamType != null) {
-            builder.appendQueryParameter("streamType", streamType);
+            builder.appendQueryParameter(TestContentProvider.PARAM_STREAM_TYPE, streamType);
+        }
+        if (streamTypeTimeout > 0) {
+            builder.appendQueryParameter(
+                    TestContentProvider.PARAM_STREAM_TYPE_TIMEOUT,
+                    Long.toString(streamTypeTimeout));
         }
         return builder.build();
     }
@@ -2792,11 +2899,44 @@ public class UnbundledChooserActivityTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
+    private boolean launchActivityWithTimeout(Intent intent, long timeout)
+            throws InterruptedException {
+        final int initialState = 0;
+        final int completedState = 1;
+        final int timeoutState = 2;
+        final AtomicInteger state = new AtomicInteger(initialState);
+        final CountDownLatch cdl = new CountDownLatch(1);
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+        try {
+            executor.execute(() -> {
+                mActivityRule.launchActivity(intent);
+                state.compareAndSet(initialState, completedState);
+                cdl.countDown();
+            });
+            executor.schedule(
+                    () -> {
+                        state.compareAndSet(initialState, timeoutState);
+                        cdl.countDown();
+                    },
+                    timeout,
+                    TimeUnit.MILLISECONDS);
+            cdl.await();
+            return state.get() == completedState;
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
     private Bitmap createBitmap() {
         return createBitmap(200, 200);
     }
 
     private Bitmap createWideBitmap() {
+        return createWideBitmap(Color.RED);
+    }
+
+    private Bitmap createWideBitmap(int bgColor) {
         WindowManager windowManager = InstrumentationRegistry.getInstrumentation()
                 .getTargetContext()
                 .getSystemService(WindowManager.class);
@@ -2805,15 +2945,19 @@ public class UnbundledChooserActivityTest {
             Rect bounds = windowManager.getMaximumWindowMetrics().getBounds();
             width = bounds.width() + 200;
         }
-        return createBitmap(width, 100);
+        return createBitmap(width, 100, bgColor);
     }
 
     private Bitmap createBitmap(int width, int height) {
+        return createBitmap(width, height, Color.RED);
+    }
+
+    private Bitmap createBitmap(int width, int height, int bgColor) {
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
 
         Paint paint = new Paint();
-        paint.setColor(Color.RED);
+        paint.setColor(bgColor);
         paint.setStyle(Paint.Style.FILL);
         canvas.drawPaint(paint);
 
@@ -2941,14 +3085,11 @@ public class UnbundledChooserActivityTest {
     }
 
     private void updateMaxTargetsPerRowResource(int targetsPerRow) {
-        ChooserActivityOverrideData.getInstance().resources = Mockito.spy(
+        Resources resources = Mockito.spy(
                 InstrumentationRegistry.getInstrumentation().getContext().getResources());
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .resources
-                        .getInteger(R.integer.config_chooser_max_targets_per_row))
-                .thenReturn(targetsPerRow);
+        ChooserActivityOverrideData.getInstance().resources = resources;
+        doReturn(targetsPerRow).when(resources).getInteger(
+                R.integer.config_chooser_max_targets_per_row);
     }
 
     private SparseArray<Pair<ShortcutLoader, Consumer<ShortcutLoader.Result>>>

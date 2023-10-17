@@ -27,6 +27,7 @@ import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_PERS
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_WORK_PROFILE_NOT_SUPPORTED;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_WORK_TAB;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_WORK_TAB_ACCESSIBILITY;
+import static android.content.Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.PermissionChecker.PID_UNKNOWN;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_PERSONAL;
@@ -119,6 +120,7 @@ import com.android.internal.util.LatencyTracker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -143,7 +145,14 @@ public class ResolverActivity extends FragmentActivity implements
         mIsIntentPicker = isIntentPicker;
     }
 
+    /**
+     * Whether to enable a launch mode that is safe to use when forwarding intents received from
+     * applications and running in system processes.  This mode uses Activity.startActivityAsCaller
+     * instead of the normal Activity.startActivity for launching the activity selected
+     * by the user.
+     */
     private boolean mSafeForwardingMode;
+
     private Button mAlwaysButton;
     private Button mOnceButton;
     protected View mProfileView;
@@ -332,38 +341,55 @@ public class ResolverActivity extends FragmentActivity implements
             mResolvingHome = true;
         }
 
-        setSafeForwardingMode(true);
-
-        onCreate(savedInstanceState, intent, null, 0, null, null, true, createIconLoader());
+        onCreate(
+                savedInstanceState,
+                intent,
+                /* additionalTargets= */ null,
+                /* title= */ null,
+                /* defaultTitleRes= */ 0,
+                /* initialIntents= */ null,
+                /* resolutionList= */ null,
+                /* supportsAlwaysUseOption= */ true,
+                createIconLoader(),
+                /* safeForwardingMode= */ true);
     }
 
     /**
      * Compatibility version for other bundled services that use this overload without
      * a default title resource
      */
-    protected void onCreate(Bundle savedInstanceState, Intent intent,
-            CharSequence title, Intent[] initialIntents,
-            List<ResolveInfo> rList, boolean supportsAlwaysUseOption) {
+    protected void onCreate(
+            Bundle savedInstanceState,
+            Intent intent,
+            CharSequence title,
+            Intent[] initialIntents,
+            List<ResolveInfo> resolutionList,
+            boolean supportsAlwaysUseOption,
+            boolean safeForwardingMode) {
         onCreate(
                 savedInstanceState,
                 intent,
+                null,
                 title,
                 0,
                 initialIntents,
-                rList,
+                resolutionList,
                 supportsAlwaysUseOption,
-                createIconLoader());
+                createIconLoader(),
+                safeForwardingMode);
     }
 
     protected void onCreate(
             Bundle savedInstanceState,
             Intent intent,
+            Intent[] additionalTargets,
             CharSequence title,
             int defaultTitleRes,
             Intent[] initialIntents,
-            List<ResolveInfo> rList,
+            List<ResolveInfo> resolutionList,
             boolean supportsAlwaysUseOption,
-            TargetDataLoader targetDataLoader) {
+            TargetDataLoader targetDataLoader,
+            boolean safeForwardingMode) {
         setTheme(appliedThemeResId());
         super.onCreate(savedInstanceState);
 
@@ -381,12 +407,17 @@ public class ResolverActivity extends FragmentActivity implements
 
         mReferrerPackage = getReferrerPackageName();
 
-        // Add our initial intent as the first item, regardless of what else has already been added.
+        // The initial intent must come before any other targets that are to be added.
         mIntents.add(0, new Intent(intent));
+        if (additionalTargets != null) {
+            Collections.addAll(mIntents, additionalTargets);
+        }
+
         mTitle = title;
         mDefaultTitleResId = defaultTitleRes;
 
         mSupportsAlwaysUseOption = supportsAlwaysUseOption;
+        mSafeForwardingMode = safeForwardingMode;
 
         // The last argument of createResolverListAdapter is whether to do special handling
         // of the last used choice to highlight it in the list.  We need to always
@@ -399,7 +430,7 @@ public class ResolverActivity extends FragmentActivity implements
         boolean filterLastUsed = mSupportsAlwaysUseOption && !isVoiceInteraction()
                 && !shouldShowTabs() && !hasCloneProfile();
         mMultiProfilePagerAdapter = createMultiProfilePagerAdapter(
-                initialIntents, rList, filterLastUsed, targetDataLoader);
+                initialIntents, resolutionList, filterLastUsed, targetDataLoader);
         if (configureContentView(targetDataLoader)) {
             return;
         }
@@ -455,17 +486,17 @@ public class ResolverActivity extends FragmentActivity implements
 
     protected AbstractMultiProfilePagerAdapter createMultiProfilePagerAdapter(
             Intent[] initialIntents,
-            List<ResolveInfo> rList,
+            List<ResolveInfo> resolutionList,
             boolean filterLastUsed,
             TargetDataLoader targetDataLoader) {
         AbstractMultiProfilePagerAdapter resolverMultiProfilePagerAdapter = null;
         if (shouldShowTabs()) {
             resolverMultiProfilePagerAdapter =
                     createResolverMultiProfilePagerAdapterForTwoProfiles(
-                            initialIntents, rList, filterLastUsed, targetDataLoader);
+                            initialIntents, resolutionList, filterLastUsed, targetDataLoader);
         } else {
             resolverMultiProfilePagerAdapter = createResolverMultiProfilePagerAdapterForOneProfile(
-                    initialIntents, rList, filterLastUsed, targetDataLoader);
+                    initialIntents, resolutionList, filterLastUsed, targetDataLoader);
         }
         return resolverMultiProfilePagerAdapter;
     }
@@ -1043,7 +1074,7 @@ public class ResolverActivity extends FragmentActivity implements
             Context context,
             List<Intent> payloadIntents,
             Intent[] initialIntents,
-            List<ResolveInfo> rList,
+            List<ResolveInfo> resolutionList,
             boolean filterLastUsed,
             UserHandle userHandle,
             TargetDataLoader targetDataLoader) {
@@ -1054,7 +1085,7 @@ public class ResolverActivity extends FragmentActivity implements
                 context,
                 payloadIntents,
                 initialIntents,
-                rList,
+                resolutionList,
                 filterLastUsed,
                 createListController(userHandle),
                 userHandle,
@@ -1127,6 +1158,12 @@ public class ResolverActivity extends FragmentActivity implements
         // flag set, we are now losing it.  That should be a very rare case
         // and we can live with this.
         intent.setFlags(intent.getFlags() & ~Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+
+        // If FLAG_ACTIVITY_LAUNCH_ADJACENT was set, ResolverActivity was opened in the alternate
+        // side, which means we want to open the target app on the same side as ResolverActivity.
+        if ((intent.getFlags() & FLAG_ACTIVITY_LAUNCH_ADJACENT) != 0) {
+            intent.setFlags(intent.getFlags() & ~FLAG_ACTIVITY_LAUNCH_ADJACENT);
+        }
         return intent;
     }
 
@@ -1142,14 +1179,14 @@ public class ResolverActivity extends FragmentActivity implements
     private ResolverMultiProfilePagerAdapter
             createResolverMultiProfilePagerAdapterForOneProfile(
                     Intent[] initialIntents,
-                    List<ResolveInfo> rList,
+                    List<ResolveInfo> resolutionList,
                     boolean filterLastUsed,
                     TargetDataLoader targetDataLoader) {
         ResolverListAdapter adapter = createResolverListAdapter(
                 /* context */ this,
                 /* payloadIntents */ mIntents,
                 initialIntents,
-                rList,
+                resolutionList,
                 filterLastUsed,
                 /* userHandle */ getPersonalProfileUserHandle(),
                 targetDataLoader);
@@ -1170,7 +1207,7 @@ public class ResolverActivity extends FragmentActivity implements
 
     private ResolverMultiProfilePagerAdapter createResolverMultiProfilePagerAdapterForTwoProfiles(
             Intent[] initialIntents,
-            List<ResolveInfo> rList,
+            List<ResolveInfo> resolutionList,
             boolean filterLastUsed,
             TargetDataLoader targetDataLoader) {
         // In the edge case when we have 0 apps in the current profile and >1 apps in the other,
@@ -1197,7 +1234,7 @@ public class ResolverActivity extends FragmentActivity implements
                 /* context */ this,
                 /* payloadIntents */ mIntents,
                 selectedProfile == PROFILE_PERSONAL ? initialIntents : null,
-                rList,
+                resolutionList,
                 (filterLastUsed && UserHandle.myUserId()
                         == getPersonalProfileUserHandle().getIdentifier()),
                 /* userHandle */ getPersonalProfileUserHandle(),
@@ -1207,7 +1244,7 @@ public class ResolverActivity extends FragmentActivity implements
                 /* context */ this,
                 /* payloadIntents */ mIntents,
                 selectedProfile == PROFILE_WORK ? initialIntents : null,
-                rList,
+                resolutionList,
                 (filterLastUsed && UserHandle.myUserId()
                         == workProfileUserHandle.getIdentifier()),
                 /* userHandle */ workProfileUserHandle,
@@ -1365,14 +1402,6 @@ public class ResolverActivity extends FragmentActivity implements
         return new Option(target.getDisplayLabel(), index);
     }
 
-    protected final void setAdditionalTargets(Intent[] intents) {
-        if (intents != null) {
-            for (Intent intent : intents) {
-                mIntents.add(intent);
-            }
-        }
-    }
-
     public final Intent getTargetIntent() {
         return mIntents.isEmpty() ? null : mIntents.get(0);
     }
@@ -1431,22 +1460,6 @@ public class ResolverActivity extends FragmentActivity implements
         return getSystemService(DevicePolicyManager.class).getResources().getString(
                 FORWARD_INTENT_TO_WORK,
                 () -> getString(R.string.forward_intent_to_work));
-    }
-
-    /**
-     * Turn on launch mode that is safe to use when forwarding intents received from
-     * applications and running in system processes.  This mode uses Activity.startActivityAsCaller
-     * instead of the normal Activity.startActivity for launching the activity selected
-     * by the user.
-     *
-     * <p>This mode is set to true by default if the activity is initialized through
-     * {@link #onCreate(android.os.Bundle)}.  If a subclass calls one of the other onCreate
-     * methods, it is set to false by default.  You must set it before calling one of the
-     * more detailed onCreate methods, so that it will be set correctly in the case where
-     * there is only one intent to resolve and it is thus started immediately.</p>
-     */
-    public final void setSafeForwardingMode(boolean safeForwarding) {
-        mSafeForwardingMode = safeForwarding;
     }
 
     protected final CharSequence getTitleForAction(Intent intent, int defaultTitleRes) {
@@ -1649,10 +1662,9 @@ public class ResolverActivity extends FragmentActivity implements
     /** Start the activity specified by the {@link TargetInfo}.*/
     public final void safelyStartActivity(TargetInfo cti) {
         // In case cloned apps are present, we would want to start those apps in cloned user
-        // space, which will not be same as adaptor's userHandle. resolveInfo.userHandle
+        // space, which will not be same as the adapter's userHandle. resolveInfo.userHandle
         // identifies the correct user space in such cases.
-        UserHandle activityUserHandle = getResolveInfoUserHandle(
-                cti.getResolveInfo(), mMultiProfilePagerAdapter.getCurrentUserHandle());
+        UserHandle activityUserHandle = cti.getResolveInfo().userHandle;
         safelyStartActivityAsUser(cti, activityUserHandle, null);
     }
 
@@ -2267,11 +2279,7 @@ public class ResolverActivity extends FragmentActivity implements
                 && Objects.equals(lhs.activityInfo.packageName, rhs.activityInfo.packageName)
                         // Comparing against resolveInfo.userHandle in case cloned apps are present,
                         // as they will have the same activityInfo.
-                && Objects.equals(
-                        getResolveInfoUserHandle(lhs,
-                                mMultiProfilePagerAdapter.getActiveListAdapter().getUserHandle()),
-                        getResolveInfoUserHandle(rhs,
-                                mMultiProfilePagerAdapter.getActiveListAdapter().getUserHandle()));
+                && Objects.equals(lhs.userHandle, rhs.userHandle);
     }
 
     private boolean inactiveListAdapterHasItems() {
@@ -2408,14 +2416,5 @@ public class ResolverActivity extends FragmentActivity implements
             userList.add(getCloneProfileUserHandle());
         }
         return userList;
-    }
-
-    /**
-     * This function is temporary in nature, and its usages will be replaced with just
-     * resolveInfo.userHandle, once it is available, once sharesheet is stable.
-     */
-    public static UserHandle getResolveInfoUserHandle(ResolveInfo resolveInfo,
-            UserHandle predictedHandle) {
-        return resolveInfo.userHandle;
     }
 }

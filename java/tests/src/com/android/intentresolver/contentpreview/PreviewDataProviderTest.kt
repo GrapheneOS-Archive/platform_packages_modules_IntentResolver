@@ -22,18 +22,15 @@ import android.database.MatrixCursor
 import android.media.MediaMetadata
 import android.net.Uri
 import android.provider.DocumentsContract
-import androidx.lifecycle.Lifecycle
-import com.android.intentresolver.TestLifecycleOwner
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.Dispatchers
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
-import org.junit.After
-import org.junit.Before
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.mockito.Mockito.any
 import org.mockito.Mockito.never
@@ -44,27 +41,13 @@ import org.mockito.Mockito.verify
 class PreviewDataProviderTest {
     private val contentResolver = mock<ContentInterface>()
     private val mimeTypeClassifier = DefaultMimeTypeClassifier
-
-    private val lifecycleOwner = TestLifecycleOwner()
-    private val dispatcher = UnconfinedTestDispatcher()
-
-    @Before
-    fun setup() {
-        Dispatchers.setMain(dispatcher)
-        lifecycleOwner.state = Lifecycle.State.CREATED
-    }
-
-    @After
-    fun cleanup() {
-        lifecycleOwner.state = Lifecycle.State.DESTROYED
-        Dispatchers.resetMain()
-    }
+    private val testScope = TestScope(EmptyCoroutineContext + UnconfinedTestDispatcher())
 
     @Test
     fun test_nonSendIntentAction_resolvesToTextPreviewUiSynchronously() {
         val targetIntent = Intent(Intent.ACTION_VIEW)
         val testSubject =
-            PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
         assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_TEXT)
         verify(contentResolver, never()).getType(any())
@@ -73,14 +56,14 @@ class PreviewDataProviderTest {
     @Test
     fun test_sendSingleTextFileWithoutPreview_resolvesToFilePreviewUi() {
         val uri = Uri.parse("content://org.pkg.app/notes.txt")
-        val targetIntent = Intent(Intent.ACTION_SEND)
-            .apply {
+        val targetIntent =
+            Intent(Intent.ACTION_SEND).apply {
                 putExtra(Intent.EXTRA_STREAM, uri)
                 type = "text/plain"
             }
         whenever(contentResolver.getType(uri)).thenReturn("text/plain")
         val testSubject =
-            PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
         assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
         assertThat(testSubject.uriCount).isEqualTo(1)
@@ -90,12 +73,9 @@ class PreviewDataProviderTest {
 
     @Test
     fun test_sendIntentWithoutUris_resolvesToTextPreviewUiSynchronously() {
-        val targetIntent = Intent(Intent.ACTION_SEND)
-            .apply {
-                type = "image/png"
-            }
+        val targetIntent = Intent(Intent.ACTION_SEND).apply { type = "image/png" }
         val testSubject =
-            PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
         assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_TEXT)
         verify(contentResolver, never()).getType(any())
@@ -104,13 +84,10 @@ class PreviewDataProviderTest {
     @Test
     fun test_sendSingleImage_resolvesToImagePreviewUi() {
         val uri = Uri.parse("content://org.pkg.app/image.png")
-        val targetIntent = Intent(Intent.ACTION_SEND)
-            .apply {
-                putExtra(Intent.EXTRA_STREAM, uri)
-            }
+        val targetIntent = Intent(Intent.ACTION_SEND).apply { putExtra(Intent.EXTRA_STREAM, uri) }
         whenever(contentResolver.getType(uri)).thenReturn("image/png")
         val testSubject =
-            PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
         assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
         assertThat(testSubject.uriCount).isEqualTo(1)
@@ -122,13 +99,10 @@ class PreviewDataProviderTest {
     @Test
     fun test_sendSingleNonImage_resolvesToFilePreviewUi() {
         val uri = Uri.parse("content://org.pkg.app/paper.pdf")
-        val targetIntent = Intent(Intent.ACTION_SEND)
-            .apply {
-                putExtra(Intent.EXTRA_STREAM, uri)
-            }
+        val targetIntent = Intent(Intent.ACTION_SEND).apply { putExtra(Intent.EXTRA_STREAM, uri) }
         whenever(contentResolver.getType(uri)).thenReturn("application/pdf")
         val testSubject =
-            PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
         assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
         assertThat(testSubject.uriCount).isEqualTo(1)
@@ -141,14 +115,13 @@ class PreviewDataProviderTest {
     fun test_sendSingleImageWithFailingGetType_resolvesToFilePreviewUi() {
         val uri = Uri.parse("content://org.pkg.app/image.png")
         val targetIntent =
-            Intent(Intent.ACTION_SEND)
-                .apply {
-                    type = "image/png"
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                }
+            Intent(Intent.ACTION_SEND).apply {
+                type = "image/png"
+                putExtra(Intent.EXTRA_STREAM, uri)
+            }
         whenever(contentResolver.getType(uri)).thenThrow(SecurityException("test failure"))
         val testSubject =
-            PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
         assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
         assertThat(testSubject.uriCount).isEqualTo(1)
@@ -161,17 +134,16 @@ class PreviewDataProviderTest {
     fun test_sendSingleImageWithFailingMetadata_resolvesToFilePreviewUi() {
         val uri = Uri.parse("content://org.pkg.app/image.png")
         val targetIntent =
-            Intent(Intent.ACTION_SEND)
-                .apply {
-                    type = "image/png"
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                }
+            Intent(Intent.ACTION_SEND).apply {
+                type = "image/png"
+                putExtra(Intent.EXTRA_STREAM, uri)
+            }
         whenever(contentResolver.getStreamTypes(uri, "*/*"))
             .thenThrow(SecurityException("test failure"))
         whenever(contentResolver.query(uri, METADATA_COLUMNS, null, null))
             .thenThrow(SecurityException("test failure"))
         val testSubject =
-            PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
         assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
         assertThat(testSubject.uriCount).isEqualTo(1)
@@ -183,14 +155,11 @@ class PreviewDataProviderTest {
     @Test
     fun test_SingleNonImageUriWithImageTypeInGetStreamTypes_useImagePreviewUi() {
         val uri = Uri.parse("content://org.pkg.app/paper.pdf")
-        val targetIntent = Intent(Intent.ACTION_SEND)
-            .apply {
-                putExtra(Intent.EXTRA_STREAM, uri)
-            }
+        val targetIntent = Intent(Intent.ACTION_SEND).apply { putExtra(Intent.EXTRA_STREAM, uri) }
         whenever(contentResolver.getStreamTypes(uri, "*/*"))
             .thenReturn(arrayOf("application/pdf", "image/png"))
         val testSubject =
-            PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
         assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
         assertThat(testSubject.uriCount).isEqualTo(1)
@@ -221,15 +190,12 @@ class PreviewDataProviderTest {
 
     private fun testMetadataToImagePreview(columns: Array<String>, values: Array<Any>) {
         val uri = Uri.parse("content://org.pkg.app/test.pdf")
-        val targetIntent = Intent(Intent.ACTION_SEND)
-            .apply {
-                putExtra(Intent.EXTRA_STREAM, uri)
-            }
+        val targetIntent = Intent(Intent.ACTION_SEND).apply { putExtra(Intent.EXTRA_STREAM, uri) }
         whenever(contentResolver.getType(uri)).thenReturn("application/pdf")
         whenever(contentResolver.query(uri, METADATA_COLUMNS, null, null))
             .thenReturn(MatrixCursor(columns).apply { addRow(values) })
         val testSubject =
-            PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
         assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
         assertThat(testSubject.uriCount).isEqualTo(1)
@@ -243,20 +209,19 @@ class PreviewDataProviderTest {
         val uri1 = Uri.parse("content://org.pkg.app/test.png")
         val uri2 = Uri.parse("content://org.pkg.app/test.jpg")
         val targetIntent =
-            Intent(Intent.ACTION_SEND_MULTIPLE)
-                .apply {
-                    putExtra(
-                        Intent.EXTRA_STREAM,
-                        ArrayList<Uri>().apply {
-                            add(uri1)
-                            add(uri2)
-                        }
-                    )
-                }
+            Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                putExtra(
+                    Intent.EXTRA_STREAM,
+                    ArrayList<Uri>().apply {
+                        add(uri1)
+                        add(uri2)
+                    }
+                )
+            }
         whenever(contentResolver.getType(uri1)).thenReturn("image/png")
         whenever(contentResolver.getType(uri2)).thenReturn("image/jpeg")
         val testSubject =
-            PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
         assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
         assertThat(testSubject.uriCount).isEqualTo(2)
@@ -273,18 +238,17 @@ class PreviewDataProviderTest {
         whenever(contentResolver.getType(uri1)).thenReturn("image/png")
         whenever(contentResolver.getType(uri2)).thenReturn("application/pdf")
         val targetIntent =
-            Intent(Intent.ACTION_SEND_MULTIPLE)
-                .apply {
-                    putExtra(
-                        Intent.EXTRA_STREAM,
-                        ArrayList<Uri>().apply {
-                            add(uri1)
-                            add(uri2)
-                        }
-                    )
-                }
+            Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                putExtra(
+                    Intent.EXTRA_STREAM,
+                    ArrayList<Uri>().apply {
+                        add(uri1)
+                        add(uri2)
+                    }
+                )
+            }
         val testSubject =
-            PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
         assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
         assertThat(testSubject.uriCount).isEqualTo(2)
@@ -299,21 +263,20 @@ class PreviewDataProviderTest {
         val uri1 = Uri.parse("content://org.pkg.app/test.mp4")
         val uri2 = Uri.parse("content://org.pkg.app/test.pdf")
         val targetIntent =
-            Intent(Intent.ACTION_SEND_MULTIPLE)
-                .apply {
-                    putExtra(
-                        Intent.EXTRA_STREAM,
-                        ArrayList<Uri>().apply {
-                            add(uri1)
-                            add(uri2)
-                        }
-                    )
-                }
+            Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                putExtra(
+                    Intent.EXTRA_STREAM,
+                    ArrayList<Uri>().apply {
+                        add(uri1)
+                        add(uri2)
+                    }
+                )
+            }
         whenever(contentResolver.getType(uri1)).thenReturn("video/mpeg4")
         whenever(contentResolver.getStreamTypes(uri1, "*/*")).thenReturn(arrayOf("image/png"))
         whenever(contentResolver.getType(uri2)).thenReturn("application/pdf")
         val testSubject =
-            PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
         assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
         assertThat(testSubject.uriCount).isEqualTo(2)
@@ -327,8 +290,34 @@ class PreviewDataProviderTest {
         val uri1 = Uri.parse("content://org.pkg.app/test.html")
         val uri2 = Uri.parse("content://org.pkg.app/test.pdf")
         val targetIntent =
-            Intent(Intent.ACTION_SEND_MULTIPLE)
-                .apply {
+            Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                putExtra(
+                    Intent.EXTRA_STREAM,
+                    ArrayList<Uri>().apply {
+                        add(uri1)
+                        add(uri2)
+                    }
+                )
+            }
+        whenever(contentResolver.getType(uri1)).thenReturn("text/html")
+        whenever(contentResolver.getType(uri2)).thenReturn("application/pdf")
+        val testSubject =
+            PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
+
+        assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
+        assertThat(testSubject.uriCount).isEqualTo(2)
+        assertThat(testSubject.firstFileInfo?.uri).isEqualTo(uri1)
+        assertThat(testSubject.firstFileInfo?.previewUri).isNull()
+        verify(contentResolver, times(2)).getType(any())
+    }
+
+    @Test
+    fun test_imagePreviewFileInfoFlow_dataLoadedOnce() =
+        testScope.runTest {
+            val uri1 = Uri.parse("content://org.pkg.app/test.html")
+            val uri2 = Uri.parse("content://org.pkg.app/test.pdf")
+            val targetIntent =
+                Intent(Intent.ACTION_SEND_MULTIPLE).apply {
                     putExtra(
                         Intent.EXTRA_STREAM,
                         ArrayList<Uri>().apply {
@@ -337,15 +326,24 @@ class PreviewDataProviderTest {
                         }
                     )
                 }
-        whenever(contentResolver.getType(uri1)).thenReturn("text/html")
-        whenever(contentResolver.getType(uri2)).thenReturn("application/pdf")
-        val testSubject =
-            PreviewDataProvider(targetIntent, contentResolver, mimeTypeClassifier, dispatcher)
+            whenever(contentResolver.getType(uri1)).thenReturn("text/html")
+            whenever(contentResolver.getType(uri2)).thenReturn("application/pdf")
+            whenever(contentResolver.getStreamTypes(uri1, "*/*"))
+                .thenReturn(arrayOf("text/html", "image/jpeg"))
+            whenever(contentResolver.getStreamTypes(uri2, "*/*"))
+                .thenReturn(arrayOf("application/pdf", "image/png"))
+            val testSubject =
+                PreviewDataProvider(testScope, targetIntent, contentResolver, mimeTypeClassifier)
 
-        assertThat(testSubject.previewType).isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
-        assertThat(testSubject.uriCount).isEqualTo(2)
-        assertThat(testSubject.firstFileInfo?.uri).isEqualTo(uri1)
-        assertThat(testSubject.firstFileInfo?.previewUri).isNull()
-        verify(contentResolver, times(2)).getType(any())
-    }
+            val fileInfoListOne = testSubject.imagePreviewFileInfoFlow.toList()
+            val fileInfoListTwo = testSubject.imagePreviewFileInfoFlow.toList()
+
+            assertThat(fileInfoListOne).hasSize(2)
+            assertThat(fileInfoListOne).containsAtLeastElementsIn(fileInfoListTwo).inOrder()
+
+            verify(contentResolver, times(1)).getType(uri1)
+            verify(contentResolver, times(1)).getStreamTypes(uri1, "*/*")
+            verify(contentResolver, times(1)).getType(uri2)
+            verify(contentResolver, times(1)).getStreamTypes(uri2, "*/*")
+        }
 }

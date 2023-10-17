@@ -27,6 +27,7 @@ import android.graphics.drawable.Icon
 import android.service.chooser.ChooserAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.intentresolver.logging.EventLog
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
@@ -43,7 +44,7 @@ import org.mockito.Mockito
 class ChooserActionFactoryTest {
     private val context = InstrumentationRegistry.getInstrumentation().getContext()
 
-    private val logger = mock<ChooserActivityLogger>()
+    private val logger = mock<EventLog>()
     private val actionLabel = "Action label"
     private val modifyShareLabel = "Modify share"
     private val testAction = "com.android.intentresolver.testaction"
@@ -107,7 +108,7 @@ class ChooserActionFactoryTest {
         action.onClicked.run()
 
         Mockito.verify(logger)
-            .logActionSelected(eq(ChooserActivityLogger.SELECTION_TYPE_MODIFY_SHARE))
+            .logActionSelected(eq(EventLog.SELECTION_TYPE_MODIFY_SHARE))
         assertEquals(Activity.RESULT_OK, resultConsumer.latestReturn)
         // Verify the pending intent has been called
         countdown.await(500, TimeUnit.MILLISECONDS)

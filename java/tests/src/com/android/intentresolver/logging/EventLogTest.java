@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver;
+package com.android.intentresolver.logging;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -32,10 +32,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import android.content.Intent;
 import android.metrics.LogMaker;
 
-import com.android.intentresolver.ChooserActivityLogger.FrameworkStatsLogger;
-import com.android.intentresolver.ChooserActivityLogger.SharesheetStandardEvent;
-import com.android.intentresolver.ChooserActivityLogger.SharesheetStartedEvent;
-import com.android.intentresolver.ChooserActivityLogger.SharesheetTargetSelectedEvent;
+import com.android.intentresolver.logging.EventLog.FrameworkStatsLogger;
+import com.android.intentresolver.logging.EventLog.SharesheetStandardEvent;
+import com.android.intentresolver.logging.EventLog.SharesheetStartedEvent;
+import com.android.intentresolver.logging.EventLog.SharesheetTargetSelectedEvent;
 import com.android.intentresolver.contentpreview.ContentPreviewType;
 import com.android.internal.logging.InstanceId;
 import com.android.internal.logging.MetricsLogger;
@@ -53,17 +53,17 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class ChooserActivityLoggerTest {
+public final class EventLogTest {
     @Mock private UiEventLogger mUiEventLog;
     @Mock private FrameworkStatsLogger mFrameworkLog;
     @Mock private MetricsLogger mMetricsLogger;
 
-    private ChooserActivityLogger mChooserLogger;
+    private EventLog mChooserLogger;
 
     @Before
     public void setUp() {
         //Mockito.reset(mUiEventLog, mFrameworkLog, mMetricsLogger);
-        mChooserLogger = new ChooserActivityLogger(mUiEventLog, mFrameworkLog, mMetricsLogger);
+        mChooserLogger = new EventLog(mUiEventLog, mFrameworkLog, mMetricsLogger);
     }
 
     @After
@@ -151,7 +151,7 @@ public final class ChooserActivityLoggerTest {
 
     @Test
     public void testLogShareTargetSelected() {
-        final int targetType = ChooserActivityLogger.SELECTION_TYPE_SERVICE;
+        final int targetType = EventLog.SELECTION_TYPE_SERVICE;
         final String packageName = "com.test.foo";
         final int positionPicked = 123;
         final int directTargetAlsoRanked = -1;
@@ -189,7 +189,7 @@ public final class ChooserActivityLoggerTest {
 
     @Test
     public void testLogActionSelected() {
-        mChooserLogger.logActionSelected(ChooserActivityLogger.SELECTION_TYPE_COPY);
+        mChooserLogger.logActionSelected(EventLog.SELECTION_TYPE_COPY);
 
         verify(mFrameworkLog).write(
                 eq(FrameworkStatsLog.RANKING_SELECTED),
@@ -320,10 +320,10 @@ public final class ChooserActivityLoggerTest {
     @Test
     public void testDifferentLoggerInstancesUseDifferentInstanceIds() {
         ArgumentCaptor<Integer> idIntCaptor = ArgumentCaptor.forClass(Integer.class);
-        ChooserActivityLogger chooserLogger2 =
-                new ChooserActivityLogger(mUiEventLog, mFrameworkLog, mMetricsLogger);
+        EventLog chooserLogger2 =
+                new EventLog(mUiEventLog, mFrameworkLog, mMetricsLogger);
 
-        final int targetType = ChooserActivityLogger.SELECTION_TYPE_COPY;
+        final int targetType = EventLog.SELECTION_TYPE_COPY;
         final String packageName = "com.test.foo";
         final int positionPicked = 123;
         final int directTargetAlsoRanked = -1;
@@ -370,7 +370,7 @@ public final class ChooserActivityLoggerTest {
         ArgumentCaptor<Integer> idIntCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<InstanceId> idObjectCaptor = ArgumentCaptor.forClass(InstanceId.class);
 
-        final int targetType = ChooserActivityLogger.SELECTION_TYPE_COPY;
+        final int targetType = EventLog.SELECTION_TYPE_COPY;
         final String packageName = "com.test.foo";
         final int positionPicked = 123;
         final int directTargetAlsoRanked = -1;
@@ -403,20 +403,20 @@ public final class ChooserActivityLoggerTest {
 
     @Test
     public void testTargetSelectionCategories() {
-        assertThat(ChooserActivityLogger.getTargetSelectionCategory(
-                ChooserActivityLogger.SELECTION_TYPE_SERVICE))
+        assertThat(EventLog.getTargetSelectionCategory(
+                EventLog.SELECTION_TYPE_SERVICE))
                         .isEqualTo(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_SERVICE_TARGET);
-        assertThat(ChooserActivityLogger.getTargetSelectionCategory(
-                ChooserActivityLogger.SELECTION_TYPE_APP))
+        assertThat(EventLog.getTargetSelectionCategory(
+                EventLog.SELECTION_TYPE_APP))
                         .isEqualTo(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_APP_TARGET);
-        assertThat(ChooserActivityLogger.getTargetSelectionCategory(
-                ChooserActivityLogger.SELECTION_TYPE_STANDARD))
+        assertThat(EventLog.getTargetSelectionCategory(
+                EventLog.SELECTION_TYPE_STANDARD))
                         .isEqualTo(MetricsEvent.ACTION_ACTIVITY_CHOOSER_PICKED_STANDARD_TARGET);
-        assertThat(ChooserActivityLogger.getTargetSelectionCategory(
-                ChooserActivityLogger.SELECTION_TYPE_COPY)).isEqualTo(0);
-        assertThat(ChooserActivityLogger.getTargetSelectionCategory(
-                ChooserActivityLogger.SELECTION_TYPE_NEARBY)).isEqualTo(0);
-        assertThat(ChooserActivityLogger.getTargetSelectionCategory(
-                ChooserActivityLogger.SELECTION_TYPE_EDIT)).isEqualTo(0);
+        assertThat(EventLog.getTargetSelectionCategory(
+                EventLog.SELECTION_TYPE_COPY)).isEqualTo(0);
+        assertThat(EventLog.getTargetSelectionCategory(
+                EventLog.SELECTION_TYPE_NEARBY)).isEqualTo(0);
+        assertThat(EventLog.getTargetSelectionCategory(
+                EventLog.SELECTION_TYPE_EDIT)).isEqualTo(0);
     }
 }

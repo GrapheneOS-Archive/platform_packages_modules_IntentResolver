@@ -49,6 +49,7 @@ import com.android.intentresolver.chooser.NotSelectableTargetInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.icons.TargetDataLoader;
+import com.android.intentresolver.logging.EventLog;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 
@@ -80,7 +81,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
     private final ChooserRequestParameters mChooserRequest;
     private final int mMaxRankedTargets;
 
-    private final ChooserActivityLogger mChooserActivityLogger;
+    private final EventLog mEventLog;
 
     private final Set<TargetInfo> mRequestedIcons = new HashSet<>();
 
@@ -139,7 +140,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
             Intent targetIntent,
             ResolverListCommunicator resolverListCommunicator,
             PackageManager packageManager,
-            ChooserActivityLogger chooserActivityLogger,
+            EventLog eventLog,
             ChooserRequestParameters chooserRequest,
             int maxRankedTargets,
             UserHandle initialIntentsUserSpace,
@@ -165,7 +166,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
         mPlaceHolderTargetInfo = NotSelectableTargetInfo.newPlaceHolderTargetInfo(context);
         mTargetDataLoader = targetDataLoader;
         createPlaceHolders();
-        mChooserActivityLogger = chooserActivityLogger;
+        mEventLog = eventLog;
         mShortcutSelectionLogic = new ShortcutSelectionLogic(
                 context.getResources().getInteger(R.integer.config_maxShortcutTargetsPerApp),
                 DeviceConfig.getBoolean(
@@ -384,8 +385,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
                         .collect(Collectors.groupingBy(target ->
                                 target.getResolvedComponentName().getPackageName()
                                 + "#" + target.getDisplayLabel()
-                                + '#' + ResolverActivity.getResolveInfoUserHandle(
-                                        target.getResolveInfo(), getUserHandle()).getIdentifier()
+                                + '#' + target.getResolveInfo().userHandle.getIdentifier()
                         ))
                         .values()
                         .stream()
@@ -634,7 +634,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
         mServiceTargets.removeIf(o -> o.isPlaceHolderTargetInfo());
         if (mServiceTargets.isEmpty()) {
             mServiceTargets.add(NotSelectableTargetInfo.newEmptyTargetInfo());
-            mChooserActivityLogger.logSharesheetEmptyDirectShareRow();
+            mEventLog.logSharesheetEmptyDirectShareRow();
         }
         notifyDataSetChanged();
     }

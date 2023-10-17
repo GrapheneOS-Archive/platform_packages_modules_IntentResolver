@@ -38,14 +38,18 @@ import com.android.intentresolver.measurements.runTracing
 import com.android.intentresolver.util.ownedByCurrentUser
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Consumer
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
@@ -68,29 +72,43 @@ private const val TIMEOUT_MS = 1_000L
  */
 @OpenForTesting
 open class PreviewDataProvider
-@VisibleForTesting
+@JvmOverloads
 constructor(
+    private val scope: CoroutineScope,
     private val targetIntent: Intent,
     private val contentResolver: ContentInterface,
-    private val typeClassifier: MimeTypeClassifier,
-    private val dispatcher: CoroutineDispatcher,
+    private val typeClassifier: MimeTypeClassifier = DefaultMimeTypeClassifier,
 ) {
-    constructor(
-        targetIntent: Intent,
-        contentResolver: ContentInterface,
-    ) : this(
-        targetIntent,
-        contentResolver,
-        DefaultMimeTypeClassifier,
-        Dispatchers.IO,
-    )
 
     private val records = targetIntent.contentUris.map { UriRecord(it) }
+
+    private val fileInfoSharedFlow: SharedFlow<FileInfo> by lazy {
+        // Alternatively, we could just use [shareIn()] on a [flow] -- and it would be, arguably,
+        //  cleaner -- but we'd lost the ability to trace the traverse as [runTracing] does not
+        //  generally work over suspend function invocations.
+        MutableSharedFlow<FileInfo>(replay = records.size).apply {
+            scope.launch {
+                runTracing("image-preview-metadata") {
+                    for (record in records) {
+                        tryEmit(FileInfo.Builder(record.uri).readFromRecord(record).build())
+                    }
+                }
+            }
+        }
+    }
 
     /** returns number of shared URIs, see [Intent.EXTRA_STREAM] */
     @get:OpenForTesting
     open val uriCount: Int
         get() = records.size
+
+    /**
+     * Returns a [Flow] of [FileInfo], for each shared URI in order, with [FileInfo.mimeType] and
+     * [FileInfo.previewUri] set (a data projection tailored for the image preview UI).
+     */
+    @get:OpenForTesting
+    open val imagePreviewFileInfoFlow: Flow<FileInfo>
+        get() = fileInfoSharedFlow.take(records.size)
 
     /**
      * Preview type to use. The type is determined asynchronously with a timeout; the fall-back
@@ -107,10 +125,18 @@ constructor(
             if (!targetIntent.isSend || records.isEmpty()) {
                 CONTENT_PREVIEW_TEXT
             } else {
-                runBlocking(dispatcher) {
-                    withTimeoutOrNull(TIMEOUT_MS) {
-                        loadPreviewType()
-                    } ?: CONTENT_PREVIEW_FILE
+                try {
+                    runBlocking(scope.coroutineContext) {
+                        withTimeoutOrNull(TIMEOUT_MS) { scope.async { loadPreviewType() }.await() }
+                            ?: CONTENT_PREVIEW_FILE
+                    }
+                } catch (e: CancellationException) {
+                    Log.w(
+                        ContentPreviewUi.TAG,
+                        "An attempt to read preview type from a cancelled scope",
+                        e
+                    )
+                    CONTENT_PREVIEW_FILE
                 }
             }
         }
@@ -123,46 +149,24 @@ constructor(
     open val firstFileInfo: FileInfo? by lazy {
         runTracing("first-uri-metadata") {
             records.firstOrNull()?.let { record ->
-                runBlocking(dispatcher) {
-                    val builder = FileInfo.Builder(record.uri)
-                    withTimeoutOrNull(TIMEOUT_MS) {
-                        builder.readFromRecord(record)
+                val builder = FileInfo.Builder(record.uri)
+                try {
+                    runBlocking(scope.coroutineContext) {
+                        withTimeoutOrNull(TIMEOUT_MS) {
+                            scope.async { builder.readFromRecord(record) }.await()
+                        }
                     }
-                    builder.build()
-                }
-            }
-        }
-    }
-
-    /**
-     * Returns a collection of [FileInfo], for each shared URI in order, with [FileInfo.mimeType]
-     * and [FileInfo.previewUri] set (a data projection tailored for the image preview UI).
-     */
-    @OpenForTesting
-    open fun getFileMetadataForImagePreview(
-        callerLifecycle: Lifecycle,
-        callback: Consumer<List<FileInfo>>,
-    ) {
-        callerLifecycle.coroutineScope.launch {
-            val result = withContext(dispatcher) {
-                getFileMetadataForImagePreview()
-            }
-            callback.accept(result)
-        }
-    }
-
-    private fun getFileMetadataForImagePreview(): List<FileInfo> =
-        runTracing("image-preview-metadata") {
-            ArrayList<FileInfo>(records.size).also { result ->
-                for (record in records) {
-                    result.add(
-                        FileInfo.Builder(record.uri)
-                            .readFromRecord(record)
-                            .build()
+                } catch (e: CancellationException) {
+                    Log.w(
+                        ContentPreviewUi.TAG,
+                        "An attempt to read first file info from a cancelled scope",
+                        e
                     )
                 }
+                builder.build()
             }
         }
+    }
 
     private fun FileInfo.Builder.readFromRecord(record: UriRecord): FileInfo.Builder {
         withMimeType(record.mimeType)
@@ -186,9 +190,7 @@ constructor(
             throw IndexOutOfBoundsException("There are no shared URIs")
         }
         callerLifecycle.coroutineScope.launch {
-            val result = withContext(dispatcher) {
-                getFirstFileName()
-            }
+            val result = scope.async { getFirstFileName() }.await()
             callback.accept(result)
         }
     }
@@ -237,8 +239,7 @@ constructor(
                 }
                 resultDeferred.complete(CONTENT_PREVIEW_FILE)
             }
-            resultDeferred.await()
-                .also { job.cancel() }
+            resultDeferred.await().also { job.cancel() }
         }
     }
 
@@ -251,8 +252,8 @@ constructor(
         val isImageType: Boolean
             get() = typeClassifier.isImageType(mimeType)
         val supportsImageType: Boolean by lazy {
-            contentResolver.getStreamTypesSafe(uri)
-                ?.firstOrNull(typeClassifier::isImageType) != null
+            contentResolver.getStreamTypesSafe(uri)?.firstOrNull(typeClassifier::isImageType) !=
+                null
         }
         val supportsThumbnail: Boolean
             get() = query.supportsThumbnail
@@ -264,9 +265,8 @@ constructor(
         private val query by lazy { readQueryResult() }
 
         private fun readQueryResult(): QueryResult {
-            val cursor = contentResolver.querySafe(uri)
-                ?.takeIf { it.moveToFirst() }
-                ?: return QueryResult()
+            val cursor =
+                contentResolver.querySafe(uri)?.takeIf { it.moveToFirst() } ?: return QueryResult()
 
             var flagColIdx = -1
             var displayIconUriColIdx = -1

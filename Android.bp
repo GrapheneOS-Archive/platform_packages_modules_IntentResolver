@@ -63,7 +63,7 @@ android_library {
         "java/res",
     ],
 
-    manifest: "AndroidManifest.xml",
+    manifest: "AndroidManifest-lib.xml",
 
     static_libs: [
         "androidx.annotation_annotation",
@@ -86,6 +86,10 @@ android_library {
     lint: {
         strict_updatability_linting: false,
     },
+
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
 }
 
 android_app {
@@ -93,6 +97,7 @@ android_app {
     min_sdk_version: "current",
     certificate: "platform",
     privileged: true,
+    manifest: "AndroidManifest-app.xml",
     required: [
         "privapp_whitelist_com.android.intentresolver",
     ],
