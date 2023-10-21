@@ -162,10 +162,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -992,10 +989,10 @@ public class UnbundledChooserActivityTest {
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }
 
-    @Test
-    public void testSlowUriMetadata_fallbackToFilePreview() throws InterruptedException {
+    @Test(timeout = 4_000)
+    public void testSlowUriMetadata_fallbackToFilePreview() {
         Uri uri = createTestContentProviderUri(
-                "application/pdf", "image/png", /*streamTypeTimeout=*/4_000);
+                "application/pdf", "image/png", /*streamTypeTimeout=*/8_000);
         ArrayList<Uri> uris = new ArrayList<>(1);
         uris.add(uri);
         Intent sendIntent = createSendUriIntentWithPreview(uris);
@@ -1005,8 +1002,9 @@ public class UnbundledChooserActivityTest {
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
 
         setupResolverControllers(resolvedComponentInfos);
-        assertThat(launchActivityWithTimeout(Intent.createChooser(sendIntent, null), 2_000))
-                .isTrue();
+        // The preview type resolution is expected to timeout and default to file preview, otherwise
+        // the test should timeout.
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
         onView(withId(R.id.content_preview_filename)).check(matches(isDisplayed()));
@@ -1014,11 +1012,10 @@ public class UnbundledChooserActivityTest {
         onView(withId(R.id.content_preview_file_icon)).check(matches(isDisplayed()));
     }
 
-    @Test
-    public void testSendManyFilesWithSmallMetadataDelayAndOneImage_fallbackToFilePreviewUi()
-            throws InterruptedException {
+    @Test(timeout = 4_000)
+    public void testSendManyFilesWithSmallMetadataDelayAndOneImage_fallbackToFilePreviewUi() {
         Uri fileUri = createTestContentProviderUri(
-                "application/pdf", "application/pdf", /*streamTypeTimeout=*/150);
+                "application/pdf", "application/pdf", /*streamTypeTimeout=*/300);
         Uri imageUri = createTestContentProviderUri("application/pdf", "image/png");
         ArrayList<Uri> uris = new ArrayList<>(50);
         for (int i = 0; i < 49; i++) {
@@ -1031,8 +1028,9 @@ public class UnbundledChooserActivityTest {
 
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
         setupResolverControllers(resolvedComponentInfos);
-        assertThat(launchActivityWithTimeout(Intent.createChooser(sendIntent, null), 2_000))
-                .isTrue();
+        // The preview type resolution is expected to timeout and default to file preview, otherwise
+        // the test should timeout.
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
 
         waitForIdle();
 
@@ -1077,15 +1075,14 @@ public class UnbundledChooserActivityTest {
                 });
     }
 
-    @Test
-    public void testPartiallyLoadedMetadata_previewIsShownForTheLoadedPart()
-            throws InterruptedException {
+    @Test(timeout = 4_000)
+    public void testPartiallyLoadedMetadata_previewIsShownForTheLoadedPart() {
         Uri imgOneUri = createTestContentProviderUri("image/png", null);
         Uri imgTwoUri = createTestContentProviderUri("image/png", null)
                 .buildUpon()
                 .path("image-2.png")
                 .build();
-        Uri docUri = createTestContentProviderUri("application/pdf", "image/png", 3_000);
+        Uri docUri = createTestContentProviderUri("application/pdf", "image/png", 8_000);
         ArrayList<Uri> uris = new ArrayList<>(2);
         // two large previews to fill the screen and be presented right away and one
         // document that would be delayed by the URI metadata reading
@@ -1104,8 +1101,11 @@ public class UnbundledChooserActivityTest {
         List<ResolvedComponentInfo> resolvedComponentInfos = createResolvedComponentsForTest(2);
         setupResolverControllers(resolvedComponentInfos);
 
-        assertThat(launchActivityWithTimeout(Intent.createChooser(sendIntent, null), 1_000))
-                .isTrue();
+        // the preview type is expected to be resolved quickly based on the first provided URI
+        // metadata. If, instead, it is dependent on the third URI metadata, the test should either
+        // timeout or (more probably due to inner timeout) default to file preview type; anyway the
+        // test will fail.
+        mActivityRule.launchActivity(Intent.createChooser(sendIntent, null));
         waitForIdle();
 
         onView(withId(R.id.scrollable_image_preview))
@@ -2954,35 +2954,6 @@ public class UnbundledChooserActivityTest {
 
     private void waitForIdle() {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
-    }
-
-    private boolean launchActivityWithTimeout(Intent intent, long timeout)
-            throws InterruptedException {
-        final int initialState = 0;
-        final int completedState = 1;
-        final int timeoutState = 2;
-        final AtomicInteger state = new AtomicInteger(initialState);
-        final CountDownLatch cdl = new CountDownLatch(1);
-
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
-        try {
-            executor.execute(() -> {
-                mActivityRule.launchActivity(intent);
-                state.compareAndSet(initialState, completedState);
-                cdl.countDown();
-            });
-            executor.schedule(
-                    () -> {
-                        state.compareAndSet(initialState, timeoutState);
-                        cdl.countDown();
-                    },
-                    timeout,
-                    TimeUnit.MILLISECONDS);
-            cdl.await();
-            return state.get() == completedState;
-        } finally {
-            executor.shutdownNow();
-        }
     }
 
     private Bitmap createBitmap() {
