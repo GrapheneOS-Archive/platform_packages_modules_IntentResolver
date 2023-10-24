@@ -25,6 +25,13 @@ import javax.inject.Qualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class ApplicationOwned
 
+@Qualifier
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ApplicationUser
+
+@Qualifier @MustBeDocumented @Retention(AnnotationRetention.RUNTIME) annotation class ProfileParent
+
 @Qualifier @MustBeDocumented @Retention(AnnotationRetention.RUNTIME) annotation class Background
 
 @Qualifier @MustBeDocumented @Retention(AnnotationRetention.RUNTIME) annotation class Default
