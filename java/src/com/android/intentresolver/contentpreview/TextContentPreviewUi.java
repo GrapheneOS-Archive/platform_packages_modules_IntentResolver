@@ -29,13 +29,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Lifecycle;
 
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
 
+import kotlinx.coroutines.CoroutineScope;
+
 class TextContentPreviewUi extends ContentPreviewUi {
-    private final Lifecycle mLifecycle;
+    private final CoroutineScope mScope;
     @Nullable
     private final CharSequence mSharingText;
     @Nullable
@@ -47,14 +48,14 @@ class TextContentPreviewUi extends ContentPreviewUi {
     private final HeadlineGenerator mHeadlineGenerator;
 
     TextContentPreviewUi(
-            Lifecycle lifecycle,
+            CoroutineScope scope,
             @Nullable CharSequence sharingText,
             @Nullable CharSequence previewTitle,
             @Nullable Uri previewThumbnail,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
             HeadlineGenerator headlineGenerator) {
-        mLifecycle = lifecycle;
+        mScope = scope;
         mSharingText = sharingText;
         mPreviewTitle = previewTitle;
         mPreviewThumbnail = previewThumbnail;
@@ -122,7 +123,7 @@ class TextContentPreviewUi extends ContentPreviewUi {
             previewThumbnailView.setVisibility(View.GONE);
         } else {
             mImageLoader.loadImage(
-                    mLifecycle,
+                    mScope,
                     mPreviewThumbnail,
                     (bitmap) -> updateViewWithImage(
                             contentPreviewLayout.findViewById(

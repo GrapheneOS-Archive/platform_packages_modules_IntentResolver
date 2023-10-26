@@ -20,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.intentresolver.R
@@ -29,6 +28,9 @@ import com.android.intentresolver.whenever
 import com.android.intentresolver.widget.ActionRow
 import com.google.common.truth.Truth.assertThat
 import java.util.function.Consumer
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,7 +38,7 @@ import org.junit.runner.RunWith
 class TextContentPreviewUiTest {
     private val text = "Shared Text"
     private val title = "Preview Title"
-    private val lifecycleOwner = TestLifecycleOwner()
+    private val testScope = TestScope(EmptyCoroutineContext + UnconfinedTestDispatcher())
     private val actionFactory =
         object : ChooserContentPreviewUi.ActionFactory {
             override fun getEditButtonRunnable(): Runnable? = null
@@ -54,7 +56,7 @@ class TextContentPreviewUiTest {
 
     private val testSubject =
         TextContentPreviewUi(
-            lifecycleOwner.lifecycle,
+            testScope,
             text,
             title,
             /*previewThumbnail=*/ null,

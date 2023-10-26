@@ -31,7 +31,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Lifecycle;
 
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
@@ -41,6 +40,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
+import kotlinx.coroutines.CoroutineScope;
+
 /**
  * FilesPlusTextContentPreviewUi is shown when the user is sending 1 or more files along with
  * non-empty EXTRA_TEXT. The text can be toggled with a checkbox. If a single image file is being
@@ -48,7 +49,7 @@ import java.util.function.Consumer;
  * file content).
  */
 class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
-    private final Lifecycle mLifecycle;
+    private final CoroutineScope mScope;
     @Nullable
     private final String mIntentMimeType;
     private final CharSequence mText;
@@ -69,7 +70,7 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
     private static final boolean SHOW_TOGGLE_CHECKMARK = false;
 
     FilesPlusTextContentPreviewUi(
-            Lifecycle lifecycle,
+            CoroutineScope scope,
             boolean isSingleImage,
             int fileCount,
             CharSequence text,
@@ -82,7 +83,7 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
             throw new IllegalArgumentException(
                     "fileCount = " + fileCount + " and isSingleImage = true");
         }
-        mLifecycle = lifecycle;
+        mScope = scope;
         mIntentMimeType = intentMimeType;
         mFileCount = fileCount;
         mIsSingleImage = isSingleImage;
@@ -166,7 +167,7 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
         ImageView imagePreview = mContentPreviewView.requireViewById(R.id.image_view);
         if (mIsSingleImage && mFirstFilePreviewUri != null) {
             mImageLoader.loadImage(
-                    mLifecycle,
+                    mScope,
                     mFirstFilePreviewUri,
                     bitmap -> {
                         if (bitmap == null) {

@@ -21,7 +21,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.android.intentresolver.R
@@ -31,6 +30,9 @@ import com.android.intentresolver.widget.ActionRow
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.function.Consumer
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.anyInt
@@ -45,7 +47,7 @@ private const val SHARED_TEXT = "Some text to share"
 
 @RunWith(AndroidJUnit4::class)
 class FilesPlusTextContentPreviewUiTest {
-    private val lifecycleOwner = TestLifecycleOwner()
+    private val testScope = TestScope(EmptyCoroutineContext + UnconfinedTestDispatcher())
     private val actionFactory =
         object : ChooserContentPreviewUi.ActionFactory {
             override fun getEditButtonRunnable(): Runnable? = null
@@ -63,7 +65,7 @@ class FilesPlusTextContentPreviewUiTest {
         }
 
     private val context
-        get() = getInstrumentation().getContext()
+        get() = getInstrumentation().context
 
     @Test
     fun test_displayImagesPlusTextWithoutUriMetadata_showImagesHeadline() {
@@ -252,7 +254,7 @@ class FilesPlusTextContentPreviewUiTest {
         val sharedFileCount = 2
         val testSubject =
             FilesPlusTextContentPreviewUi(
-                lifecycleOwner.lifecycle,
+                testScope,
                 /*isSingleImage=*/ false,
                 sharedFileCount,
                 SHARED_TEXT,
@@ -284,7 +286,7 @@ class FilesPlusTextContentPreviewUiTest {
         val sharedFileCount = 2
         val testSubject =
             FilesPlusTextContentPreviewUi(
-                lifecycleOwner.lifecycle,
+                testScope,
                 /*isSingleImage=*/ false,
                 sharedFileCount,
                 SHARED_TEXT,
@@ -332,7 +334,7 @@ class FilesPlusTextContentPreviewUiTest {
     ): ViewGroup? {
         val testSubject =
             FilesPlusTextContentPreviewUi(
-                lifecycleOwner.lifecycle,
+                testScope,
                 /*isSingleImage=*/ false,
                 sharedFileCount,
                 SHARED_TEXT,
@@ -361,7 +363,7 @@ class FilesPlusTextContentPreviewUiTest {
     ): Pair<ViewGroup?, View> {
         val testSubject =
             FilesPlusTextContentPreviewUi(
-                lifecycleOwner.lifecycle,
+                testScope,
                 /*isSingleImage=*/ false,
                 sharedFileCount,
                 SHARED_TEXT,

@@ -316,7 +316,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 new ViewModelProvider(this, createPreviewViewModelFactory())
                         .get(BasePreviewViewModel.class);
         mChooserContentPreviewUi = new ChooserContentPreviewUi(
-                getLifecycle(),
+                getCoroutineScope(getLifecycle()),
                 previewViewModel.createOrReuseProvider(mChooserRequest),
                 mChooserRequest.getTargetIntent(),
                 previewViewModel.createOrReuseImageLoader(),

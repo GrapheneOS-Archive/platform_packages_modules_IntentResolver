@@ -17,10 +17,8 @@
 package com.android.intentresolver.contentpreview
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.testing.TestLifecycleOwner
+import com.android.intentresolver.TestPreviewImageLoader
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
@@ -28,28 +26,20 @@ import com.android.intentresolver.widget.ActionRow
 import com.android.intentresolver.widget.ImagePreviewView
 import com.google.common.truth.Truth.assertThat
 import java.util.function.Consumer
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Test
 import org.mockito.Mockito.never
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 
 class ChooserContentPreviewUiTest {
-    private val lifecycleOwner = TestLifecycleOwner()
+    private val testScope = TestScope(EmptyCoroutineContext + UnconfinedTestDispatcher())
     private val previewData = mock<PreviewDataProvider>()
     private val headlineGenerator = mock<HeadlineGenerator>()
-    private val imageLoader =
-        object : ImageLoader {
-            override fun loadImage(
-                callerLifecycle: Lifecycle,
-                uri: Uri,
-                callback: Consumer<Bitmap?>,
-            ) {
-                callback.accept(null)
-            }
-            override fun prePopulate(uris: List<Uri>) = Unit
-            override suspend fun invoke(uri: Uri, caching: Boolean): Bitmap? = null
-        }
+    private val imageLoader = TestPreviewImageLoader(emptyMap())
     private val actionFactory =
         object : ActionFactory {
             override fun getCopyButtonRunnable(): Runnable? = null
@@ -65,7 +55,7 @@ class ChooserContentPreviewUiTest {
         whenever(previewData.previewType).thenReturn(ContentPreviewType.CONTENT_PREVIEW_TEXT)
         val testSubject =
             ChooserContentPreviewUi(
-                lifecycleOwner.lifecycle,
+                testScope,
                 previewData,
                 Intent(Intent.ACTION_VIEW),
                 imageLoader,
@@ -84,7 +74,7 @@ class ChooserContentPreviewUiTest {
         whenever(previewData.previewType).thenReturn(ContentPreviewType.CONTENT_PREVIEW_FILE)
         val testSubject =
             ChooserContentPreviewUi(
-                lifecycleOwner.lifecycle,
+                testScope,
                 previewData,
                 Intent(Intent.ACTION_SEND),
                 imageLoader,
@@ -108,7 +98,7 @@ class ChooserContentPreviewUiTest {
         whenever(previewData.imagePreviewFileInfoFlow).thenReturn(MutableSharedFlow())
         val testSubject =
             ChooserContentPreviewUi(
-                lifecycleOwner.lifecycle,
+                testScope,
                 previewData,
                 Intent(Intent.ACTION_SEND).apply { putExtra(Intent.EXTRA_TEXT, "Shared text") },
                 imageLoader,
@@ -132,7 +122,7 @@ class ChooserContentPreviewUiTest {
         whenever(previewData.imagePreviewFileInfoFlow).thenReturn(MutableSharedFlow())
         val testSubject =
             ChooserContentPreviewUi(
-                lifecycleOwner.lifecycle,
+                testScope,
                 previewData,
                 Intent(Intent.ACTION_SEND),
                 imageLoader,
