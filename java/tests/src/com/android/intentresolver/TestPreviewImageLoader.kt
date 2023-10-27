@@ -18,12 +18,12 @@ package com.android.intentresolver
 
 import android.graphics.Bitmap
 import android.net.Uri
-import androidx.lifecycle.Lifecycle
 import com.android.intentresolver.contentpreview.ImageLoader
 import java.util.function.Consumer
+import kotlinx.coroutines.CoroutineScope
 
 internal class TestPreviewImageLoader(private val bitmaps: Map<Uri, Bitmap>) : ImageLoader {
-    override fun loadImage(callerLifecycle: Lifecycle, uri: Uri, callback: Consumer<Bitmap?>) {
+    override fun loadImage(callerScope: CoroutineScope, uri: Uri, callback: Consumer<Bitmap?>) {
         callback.accept(bitmaps[uri])
     }
 

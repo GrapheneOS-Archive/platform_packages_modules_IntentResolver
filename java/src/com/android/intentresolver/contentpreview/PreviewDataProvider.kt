@@ -29,8 +29,6 @@ import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.OpenForTesting
 import androidx.annotation.VisibleForTesting
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.coroutineScope
 import com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_FILE
 import com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_IMAGE
 import com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_TEXT
@@ -185,11 +183,11 @@ constructor(
      * is not provided, derived from the URI.
      */
     @Throws(IndexOutOfBoundsException::class)
-    fun getFirstFileName(callerLifecycle: Lifecycle, callback: Consumer<String>) {
+    fun getFirstFileName(callerScope: CoroutineScope, callback: Consumer<String>) {
         if (records.isEmpty()) {
             throw IndexOutOfBoundsException("There are no shared URIs")
         }
-        callerLifecycle.coroutineScope.launch {
+        callerScope.launch {
             val result = scope.async { getFirstFileName() }.await()
             callback.accept(result)
         }
