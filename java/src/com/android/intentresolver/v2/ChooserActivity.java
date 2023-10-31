@@ -291,6 +291,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             //    Skip initializing any additional resources.
             return;
         }
+        setTheme(mLogic.getThemeResId());
 
         getEventLog().logSharesheetTriggered();
 
@@ -377,11 +378,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     private ChooserRequestParameters requireChooserRequest() {
         return requireNonNull(getChooserRequest());
-    }
-
-    @Override
-    protected int appliedThemeResId() {
-        return R.style.Theme_DeviceDefault_Chooser;
     }
 
     private void createProfileRecords(

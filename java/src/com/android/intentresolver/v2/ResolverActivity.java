@@ -17,8 +17,6 @@
 package com.android.intentresolver.v2;
 
 import static android.Manifest.permission.INTERACT_ACROSS_PROFILES;
-import static android.app.admin.DevicePolicyResources.Strings.Core.FORWARD_INTENT_TO_PERSONAL;
-import static android.app.admin.DevicePolicyResources.Strings.Core.FORWARD_INTENT_TO_WORK;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_ACCESS_PERSONAL;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_ACCESS_WORK;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CROSS_PROFILE_BLOCKED_TITLE;
@@ -157,7 +155,6 @@ public class ResolverActivity extends FragmentActivity implements
     private Button mOnceButton;
     protected View mProfileView;
     private int mLastSelected = AbsListView.INVALID_POSITION;
-    private String mProfileSwitchMessage;
     private int mLayoutId;
     @VisibleForTesting
     protected final ArrayList<Intent> mIntents = new ArrayList<>();
@@ -337,6 +334,7 @@ public class ResolverActivity extends FragmentActivity implements
             //    Skip initializing any additional resources.
             return;
         }
+        setTheme(mLogic.getThemeResId());
         mLogic.preInitialization();
         init(
                 mLogic.getTargetIntent(),
@@ -354,12 +352,6 @@ public class ResolverActivity extends FragmentActivity implements
             Intent[] initialIntents,
             TargetDataLoader targetDataLoader
     ) {
-        setTheme(appliedThemeResId());
-
-        // Determine whether we should show that intent is forwarded
-        // from managed profile to owner or other way around.
-        setProfileSwitchMessage(intent.getContentUserHint());
-
         // Force computation of user handle annotations in order to validate the caller ID. (See the
         // associated TODO comment to explain why this is structured as a lazy computation.)
         AnnotatedUserHandles unusedReferenceToHandles = mLazyAnnotatedUserHandles.get();
@@ -499,10 +491,6 @@ public class ResolverActivity extends FragmentActivity implements
                 noPersonalToWorkEmptyState,
                 createCrossProfileIntentsChecker(),
                 getAnnotatedUserHandles().tabOwnerUserHandleForLaunch);
-    }
-
-    protected int appliedThemeResId() {
-        return R.style.Theme_DeviceDefault_Resolver;
     }
 
     /**
@@ -1244,7 +1232,7 @@ public class ResolverActivity extends FragmentActivity implements
         }
 
         // Do not show the profile switch message anymore.
-        mProfileSwitchMessage = null;
+        mLogic.clearProfileSwitchMessage();
 
         onTargetSelected(dri, false);
         finish();
@@ -1329,34 +1317,6 @@ public class ResolverActivity extends FragmentActivity implements
         } else {
             mProfileView.setVisibility(View.GONE);
         }
-    }
-
-    private void setProfileSwitchMessage(int contentUserHint) {
-        if ((contentUserHint != UserHandle.USER_CURRENT)
-                && (contentUserHint != UserHandle.myUserId())) {
-            UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
-            UserInfo originUserInfo = userManager.getUserInfo(contentUserHint);
-            boolean originIsManaged = originUserInfo != null ? originUserInfo.isManagedProfile()
-                    : false;
-            boolean targetIsManaged = userManager.isManagedProfile();
-            if (originIsManaged && !targetIsManaged) {
-                mProfileSwitchMessage = getForwardToPersonalMsg();
-            } else if (!originIsManaged && targetIsManaged) {
-                mProfileSwitchMessage = getForwardToWorkMsg();
-            }
-        }
-    }
-
-    private String getForwardToPersonalMsg() {
-        return getSystemService(DevicePolicyManager.class).getResources().getString(
-                FORWARD_INTENT_TO_PERSONAL,
-                () -> getString(R.string.forward_intent_to_owner));
-    }
-
-    private String getForwardToWorkMsg() {
-        return getSystemService(DevicePolicyManager.class).getResources().getString(
-                FORWARD_INTENT_TO_WORK,
-                () -> getString(R.string.forward_intent_to_work));
     }
 
     protected final CharSequence getTitleForAction(Intent intent, int defaultTitleRes) {
@@ -1612,8 +1572,9 @@ public class ResolverActivity extends FragmentActivity implements
         }
         // If needed, show that intent is forwarded
         // from managed profile to owner or other way around.
-        if (mProfileSwitchMessage != null) {
-            Toast.makeText(this, mProfileSwitchMessage, Toast.LENGTH_LONG).show();
+        String profileSwitchMessage = mLogic.getProfileSwitchMessage();
+        if (profileSwitchMessage != null) {
+            Toast.makeText(this, profileSwitchMessage, Toast.LENGTH_LONG).show();
         }
         try {
             if (cti.startAsCaller(this, options, user.getIdentifier())) {

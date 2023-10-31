@@ -5,7 +5,9 @@ import android.content.Intent
 import android.util.Log
 import androidx.activity.ComponentActivity
 import com.android.intentresolver.ChooserRequestParameters
+import com.android.intentresolver.R
 import com.android.intentresolver.icons.TargetDataLoader
+import com.android.intentresolver.v2.util.mutableLazy
 
 /** Activity logic for [ChooserActivity]. */
 class ChooserActivityLogic(
@@ -37,6 +39,11 @@ class ChooserActivityLogic(
 
     override val targetDataLoader: TargetDataLoader by lazy { targetDataLoaderProvider() }
 
+    override val themeResId: Int = R.style.Theme_DeviceDefault_Chooser
+
+    private val _profileSwitchMessage = mutableLazy { forwardMessageFor(targetIntent) }
+    override val profileSwitchMessage: String? by _profileSwitchMessage
+
     val chooserRequestParameters: ChooserRequestParameters? by lazy {
         try {
             ChooserRequestParameters(
@@ -52,5 +59,9 @@ class ChooserActivityLogic(
 
     override fun preInitialization() {
         onPreInitialization()
+    }
+
+    override fun clearProfileSwitchMessage() {
+        _profileSwitchMessage.setLazy(null)
     }
 }
