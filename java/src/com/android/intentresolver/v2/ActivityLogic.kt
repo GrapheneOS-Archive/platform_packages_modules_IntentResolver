@@ -9,7 +9,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.UserHandle
 import android.os.UserManager
+import android.util.Log
 import androidx.activity.ComponentActivity
+import com.android.intentresolver.AnnotatedUserHandles
 import com.android.intentresolver.R
 import com.android.intentresolver.icons.TargetDataLoader
 
@@ -57,6 +59,8 @@ interface ActivityLogic : CommonActivityLogic {
  * activities (including test activities), should live here.
  */
 interface CommonActivityLogic {
+    /** The tag to use when logging. */
+    val tag: String
     /** A reference to the activity owning, and used by, this logic. */
     val activity: ComponentActivity
     /** The name of the referring package. */
@@ -65,6 +69,8 @@ interface CommonActivityLogic {
     val userManager: UserManager
     /** Device policy manager system service. */
     val devicePolicyManager: DevicePolicyManager
+    /** Current [UserHandle]s retrievable by type. */
+    val annotatedUserHandles: AnnotatedUserHandles?
 
     /** Returns display message indicating intent forwarding or null if not intent forwarding. */
     fun forwardMessageFor(intent: Intent): String?
@@ -82,7 +88,10 @@ interface CommonActivityLogic {
  * [ActivityLogic] implementations. Test implementations of [ActivityLogic] may need to create their
  * own [CommonActivityLogic] implementation.
  */
-class CommonActivityLogicImpl(activityProvider: () -> ComponentActivity) : CommonActivityLogic {
+class CommonActivityLogicImpl(
+    override val tag: String,
+    activityProvider: () -> ComponentActivity,
+) : CommonActivityLogic {
 
     override val activity: ComponentActivity by lazy { activityProvider() }
 
@@ -102,6 +111,15 @@ class CommonActivityLogicImpl(activityProvider: () -> ComponentActivity) : Commo
 
     override val devicePolicyManager: DevicePolicyManager by lazy {
         activity.context.getSystemService(DevicePolicyManager::class.java)!!
+    }
+
+    override val annotatedUserHandles: AnnotatedUserHandles? by lazy {
+        try {
+            AnnotatedUserHandles.forShareActivity(activity)
+        } catch (e: SecurityException) {
+            Log.e(tag, "Request from UID without necessary permissions", e)
+            null
+        }
     }
 
     private val forwardToPersonalMessage: String? by lazy {

@@ -9,8 +9,9 @@ import com.android.intentresolver.v2.util.mutableLazy
 
 /** Activity logic for [ResolverActivity]. */
 class ResolverActivityLogic(
+    tag: String,
     activityProvider: () -> ComponentActivity,
-) : ActivityLogic, CommonActivityLogic by CommonActivityLogicImpl(activityProvider) {
+) : ActivityLogic, CommonActivityLogic by CommonActivityLogicImpl(tag, activityProvider) {
 
     override val targetIntent: Intent by lazy {
         val intent = Intent(activity.intent)

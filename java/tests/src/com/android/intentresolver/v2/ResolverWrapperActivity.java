@@ -60,6 +60,11 @@ public class ResolverWrapperActivity extends ResolverActivity {
 
     public ResolverWrapperActivity() {
         super(/* isIntentPicker= */ true);
+        mLogic = new TestResolverActivityLogic(
+                "ResolverWrapper",
+                () -> this,
+                sOverrides
+        );
     }
 
     public CountingIdlingResource getLabelIdlingResource() {
@@ -159,11 +164,6 @@ public class ResolverWrapperActivity extends ResolverActivity {
     }
 
     @Override
-    protected AnnotatedUserHandles computeAnnotatedUserHandles() {
-        return sOverrides.annotatedUserHandles;
-    }
-
-    @Override
     public void startActivityAsUser(Intent intent, Bundle options, UserHandle user) {
         super.startActivityAsUser(intent, options, user);
     }
@@ -179,7 +179,7 @@ public class ResolverWrapperActivity extends ResolverActivity {
      * <p>
      * Instead, we use static instances of this object to modify behavior.
      */
-    static class OverrideData {
+    public static class OverrideData {
         @SuppressWarnings("Since15")
         public Function<PackageManager, PackageManager> createPackageManager;
         public Function<Pair<TargetInfo, UserHandle>, Boolean> onSafelyStartInternalCallback;
