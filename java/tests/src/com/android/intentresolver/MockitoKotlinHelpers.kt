@@ -23,12 +23,14 @@ package com.android.intentresolver
  * causes Kotlin to skip the null checks.
  * Cloned from frameworks/base/packages/SystemUI/tests/utils/src/com/android/systemui/util/mockito/KotlinMockitoHelpers.kt
  */
-
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers
+import org.mockito.MockSettings
 import org.mockito.Mockito
+import org.mockito.stubbing.Answer
 import org.mockito.stubbing.OngoingStubbing
+import org.mockito.stubbing.Stubber
 
 /**
  * Returns Mockito.eq() as nullable type to avoid java.lang.IllegalStateException when
@@ -83,8 +85,10 @@ inline fun <reified T : Any> argumentCaptor(): ArgumentCaptor<T> =
  *
  * @param apply builder function to simplify stub configuration by improving type inference.
  */
-inline fun <reified T : Any> mock(apply: T.() -> Unit = {}): T = Mockito.mock(T::class.java)
-    .apply(apply)
+inline fun <reified T : Any> mock(
+    mockSettings: MockSettings = Mockito.withSettings(),
+    apply: T.() -> Unit = {}
+): T = Mockito.mock(T::class.java, mockSettings).apply(apply)
 
 /**
  * Helper function for stubbing methods without the need to use backticks.
@@ -92,6 +96,11 @@ inline fun <reified T : Any> mock(apply: T.() -> Unit = {}): T = Mockito.mock(T:
  * @see Mockito.when
  */
 fun <T> whenever(methodCall: T): OngoingStubbing<T> = Mockito.`when`(methodCall)
+
+/**
+ * Helper function for stubbing methods without the need to use backticks.
+ */
+fun <T> Stubber.whenever(mock: T): T = `when`(mock)
 
 /**
  * A kotlin implemented wrapper of [ArgumentCaptor] which prevents the following exception when
@@ -144,6 +153,25 @@ inline fun <reified T : Any> withArgCaptor(block: KotlinArgumentCaptor<T>.() -> 
  *    val capturedList = captureMany<Foo> { verify(...).someMethod(capture()) }
  */
 inline fun <reified T : Any> captureMany(block: KotlinArgumentCaptor<T>.() -> Unit): List<T> =
-    kotlinArgumentCaptor<T>().apply{ block() }.allValues
+    kotlinArgumentCaptor<T>().apply { block() }.allValues
 
 inline fun <reified T> anyOrNull() = ArgumentMatchers.argThat(ArgumentMatcher<T?> { true })
+
+/**
+ * Intended as a default Answer for a mock to prevent dependence on defaults.
+ *
+ * Use as:
+ * ```
+ * val context = mock<Context>(withSettings()
+ *     .defaultAnswer(THROWS_EXCEPTION))
+ * ```
+ *
+ * To avoid triggering the exception during stubbing, must ONLY use one of the doXXX() methods, such
+ * as:
+ * * [doAnswer][Mockito.doAnswer]
+ * * [doCallRealMethod][Mockito.doCallRealMethod]
+ * * [doNothing][Mockito.doNothing]
+ * * [doReturn][Mockito.doReturn]
+ * * [doThrow][Mockito.doThrow]
+ */
+val THROWS_EXCEPTION = Answer { error("Unstubbed behavior was accessed.") }
