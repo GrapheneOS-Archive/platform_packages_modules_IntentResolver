@@ -27,7 +27,6 @@ import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_PERS
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_WORK_PROFILE_NOT_SUPPORTED;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_WORK_TAB;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_WORK_TAB_ACCESSIBILITY;
-import static android.content.Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.PermissionChecker.PID_UNKNOWN;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_PERSONAL;
@@ -109,7 +108,6 @@ import com.android.intentresolver.emptystate.CompositeEmptyStateProvider;
 import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
 import com.android.intentresolver.emptystate.EmptyState;
 import com.android.intentresolver.emptystate.EmptyStateProvider;
-import com.android.intentresolver.icons.DefaultTargetDataLoader;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.v2.MultiProfilePagerAdapter.MyUserIdProvider;
@@ -145,6 +143,8 @@ import java.util.function.Supplier;
 public class ResolverActivity extends FragmentActivity implements
         ResolverListAdapter.ResolverListCommunicator {
 
+    protected ActivityLogic mLogic = new ResolverActivityLogic(() -> this);
+
     public ResolverActivity() {
         mIsIntentPicker = getClass().equals(ResolverActivity.class);
     }
@@ -153,33 +153,17 @@ public class ResolverActivity extends FragmentActivity implements
         mIsIntentPicker = isIntentPicker;
     }
 
-    /**
-     * Whether to enable a launch mode that is safe to use when forwarding intents received from
-     * applications and running in system processes.  This mode uses Activity.startActivityAsCaller
-     * instead of the normal Activity.startActivity for launching the activity selected
-     * by the user.
-     */
-    private boolean mSafeForwardingMode;
-
     private Button mAlwaysButton;
     private Button mOnceButton;
     protected View mProfileView;
     private int mLastSelected = AbsListView.INVALID_POSITION;
-    private boolean mResolvingHome = false;
     private String mProfileSwitchMessage;
     private int mLayoutId;
     @VisibleForTesting
     protected final ArrayList<Intent> mIntents = new ArrayList<>();
     private PickTargetOptionRequest mPickOptionRequest;
-    private String mReferrerPackage;
-    private CharSequence mTitle;
-    private int mDefaultTitleResId;
     // Expected to be true if this object is ResolverActivity or is ResolverWrapperActivity.
     private final boolean mIsIntentPicker;
-
-    // Whether or not this activity supports choosing a default handler for the intent.
-    @VisibleForTesting
-    protected boolean mSupportsAlwaysUseOption;
     protected ResolverDrawerLayout mResolverDrawerLayout;
     protected PackageManager mPm;
 
@@ -206,8 +190,6 @@ public class ResolverActivity extends FragmentActivity implements
 
     private PackageMonitor mPersonalPackageMonitor;
     private PackageMonitor mWorkPackageMonitor;
-
-    private TargetDataLoader mTargetDataLoader;
 
     @VisibleForTesting
     protected MultiProfilePagerAdapter mMultiProfilePagerAdapter;
@@ -355,41 +337,23 @@ public class ResolverActivity extends FragmentActivity implements
             //    Skip initializing any additional resources.
             return;
         }
-        if (mIsIntentPicker) {
-            // Use a specialized prompt when we're handling the 'Home' app startActivity()
-            final Intent intent = makeMyIntent();
-            final Set<String> categories = intent.getCategories();
-            if (Intent.ACTION_MAIN.equals(intent.getAction())
-                    && categories != null
-                    && categories.size() == 1
-                    && categories.contains(Intent.CATEGORY_HOME)) {
-                // Note: this field is not set to true in the compatibility version.
-                mResolvingHome = true;
-            }
-
-            init(
-                    intent,
-                    /* additionalTargets= */ null,
-                    /* title= */ null,
-                    /* defaultTitleRes= */ 0,
-                    /* initialIntents= */ null,
-                    /* resolutionList= */ null,
-                    /* supportsAlwaysUseOption= */ true,
-                    createIconLoader(),
-                    /* safeForwardingMode= */ true);
-        }
+        mLogic.preInitialization();
+        init(
+                mLogic.getTargetIntent(),
+                mLogic.getAdditionalTargets() == null
+                        ? null : mLogic.getAdditionalTargets().toArray(new Intent[0]),
+                mLogic.getInitialIntents() == null
+                        ? null : mLogic.getInitialIntents().toArray(new Intent[0]),
+                mLogic.getTargetDataLoader()
+        );
     }
 
     protected void init(
             Intent intent,
             Intent[] additionalTargets,
-            CharSequence title,
-            int defaultTitleRes,
             Intent[] initialIntents,
-            List<ResolveInfo> resolutionList,
-            boolean supportsAlwaysUseOption,
-            TargetDataLoader targetDataLoader,
-            boolean safeForwardingMode) {
+            TargetDataLoader targetDataLoader
+    ) {
         setTheme(appliedThemeResId());
 
         // Determine whether we should show that intent is forwarded
@@ -404,20 +368,11 @@ public class ResolverActivity extends FragmentActivity implements
 
         mPm = getPackageManager();
 
-        mReferrerPackage = getReferrerPackageName();
-
         // The initial intent must come before any other targets that are to be added.
         mIntents.add(0, new Intent(intent));
         if (additionalTargets != null) {
             Collections.addAll(mIntents, additionalTargets);
         }
-
-        mTitle = title;
-        mDefaultTitleResId = defaultTitleRes;
-
-        mSupportsAlwaysUseOption = supportsAlwaysUseOption;
-        mSafeForwardingMode = safeForwardingMode;
-        mTargetDataLoader = targetDataLoader;
 
         // The last argument of createResolverListAdapter is whether to do special handling
         // of the last used choice to highlight it in the list.  We need to always
@@ -427,10 +382,14 @@ public class ResolverActivity extends FragmentActivity implements
         // We also turn it off when clonedProfile is present on the device, because we might have
         // different "last chosen" activities in the different profiles, and PackageManager doesn't
         // provide any more information to help us select between them.
-        boolean filterLastUsed = mSupportsAlwaysUseOption && !isVoiceInteraction()
+        boolean filterLastUsed = mLogic.getSupportsAlwaysUseOption() && !isVoiceInteraction()
                 && !shouldShowTabs() && !hasCloneProfile();
         mMultiProfilePagerAdapter = createMultiProfilePagerAdapter(
-                initialIntents, resolutionList, filterLastUsed, targetDataLoader);
+                initialIntents,
+                /* resolutionList = */ null,
+                filterLastUsed,
+                targetDataLoader
+        );
         if (configureContentView(targetDataLoader)) {
             return;
         }
@@ -632,7 +591,7 @@ public class ResolverActivity extends FragmentActivity implements
         }
         final Intent intent = getIntent();
         if ((intent.getFlags() & FLAG_ACTIVITY_NEW_TASK) != 0 && !isVoiceInteraction()
-                && !mResolvingHome && !mRetainInOnStop) {
+                && !mLogic.getResolvingHome() && !mRetainInOnStop) {
             // This resolver is in the unusual situation where it has been
             // launched at the top of a new task.  We don't let it be added
             // to the recent tasks shown to the user, and we need to make sure
@@ -677,7 +636,7 @@ public class ResolverActivity extends FragmentActivity implements
         }
         ResolveInfo ri = mMultiProfilePagerAdapter.getActiveListAdapter()
                 .resolveInfoForPosition(which, hasIndexBeenFiltered);
-        if (mResolvingHome && hasManagedProfile() && !supportsManagedProfiles(ri)) {
+        if (mLogic.getResolvingHome() && hasManagedProfile() && !supportsManagedProfiles(ri)) {
             Toast.makeText(this,
                     getWorkProfileNotSupportedMsg(
                             ri.activityInfo.loadLabel(getPackageManager()).toString()),
@@ -691,10 +650,10 @@ public class ResolverActivity extends FragmentActivity implements
             return;
         }
         if (onTargetSelected(target, always)) {
-            if (always && mSupportsAlwaysUseOption) {
+            if (always && mLogic.getSupportsAlwaysUseOption()) {
                 MetricsLogger.action(
                         this, MetricsProto.MetricsEvent.ACTION_APP_DISAMBIG_ALWAYS);
-            } else if (mSupportsAlwaysUseOption) {
+            } else if (mLogic.getSupportsAlwaysUseOption()) {
                 MetricsLogger.action(
                         this, MetricsProto.MetricsEvent.ACTION_APP_DISAMBIG_JUST_ONCE);
             } else {
@@ -735,7 +694,7 @@ public class ResolverActivity extends FragmentActivity implements
         final ResolveInfo ri = target.getResolveInfo();
         final Intent intent = target != null ? target.getResolvedIntent() : null;
 
-        if (intent != null && (mSupportsAlwaysUseOption
+        if (intent != null && (mLogic.getSupportsAlwaysUseOption()
                 || mMultiProfilePagerAdapter.getActiveListAdapter().hasFilteredItem())
                 && mMultiProfilePagerAdapter.getActiveListAdapter().getUnfilteredResolveList() != null) {
             // Build a reasonable intent filter, based on what matched.
@@ -921,7 +880,7 @@ public class ResolverActivity extends FragmentActivity implements
                 new ResolverRankerServiceResolverComparator(
                         this,
                         getTargetIntent(),
-                        getReferrerPackageName(),
+                        mLogic.getReferrerPackageName(),
                         null,
                         null,
                         getResolverRankerServiceUserHandleList(userHandle),
@@ -930,7 +889,7 @@ public class ResolverActivity extends FragmentActivity implements
                 this,
                 mPm,
                 getTargetIntent(),
-                getReferrerPackageName(),
+                mLogic.getReferrerPackageName(),
                 getAnnotatedUserHandles().userIdOfCallingApp,
                 resolverComparator,
                 getQueryIntentsUser(userHandle));
@@ -973,7 +932,7 @@ public class ResolverActivity extends FragmentActivity implements
     }
 
     protected void resetButtonBar() {
-        if (!mSupportsAlwaysUseOption) {
+        if (!mLogic.getSupportsAlwaysUseOption()) {
             return;
         }
         final ViewGroup buttonLayout = findViewById(com.android.internal.R.id.button_bar);
@@ -1099,13 +1058,6 @@ public class ResolverActivity extends FragmentActivity implements
                 targetDataLoader);
     }
 
-    private TargetDataLoader createIconLoader() {
-        Intent startIntent = getIntent();
-        boolean isAudioCaptureDevice =
-                startIntent.getBooleanExtra(EXTRA_IS_AUDIO_CAPTURE_DEVICE, false);
-        return new DefaultTargetDataLoader(this, getLifecycle(), isAudioCaptureDevice);
-    }
-
     private LatencyTracker getLatencyTracker() {
         return LatencyTracker.getInstance(this);
     }
@@ -1151,24 +1103,6 @@ public class ResolverActivity extends FragmentActivity implements
                 workProfileOffEmptyStateProvider,
                 noAppsEmptyStateProvider
         );
-    }
-
-    private Intent makeMyIntent() {
-        Intent intent = new Intent(getIntent());
-        intent.setComponent(null);
-        // The resolver activity is set to be hidden from recent tasks.
-        // we don't want this attribute to be propagated to the next activity
-        // being launched.  Note that if the original Intent also had this
-        // flag set, we are now losing it.  That should be a very rare case
-        // and we can live with this.
-        intent.setFlags(intent.getFlags() & ~Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-
-        // If FLAG_ACTIVITY_LAUNCH_ADJACENT was set, ResolverActivity was opened in the alternate
-        // side, which means we want to open the target app on the same side as ResolverActivity.
-        if ((intent.getFlags() & FLAG_ACTIVITY_LAUNCH_ADJACENT) != 0) {
-            intent.setFlags(intent.getFlags() & ~FLAG_ACTIVITY_LAUNCH_ADJACENT);
-        }
-        return intent;
     }
 
     private ResolverMultiProfilePagerAdapter
@@ -1377,14 +1311,6 @@ public class ResolverActivity extends FragmentActivity implements
         return mIntents.isEmpty() ? null : mIntents.get(0);
     }
 
-    protected final String getReferrerPackageName() {
-        final Uri referrer = getReferrer();
-        if (referrer != null && "android-app".equals(referrer.getScheme())) {
-            return referrer.getHost();
-        }
-        return null;
-    }
-
     @Override // ResolverListCommunicator
     public final void updateProfileViewButton() {
         if (mProfileView == null) {
@@ -1434,7 +1360,7 @@ public class ResolverActivity extends FragmentActivity implements
     }
 
     protected final CharSequence getTitleForAction(Intent intent, int defaultTitleRes) {
-        final ActionTitle title = mResolvingHome
+        final ActionTitle title = mLogic.getResolvingHome()
                 ? ActionTitle.HOME
                 : ActionTitle.forAction(intent.getAction());
 
@@ -1688,13 +1614,6 @@ public class ResolverActivity extends FragmentActivity implements
         // from managed profile to owner or other way around.
         if (mProfileSwitchMessage != null) {
             Toast.makeText(this, mProfileSwitchMessage, Toast.LENGTH_LONG).show();
-        }
-        if (!mSafeForwardingMode) {
-            if (cti.startAsUser(this, options, user)) {
-                onActivityStarted(cti);
-                maybeLogCrossProfileTargetLaunch(cti, user);
-            }
-            return;
         }
         try {
             if (cti.startAsCaller(this, options, user.getIdentifier())) {
@@ -2167,7 +2086,7 @@ public class ResolverActivity extends FragmentActivity implements
         listView.setOnItemClickListener(listener);
         listView.setOnItemLongClickListener(listener);
 
-        if (mSupportsAlwaysUseOption) {
+        if (mLogic.getSupportsAlwaysUseOption()) {
             listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         }
     }
@@ -2188,9 +2107,10 @@ public class ResolverActivity extends FragmentActivity implements
             }
         }
 
-        CharSequence title = mTitle != null
-                ? mTitle
-                : getTitleForAction(getTargetIntent(), mDefaultTitleResId);
+
+        CharSequence title = mLogic.getTitle() != null
+                ? mLogic.getTitle()
+                : getTitleForAction(getTargetIntent(), mLogic.getDefaultTitleResId());
 
         if (!TextUtils.isEmpty(title)) {
             final TextView titleView = findViewById(com.android.internal.R.id.title);
@@ -2238,7 +2158,7 @@ public class ResolverActivity extends FragmentActivity implements
         boolean adapterForCurrentUserHasFilteredItem =
                 mMultiProfilePagerAdapter.getListAdapterForUserHandle(
                         getAnnotatedUserHandles().tabOwnerUserHandleForLaunch).hasFilteredItem();
-        return mSupportsAlwaysUseOption && adapterForCurrentUserHasFilteredItem;
+        return mLogic.getSupportsAlwaysUseOption() && adapterForCurrentUserHasFilteredItem;
     }
 
     /**
@@ -2387,7 +2307,7 @@ public class ResolverActivity extends FragmentActivity implements
 
     private CharSequence getOrLoadDisplayLabel(TargetInfo info) {
         if (info.isDisplayResolveInfo()) {
-            mTargetDataLoader.getOrLoadLabel((DisplayResolveInfo) info);
+            mLogic.getTargetDataLoader().getOrLoadLabel((DisplayResolveInfo) info);
         }
         CharSequence displayLabel = info.getDisplayLabel();
         return displayLabel == null ? "" : displayLabel;
