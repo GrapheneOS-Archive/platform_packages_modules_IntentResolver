@@ -13,6 +13,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import com.android.intentresolver.AnnotatedUserHandles
 import com.android.intentresolver.R
+import com.android.intentresolver.WorkProfileAvailabilityManager
 import com.android.intentresolver.icons.TargetDataLoader
 
 /**
@@ -22,12 +23,10 @@ import com.android.intentresolver.icons.TargetDataLoader
  * CommonActivityLogic implementation.
  */
 interface ActivityLogic : CommonActivityLogic {
-    /** The intent for the target. This will always come before [additionalTargets], if any. */
+    /** The intent for the target. This will always come before additional targets, if any. */
     val targetIntent: Intent
     /** Whether the intent is for home. */
     val resolvingHome: Boolean
-    /** Intents for additional targets. These will always come after [targetIntent]. */
-    val additionalTargets: List<Intent>?
     /** Custom title to display. */
     val title: CharSequence?
     /** Resource ID for the title to display when there is no custom title. */
@@ -44,6 +43,8 @@ interface ActivityLogic : CommonActivityLogic {
      * Message showing that intent is forwarded from managed profile to owner or other way around.
      */
     val profileSwitchMessage: String?
+    /** The intents for potential actual targets. [targetIntent] must be first. */
+    val payloadIntents: List<Intent>
 
     /**
      * Called after Activity superclass creation, but before any other onCreate logic is performed.
@@ -71,6 +72,8 @@ interface CommonActivityLogic {
     val devicePolicyManager: DevicePolicyManager
     /** Current [UserHandle]s retrievable by type. */
     val annotatedUserHandles: AnnotatedUserHandles?
+    /** Monitors for changes to work profile availability. */
+    val workProfileAvailabilityManager: WorkProfileAvailabilityManager
 
     /** Returns display message indicating intent forwarding or null if not intent forwarding. */
     fun forwardMessageFor(intent: Intent): String?
@@ -91,6 +94,7 @@ interface CommonActivityLogic {
 class CommonActivityLogicImpl(
     override val tag: String,
     activityProvider: () -> ComponentActivity,
+    onWorkProfileStatusUpdated: () -> Unit,
 ) : CommonActivityLogic {
 
     override val activity: ComponentActivity by lazy { activityProvider() }
@@ -120,6 +124,14 @@ class CommonActivityLogicImpl(
             Log.e(tag, "Request from UID without necessary permissions", e)
             null
         }
+    }
+
+    override val workProfileAvailabilityManager: WorkProfileAvailabilityManager by lazy {
+        WorkProfileAvailabilityManager(
+            userManager,
+            annotatedUserHandles?.workProfileUserHandle,
+            onWorkProfileStatusUpdated,
+        )
     }
 
     private val forwardToPersonalMessage: String? by lazy {
