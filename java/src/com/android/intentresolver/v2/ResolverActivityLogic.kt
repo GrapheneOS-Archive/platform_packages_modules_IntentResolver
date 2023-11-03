@@ -2,13 +2,16 @@ package com.android.intentresolver.v2
 
 import android.content.Intent
 import androidx.activity.ComponentActivity
+import com.android.intentresolver.R
 import com.android.intentresolver.icons.DefaultTargetDataLoader
 import com.android.intentresolver.icons.TargetDataLoader
+import com.android.intentresolver.v2.util.mutableLazy
 
 /** Activity logic for [ResolverActivity]. */
 class ResolverActivityLogic(
+    tag: String,
     activityProvider: () -> ComponentActivity,
-) : ActivityLogic, CommonActivityLogic by CommonActivityLogicImpl(activityProvider) {
+) : ActivityLogic, CommonActivityLogic by CommonActivityLogicImpl(tag, activityProvider) {
 
     override val targetIntent: Intent by lazy {
         val intent = Intent(activity.intent)
@@ -55,7 +58,16 @@ class ResolverActivityLogic(
         )
     }
 
+    override val themeResId: Int = R.style.Theme_DeviceDefault_Resolver
+
+    private val _profileSwitchMessage = mutableLazy { forwardMessageFor(targetIntent) }
+    override val profileSwitchMessage: String? by _profileSwitchMessage
+
     override fun preInitialization() {
         // Do nothing
+    }
+
+    override fun clearProfileSwitchMessage() {
+        _profileSwitchMessage.setLazy(null)
     }
 }
