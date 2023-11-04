@@ -33,7 +33,6 @@ import android.os.UserHandle;
 
 import androidx.lifecycle.ViewModelProvider;
 
-import com.android.intentresolver.AnnotatedUserHandles;
 import com.android.intentresolver.ChooserListAdapter;
 import com.android.intentresolver.ChooserRequestParameters;
 import com.android.intentresolver.IChooserWrapper;
@@ -58,6 +57,17 @@ import java.util.function.Consumer;
 public class ChooserWrapperActivity extends ChooserActivity implements IChooserWrapper {
     static final ChooserActivityOverrideData sOverrides = ChooserActivityOverrideData.getInstance();
     private UsageStatsManager mUsm;
+
+    public ChooserWrapperActivity() {
+        super();
+        mLogic = new TestChooserActivityLogic(
+                "ChooserWrapper",
+                () -> this,
+                () -> mTargetDataLoader,
+                super::onPreinitialization,
+                sOverrides
+        );
+    }
 
     // ResolverActivity (the base class of ChooserActivity) inspects the launched-from UID at
     // onCreate and needs to see some non-negative value in the test.
@@ -232,11 +242,6 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
                 pLabel,
                 pInfo,
                 replacementIntent);
-    }
-
-    @Override
-    protected AnnotatedUserHandles computeAnnotatedUserHandles() {
-        return sOverrides.annotatedUserHandles;
     }
 
     @Override

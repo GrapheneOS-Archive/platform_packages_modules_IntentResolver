@@ -4,16 +4,26 @@ import android.app.Activity
 import android.content.Intent
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.annotation.OpenForTesting
 import com.android.intentresolver.ChooserRequestParameters
+import com.android.intentresolver.R
 import com.android.intentresolver.icons.TargetDataLoader
+import com.android.intentresolver.v2.util.mutableLazy
 
-/** Activity logic for [ChooserActivity]. */
-class ChooserActivityLogic(
-    private val tag: String,
+/**
+ * Activity logic for [ChooserActivity].
+ *
+ * TODO: Make this class no longer open once [ChooserActivity] no longer needs to cast to access
+ *   [chooserRequestParameters]. For now, this class being open is better than using reflection
+ *   there.
+ */
+@OpenForTesting
+open class ChooserActivityLogic(
+    tag: String,
     activityProvider: () -> ComponentActivity,
     targetDataLoaderProvider: () -> TargetDataLoader,
     private val onPreInitialization: () -> Unit,
-) : ActivityLogic, CommonActivityLogic by CommonActivityLogicImpl(activityProvider) {
+) : ActivityLogic, CommonActivityLogic by CommonActivityLogicImpl(tag, activityProvider) {
 
     override val targetIntent: Intent by lazy { chooserRequestParameters?.targetIntent ?: Intent() }
 
@@ -37,6 +47,11 @@ class ChooserActivityLogic(
 
     override val targetDataLoader: TargetDataLoader by lazy { targetDataLoaderProvider() }
 
+    override val themeResId: Int = R.style.Theme_DeviceDefault_Chooser
+
+    private val _profileSwitchMessage = mutableLazy { forwardMessageFor(targetIntent) }
+    override val profileSwitchMessage: String? by _profileSwitchMessage
+
     val chooserRequestParameters: ChooserRequestParameters? by lazy {
         try {
             ChooserRequestParameters(
@@ -52,5 +67,9 @@ class ChooserActivityLogic(
 
     override fun preInitialization() {
         onPreInitialization()
+    }
+
+    override fun clearProfileSwitchMessage() {
+        _profileSwitchMessage.setLazy(null)
     }
 }
