@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-class SingletonModule {
+object SingletonModule {
     @Provides @Singleton fun instanceIdSequence() = EventLogImpl.newIdSequence()
 
     @Provides
