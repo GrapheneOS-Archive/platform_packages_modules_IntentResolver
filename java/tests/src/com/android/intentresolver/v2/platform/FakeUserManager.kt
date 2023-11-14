@@ -1,7 +1,10 @@
 package com.android.intentresolver.v2.platform
 
 import android.content.Context
+import android.content.Intent.ACTION_MANAGED_PROFILE_AVAILABLE
+import android.content.Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE
 import android.content.Intent.ACTION_PROFILE_ADDED
+import android.content.Intent.ACTION_PROFILE_AVAILABLE
 import android.content.Intent.ACTION_PROFILE_REMOVED
 import android.content.Intent.ACTION_PROFILE_UNAVAILABLE
 import android.content.pm.UserInfo
@@ -12,9 +15,10 @@ import android.content.pm.UserInfo.NO_PROFILE_GROUP_ID
 import android.os.IUserManager
 import android.os.UserHandle
 import android.os.UserManager
+import androidx.annotation.NonNull
 import com.android.intentresolver.THROWS_EXCEPTION
 import com.android.intentresolver.mock
-import com.android.intentresolver.v2.data.UserDataSourceImpl.UserEvent
+import com.android.intentresolver.v2.data.repository.UserRepositoryImpl.UserEvent
 import com.android.intentresolver.v2.platform.FakeUserManager.State
 import com.android.intentresolver.whenever
 import kotlin.random.Random
@@ -77,6 +81,14 @@ class FakeUserManager(val state: State = State()) :
         }
     }
 
+    override fun requestQuietModeEnabled(
+        enableQuietMode: Boolean,
+        @NonNull userHandle: UserHandle
+    ): Boolean {
+        state.setQuietMode(userHandle, enableQuietMode)
+        return true
+    }
+
     override fun isQuietModeEnabled(userHandle: UserHandle): Boolean {
         return state.getUser(userHandle).isQuietModeEnabled
     }
@@ -136,8 +148,29 @@ class FakeUserManager(val state: State = State()) :
             }
 
         fun setQuietMode(user: UserHandle, quietMode: Boolean) {
-            userInfoMap[user]?.also { it.flags = it.flags or UserInfo.FLAG_QUIET_MODE }
-            eventChannel.trySend(UserEvent(ACTION_PROFILE_UNAVAILABLE, user, quietMode))
+            userInfoMap[user]?.also {
+                it.flags =
+                    if (quietMode) {
+                        it.flags or UserInfo.FLAG_QUIET_MODE
+                    } else {
+                        it.flags and UserInfo.FLAG_QUIET_MODE.inv()
+                    }
+                val actions = mutableListOf<String>()
+                if (quietMode) {
+                    actions += ACTION_PROFILE_UNAVAILABLE
+                    if (it.isManagedProfile) {
+                        actions += ACTION_MANAGED_PROFILE_UNAVAILABLE
+                    }
+                } else {
+                    actions += ACTION_PROFILE_AVAILABLE
+                    if (it.isManagedProfile) {
+                        actions += ACTION_MANAGED_PROFILE_AVAILABLE
+                    }
+                }
+                actions.forEach { action ->
+                    eventChannel.trySend(UserEvent(action, user, quietMode))
+                }
+            }
         }
 
         fun createProfile(type: ProfileType, parent: UserHandle = primaryUserHandle): UserHandle {
