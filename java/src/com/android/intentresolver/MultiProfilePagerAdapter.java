@@ -15,8 +15,6 @@
  */
 package com.android.intentresolver;
 
-import android.annotation.IntDef;
-import android.annotation.Nullable;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.view.View;
@@ -24,6 +22,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -179,6 +180,7 @@ public class MultiProfilePagerAdapter<
         mLoadedPages.remove(1 - mCurrentPage);
     }
 
+    @NonNull
     @Override
     public final ViewGroup instantiateItem(ViewGroup container, int position) {
         setupListAdapter(position);
@@ -188,7 +190,7 @@ public class MultiProfilePagerAdapter<
     }
 
     @Override
-    public void destroyItem(ViewGroup container, int position, Object view) {
+    public void destroyItem(ViewGroup container, int position, @NonNull Object view) {
         container.removeView((View) view);
     }
 
@@ -207,7 +209,7 @@ public class MultiProfilePagerAdapter<
     }
 
     @Override
-    public boolean isViewFromObject(View view, Object object) {
+    public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
         return view == object;
     }
 

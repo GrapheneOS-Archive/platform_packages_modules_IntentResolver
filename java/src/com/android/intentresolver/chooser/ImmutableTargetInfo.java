@@ -16,8 +16,6 @@
 
 package com.android.intentresolver.chooser;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.prediction.AppTarget;
 import android.content.ComponentName;
@@ -27,8 +25,11 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.service.chooser.ChooserTarget;
 import android.util.HashedStringCache;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 import com.google.common.collect.ImmutableList;
@@ -43,7 +44,7 @@ import java.util.List;
 public final class ImmutableTargetInfo implements TargetInfo {
     private static final String TAG = "TargetInfo";
 
-    /** Delegate interface to implement {@link TargetInfo#getHashedTargetIdForMetrics()}. */
+    /** Delegate interface to implement {@link TargetInfo#getHashedTargetIdForMetrics}. */
     public interface TargetHashProvider {
         /** Request a hash for the specified {@code target}. */
         HashedStringCache.HashResult getHashedTargetIdForMetrics(
@@ -53,15 +54,15 @@ public final class ImmutableTargetInfo implements TargetInfo {
     /** Delegate interface to request that the target be launched by a particular API. */
     public interface TargetActivityStarter {
         /**
-         * Request that the delegate use the {@link Activity#startAsCaller()} API to launch the
-         * specified {@code target}.
+         * Request that the delegate use the {@link Activity#startActivityAsCaller} API to launch
+         * the specified {@code target}.
          *
          * @return true if the target was launched successfully.
          */
         boolean startAsCaller(TargetInfo target, Activity activity, Bundle options, int userId);
 
         /**
-         * Request that the delegate use the {@link Activity#startAsUser()} API to launch the
+         * Request that the delegate use the {@link Activity#startActivityAsUser} API to launch the
          * specified {@code target}.
          *
          * @return true if the target was launched successfully.
@@ -145,7 +146,7 @@ public final class ImmutableTargetInfo implements TargetInfo {
         /**
          * Configure an {@link Intent} to be built in to the output target as the "base intent to
          * send," which may be a refinement of any of our source targets. This is private because
-         * it's only used internally by {@link #tryToCloneWithAppliedRefinement()}; if it's ever
+         * it's only used internally by {@link #tryToCloneWithAppliedRefinement}; if it's ever
          * expanded, the builder should probably be responsible for enforcing the refinement check.
          */
         private Builder setBaseIntentToSend(Intent baseIntent) {
@@ -229,8 +230,8 @@ public final class ImmutableTargetInfo implements TargetInfo {
 
        /**
         * Configure the full list of source intents we could resolve for this target. This is
-        * effectively the same as calling {@link #setResolvedIntent()} with the first element of
-        * the list, and {@link #setAlternateSourceIntents()} with the remainder (or clearing those
+        * effectively the same as calling {@link #setResolvedIntent} with the first element of
+        * the list, and {@link #setAlternateSourceIntents} with the remainder (or clearing those
         * fields on the builder if there are no corresponding elements in the list).
         */
         public Builder setAllSourceIntents(List<Intent> sourceIntents) {

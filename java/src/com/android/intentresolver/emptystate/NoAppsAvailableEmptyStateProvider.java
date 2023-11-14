@@ -19,14 +19,15 @@ package com.android.intentresolver.emptystate;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_NO_PERSONAL_APPS;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_NO_WORK_APPS;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.app.admin.DevicePolicyEventLogger;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.pm.ResolveInfo;
 import android.os.UserHandle;
 import android.stats.devicepolicy.nano.DevicePolicyEnums;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.ResolverListAdapter;
@@ -51,9 +52,12 @@ public class NoAppsAvailableEmptyStateProvider implements EmptyStateProvider {
     @NonNull
     private final UserHandle mTabOwnerUserHandleForLaunch;
 
-    public NoAppsAvailableEmptyStateProvider(Context context, UserHandle workProfileUserHandle,
-            UserHandle personalProfileUserHandle, String metricsCategory,
-            UserHandle tabOwnerUserHandleForLaunch) {
+    public NoAppsAvailableEmptyStateProvider(
+            @NonNull Context context,
+            @Nullable UserHandle workProfileUserHandle,
+            @Nullable UserHandle personalProfileUserHandle,
+            @NonNull String metricsCategory,
+            @NonNull UserHandle tabOwnerUserHandleForLaunch) {
         mContext = context;
         mWorkProfileUserHandle = workProfileUserHandle;
         mPersonalProfileUserHandle = personalProfileUserHandle;
@@ -128,8 +132,9 @@ public class NoAppsAvailableEmptyStateProvider implements EmptyStateProvider {
 
         private boolean mIsPersonalProfile;
 
-        public NoAppsAvailableEmptyState(String title, String metricsCategory,
-                boolean isPersonalProfile) {
+        public NoAppsAvailableEmptyState(@NonNull String title,
+                                         @NonNull String metricsCategory,
+                                         boolean isPersonalProfile) {
             mTitle = title;
             mMetricsCategory = metricsCategory;
             mIsPersonalProfile = isPersonalProfile;

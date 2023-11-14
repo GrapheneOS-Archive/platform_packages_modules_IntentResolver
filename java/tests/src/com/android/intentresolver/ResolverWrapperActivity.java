@@ -21,7 +21,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import android.annotation.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -32,6 +31,7 @@ import android.os.UserHandle;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
@@ -158,9 +158,12 @@ public class ResolverWrapperActivity extends ResolverActivity {
     protected AnnotatedUserHandles computeAnnotatedUserHandles() {
         return sOverrides.annotatedUserHandles;
     }
-
     @Override
-    public void startActivityAsUser(Intent intent, Bundle options, UserHandle user) {
+    public void startActivityAsUser(
+            @NonNull Intent intent,
+            Bundle options,
+            @NonNull UserHandle user
+    ) {
         super.startActivityAsUser(intent, options, user);
     }
 

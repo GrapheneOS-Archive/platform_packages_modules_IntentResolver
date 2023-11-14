@@ -16,11 +16,12 @@
 
 package com.android.intentresolver;
 
-import android.annotation.Nullable;
 import android.content.ComponentName;
 import android.content.Context;
 import android.provider.Settings;
 import android.text.TextUtils;
+
+import androidx.annotation.Nullable;
 
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -49,8 +50,9 @@ public class ChooserIntegratedDeviceComponents {
     }
 
     @VisibleForTesting
-    public ChooserIntegratedDeviceComponents(
-            ComponentName editSharingComponent, ComponentName nearbySharingComponent) {
+    ChooserIntegratedDeviceComponents(
+            @Nullable ComponentName editSharingComponent,
+            @Nullable ComponentName nearbySharingComponent) {
         mEditSharingComponent = editSharingComponent;
         mNearbySharingComponent = nearbySharingComponent;
     }

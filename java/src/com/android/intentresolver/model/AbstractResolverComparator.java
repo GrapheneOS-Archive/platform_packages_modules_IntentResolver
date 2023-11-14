@@ -16,7 +16,6 @@
 
 package com.android.intentresolver.model;
 
-import android.annotation.Nullable;
 import android.app.usage.UsageStatsManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -29,6 +28,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.UserHandle;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.ResolverActivity;

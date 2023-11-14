@@ -17,7 +17,6 @@
 
 package com.android.intentresolver;
 
-import android.annotation.WorkerThread;
 import android.app.ActivityManager;
 import android.app.AppGlobals;
 import android.content.ComponentName;
@@ -30,6 +29,8 @@ import android.content.pm.ResolveInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
+
+import androidx.annotation.WorkerThread;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;

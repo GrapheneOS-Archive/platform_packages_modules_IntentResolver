@@ -36,9 +36,6 @@ import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTE
 
 import static com.android.internal.annotations.VisibleForTesting.Visibility.PROTECTED;
 
-import android.annotation.Nullable;
-import android.annotation.StringRes;
-import android.annotation.UiThread;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityThread;
@@ -96,6 +93,10 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.annotation.UiThread;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
 
@@ -612,7 +613,7 @@ public class ResolverActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mMultiProfilePagerAdapter.getActiveListAdapter().handlePackagesChanged();
         if (mIsIntentPicker && shouldShowTabs() && !useLayoutWithDefault()
@@ -1528,7 +1529,7 @@ public class ResolverActivity extends FragmentActivity implements
     }
 
     @Override
-    protected final void onSaveInstanceState(Bundle outState) {
+    protected final void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         ViewPager viewPager = findViewById(com.android.internal.R.id.profile_pager);
         if (viewPager != null) {
@@ -1537,7 +1538,7 @@ public class ResolverActivity extends FragmentActivity implements
     }
 
     @Override
-    protected final void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected final void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         resetButtonBar();
         ViewPager viewPager = findViewById(com.android.internal.R.id.profile_pager);

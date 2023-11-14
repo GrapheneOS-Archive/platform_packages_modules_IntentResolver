@@ -16,7 +16,6 @@
 
 package com.android.intentresolver;
 
-import android.annotation.Nullable;
 import android.app.prediction.AppTarget;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +24,8 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.service.chooser.ChooserTarget;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.SelectableTargetInfo;

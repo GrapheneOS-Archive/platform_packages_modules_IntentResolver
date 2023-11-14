@@ -16,7 +16,6 @@
 
 package com.android.intentresolver;
 
-import android.annotation.Nullable;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
@@ -30,6 +29,8 @@ import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 /**
  * Loads the icon and label for the provided ApplicationInfo. Defaults to using the application icon
  * and label over any IntentFilter or Activity icon to increase user understanding, with an
@@ -37,7 +38,7 @@ import android.util.Log;
  * resources over PackageManager loading mechanisms so badging can be done by iconloader. Uses
  * Strings to strip creative formatting.
  *
- * Use one of the {@link TargetPresentationGetter#Factory} methods to create an instance of the
+ * Use one of the {@link TargetPresentationGetter.Factory} methods to create an instance of the
  * appropriate concrete type.
  *
  * TODO: once this component (and its tests) are merged, it should be possible to refactor and

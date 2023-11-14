@@ -16,13 +16,14 @@
 
 package com.android.intentresolver.emptystate;
 
-import android.annotation.NonNull;
-import android.annotation.Nullable;
-import android.annotation.StringRes;
 import android.app.admin.DevicePolicyEventLogger;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.os.UserHandle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 
 import com.android.intentresolver.ResolverListAdapter;
 
@@ -90,10 +91,14 @@ public class NoCrossProfileEmptyStateProvider implements EmptyStateProvider {
         @NonNull
         private final String mEventCategory;
 
-        public DevicePolicyBlockerEmptyState(Context context, String devicePolicyStringTitleId,
-                @StringRes int defaultTitleResource, String devicePolicyStringSubtitleId,
+        public DevicePolicyBlockerEmptyState(
+                @NonNull Context context,
+                String devicePolicyStringTitleId,
+                @StringRes int defaultTitleResource,
+                String devicePolicyStringSubtitleId,
                 @StringRes int defaultSubtitleResource,
-                int devicePolicyEventId, String devicePolicyEventCategory) {
+                int devicePolicyEventId,
+                @NonNull String devicePolicyEventCategory) {
             mContext = context;
             mDevicePolicyStringTitleId = devicePolicyStringTitleId;
             mDefaultTitleResource = defaultTitleResource;

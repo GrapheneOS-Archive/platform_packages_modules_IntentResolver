@@ -16,7 +16,6 @@
 
 package com.android.intentresolver;
 
-import android.annotation.Nullable;
 import android.app.prediction.AppPredictor;
 import android.app.usage.UsageStatsManager;
 import android.content.ComponentName;
@@ -32,6 +31,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.UserHandle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
@@ -248,6 +249,7 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
         return mMultiProfilePagerAdapter.getCurrentUserHandle();
     }
 
+    @NonNull
     @Override
     public Context createContextAsUser(UserHandle user, int flags) {
         // return the current context as a work profile doesn't really exist in these tests

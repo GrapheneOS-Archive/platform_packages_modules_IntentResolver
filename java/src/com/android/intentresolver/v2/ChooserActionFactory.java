@@ -16,7 +16,6 @@
 
 package com.android.intentresolver.v2;
 
-import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.PendingIntent;
@@ -33,6 +32,8 @@ import android.service.chooser.ChooserAction;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+
+import androidx.annotation.Nullable;
 
 import com.android.intentresolver.ChooserRequestParameters;
 import com.android.intentresolver.R;
@@ -55,6 +56,7 @@ import java.util.function.Consumer;
  * Implementation of {@link ChooserContentPreviewUi.ActionFactory} specialized to the application
  * requirements of Sharesheet / {@link ChooserActivity}.
  */
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public final class ChooserActionFactory implements ChooserContentPreviewUi.ActionFactory {
     /**
      * Delegate interface to launch activities when the actions are selected.

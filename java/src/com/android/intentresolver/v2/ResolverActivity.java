@@ -35,9 +35,6 @@ import static com.android.internal.annotations.VisibleForTesting.Visibility.PROT
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.Nullable;
-import android.annotation.StringRes;
-import android.annotation.UiThread;
 import android.app.ActivityManager;
 import android.app.ActivityThread;
 import android.app.VoiceInteractor.PickOptionRequest;
@@ -94,6 +91,9 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.annotation.UiThread;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
 
