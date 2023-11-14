@@ -80,13 +80,6 @@ public class ResolverActivityTest {
     private static final UserHandle WORK_PROFILE_USER_HANDLE = UserHandle.of(10);
     private static final UserHandle CLONE_PROFILE_USER_HANDLE = UserHandle.of(11);
 
-    protected Intent getConcreteIntentForLaunch(Intent clientIntent) {
-        clientIntent.setClass(
-                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                ResolverWrapperActivity.class);
-        return clientIntent;
-    }
-
     @Rule
     public ActivityTestRule<ResolverWrapperActivity> mActivityRule =
             new ActivityTestRule<>(ResolverWrapperActivity.class, false, false);

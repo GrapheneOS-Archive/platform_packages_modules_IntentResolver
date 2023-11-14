@@ -32,9 +32,8 @@ class ResolverActivityLogic(
     }
 
     override val resolvingHome: Boolean by lazy {
-        Intent.ACTION_MAIN == targetIntent.action &&
-            targetIntent.categories?.size == 1 &&
-            targetIntent.categories.contains(Intent.CATEGORY_HOME)
+        targetIntent.action == Intent.ACTION_MAIN &&
+            targetIntent.categories.singleOrNull() == Intent.CATEGORY_HOME
     }
 
     override val additionalTargets: List<Intent>? = null
@@ -49,7 +48,7 @@ class ResolverActivityLogic(
 
     override val targetDataLoader: TargetDataLoader by lazy {
         DefaultTargetDataLoader(
-            activity.context,
+            activity,
             activity.lifecycle,
             activity.intent.getBooleanExtra(
                 ResolverActivity.EXTRA_IS_AUDIO_CAPTURE_DEVICE,

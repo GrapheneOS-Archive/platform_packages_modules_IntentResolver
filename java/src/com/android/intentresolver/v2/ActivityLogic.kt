@@ -1,16 +1,14 @@
 package com.android.intentresolver.v2
 
-import android.app.Activity
 import android.app.admin.DevicePolicyManager
 import android.app.admin.DevicePolicyResources.Strings.Core.FORWARD_INTENT_TO_PERSONAL
 import android.app.admin.DevicePolicyResources.Strings.Core.FORWARD_INTENT_TO_WORK
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.UserHandle
 import android.os.UserManager
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.core.content.getSystemService
 import com.android.intentresolver.AnnotatedUserHandles
 import com.android.intentresolver.R
 import com.android.intentresolver.icons.TargetDataLoader
@@ -74,13 +72,6 @@ interface CommonActivityLogic {
 
     /** Returns display message indicating intent forwarding or null if not intent forwarding. */
     fun forwardMessageFor(intent: Intent): String?
-
-    // TODO: For some reason the IDE complains about getting Activity fields from a
-    //  ComponentActivity. These are a band-aid until the bug is fixed and should be removed when
-    //  possible.
-    val ComponentActivity.context: Context
-    val ComponentActivity.intent: Intent
-    val ComponentActivity.referrer: Uri?
 }
 
 /**
@@ -105,13 +96,9 @@ class CommonActivityLogicImpl(
         }
     }
 
-    override val userManager: UserManager by lazy {
-        activity.context.getSystemService(Context.USER_SERVICE) as UserManager
-    }
+    override val userManager: UserManager by lazy { activity.getSystemService()!! }
 
-    override val devicePolicyManager: DevicePolicyManager by lazy {
-        activity.context.getSystemService(DevicePolicyManager::class.java)!!
-    }
+    override val devicePolicyManager: DevicePolicyManager by lazy { activity.getSystemService()!! }
 
     override val annotatedUserHandles: AnnotatedUserHandles? by lazy {
         try {
@@ -124,13 +111,13 @@ class CommonActivityLogicImpl(
 
     private val forwardToPersonalMessage: String? by lazy {
         devicePolicyManager.resources.getString(FORWARD_INTENT_TO_PERSONAL) {
-            activity.context.getString(R.string.forward_intent_to_owner)
+            activity.getString(R.string.forward_intent_to_owner)
         }
     }
 
     private val forwardToWorkMessage: String? by lazy {
         devicePolicyManager.resources.getString(FORWARD_INTENT_TO_WORK) {
-            activity.context.getString(R.string.forward_intent_to_work)
+            activity.getString(R.string.forward_intent_to_work)
         }
     }
 
@@ -154,14 +141,4 @@ class CommonActivityLogicImpl(
     companion object {
         private const val ANDROID_APP_URI_SCHEME = "android-app"
     }
-
-    // TODO: For some reason the IDE complains about getting Activity fields from a
-    //  ComponentActivity. These are a band-aid until the bug is fixed and should be removed when
-    //  possible.
-    override val ComponentActivity.context: Context
-        get() = (this as Activity)
-    override val ComponentActivity.intent: Intent
-        get() = (this as Activity).intent
-    override val ComponentActivity.referrer: Uri?
-        get() = (this as Activity).referrer
 }
