@@ -21,17 +21,20 @@ import com.android.intentresolver.v2.util.mutableLazy
 open class ChooserActivityLogic(
     tag: String,
     activityProvider: () -> ComponentActivity,
+    onWorkProfileStatusUpdated: () -> Unit,
     targetDataLoaderProvider: () -> TargetDataLoader,
     private val onPreInitialization: () -> Unit,
-) : ActivityLogic, CommonActivityLogic by CommonActivityLogicImpl(tag, activityProvider) {
+) :
+    ActivityLogic,
+    CommonActivityLogic by CommonActivityLogicImpl(
+        tag,
+        activityProvider,
+        onWorkProfileStatusUpdated,
+    ) {
 
     override val targetIntent: Intent by lazy { chooserRequestParameters?.targetIntent ?: Intent() }
 
     override val resolvingHome: Boolean = false
-
-    override val additionalTargets: List<Intent>? by lazy {
-        chooserRequestParameters?.additionalTargets?.toList()
-    }
 
     override val title: CharSequence? by lazy { chooserRequestParameters?.title }
 
@@ -51,6 +54,13 @@ open class ChooserActivityLogic(
 
     private val _profileSwitchMessage = mutableLazy { forwardMessageFor(targetIntent) }
     override val profileSwitchMessage: String? by _profileSwitchMessage
+
+    override val payloadIntents: List<Intent> by lazy {
+        buildList {
+            add(targetIntent)
+            chooserRequestParameters?.additionalTargets?.let { addAll(it) }
+        }
+    }
 
     val chooserRequestParameters: ChooserRequestParameters? by lazy {
         try {

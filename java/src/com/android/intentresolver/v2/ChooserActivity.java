@@ -241,6 +241,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         mLogic = new ChooserActivityLogic(
                 TAG,
                 () -> this,
+                this::onWorkProfileStatusUpdated,
                 () -> mTargetDataLoader,
                 this::onPreinitialization
         );
@@ -496,7 +497,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             TargetDataLoader targetDataLoader) {
         ChooserGridAdapter adapter = createChooserGridAdapter(
                 /* context */ this,
-                /* payloadIntents */ mIntents,
+                mLogic.getPayloadIntents(),
                 initialIntents,
                 rList,
                 filterLastUsed,
@@ -521,7 +522,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         int selectedProfile = findSelectedProfile();
         ChooserGridAdapter personalAdapter = createChooserGridAdapter(
                 /* context */ this,
-                /* payloadIntents */ mIntents,
+                mLogic.getPayloadIntents(),
                 selectedProfile == PROFILE_PERSONAL ? initialIntents : null,
                 rList,
                 filterLastUsed,
@@ -529,7 +530,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 targetDataLoader);
         ChooserGridAdapter workAdapter = createChooserGridAdapter(
                 /* context */ this,
-                /* payloadIntents */ mIntents,
+                mLogic.getPayloadIntents(),
                 selectedProfile == PROFILE_WORK ? initialIntents : null,
                 rList,
                 filterLastUsed,
@@ -540,7 +541,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 personalAdapter,
                 workAdapter,
                 createEmptyStateProvider(requireAnnotatedUserHandles().workProfileUserHandle),
-                () -> mWorkProfileAvailability.isQuietModeEnabled(),
+                () -> mLogic.getWorkProfileAvailabilityManager().isQuietModeEnabled(),
                 selectedProfile,
                 requireAnnotatedUserHandles().workProfileUserHandle,
                 requireAnnotatedUserHandles().cloneProfileUserHandle,
@@ -1015,7 +1016,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         if (info != null) {
             sendClickToAppPredictor(info);
             final ResolveInfo ri = info.getResolveInfo();
-            Intent targetIntent = getTargetIntent();
+            Intent targetIntent = mLogic.getTargetIntent();
             if (ri != null && ri.activityInfo != null && targetIntent != null) {
                 ChooserListAdapter currentListAdapter =
                         mChooserMultiProfilePagerAdapter.getActiveListAdapter();
@@ -1189,7 +1190,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 filterLastUsed,
                 createListController(userHandle),
                 userHandle,
-                getTargetIntent(),
+                mLogic.getTargetIntent(),
                 requireChooserRequest(),
                 mMaxTargetsPerRow,
                 targetDataLoader);
@@ -1274,13 +1275,13 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     }
 
     @Override
-    protected void onWorkProfileStatusUpdated() {
+    protected Unit onWorkProfileStatusUpdated() {
         UserHandle workUser = requireAnnotatedUserHandles().workProfileUserHandle;
         ProfileRecord record = workUser == null ? null : getProfileRecord(workUser);
         if (record != null && record.shortcutLoader != null) {
             record.shortcutLoader.reset();
         }
-        super.onWorkProfileStatusUpdated();
+        return super.onWorkProfileStatusUpdated();
     }
 
     @Override
@@ -1289,14 +1290,20 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         AppPredictor appPredictor = getAppPredictor(userHandle);
         AbstractResolverComparator resolverComparator;
         if (appPredictor != null) {
-            resolverComparator = new AppPredictionServiceResolverComparator(this, getTargetIntent(),
-                    mLogic.getReferrerPackageName(), appPredictor, userHandle, getEventLog(),
-                    mNearbyShare.orElse(null));
+            resolverComparator = new AppPredictionServiceResolverComparator(
+                    this,
+                    mLogic.getTargetIntent(),
+                    mLogic.getReferrerPackageName(),
+                    appPredictor,
+                    userHandle,
+                    getEventLog(),
+                    mNearbyShare.orElse(null)
+            );
         } else {
             resolverComparator =
                     new ResolverRankerServiceResolverComparator(
                             this,
-                            getTargetIntent(),
+                            mLogic.getTargetIntent(),
                             mLogic.getReferrerPackageName(),
                             null,
                             getEventLog(),
@@ -1307,7 +1314,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         return new ChooserListController(
                 this,
                 mPm,
-                getTargetIntent(),
+                mLogic.getTargetIntent(),
                 mLogic.getReferrerPackageName(),
                 requireAnnotatedUserHandles().userIdOfCallingApp,
                 resolverComparator,
