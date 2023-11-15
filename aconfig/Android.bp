@@ -27,5 +27,4 @@ aconfig_declarations {
 java_aconfig_library {
     name: "IntentResolverFlagsLib",
     aconfig_declarations: "IntentResolverFlags",
-    test: false
 }
