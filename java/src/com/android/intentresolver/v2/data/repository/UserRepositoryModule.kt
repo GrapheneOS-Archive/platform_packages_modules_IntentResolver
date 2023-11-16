@@ -1,4 +1,4 @@
-package com.android.intentresolver.v2.data
+package com.android.intentresolver.v2.data.repository
 
 import android.content.Context
 import android.os.UserHandle
@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-interface UserDataSourceModule {
+interface UserRepositoryModule {
     companion object {
         @Provides
         @Singleton
@@ -30,5 +30,5 @@ interface UserDataSourceModule {
         }
     }
 
-    @Binds @Singleton fun userDataSource(impl: UserDataSourceImpl): UserDataSource
+    @Binds @Singleton fun userRepository(impl: UserRepositoryImpl): UserRepository
 }

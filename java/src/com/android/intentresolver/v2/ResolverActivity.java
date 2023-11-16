@@ -124,9 +124,10 @@ import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto;
 import com.android.internal.util.LatencyTracker;
 
+import kotlin.Unit;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -142,7 +143,11 @@ import java.util.Set;
 public class ResolverActivity extends FragmentActivity implements
         ResolverListAdapter.ResolverListCommunicator {
 
-    protected ActivityLogic mLogic = new ResolverActivityLogic(TAG, () -> this);
+    protected ActivityLogic mLogic = new ResolverActivityLogic(
+            TAG,
+            () -> this,
+            this::onWorkProfileStatusUpdated
+    );
 
     public ResolverActivity() {
         mIsIntentPicker = getClass().equals(ResolverActivity.class);
@@ -157,8 +162,6 @@ public class ResolverActivity extends FragmentActivity implements
     protected View mProfileView;
     private int mLastSelected = AbsListView.INVALID_POSITION;
     private int mLayoutId;
-    @VisibleForTesting
-    protected final ArrayList<Intent> mIntents = new ArrayList<>();
     private PickTargetOptionRequest mPickOptionRequest;
     // Expected to be true if this object is ResolverActivity or is ResolverWrapperActivity.
     private final boolean mIsIntentPicker;
@@ -192,7 +195,6 @@ public class ResolverActivity extends FragmentActivity implements
     @VisibleForTesting
     protected MultiProfilePagerAdapter mMultiProfilePagerAdapter;
 
-    protected WorkProfileAvailabilityManager mWorkProfileAvailability;
 
     // Intent extra for connected audio devices
     public static final String EXTRA_IS_AUDIO_CAPTURE_DEVICE = "is_audio_capture_device";
@@ -318,8 +320,6 @@ public class ResolverActivity extends FragmentActivity implements
         mLogic.preInitialization();
         init(
                 mLogic.getTargetIntent(),
-                mLogic.getAdditionalTargets() == null
-                        ? null : mLogic.getAdditionalTargets().toArray(new Intent[0]),
                 mLogic.getInitialIntents() == null
                         ? null : mLogic.getInitialIntents().toArray(new Intent[0]),
                 mLogic.getTargetDataLoader()
@@ -328,7 +328,6 @@ public class ResolverActivity extends FragmentActivity implements
 
     protected void init(
             Intent intent,
-            Intent[] additionalTargets,
             Intent[] initialIntents,
             TargetDataLoader targetDataLoader
     ) {
@@ -338,15 +337,7 @@ public class ResolverActivity extends FragmentActivity implements
             return;
         }
 
-        mWorkProfileAvailability = createWorkProfileAvailabilityManager();
-
         mPm = getPackageManager();
-
-        // The initial intent must come before any other targets that are to be added.
-        mIntents.add(0, new Intent(intent));
-        if (additionalTargets != null) {
-            Collections.addAll(mIntents, additionalTargets);
-        }
 
         // The last argument of createResolverListAdapter is whether to do special handling
         // of the last used choice to highlight it in the list.  We need to always
@@ -582,7 +573,7 @@ public class ResolverActivity extends FragmentActivity implements
             }
         }
         // TODO: should we clean up the work-profile manager before we potentially finish() above?
-        mWorkProfileAvailability.unregisterWorkProfileStateReceiver(this);
+        mLogic.getWorkProfileAvailabilityManager().unregisterWorkProfileStateReceiver(this);
     }
 
     @Override
@@ -857,7 +848,7 @@ public class ResolverActivity extends FragmentActivity implements
         ResolverRankerServiceResolverComparator resolverComparator =
                 new ResolverRankerServiceResolverComparator(
                         this,
-                        getTargetIntent(),
+                        mLogic.getTargetIntent(),
                         mLogic.getReferrerPackageName(),
                         null,
                         null,
@@ -866,7 +857,7 @@ public class ResolverActivity extends FragmentActivity implements
         return new ResolverListController(
                 this,
                 mPm,
-                getTargetIntent(),
+                mLogic.getTargetIntent(),
                 mLogic.getReferrerPackageName(),
                 requireAnnotatedUserHandles().userIdOfCallingApp,
                 resolverComparator,
@@ -958,7 +949,7 @@ public class ResolverActivity extends FragmentActivity implements
         if (listAdapter == mMultiProfilePagerAdapter.getActiveListAdapter()) {
             if (listAdapter.getUserHandle().equals(
                     requireAnnotatedUserHandles().workProfileUserHandle)
-                    && mWorkProfileAvailability.isWaitingToEnableWorkProfile()) {
+                    && mLogic.getWorkProfileAvailabilityManager().isWaitingToEnableWorkProfile()) {
                 // We have just turned on the work profile and entered the pass code to start it,
                 // now we are waiting to receive the ACTION_USER_UNLOCKED broadcast. There is no
                 // point in reloading the list now, since the work profile user is still
@@ -994,20 +985,14 @@ public class ResolverActivity extends FragmentActivity implements
         return new CrossProfileIntentsChecker(getContentResolver());
     }
 
-    protected WorkProfileAvailabilityManager createWorkProfileAvailabilityManager() {
-        return new WorkProfileAvailabilityManager(
-                getSystemService(UserManager.class),
-                requireAnnotatedUserHandles().workProfileUserHandle,
-                this::onWorkProfileStatusUpdated);
-    }
-
-    protected void onWorkProfileStatusUpdated() {
+    protected Unit onWorkProfileStatusUpdated() {
         if (mMultiProfilePagerAdapter.getCurrentUserHandle().equals(
                 requireAnnotatedUserHandles().workProfileUserHandle)) {
             mMultiProfilePagerAdapter.rebuildActiveTab(true);
         } else {
             mMultiProfilePagerAdapter.clearInactiveProfileCache();
         }
+        return Unit.INSTANCE;
     }
 
     // @NonFinalForTesting
@@ -1031,7 +1016,7 @@ public class ResolverActivity extends FragmentActivity implements
                 filterLastUsed,
                 createListController(userHandle),
                 userHandle,
-                getTargetIntent(),
+                mLogic.getTargetIntent(),
                 this,
                 initialIntentsUserSpace,
                 targetDataLoader);
@@ -1059,7 +1044,7 @@ public class ResolverActivity extends FragmentActivity implements
 
         final EmptyStateProvider workProfileOffEmptyStateProvider =
                 new WorkProfilePausedEmptyStateProvider(this, workProfileUserHandle,
-                        mWorkProfileAvailability,
+                        mLogic.getWorkProfileAvailabilityManager(),
                         /* onSwitchOnWorkSelectedListener= */
                         () -> {
                             if (mOnSwitchOnWorkSelectedListener != null) {
@@ -1092,7 +1077,7 @@ public class ResolverActivity extends FragmentActivity implements
                     TargetDataLoader targetDataLoader) {
         ResolverListAdapter adapter = createResolverListAdapter(
                 /* context */ this,
-                /* payloadIntents */ mIntents,
+                mLogic.getPayloadIntents(),
                 initialIntents,
                 resolutionList,
                 filterLastUsed,
@@ -1140,7 +1125,7 @@ public class ResolverActivity extends FragmentActivity implements
         // resolver list. So filterLastUsed should be false for the other profile.
         ResolverListAdapter personalAdapter = createResolverListAdapter(
                 /* context */ this,
-                /* payloadIntents */ mIntents,
+                mLogic.getPayloadIntents(),
                 selectedProfile == PROFILE_PERSONAL ? initialIntents : null,
                 resolutionList,
                 (filterLastUsed && UserHandle.myUserId()
@@ -1150,7 +1135,7 @@ public class ResolverActivity extends FragmentActivity implements
         UserHandle workProfileUserHandle = requireAnnotatedUserHandles().workProfileUserHandle;
         ResolverListAdapter workAdapter = createResolverListAdapter(
                 /* context */ this,
-                /* payloadIntents */ mIntents,
+                mLogic.getPayloadIntents(),
                 selectedProfile == PROFILE_WORK ? initialIntents : null,
                 resolutionList,
                 (filterLastUsed && UserHandle.myUserId()
@@ -1162,7 +1147,7 @@ public class ResolverActivity extends FragmentActivity implements
                 personalAdapter,
                 workAdapter,
                 createEmptyStateProvider(workProfileUserHandle),
-                () -> mWorkProfileAvailability.isQuietModeEnabled(),
+                () -> mLogic.getWorkProfileAvailabilityManager().isQuietModeEnabled(),
                 selectedProfile,
                 workProfileUserHandle,
                 requireAnnotatedUserHandles().cloneProfileUserHandle);
@@ -1286,10 +1271,6 @@ public class ResolverActivity extends FragmentActivity implements
         return new Option(getOrLoadDisplayLabel(target), index);
     }
 
-    public final Intent getTargetIntent() {
-        return mIntents.isEmpty() ? null : mIntents.get(0);
-    }
-
     @Override // ResolverListCommunicator
     public final void updateProfileViewButton() {
         if (mProfileView == null) {
@@ -1360,9 +1341,11 @@ public class ResolverActivity extends FragmentActivity implements
             }
             mRegistered = true;
         }
-        if (shouldShowTabs() && mWorkProfileAvailability.isWaitingToEnableWorkProfile()) {
-            if (mWorkProfileAvailability.isQuietModeEnabled()) {
-                mWorkProfileAvailability.markWorkProfileEnabledBroadcastReceived();
+        WorkProfileAvailabilityManager workProfileAvailabilityManager =
+                mLogic.getWorkProfileAvailabilityManager();
+        if (shouldShowTabs() && workProfileAvailabilityManager.isWaitingToEnableWorkProfile()) {
+            if (workProfileAvailabilityManager.isQuietModeEnabled()) {
+                workProfileAvailabilityManager.markWorkProfileEnabledBroadcastReceived();
             }
         }
         mMultiProfilePagerAdapter.getActiveListAdapter().handlePackagesChanged();
@@ -1375,7 +1358,7 @@ public class ResolverActivity extends FragmentActivity implements
 
         this.getWindow().addSystemFlags(SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS);
         if (shouldShowTabs()) {
-            mWorkProfileAvailability.registerWorkProfileStateReceiver(this);
+            mLogic.getWorkProfileAvailabilityManager().registerWorkProfileStateReceiver(this);
         }
     }
 
@@ -2062,7 +2045,7 @@ public class ResolverActivity extends FragmentActivity implements
 
         CharSequence title = mLogic.getTitle() != null
                 ? mLogic.getTitle()
-                : getTitleForAction(getTargetIntent(), mLogic.getDefaultTitleResId());
+                : getTitleForAction(mLogic.getTargetIntent(), mLogic.getDefaultTitleResId());
 
         if (!TextUtils.isEmpty(title)) {
             final TextView titleView = findViewById(com.android.internal.R.id.title);

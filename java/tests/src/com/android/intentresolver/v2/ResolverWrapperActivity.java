@@ -45,6 +45,8 @@ import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
 import com.android.intentresolver.icons.LabelInfo;
 import com.android.intentresolver.icons.TargetDataLoader;
 
+import kotlin.Unit;
+
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -63,6 +65,10 @@ public class ResolverWrapperActivity extends ResolverActivity {
         mLogic = new TestResolverActivityLogic(
                 "ResolverWrapper",
                 () -> this,
+                () -> {
+                    onWorkProfileStatusUpdated();
+                    return Unit.INSTANCE;
+                },
                 sOverrides
         );
     }
@@ -100,14 +106,6 @@ public class ResolverWrapperActivity extends ResolverActivity {
             return sOverrides.mCrossProfileIntentsChecker;
         }
         return super.createCrossProfileIntentsChecker();
-    }
-
-    @Override
-    protected WorkProfileAvailabilityManager createWorkProfileAvailabilityManager() {
-        if (sOverrides.mWorkProfileAvailability != null) {
-            return sOverrides.mWorkProfileAvailability;
-        }
-        return super.createWorkProfileAvailabilityManager();
     }
 
     ResolverListAdapter getAdapter() {

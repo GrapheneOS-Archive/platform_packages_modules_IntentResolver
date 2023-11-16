@@ -2,16 +2,25 @@ package com.android.intentresolver.v2
 
 import android.content.Intent
 import androidx.activity.ComponentActivity
+import androidx.annotation.OpenForTesting
 import com.android.intentresolver.R
 import com.android.intentresolver.icons.DefaultTargetDataLoader
 import com.android.intentresolver.icons.TargetDataLoader
 import com.android.intentresolver.v2.util.mutableLazy
 
 /** Activity logic for [ResolverActivity]. */
-class ResolverActivityLogic(
+@OpenForTesting
+open class ResolverActivityLogic(
     tag: String,
     activityProvider: () -> ComponentActivity,
-) : ActivityLogic, CommonActivityLogic by CommonActivityLogicImpl(tag, activityProvider) {
+    onWorkProfileStatusUpdated: () -> Unit,
+) :
+    ActivityLogic,
+    CommonActivityLogic by CommonActivityLogicImpl(
+        tag,
+        activityProvider,
+        onWorkProfileStatusUpdated,
+    ) {
 
     override val targetIntent: Intent by lazy {
         val intent = Intent(activity.intent)
@@ -36,8 +45,6 @@ class ResolverActivityLogic(
             targetIntent.categories.singleOrNull() == Intent.CATEGORY_HOME
     }
 
-    override val additionalTargets: List<Intent>? = null
-
     override val title: CharSequence? = null
 
     override val defaultTitleResId: Int = 0
@@ -61,6 +68,8 @@ class ResolverActivityLogic(
 
     private val _profileSwitchMessage = mutableLazy { forwardMessageFor(targetIntent) }
     override val profileSwitchMessage: String? by _profileSwitchMessage
+
+    override val payloadIntents: List<Intent> by lazy { listOf(targetIntent) }
 
     override fun preInitialization() {
         // Do nothing

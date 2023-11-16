@@ -1,4 +1,4 @@
-package com.android.intentresolver.v2.data
+package com.android.intentresolver.v2.data.repository
 
 import android.content.Context
 import android.content.Intent
@@ -19,7 +19,9 @@ import androidx.annotation.VisibleForTesting
 import com.android.intentresolver.inject.Background
 import com.android.intentresolver.inject.Main
 import com.android.intentresolver.inject.ProfileParent
-import com.android.intentresolver.v2.data.UserDataSourceImpl.UserEvent
+import com.android.intentresolver.v2.data.broadcastFlow
+import com.android.intentresolver.v2.data.model.User
+import com.android.intentresolver.v2.data.repository.UserRepositoryImpl.UserEvent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -35,7 +37,7 @@ import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 
-interface UserDataSource {
+interface UserRepository {
     /**
      * A [Flow] user profile groups. Each map contains the context user along with all members of
      * the profile group. This includes the (Full) parent user, if the context user is a profile.
@@ -47,17 +49,31 @@ interface UserDataSource {
      *
      * Availability is currently defined as not being in [quietMode][UserInfo.isQuietModeEnabled].
      */
-    fun isAvailable(handle: UserHandle): Flow<Boolean>
+    fun isAvailable(user: User): Flow<Boolean>
+
+    /**
+     * Request that availability be updated to the requested state. This currently includes toggling
+     * quiet mode as needed. This may involve additional background actions, such as starting or
+     * stopping a profile user (along with their many associated processes).
+     *
+     * If successful, the change will be applied after the call returns and can be observed using
+     * [UserRepository.isAvailable] for the given user.
+     *
+     * No actions are taken if the user is already in requested state.
+     *
+     * @throws IllegalArgumentException if called for an unsupported user type
+     */
+    suspend fun requestState(user: User, available: Boolean)
 }
 
-private const val TAG = "UserDataSource"
+private const val TAG = "UserRepository"
 
 private data class UserWithState(val user: User, val available: Boolean)
 
 private typealias UserStateMap = Map<UserHandle, UserWithState>
 
 /** Tracks and publishes state for the parent user and associated profiles. */
-class UserDataSourceImpl
+class UserRepositoryImpl
 @VisibleForTesting
 constructor(
     private val profileParent: UserHandle,
@@ -66,7 +82,7 @@ constructor(
     private val userEvents: Flow<UserEvent>,
     scope: CoroutineScope,
     private val backgroundDispatcher: CoroutineDispatcher
-) : UserDataSource {
+) : UserRepository {
     @Inject
     constructor(
         @ApplicationContext context: Context,
@@ -130,8 +146,26 @@ constructor(
     private val availability: Flow<Map<UserHandle, Boolean>> =
         usersWithState.map { map -> map.mapValues { it.value.available } }.distinctUntilChanged()
 
-    override fun isAvailable(handle: UserHandle): Flow<Boolean> {
+    override fun isAvailable(user: User): Flow<Boolean> {
+        return isAvailable(user.handle)
+    }
+
+    @VisibleForTesting
+    fun isAvailable(handle: UserHandle): Flow<Boolean> {
         return availability.map { it[handle] ?: false }
+    }
+
+    override suspend fun requestState(user: User, available: Boolean) {
+        require(user.type == User.Type.PROFILE) { "Only profile users are supported" }
+        return requestState(user.handle, available)
+    }
+
+    @VisibleForTesting
+    suspend fun requestState(user: UserHandle, available: Boolean) {
+        return withContext(backgroundDispatcher) {
+            Log.i(TAG, "requestQuietModeEnabled: ${!available} for user $user")
+            userManager.requestQuietModeEnabled(/* enableQuietMode = */ !available, user)
+        }
     }
 
     private fun handleAvailability(event: UserEvent, current: UserStateMap): UserStateMap {

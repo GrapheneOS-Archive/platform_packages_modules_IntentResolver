@@ -38,7 +38,6 @@ import com.android.intentresolver.ChooserRequestParameters;
 import com.android.intentresolver.IChooserWrapper;
 import com.android.intentresolver.ResolverListController;
 import com.android.intentresolver.TestContentPreviewViewModel;
-import com.android.intentresolver.WorkProfileAvailabilityManager;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
@@ -63,8 +62,9 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
         mLogic = new TestChooserActivityLogic(
                 "ChooserWrapper",
                 () -> this,
+                this::onWorkProfileStatusUpdated,
                 () -> mTargetDataLoader,
-                super::onPreinitialization,
+                this::onPreinitialization,
                 sOverrides
         );
     }
@@ -157,14 +157,6 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
             return sOverrides.mCrossProfileIntentsChecker;
         }
         return super.createCrossProfileIntentsChecker();
-    }
-
-    @Override
-    protected WorkProfileAvailabilityManager createWorkProfileAvailabilityManager() {
-        if (sOverrides.mWorkProfileAvailability != null) {
-            return sOverrides.mWorkProfileAvailability;
-        }
-        return super.createWorkProfileAvailabilityManager();
     }
 
     @Override
