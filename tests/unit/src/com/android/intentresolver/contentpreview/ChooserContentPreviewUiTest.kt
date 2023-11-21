@@ -18,8 +18,8 @@ package com.android.intentresolver.contentpreview
 
 import android.content.Intent
 import android.net.Uri
-import com.android.intentresolver.TestPreviewImageLoader
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
+import com.android.intentresolver.TestPreviewImageLoader
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
 import com.android.intentresolver.widget.ActionRow
