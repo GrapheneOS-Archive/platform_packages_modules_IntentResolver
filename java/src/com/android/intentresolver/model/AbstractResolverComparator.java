@@ -232,7 +232,7 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
      * {@link ResolvedComponentInfo#getResolveInfoAt(int)} from the parameters of {@link
      * #compare(ResolvedComponentInfo, ResolvedComponentInfo)}
      */
-    abstract int compare(ResolveInfo lhs, ResolveInfo rhs);
+    public abstract int compare(ResolveInfo lhs, ResolveInfo rhs);
 
     /**
      * Computes features for each target. This will be called before calls to {@link
@@ -248,7 +248,7 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
     }
 
     /** Implementation of compute called after {@link #beforeCompute()}. */
-    abstract void doCompute(List<ResolvedComponentInfo> targets);
+    public abstract void doCompute(List<ResolvedComponentInfo> targets);
 
     /**
      * Returns the score that was calculated for the corresponding {@link ResolvedComponentInfo}
@@ -257,12 +257,12 @@ public abstract class AbstractResolverComparator implements Comparator<ResolvedC
     public abstract float getScore(TargetInfo targetInfo);
 
     /** Handles result message sent to mHandler. */
-    abstract void handleResultMessage(Message message);
+    public abstract void handleResultMessage(Message message);
 
     /**
      * Reports to UsageStats what was chosen.
      */
-    public final void updateChooserCounts(String packageName, UserHandle user, String action) {
+    public void updateChooserCounts(String packageName, UserHandle user, String action) {
         if (mUsmMap.containsKey(user)) {
             mUsmMap.get(user).reportChooserSelection(
                     packageName,
