@@ -236,7 +236,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     private final AtomicLong mIntentReceivedTime = new AtomicLong(-1);
 
-    ChooserActivity() {
+    public ChooserActivity() {
         super();
         mLogic = new ChooserActivityLogic(
                 TAG,

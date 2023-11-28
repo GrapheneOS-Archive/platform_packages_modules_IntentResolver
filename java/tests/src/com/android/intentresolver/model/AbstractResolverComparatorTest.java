@@ -118,14 +118,14 @@ public class AbstractResolverComparatorTest {
                         Lists.newArrayList(context.getUser()), promoteToFirst) {
 
                     @Override
-                    int compare(ResolveInfo lhs, ResolveInfo rhs) {
+                    public int compare(ResolveInfo lhs, ResolveInfo rhs) {
                         // Used for testing pinning, so we should never get here --- the overrides
                         // should determine the result instead.
                         return 1;
                     }
 
                     @Override
-                    void doCompute(List<ResolvedComponentInfo> targets) {}
+                    public void doCompute(List<ResolvedComponentInfo> targets) {}
 
                     @Override
                     public float getScore(TargetInfo targetInfo) {
@@ -133,7 +133,7 @@ public class AbstractResolverComparatorTest {
                     }
 
                     @Override
-                    void handleResultMessage(Message message) {}
+                    public void handleResultMessage(Message message) {}
                 };
         return testComparator;
     }

@@ -87,12 +87,12 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
     }
 
     @Override
-    int compare(ResolveInfo lhs, ResolveInfo rhs) {
+    public int compare(ResolveInfo lhs, ResolveInfo rhs) {
         return mComparatorModel.getComparator().compare(lhs, rhs);
     }
 
     @Override
-    void doCompute(List<ResolvedComponentInfo> targets) {
+    public void doCompute(List<ResolvedComponentInfo> targets) {
         if (targets.isEmpty()) {
             mHandler.sendEmptyMessage(RANKER_SERVICE_RESULT);
             return;
@@ -144,7 +144,7 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
     }
 
     @Override
-    void handleResultMessage(Message msg) {
+    public void handleResultMessage(Message msg) {
         // Null value is okay if we have defaulted to the ResolverRankerService.
         if (msg.what == RANKER_SERVICE_RESULT && msg.obj != null) {
             final List<AppTarget> sortedAppTargets = (List<AppTarget>) msg.obj;
