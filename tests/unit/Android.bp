@@ -19,9 +19,8 @@ package {
 }
 
 android_test {
-    name: "IntentResolverUnitTests",
+    name: "IntentResolver-tests-unit",
     manifest: "AndroidManifest.xml",
-    // Include all test java files.
     srcs: [
         "src/**/*.java",
         "src/**/*.kt",
@@ -44,24 +43,20 @@ android_test {
         "androidx.test.espresso.contrib",
         "androidx.test.espresso.core",
         "androidx.test.rules",
+        "androidx.test.runner",
         "androidx.lifecycle_lifecycle-common-java8",
         "androidx.lifecycle_lifecycle-extensions",
         "androidx.lifecycle_lifecycle-runtime-testing",
-        "hilt_android_testing",
         "IntentResolver-core",
+        "IntentResolver-tests-shared",
         "junit",
         "kotlinx_coroutines_test",
         "mockito-target-minus-junit4",
-        "testables",
+        "testables", // TestableContext/TestableResources
         "truth",
         "truth-java8-extension",
         "flag-junit",
         "platform-test-annotations",
     ],
-    plugins: ["dagger2-compiler"],
     test_suites: ["general-tests"],
-    sdk_version: "core_platform",
-    min_sdk_version: "current",
-    target_sdk_version: "current",
-    platform_apis: true,
 }
