@@ -25,6 +25,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.RemoteException;
 import android.os.Trace;
@@ -158,6 +159,10 @@ public class ResolverListAdapter extends BaseAdapter {
         mInitialIntentsUserSpace = initialIntentsUserSpace;
         mBgExecutor = bgExecutor;
         mCallbackExecutor = callbackExecutor;
+    }
+
+    protected Intent getTargetIntent() {
+        return mTargetIntent;
     }
 
     public final DisplayResolveInfo getFirstDisplayResolveInfo() {

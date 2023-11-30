@@ -86,7 +86,7 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
             ResolverListController resolverListController,
             UserHandle userHandle,
             Intent targetIntent,
-            ChooserRequestParameters chooserRequest,
+            Intent referrerFillInIntent,
             int maxTargetsPerRow,
             TargetDataLoader targetDataLoader) {
         PackageManager packageManager =
@@ -101,10 +101,10 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
                 createListController(userHandle),
                 userHandle,
                 targetIntent,
+                referrerFillInIntent,
                 this,
                 packageManager,
                 getEventLog(),
-                chooserRequest,
                 maxTargetsPerRow,
                 userHandle,
                 targetDataLoader);

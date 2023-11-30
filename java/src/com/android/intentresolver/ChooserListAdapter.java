@@ -30,6 +30,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Trace;
 import android.os.UserHandle;
@@ -84,7 +85,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
     /** {@link #getBaseScore} */
     public static final float SHORTCUT_TARGET_SCORE_BOOST = 90.f;
 
-    private final ChooserRequestParameters mChooserRequest;
+    private final Intent mReferrerFillInIntent;
+
     private final int mMaxRankedTargets;
 
     private final EventLog mEventLog;
@@ -144,10 +146,10 @@ public class ChooserListAdapter extends ResolverListAdapter {
             ResolverListController resolverListController,
             UserHandle userHandle,
             Intent targetIntent,
+            Intent referrerFillInIntent,
             ResolverListCommunicator resolverListCommunicator,
             PackageManager packageManager,
             EventLog eventLog,
-            ChooserRequestParameters chooserRequest,
             int maxRankedTargets,
             UserHandle initialIntentsUserSpace,
             TargetDataLoader targetDataLoader) {
@@ -160,10 +162,10 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 resolverListController,
                 userHandle,
                 targetIntent,
+                referrerFillInIntent,
                 resolverListCommunicator,
                 packageManager,
                 eventLog,
-                chooserRequest,
                 maxRankedTargets,
                 initialIntentsUserSpace,
                 targetDataLoader,
@@ -181,10 +183,10 @@ public class ChooserListAdapter extends ResolverListAdapter {
             ResolverListController resolverListController,
             UserHandle userHandle,
             Intent targetIntent,
+            Intent referrerFillInIntent,
             ResolverListCommunicator resolverListCommunicator,
             PackageManager packageManager,
             EventLog eventLog,
-            ChooserRequestParameters chooserRequest,
             int maxRankedTargets,
             UserHandle initialIntentsUserSpace,
             TargetDataLoader targetDataLoader,
@@ -207,8 +209,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 bgExecutor,
                 mainExecutor);
 
-        mChooserRequest = chooserRequest;
         mMaxRankedTargets = maxRankedTargets;
+        mReferrerFillInIntent = referrerFillInIntent;
 
         mPlaceHolderTargetInfo = NotSelectableTargetInfo.newPlaceHolderTargetInfo(context);
         mTargetDataLoader = targetDataLoader;
@@ -497,8 +499,14 @@ public class ChooserListAdapter extends ResolverListAdapter {
         return count;
     }
 
+    private static boolean hasSendAction(Intent intent) {
+        String action = intent.getAction();
+        return Intent.ACTION_SEND.equals(action)
+                || Intent.ACTION_SEND_MULTIPLE.equals(action);
+    }
+
     public int getServiceTargetCount() {
-        if (mChooserRequest.isSendActionTarget() && !ActivityManager.isLowRamDeviceStatic()) {
+        if (hasSendAction(getTargetIntent()) && !ActivityManager.isLowRamDeviceStatic()) {
             return Math.min(mServiceTargets.size(), mMaxRankedTargets);
         }
 
@@ -653,8 +661,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 directShareToShortcutInfos,
                 directShareToAppTargets,
                 mContext.createContextAsUser(getUserHandle(), 0),
-                mChooserRequest.getTargetIntent(),
-                mChooserRequest.getReferrerFillInIntent(),
+                getTargetIntent(),
+                mReferrerFillInIntent,
                 mMaxRankedTargets,
                 mServiceTargets);
         if (isUpdated) {
