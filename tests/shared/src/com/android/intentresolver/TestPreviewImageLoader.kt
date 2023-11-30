@@ -22,7 +22,7 @@ import com.android.intentresolver.contentpreview.ImageLoader
 import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineScope
 
-internal class TestPreviewImageLoader(private val bitmaps: Map<Uri, Bitmap>) : ImageLoader {
+class TestPreviewImageLoader(private val bitmaps: Map<Uri, Bitmap>) : ImageLoader {
     override fun loadImage(callerScope: CoroutineScope, uri: Uri, callback: Consumer<Bitmap?>) {
         callback.accept(bitmaps[uri])
     }
