@@ -290,7 +290,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         ChooserRequestParameters chooserRequest = requireChooserRequest();
         mChooserContentPreviewUi = new ChooserContentPreviewUi(
                 getCoroutineScope(getLifecycle()),
-                previewViewModel.createOrReuseProvider(chooserRequest),
+                previewViewModel.createOrReuseProvider(chooserRequest.getTargetIntent()),
                 chooserRequest.getTargetIntent(),
                 previewViewModel.createOrReuseImageLoader(),
                 createChooserActionFactory(),
