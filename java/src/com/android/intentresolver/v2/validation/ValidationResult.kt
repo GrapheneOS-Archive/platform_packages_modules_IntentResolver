@@ -26,7 +26,7 @@ sealed interface ValidationResult<T> {
     fun getOrThrow(): T =
         checkNotNull(value) { "The result was invalid: " + findings.joinToString(separator = "\n") }
 
-    fun <T> reportToLogcat(tag: String) {
+    fun reportToLogcat(tag: String) {
         findings.forEach { Log.println(it.logcatPriority, tag, it.toString()) }
     }
 }

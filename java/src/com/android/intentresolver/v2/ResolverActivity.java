@@ -106,6 +106,7 @@ import com.android.intentresolver.v2.emptystate.NoAppsAvailableEmptyStateProvide
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
 import com.android.intentresolver.v2.emptystate.WorkProfilePausedEmptyStateProvider;
+import com.android.intentresolver.v2.ext.IntentExtKt;
 import com.android.intentresolver.v2.ui.ActionTitle;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
@@ -141,6 +142,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
 
     protected ActivityLogic mLogic;
     protected TargetDataLoader mTargetDataLoader;
+    private boolean mResolvingHome;
 
     private Button mAlwaysButton;
     private Button mOnceButton;
@@ -223,7 +225,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     }
 
     @VisibleForTesting
-    protected ActivityLogic createActivityLogic() {
+    protected ResolverActivityLogic createActivityLogic() {
         return  new ResolverActivityLogic(
                 TAG,
                 /* activity = */ this,
@@ -235,6 +237,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_DeviceDefault_Resolver);
         mLogic = createActivityLogic();
+        mResolvingHome = IntentExtKt.isHomeIntent(getIntent());
         mTargetDataLoader = new DefaultTargetDataLoader(
                 this,
                 getLifecycle(),
@@ -242,11 +245,6 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                         ResolverActivity.EXTRA_IS_AUDIO_CAPTURE_DEVICE,
                         /* defaultValue = */ false)
                 );
-    }
-
-    @Override
-    protected final void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
         init();
         restore(savedInstanceState);
     }
@@ -486,7 +484,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         }
         final Intent intent = getIntent();
         if ((intent.getFlags() & FLAG_ACTIVITY_NEW_TASK) != 0 && !isVoiceInteraction()
-                && !mLogic.getResolvingHome()) {
+                && !mResolvingHome) {
             // This resolver is in the unusual situation where it has been
             // launched at the top of a new task.  We don't let it be added
             // to the recent tasks shown to the user, and we need to make sure
@@ -532,7 +530,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         }
         ResolveInfo ri = mMultiProfilePagerAdapter.getActiveListAdapter()
                 .resolveInfoForPosition(which, hasIndexBeenFiltered);
-        if (mLogic.getResolvingHome() && hasManagedProfile() && !supportsManagedProfiles(ri)) {
+        if (mResolvingHome && hasManagedProfile() && !supportsManagedProfiles(ri)) {
             String launcherName = ri.activityInfo.loadLabel(getPackageManager()).toString();
             Toast.makeText(this,
                     mDevicePolicyResources.getWorkProfileNotSupportedMessage(launcherName),
@@ -1133,7 +1131,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     }
 
     protected final CharSequence getTitleForAction(Intent intent, int defaultTitleRes) {
-        final ActionTitle title = mLogic.getResolvingHome()
+        final ActionTitle title = mResolvingHome
                 ? ActionTitle.HOME
                 : ActionTitle.forAction(intent.getAction());
 
@@ -1198,7 +1196,6 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     @Override
     protected final void onStart() {
         super.onStart();
-
         this.getWindow().addSystemFlags(SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS);
         if (hasWorkProfile()) {
             mLogic.getWorkProfileAvailabilityManager().registerWorkProfileStateReceiver(this);
