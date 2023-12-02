@@ -304,7 +304,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                         .get(BasePreviewViewModel.class);
         mChooserContentPreviewUi = new ChooserContentPreviewUi(
                 getCoroutineScope(getLifecycle()),
-                previewViewModel.createOrReuseProvider(mChooserRequest),
+                previewViewModel.createOrReuseProvider(mChooserRequest.getTargetIntent()),
                 mChooserRequest.getTargetIntent(),
                 previewViewModel.createOrReuseImageLoader(),
                 createChooserActionFactory(),
@@ -1171,7 +1171,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 createListController(userHandle),
                 userHandle,
                 getTargetIntent(),
-                mChooserRequest,
+                mChooserRequest.getReferrerFillInIntent(),
                 mMaxTargetsPerRow,
                 targetDataLoader);
 
@@ -1230,7 +1230,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             ResolverListController resolverListController,
             UserHandle userHandle,
             Intent targetIntent,
-            ChooserRequestParameters chooserRequest,
+            Intent referrerFillInIntent,
             int maxTargetsPerRow,
             TargetDataLoader targetDataLoader) {
         UserHandle initialIntentsUserSpace = isLaunchedAsCloneProfile()
@@ -1245,10 +1245,10 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 createListController(userHandle),
                 userHandle,
                 targetIntent,
+                referrerFillInIntent,
                 this,
                 context.getPackageManager(),
                 getEventLog(),
-                chooserRequest,
                 maxTargetsPerRow,
                 initialIntentsUserSpace,
                 targetDataLoader);

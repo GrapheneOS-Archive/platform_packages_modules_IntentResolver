@@ -135,7 +135,10 @@ class ChooserActionFactoryTest {
         val testSubject =
             ChooserActionFactory(
                 context,
-                chooserRequest,
+                chooserRequest.targetIntent,
+                chooserRequest.referrerPackageName,
+                chooserRequest.chooserActions,
+                chooserRequest.modifyShareAction,
                 Optional.empty(),
                 logger,
                 {},
@@ -158,7 +161,10 @@ class ChooserActionFactoryTest {
         val testSubject =
             ChooserActionFactory(
                 context,
-                chooserRequest,
+                chooserRequest.targetIntent,
+                chooserRequest.referrerPackageName,
+                chooserRequest.chooserActions,
+                chooserRequest.modifyShareAction,
                 Optional.empty(),
                 logger,
                 {},
@@ -181,7 +187,10 @@ class ChooserActionFactoryTest {
         val testSubject =
             ChooserActionFactory(
                 context,
-                chooserRequest,
+                chooserRequest.targetIntent,
+                chooserRequest.referrerPackageName,
+                chooserRequest.chooserActions,
+                chooserRequest.modifyShareAction,
                 Optional.empty(),
                 logger,
                 {},
@@ -220,7 +229,10 @@ class ChooserActionFactoryTest {
 
         return ChooserActionFactory(
             context,
-            chooserRequest,
+            chooserRequest.targetIntent,
+            chooserRequest.referrerPackageName,
+            chooserRequest.chooserActions,
+            chooserRequest.modifyShareAction,
             Optional.empty(),
             logger,
             {},

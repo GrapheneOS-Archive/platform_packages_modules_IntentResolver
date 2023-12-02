@@ -16,6 +16,7 @@
 
 package com.android.intentresolver
 
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
@@ -29,8 +30,8 @@ class TestContentPreviewViewModel(
     private val imageLoader: ImageLoader? = null,
 ) : BasePreviewViewModel() {
     override fun createOrReuseProvider(
-        chooserRequest: ChooserRequestParameters
-    ): PreviewDataProvider = viewModel.createOrReuseProvider(chooserRequest)
+        targetIntent: Intent
+    ): PreviewDataProvider = viewModel.createOrReuseProvider(targetIntent)
 
     override fun createOrReuseImageLoader(): ImageLoader =
         imageLoader ?: viewModel.createOrReuseImageLoader()

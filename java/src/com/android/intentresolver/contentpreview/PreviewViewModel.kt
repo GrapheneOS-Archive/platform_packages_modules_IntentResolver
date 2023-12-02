@@ -17,6 +17,7 @@
 package com.android.intentresolver.contentpreview
 
 import android.app.Application
+import android.content.Intent
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -45,12 +46,12 @@ constructor(
 
     @MainThread
     override fun createOrReuseProvider(
-        chooserRequest: ChooserRequestParameters
+        targetIntent: Intent
     ): PreviewDataProvider =
         previewDataProvider
             ?: PreviewDataProvider(
                     viewModelScope + dispatcher,
-                    chooserRequest.targetIntent,
+                    targetIntent,
                     application.contentResolver
                 )
                 .also { previewDataProvider = it }

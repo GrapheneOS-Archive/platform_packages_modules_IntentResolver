@@ -67,10 +67,10 @@ class ChooserListAdapterTest {
             resolverListController,
             userHandle,
             Intent(),
+            Intent(),
             mock(),
             packageManager,
             mEventLog,
-            mock(),
             0,
             null,
             mTargetDataLoader

@@ -290,7 +290,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         ChooserRequestParameters chooserRequest = requireChooserRequest();
         mChooserContentPreviewUi = new ChooserContentPreviewUi(
                 getCoroutineScope(getLifecycle()),
-                previewViewModel.createOrReuseProvider(chooserRequest),
+                previewViewModel.createOrReuseProvider(chooserRequest.getTargetIntent()),
                 chooserRequest.getTargetIntent(),
                 previewViewModel.createOrReuseImageLoader(),
                 createChooserActionFactory(),
@@ -1182,6 +1182,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             boolean filterLastUsed,
             UserHandle userHandle,
             TargetDataLoader targetDataLoader) {
+        ChooserRequestParameters parameters = requireChooserRequest();
         ChooserListAdapter chooserListAdapter = createChooserListAdapter(
                 context,
                 payloadIntents,
@@ -1191,7 +1192,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 createListController(userHandle),
                 userHandle,
                 mLogic.getTargetIntent(),
-                requireChooserRequest(),
+                parameters.getReferrerFillInIntent(),
                 mMaxTargetsPerRow,
                 targetDataLoader);
 
@@ -1250,7 +1251,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             ResolverListController resolverListController,
             UserHandle userHandle,
             Intent targetIntent,
-            ChooserRequestParameters chooserRequest,
+            Intent referrerFillInIntent,
             int maxTargetsPerRow,
             TargetDataLoader targetDataLoader) {
         UserHandle initialIntentsUserSpace = isLaunchedAsCloneProfile()
@@ -1265,10 +1266,10 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 createListController(userHandle),
                 userHandle,
                 targetIntent,
+                referrerFillInIntent,
                 this,
                 context.getPackageManager(),
                 getEventLog(),
-                chooserRequest,
                 maxTargetsPerRow,
                 initialIntentsUserSpace,
                 targetDataLoader);
@@ -1327,9 +1328,13 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     }
 
     private ChooserActionFactory createChooserActionFactory() {
+        ChooserRequestParameters request = requireChooserRequest();
         return new ChooserActionFactory(
                 this,
-                requireChooserRequest(),
+                request.getTargetIntent(),
+                request.getReferrerPackageName(),
+                request.getChooserActions(),
+                request.getModifyShareAction(),
                 mImageEditor,
                 getEventLog(),
                 (isExcluded) -> mExcludeSharedText = isExcluded,

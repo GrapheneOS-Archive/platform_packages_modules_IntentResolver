@@ -16,6 +16,7 @@
 
 package com.android.intentresolver.contentpreview
 
+import android.content.Intent
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import com.android.intentresolver.ChooserRequestParameters
@@ -24,7 +25,7 @@ import com.android.intentresolver.ChooserRequestParameters
 abstract class BasePreviewViewModel : ViewModel() {
     @MainThread
     abstract fun createOrReuseProvider(
-        chooserRequest: ChooserRequestParameters
+        targetIntent: Intent
     ): PreviewDataProvider
 
     @MainThread abstract fun createOrReuseImageLoader(): ImageLoader
