@@ -357,7 +357,7 @@ public class MultiProfilePagerAdapter<
      * Rebuilds the tab that is currently visible to the user.
      * <p>Returns {@code true} if rebuild has completed.
      */
-    public boolean rebuildActiveTab(boolean doPostProcessing) {
+    public final boolean rebuildActiveTab(boolean doPostProcessing) {
         Trace.beginSection("MultiProfilePagerAdapter#rebuildActiveTab");
         boolean result = rebuildTab(getActiveListAdapter(), doPostProcessing);
         Trace.endSection();
@@ -368,7 +368,7 @@ public class MultiProfilePagerAdapter<
      * Rebuilds the tab that is not currently visible to the user, if such one exists.
      * <p>Returns {@code true} if rebuild has completed.
      */
-    public boolean rebuildInactiveTab(boolean doPostProcessing) {
+    public final boolean rebuildInactiveTab(boolean doPostProcessing) {
         Trace.beginSection("MultiProfilePagerAdapter#rebuildInactiveTab");
         if (getItemCount() == 1) {
             Trace.endSection();
@@ -387,7 +387,7 @@ public class MultiProfilePagerAdapter<
         }
     }
 
-    private boolean rebuildTab(ListAdapterT activeListAdapter, boolean doPostProcessing) {
+    protected boolean rebuildTab(ListAdapterT activeListAdapter, boolean doPostProcessing) {
         if (shouldSkipRebuild(activeListAdapter)) {
             activeListAdapter.postListReadyRunnable(doPostProcessing, /* rebuildCompleted */ true);
             return false;
