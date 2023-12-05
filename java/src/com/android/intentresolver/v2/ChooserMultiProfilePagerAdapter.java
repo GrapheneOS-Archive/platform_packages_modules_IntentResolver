@@ -154,19 +154,11 @@ public class ChooserMultiProfilePagerAdapter extends MultiProfilePagerAdapter<
     }
 
     @Override
-    public boolean rebuildActiveTab(boolean doPostProcessing) {
+    protected final boolean rebuildTab(ChooserListAdapter listAdapter, boolean doPostProcessing) {
         if (doPostProcessing) {
-            Tracer.INSTANCE.beginAppTargetLoadingSection(getActiveListAdapter().getUserHandle());
+            Tracer.INSTANCE.beginAppTargetLoadingSection(listAdapter.getUserHandle());
         }
-        return super.rebuildActiveTab(doPostProcessing);
-    }
-
-    @Override
-    public boolean rebuildInactiveTab(boolean doPostProcessing) {
-        if (getItemCount() != 1 && doPostProcessing) {
-            Tracer.INSTANCE.beginAppTargetLoadingSection(getInactiveListAdapter().getUserHandle());
-        }
-        return super.rebuildInactiveTab(doPostProcessing);
+        return super.rebuildTab(listAdapter, doPostProcessing);
     }
 
     private static class BottomPaddingOverrideSupplier implements Supplier<Optional<Integer>> {
