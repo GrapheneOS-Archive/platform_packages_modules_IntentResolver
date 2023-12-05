@@ -10,6 +10,8 @@ import com.android.intentresolver.R
 import com.android.intentresolver.icons.TargetDataLoader
 import com.android.intentresolver.v2.util.mutableLazy
 
+private const val TAG = "ChooserActivityLogic"
+
 /**
  * Activity logic for [ChooserActivity].
  *
