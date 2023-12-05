@@ -992,11 +992,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     @Override
     protected void applyFooterView(int height) {
-        int count = mChooserMultiProfilePagerAdapter.getItemCount();
-
-        for (int i = 0; i < count; i++) {
-            mChooserMultiProfilePagerAdapter.getAdapterForIndex(i).setFooterHeight(height);
-        }
+        mChooserMultiProfilePagerAdapter.setFooterHeightInEveryAdapter(height);
     }
 
     private void logDirectShareTargetReceived(UserHandle forUser) {
@@ -1499,14 +1495,13 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     /**
      * If we have a tabbed view and are showing 1 row in the current profile and an empty
-     * state screen in the other profile, to prevent cropping of the empty state screen we show
+     * state screen in another profile, to prevent cropping of the empty state screen we show
      * a second row in the current profile.
      */
     private boolean shouldShowExtraRow(int rowsToShow) {
-        return shouldShowTabs()
-                && rowsToShow == 1
-                && mChooserMultiProfilePagerAdapter.shouldShowEmptyStateScreen(
-                        mChooserMultiProfilePagerAdapter.getInactiveListAdapter());
+        return rowsToShow == 1
+                && mChooserMultiProfilePagerAdapter
+                        .shouldShowEmptyStateScreenInAnyInactiveAdapter();
     }
 
     /**

@@ -1582,13 +1582,7 @@ public class ResolverActivity extends FragmentActivity implements
         Trace.beginSection("configureContentView");
         // We partially rebuild the inactive adapter to determine if we should auto launch
         // isTabLoaded will be true here if the empty state screen is shown instead of the list.
-        boolean rebuildCompleted = mMultiProfilePagerAdapter.rebuildActiveTab(true)
-                || mMultiProfilePagerAdapter.getActiveListAdapter().isTabLoaded();
-        if (shouldShowTabs()) {
-            boolean rebuildInactiveCompleted = mMultiProfilePagerAdapter.rebuildInactiveTab(false)
-                    || mMultiProfilePagerAdapter.getInactiveListAdapter().isTabLoaded();
-            rebuildCompleted = rebuildCompleted && rebuildInactiveCompleted;
-        }
+        boolean rebuildCompleted = mMultiProfilePagerAdapter.rebuildTabs(shouldShowTabs());
 
         if (shouldUseMiniResolver()) {
             configureMiniResolverContent(targetDataLoader);
@@ -1962,10 +1956,8 @@ public class ResolverActivity extends FragmentActivity implements
             return;
         }
         mLastSelected = ListView.INVALID_POSITION;
-        ListView inactiveListView = (ListView) mMultiProfilePagerAdapter.getInactiveAdapterView();
-        if (inactiveListView.getCheckedItemCount() > 0) {
-            inactiveListView.setItemChecked(inactiveListView.getCheckedItemPosition(), false);
-        }
+        ((ResolverMultiProfilePagerAdapter) mMultiProfilePagerAdapter)
+                .clearCheckedItemsInInactiveProfiles();
     }
 
     private String getPersonalTabAccessibilityLabel() {
