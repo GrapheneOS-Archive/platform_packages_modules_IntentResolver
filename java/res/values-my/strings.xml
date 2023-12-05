@@ -54,7 +54,7 @@
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> ကို ပင်ဖြုတ်ရန်"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"တည်းဖြတ်ရန်"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ဖိုင်}other{+ # ဖိုင်}}"</string>
-    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ နောက်ထပ် # ဖိုင်}other{+ နောက်ထပ် # ဖိုင်}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+နောက်ထပ် # ဖိုင်}other{+နောက်ထပ် # ဖိုင်}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"စာသား မျှဝေနေသည်"</string>
     <string name="sharing_link" msgid="2307694372813942916">"လင့်ခ် မျှဝေနေသည်"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ပုံ မျှဝေနေသည်}other{ပုံ # ပုံ မျှဝေနေသည်}}"</string>
