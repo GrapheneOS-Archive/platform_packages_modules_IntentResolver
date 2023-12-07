@@ -62,7 +62,12 @@ public class ResolverWrapperActivity extends ResolverActivity {
 
     public ResolverWrapperActivity() {
         super(/* isIntentPicker= */ true);
-        mLogic = new TestResolverActivityLogic(
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setLogic(new TestResolverActivityLogic(
                 "ResolverWrapper",
                 () -> this,
                 () -> {
@@ -70,7 +75,7 @@ public class ResolverWrapperActivity extends ResolverActivity {
                     return Unit.INSTANCE;
                 },
                 sOverrides
-        );
+        ));
     }
 
     public CountingIdlingResource getLabelIdlingResource() {

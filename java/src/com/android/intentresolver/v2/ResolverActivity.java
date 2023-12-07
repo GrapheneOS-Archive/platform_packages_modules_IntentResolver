@@ -33,7 +33,9 @@ import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTE
 
 import static com.android.internal.annotations.VisibleForTesting.Visibility.PROTECTED;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
+import static java.util.Objects.requireNonNullElse;
 
 import android.app.ActivityManager;
 import android.app.ActivityThread;
@@ -91,6 +93,7 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
@@ -129,9 +132,12 @@ import kotlin.Unit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * This is a copy of ResolverActivity to support IntentResolver's ChooserActivity. This code is
@@ -143,11 +149,9 @@ import java.util.Set;
 public class ResolverActivity extends FragmentActivity implements
         ResolverListAdapter.ResolverListCommunicator {
 
-    protected ActivityLogic mLogic = new ResolverActivityLogic(
-            TAG,
-            () -> this,
-            this::onWorkProfileStatusUpdated
-    );
+    private final List<Runnable> mInit = new ArrayList<>();
+
+    protected ActivityLogic mLogic;
 
     public ResolverActivity() {
         mIsIntentPicker = getClass().equals(ResolverActivity.class);
@@ -307,30 +311,47 @@ public class ResolverActivity extends FragmentActivity implements
             }
         };
     }
+    protected interface Initializer {
+        void initialize(ActivityLogic value);
+    }
+
+    protected void setLogic(ActivityLogic logic) {
+        mLogic = logic;
+    }
+
+    protected void addInitializer(Runnable initializer) {
+        mInit.add(initializer);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (isFinishing()) {
             // Performing a clean exit:
-            //    Skip initializing any additional resources.
+            //    Skip initializing anything.
             return;
         }
-        setTheme(mLogic.getThemeResId());
-        mLogic.preInitialization();
-        init(
-                mLogic.getTargetIntent(),
-                mLogic.getInitialIntents() == null
-                        ? null : mLogic.getInitialIntents().toArray(new Intent[0]),
-                mLogic.getTargetDataLoader()
-        );
+        setLogic(new ResolverActivityLogic(
+                TAG,
+                () -> this,
+                this::onWorkProfileStatusUpdated));
+        addInitializer(this::init);
     }
 
-    protected void init(
-            Intent intent,
-            Intent[] initialIntents,
-            TargetDataLoader targetDataLoader
-    ) {
+    @Override
+    protected final void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mInit.forEach(Runnable::run);
+    }
+
+    private void init() {
+        setTheme(mLogic.getThemeResId());
+        mLogic.preInitialization();
+
+        Intent intent = mLogic.getTargetIntent();
+        List<Intent> initialIntents = mLogic.getInitialIntents();
+        TargetDataLoader targetDataLoader = mLogic.getTargetDataLoader();
+
         // Calling UID did not have valid permissions
         if (mLogic.getAnnotatedUserHandles() == null) {
             finish();
@@ -350,7 +371,7 @@ public class ResolverActivity extends FragmentActivity implements
         boolean filterLastUsed = mLogic.getSupportsAlwaysUseOption() && !isVoiceInteraction()
                 && !shouldShowTabs() && !hasCloneProfile();
         mMultiProfilePagerAdapter = createMultiProfilePagerAdapter(
-                initialIntents,
+                requireNonNullElse(initialIntents, emptyList()).toArray(new Intent[0]),
                 /* resolutionList = */ null,
                 filterLastUsed,
                 targetDataLoader

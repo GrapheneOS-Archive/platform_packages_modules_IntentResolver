@@ -236,21 +236,20 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     private final AtomicLong mIntentReceivedTime = new AtomicLong(-1);
 
-    public ChooserActivity() {
-        super();
-        mLogic = new ChooserActivityLogic(
-                TAG,
-                () -> this,
-                this::onWorkProfileStatusUpdated,
-                () -> mTargetDataLoader,
-                this::onPreinitialization
-        );
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Tracer.INSTANCE.markLaunched();
         super.onCreate(savedInstanceState);
+        setLogic(new ChooserActivityLogic(
+                TAG,
+                () -> this,
+                this::onWorkProfileStatusUpdated,
+                () -> mTargetDataLoader,
+                this::onPreinitialization));
+        addInitializer(this::init);
+    }
+
+    private void init() {
         if (getChooserRequest() == null) {
             finish();
             return;
@@ -719,7 +718,9 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     @Override
     protected void onStop() {
         super.onStop();
-        mRefinementManager.onActivityStop(isChangingConfigurations());
+        if (mRefinementManager != null) {
+            mRefinementManager.onActivityStop(isChangingConfigurations());
+        }
 
         if (mFinishWhenStopped) {
             mFinishWhenStopped = false;
