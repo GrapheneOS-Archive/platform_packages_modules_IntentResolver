@@ -44,7 +44,8 @@ class ChooserListAdapterDataTest {
     private val targetDataLoader = mock<TargetDataLoader>()
     private val backgroundExecutor = TestExecutor()
     private val immediateExecutor = TestExecutor(immediate = true)
-    private val referrerFillInIntent = Intent().putExtra(Intent.EXTRA_REFERRER, "org.referrer.package")
+    private val referrerFillInIntent =
+        Intent().putExtra(Intent.EXTRA_REFERRER, "org.referrer.package")
 
     @Test
     fun test_twoTargetsWithNonOverlappingInitialIntent_threeTargetsInResolverAdapter() {
@@ -93,6 +94,7 @@ class ChooserListAdapterDataTest {
                 /*maxRankedTargets=*/ 2,
                 /*initialIntentsUserSpace=*/ userHandle,
                 targetDataLoader,
+                null,
                 backgroundExecutor,
                 immediateExecutor,
             )
@@ -155,6 +157,7 @@ class ChooserListAdapterDataTest {
                 /*maxRankedTargets=*/ 2,
                 /*initialIntentsUserSpace=*/ userHandle,
                 targetDataLoader,
+                null,
                 backgroundExecutor,
                 immediateExecutor,
             )

@@ -56,6 +56,7 @@ class ChooserListAdapterTest {
     private val targetLabel = "Target"
     private val mEventLog = mock<EventLogImpl>()
     private val mTargetDataLoader = mock<TargetDataLoader>()
+    private val mPackageChangeCallback = mock<ChooserListAdapter.PackageChangeCallback>()
 
     private val testSubject by lazy {
         ChooserListAdapter(
@@ -73,7 +74,8 @@ class ChooserListAdapterTest {
             mEventLog,
             0,
             null,
-            mTargetDataLoader
+            mTargetDataLoader,
+            mPackageChangeCallback
         )
     }
 
@@ -166,6 +168,12 @@ class ChooserListAdapterTest {
         testSubject.onBindView(view, targetInfo, 0)
 
         assertThat(view.contentDescription).isEqualTo("$appLabel. Pinned")
+    }
+
+    @Test
+    fun handlePackagesChanged_invokesCallback() {
+        testSubject.handlePackagesChanged()
+        verify(mPackageChangeCallback, times(1)).beforeHandlingPackagesChanged()
     }
 
     private fun createSelectableTargetInfo(isPinned: Boolean = false): TargetInfo {

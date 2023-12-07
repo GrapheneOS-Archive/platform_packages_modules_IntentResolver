@@ -594,23 +594,14 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         // Refresh pinned items
         mPinnedSharedPrefs = getPinnedSharedPrefs(this);
         if (listAdapter == null) {
-            handlePackageChangePerProfile(mChooserMultiProfilePagerAdapter.getActiveListAdapter());
+            mChooserMultiProfilePagerAdapter.getActiveListAdapter().handlePackagesChanged();
             if (mChooserMultiProfilePagerAdapter.getCount() > 1) {
-                handlePackageChangePerProfile(
-                        mChooserMultiProfilePagerAdapter.getInactiveListAdapter());
+                mChooserMultiProfilePagerAdapter.getInactiveListAdapter().handlePackagesChanged();
             }
         } else {
-            handlePackageChangePerProfile(listAdapter);
+            listAdapter.handlePackagesChanged();
         }
         updateProfileViewButton();
-    }
-
-    private void handlePackageChangePerProfile(ResolverListAdapter adapter) {
-        ProfileRecord record = getProfileRecord(adapter.getUserHandle());
-        if (record != null && record.shortcutLoader != null) {
-            record.shortcutLoader.reset();
-        }
-        adapter.handlePackagesChanged();
     }
 
     @Override
@@ -1272,7 +1263,13 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 getEventLog(),
                 maxTargetsPerRow,
                 initialIntentsUserSpace,
-                targetDataLoader);
+                targetDataLoader,
+                () -> {
+                    ProfileRecord record = getProfileRecord(userHandle);
+                    if (record != null && record.shortcutLoader != null) {
+                        record.shortcutLoader.reset();
+                    }
+                });
     }
 
     @Override
