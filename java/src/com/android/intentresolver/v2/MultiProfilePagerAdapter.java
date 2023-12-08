@@ -204,6 +204,14 @@ public class MultiProfilePagerAdapter<
         return mCurrentPage;
     }
 
+    public final @Profile int getActiveProfile() {
+        // TODO: here and elsewhere in this class, distinguish between a "profile ID" integer and
+        // its mapped "page index." When we support more than two profiles, this won't be a "stable
+        // mapping" -- some particular profile may not be represented by a "page," but the ones that
+        // are will be assigned contiguous page numbers that skip over the holes.
+        return getCurrentPage();
+    }
+
     @VisibleForTesting
     public UserHandle getCurrentUserHandle() {
         return getActiveListAdapter().getUserHandle();
@@ -327,6 +335,15 @@ public class MultiProfilePagerAdapter<
 
     public final ListAdapterT getPersonalListAdapter() {
         return mListAdapterExtractor.apply(getAdapterForIndex(PROFILE_PERSONAL));
+    }
+
+    /** @return whether our tab data contains a page for the specified {@code profile} ID. */
+    public final boolean hasPageForProfile(@Profile int profile) {
+        // TODO: here and elsewhere in this class, distinguish between a "profile ID" integer and
+        // its mapped "page index." When we support more than two profiles, this won't be a "stable
+        // mapping" -- some particular profile may not be represented by a "page," but the ones that
+        // are will be assigned contiguous page numbers that skip over the holes.
+        return hasAdapterForIndex(profile);
     }
 
     @Nullable
