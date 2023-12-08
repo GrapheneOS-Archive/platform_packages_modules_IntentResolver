@@ -23,9 +23,8 @@ import com.android.systemui.flags.UnreleasedFlag
 // make the flags available in the flag flipper app (see go/sysui-flags).
 // All flags added should be included in UnbundledChooserActivityTest.ALL_FLAGS.
 object Flags {
-    private fun releasedFlag(id: Int, name: String) =
-        ReleasedFlag(id, name, "systemui")
+    private fun releasedFlag(name: String) = ReleasedFlag(name, "systemui")
 
-    private fun unreleasedFlag(id: Int, name: String, teamfood: Boolean = false) =
-        UnreleasedFlag(id, name, "systemui", teamfood)
+    private fun unreleasedFlag(name: String, teamfood: Boolean = false) =
+        UnreleasedFlag(name, "systemui", teamfood)
 }

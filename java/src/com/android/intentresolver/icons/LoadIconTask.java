@@ -24,7 +24,6 @@ import android.os.Trace;
 import android.os.UserHandle;
 import android.util.Log;
 
-import com.android.intentresolver.ResolverActivity;
 import com.android.intentresolver.TargetPresentationGetter;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 
@@ -64,8 +63,7 @@ class LoadIconTask extends BaseLoadIconTask {
     protected final Drawable loadIconForResolveInfo(ResolveInfo ri) {
         // Load icons based on userHandle from ResolveInfo. If in work profile/clone profile, icons
         // should be badged.
-        return mPresentationFactory.makePresentationGetter(ri)
-                .getIcon(ResolverActivity.getResolveInfoUserHandle(ri, mUserHandle));
+        return mPresentationFactory.makePresentationGetter(ri).getIcon(ri.userHandle);
     }
 
 }

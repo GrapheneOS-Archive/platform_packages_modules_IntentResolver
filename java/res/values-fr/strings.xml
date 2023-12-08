@@ -53,26 +53,17 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Épingler <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Retirer <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Modifier"</string>
+    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # fichier}one{{file_name} + # fichier}many{{file_name} + # fichiers}other{{file_name} + # fichiers}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # fichier}one{+ # fichier}many{+ # fichiers}other{+ # fichiers}}"</string>
-    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # autre fichier}one{+ # autre fichier}many{+ # autres fichiers}other{+ # autres fichiers}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Partage du texte…"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Partage du lien…"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Partage de l\'image…}one{Partage de # image…}many{Partage de # d\'images…}other{Partage de # images…}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Partage de la vidéo…}one{Partage de # vidéo…}many{Partage de # de vidéos…}other{Partage de # vidéos…}}"</string>
-    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Partage de # fichier}one{Partage de # fichier}many{Partage de # fichiers}other{Partage de # fichiers}}"</string>
-    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Partager 1 image avec du texte}one{Partager # image avec du texte}many{Partager # images avec du texte}other{Partager # images avec du texte}}"</string>
-    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Partager 1 image avec un lien}one{Partager # image avec un lien}many{Partager # images avec un lien}other{Partager # images avec un lien}}"</string>
-    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Partager 1 vidéo avec du texte}one{Partager # vidéo avec du texte}many{Partager # vidéos avec du texte}other{Partager # vidéos avec du texte}}"</string>
-    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Partager 1 vidéo avec un lien}one{Partager # vidéo avec un lien}many{Partager # vidéos avec un lien}other{Partager # vidéos avec un lien}}"</string>
-    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Partager 1 fichier avec du texte}one{Partager # fichier avec du texte}many{Partager # fichiers avec du texte}other{Partager # fichiers avec du texte}}"</string>
-    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Partager 1 fichier avec un lien}one{Partager # fichier avec un lien}many{Partager # fichiers avec un lien}other{Partager # fichiers avec un lien}}"</string>
-    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Image uniquement}one{Image uniquement}many{Images uniquement}other{Images uniquement}}"</string>
-    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Vidéo uniquement}one{Vidéo uniquement}many{Vidéos uniquement}other{Vidéos uniquement}}"</string>
-    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Fichier uniquement}one{Fichier uniquement}many{Fichiers uniquement}other{Fichiers uniquement}}"</string>
-    <string name="image_preview_a11y_description" msgid="297102643932491797">"Vignette d\'aperçu de l\'image"</string>
-    <string name="video_preview_a11y_description" msgid="683440858811095990">"Vignette d\'aperçu de la vidéo"</string>
-    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Vignette d\'aperçu du fichier"</string>
-    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Aucun destinataire recommandé"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Partage de # élément…}one{Partage de # élément…}many{Partage de # d\'éléments…}other{Partage de # éléments…}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Partage de l\'image (texte)"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Partage de l\'image (lien)"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Aucune recommandation de personnes avec lesquelles effectuer un partage"</string>
+    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Liste des applications"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Cette application n\'a pas reçu l\'autorisation d\'enregistrer des contenus audio, mais peut le faire via ce périphérique USB."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Personnel"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Professionnel"</string>
@@ -83,8 +74,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Impossible d\'ouvrir ce contenu avec des applis professionnelles"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Impossible de partager ce contenu avec des applis personnelles"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Impossible d\'ouvrir ce contenu avec des applis personnelles"</string>
-    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Les applis professionnelles sont en pause"</string>
-    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Réactiver"</string>
+    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Profil professionnel en pause"</string>
+    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Appuyez pour l\'activer"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Aucune appli professionnelle"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Aucune appli personnelle"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Ouvrir <xliff:g id="APP">%s</xliff:g> dans votre profil personnel ?"</string>

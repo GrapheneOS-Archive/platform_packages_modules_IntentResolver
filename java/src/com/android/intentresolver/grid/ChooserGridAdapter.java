@@ -164,8 +164,10 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
             return false;
         }
 
-        // Limit width to the maximum width of the chooser activity
-        width = Math.min(mChooserWidthPixels, width);
+        // Limit width to the maximum width of the chooser activity, if the maximum width is set
+        if (mChooserWidthPixels >= 0) {
+            width = Math.min(mChooserWidthPixels, width);
+        }
 
         int newWidth = width / mMaxTargetsPerRow;
         if (newWidth != mChooserTargetWidth) {

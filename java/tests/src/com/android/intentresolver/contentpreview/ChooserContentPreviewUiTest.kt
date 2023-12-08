@@ -20,7 +20,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.Lifecycle
-import com.android.intentresolver.any
+import androidx.lifecycle.testing.TestLifecycleOwner
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
@@ -28,13 +28,14 @@ import com.android.intentresolver.widget.ActionRow
 import com.android.intentresolver.widget.ImagePreviewView
 import com.google.common.truth.Truth.assertThat
 import java.util.function.Consumer
+import kotlinx.coroutines.flow.MutableSharedFlow
 import org.junit.Test
 import org.mockito.Mockito.never
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 
 class ChooserContentPreviewUiTest {
-    private val lifecycle = mock<Lifecycle>()
+    private val lifecycleOwner = TestLifecycleOwner()
     private val previewData = mock<PreviewDataProvider>()
     private val headlineGenerator = mock<HeadlineGenerator>()
     private val imageLoader =
@@ -64,7 +65,7 @@ class ChooserContentPreviewUiTest {
         whenever(previewData.previewType).thenReturn(ContentPreviewType.CONTENT_PREVIEW_TEXT)
         val testSubject =
             ChooserContentPreviewUi(
-                lifecycle,
+                lifecycleOwner.lifecycle,
                 previewData,
                 Intent(Intent.ACTION_VIEW),
                 imageLoader,
@@ -83,7 +84,7 @@ class ChooserContentPreviewUiTest {
         whenever(previewData.previewType).thenReturn(ContentPreviewType.CONTENT_PREVIEW_FILE)
         val testSubject =
             ChooserContentPreviewUi(
-                lifecycle,
+                lifecycleOwner.lifecycle,
                 previewData,
                 Intent(Intent.ACTION_SEND),
                 imageLoader,
@@ -104,9 +105,10 @@ class ChooserContentPreviewUiTest {
         whenever(previewData.uriCount).thenReturn(2)
         whenever(previewData.firstFileInfo)
             .thenReturn(FileInfo.Builder(uri).withPreviewUri(uri).withMimeType("image/png").build())
+        whenever(previewData.imagePreviewFileInfoFlow).thenReturn(MutableSharedFlow())
         val testSubject =
             ChooserContentPreviewUi(
-                lifecycle,
+                lifecycleOwner.lifecycle,
                 previewData,
                 Intent(Intent.ACTION_SEND).apply { putExtra(Intent.EXTRA_TEXT, "Shared text") },
                 imageLoader,
@@ -116,7 +118,7 @@ class ChooserContentPreviewUiTest {
             )
         assertThat(testSubject.mContentPreviewUi)
             .isInstanceOf(FilesPlusTextContentPreviewUi::class.java)
-        verify(previewData, times(1)).getFileMetadataForImagePreview(any(), any())
+        verify(previewData, times(1)).imagePreviewFileInfoFlow
         verify(transitionCallback, times(1)).onAllTransitionElementsReady()
     }
 
@@ -127,9 +129,10 @@ class ChooserContentPreviewUiTest {
         whenever(previewData.uriCount).thenReturn(2)
         whenever(previewData.firstFileInfo)
             .thenReturn(FileInfo.Builder(uri).withPreviewUri(uri).withMimeType("image/png").build())
+        whenever(previewData.imagePreviewFileInfoFlow).thenReturn(MutableSharedFlow())
         val testSubject =
             ChooserContentPreviewUi(
-                lifecycle,
+                lifecycleOwner.lifecycle,
                 previewData,
                 Intent(Intent.ACTION_SEND),
                 imageLoader,
@@ -140,7 +143,7 @@ class ChooserContentPreviewUiTest {
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
         assertThat(testSubject.mContentPreviewUi).isInstanceOf(UnifiedContentPreviewUi::class.java)
-        verify(previewData, times(1)).getFileMetadataForImagePreview(any(), any())
+        verify(previewData, times(1)).imagePreviewFileInfoFlow
         verify(transitionCallback, never()).onAllTransitionElementsReady()
     }
 }

@@ -53,26 +53,17 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g> бекіту"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> босату"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Өзгерту"</string>
+    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # файл}other{{file_name} + # файл}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # файл}other{+ # файл}}"</string>
-    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{Тағы # файл}other{Тағы # файл}}"</string>
-    <string name="sharing_text" msgid="8137537443603304062">"Мәтінді бөлісіп жатыр"</string>
-    <string name="sharing_link" msgid="2307694372813942916">"Сілтемені бөлісіп жатыр"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Сурет бөлісіп жатырсыз}other{# сурет бөлісіп жатырсыз}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Мәтін бөлісіліп жатыр"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Сілтеме бөлісіліп жатыр"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Сурет бөлісіліп жатыр}other{# сурет бөлісіліп жатыр}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Бейне бөлісіліп жатыр}other{# бейне бөлісіліп жатыр}}"</string>
-    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# файлды бөлісіп жатыр}other{# файлды бөлісіп жатыр}}"</string>
-    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Мәтіні бар сурет жіберу}other{Мәтіні бар # сурет жіберу}}"</string>
-    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Сілтемесі бар сурет жіберу}other{Сілтемесі бар # сурет жіберу}}"</string>
-    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Мәтіні бар бейне жіберу}other{Мәтіні бар # бейне жіберу}}"</string>
-    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Сілтемесі бар бейне жіберу}other{Сілтемесі бар # бейне жіберу}}"</string>
-    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Мәтіні бар файл жіберу}other{Мәтіні бар # файл жіберу}}"</string>
-    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Сілтемесі бар файл жіберу}other{Сілтемесі бар # файл жіберу}}"</string>
-    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Тек сурет}other{Тек суреттер}}"</string>
-    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Тек бейне}other{Тек бейнелер}}"</string>
-    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Тек файл}other{Тек файлдар}}"</string>
-    <string name="image_preview_a11y_description" msgid="297102643932491797">"Алдын ала көрсетілген суреттің нобайы"</string>
-    <string name="video_preview_a11y_description" msgid="683440858811095990">"Алдын ала көрсетілген бейненің нобайы"</string>
-    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Алдын ала көрсетілген файлдың нобайы"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# элемент бөлісіліп жатыр}other{# элемент бөлісіліп жатыр}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Сурет мәтінімен бөлісіліп жатыр"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Сурет сілтемесімен бөлісіліп жатыр"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Бөлісу үшін ұсынылатын адамдар жоқ."</string>
+    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Қолданбалар тізімі"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Қолданбаға жазу рұқсаты берілмеді, бірақ ол осы USB құрылғысы арқылы дыбыс жаза алады."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Жеке"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Жұмыс"</string>
@@ -83,8 +74,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Бұл контентті жұмыс қолданбаларымен ашу мүмкін емес."</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Бұл контентті жеке қолданбалармен бөлісу мүмкін емес."</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Бұл контентті жеке қолданбалармен ашу мүмкін емес."</string>
-    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Жұмыс қолданбалары кідіртілген."</string>
-    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Қайта қосу"</string>
+    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Жұмыс профилі кідіртілді."</string>
+    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Қосу үшін түртіңіз"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Жұмыс қолданбалары жоқ."</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Жеке қолданбалар жоқ."</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"<xliff:g id="APP">%s</xliff:g> қолданбасын жеке профиліңізде ашу керек пе?"</string>

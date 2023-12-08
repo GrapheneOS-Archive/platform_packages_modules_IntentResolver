@@ -27,7 +27,6 @@ import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_S
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
 
 import android.annotation.IntDef;
-import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -66,9 +65,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
 import android.view.WindowInsets;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
@@ -92,6 +88,7 @@ import com.android.intentresolver.flags.FeatureFlagRepositoryFactory;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.icons.DefaultTargetDataLoader;
 import com.android.intentresolver.icons.TargetDataLoader;
+import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.measurements.Tracer;
 import com.android.intentresolver.model.AbstractResolverComparator;
 import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
@@ -191,7 +188,7 @@ public class ChooserActivity extends ResolverActivity implements
 
     private boolean mShouldDisplayLandscape;
     // statsd logger wrapper
-    protected ChooserActivityLogger mChooserActivityLogger;
+    protected EventLog mEventLog;
 
     private long mChooserShownTime;
     protected boolean mIsSuccessfullySelected;
@@ -224,6 +221,13 @@ public class ChooserActivity extends ResolverActivity implements
     private final SparseArray<ProfileRecord> mProfileRecords = new SparseArray<>();
 
     private boolean mExcludeSharedText = false;
+    /**
+     * When we intend to finish the activity with a shared element transition, we can't immediately
+     * finish() when the transition is invoked, as the receiving end may not be able to start the
+     * animation and the UI breaks if this takes too long. Instead we defer finishing until onStop
+     * in order to wait for the transition to begin.
+     */
+    private boolean mFinishWhenStopped = false;
 
     public ChooserActivity() {}
 
@@ -233,7 +237,7 @@ public class ChooserActivity extends ResolverActivity implements
         final long intentReceivedTime = System.currentTimeMillis();
         mLatencyTracker.onActionStart(ACTION_LOAD_SHARE_SHEET);
 
-        getChooserActivityLogger().logSharesheetTriggered();
+        getEventLog().logSharesheetTriggered();
 
         mFeatureFlagRepository = createFeatureFlagRepository();
         mIntegratedDeviceComponents = getIntegratedDeviceComponents();
@@ -283,10 +287,6 @@ public class ChooserActivity extends ResolverActivity implements
                 mEnterTransitionAnimationDelegate,
                 new HeadlineGeneratorImpl(this));
 
-        setAdditionalTargets(mChooserRequest.getAdditionalTargets());
-
-        setSafeForwardingMode(true);
-
         mPinnedSharedPrefs = getPinnedSharedPrefs(this);
 
         mMaxTargetsPerRow = getResources().getInteger(R.integer.config_chooser_max_targets_per_row);
@@ -304,16 +304,18 @@ public class ChooserActivity extends ResolverActivity implements
         super.onCreate(
                 savedInstanceState,
                 mChooserRequest.getTargetIntent(),
+                mChooserRequest.getAdditionalTargets(),
                 mChooserRequest.getTitle(),
                 mChooserRequest.getDefaultTitleResource(),
                 mChooserRequest.getInitialIntents(),
-                /* rList: List<ResolveInfo> = */ null,
-                /* supportsAlwaysUseOption = */ false,
-                new DefaultTargetDataLoader(this, getLifecycle(), false));
+                /* resolutionList= */ null,
+                /* supportsAlwaysUseOption= */ false,
+                new DefaultTargetDataLoader(this, getLifecycle(), false),
+                /* safeForwardingMode= */ true);
 
         mChooserShownTime = System.currentTimeMillis();
         final long systemCost = mChooserShownTime - intentReceivedTime;
-        getChooserActivityLogger().logChooserActivityShown(
+        getEventLog().logChooserActivityShown(
                 isWorkProfile(), mChooserRequest.getTargetType(), systemCost);
 
         if (mResolverDrawerLayout != null) {
@@ -322,7 +324,7 @@ public class ChooserActivity extends ResolverActivity implements
             mResolverDrawerLayout.setOnCollapsedChangedListener(
                     isCollapsed -> {
                         mChooserMultiProfilePagerAdapter.setIsCollapsed(isCollapsed);
-                        getChooserActivityLogger().logSharesheetExpansionChanged(isCollapsed);
+                        getEventLog().logSharesheetExpansionChanged(isCollapsed);
                     });
         }
 
@@ -330,7 +332,7 @@ public class ChooserActivity extends ResolverActivity implements
             Log.d(TAG, "System Time Cost is " + systemCost);
         }
 
-        getChooserActivityLogger().logShareStarted(
+        getEventLog().logShareStarted(
                 getReferrerPackageName(),
                 mChooserRequest.getTargetType(),
                 mChooserRequest.getCallerChooserTargets().size(),
@@ -549,7 +551,7 @@ public class ChooserActivity extends ResolverActivity implements
         if (shouldShowStickyContentPreview()
                 || mChooserMultiProfilePagerAdapter
                         .getCurrentRootAdapter().getSystemRowCount() != 0) {
-            getChooserActivityLogger().logActionShareWithPreview(
+            getEventLog().logActionShareWithPreview(
                     mChooserContentPreviewUi.getPreferredContentPreview());
         }
         return postRebuildListInternal(rebuildCompleted);
@@ -614,8 +616,7 @@ public class ChooserActivity extends ResolverActivity implements
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: " + getComponentName().flattenToShortString());
-        maybeCancelFinishAnimation();
-
+        mFinishWhenStopped = false;
         mRefinementManager.onActivityResume();
     }
 
@@ -716,7 +717,8 @@ public class ChooserActivity extends ResolverActivity implements
         super.onStop();
         mRefinementManager.onActivityStop(isChangingConfigurations());
 
-        if (maybeCancelFinishAnimation()) {
+        if (mFinishWhenStopped) {
+            mFinishWhenStopped = false;
             finish();
         }
     }
@@ -848,9 +850,7 @@ public class ChooserActivity extends ResolverActivity implements
                 targetList,
                 // Adding userHandle from ResolveInfo allows the app icon in Dialog Box to be
                 // resolved correctly within the same tab.
-                getResolveInfoUserHandle(
-                        targetInfo.getResolveInfo(),
-                        mChooserMultiProfilePagerAdapter.getCurrentUserHandle()),
+                targetInfo.getResolveInfo().userHandle,
                 shortcutIdKey,
                 shortcutTitle,
                 isShortcutPinned,
@@ -883,7 +883,7 @@ public class ChooserActivity extends ResolverActivity implements
 
         final long selectionCost = System.currentTimeMillis() - mChooserShownTime;
 
-        if (targetInfo.isMultiDisplayResolveInfo()) {
+        if ((targetInfo != null) && targetInfo.isMultiDisplayResolveInfo()) {
             MultiDisplayResolveInfo mti = (MultiDisplayResolveInfo) targetInfo;
             if (!mti.hasSelected()) {
                 // Add userHandle based badge to the stackedAppDialogBox.
@@ -891,20 +891,28 @@ public class ChooserActivity extends ResolverActivity implements
                         getSupportFragmentManager(),
                         mti,
                         which,
-                        getResolveInfoUserHandle(
-                                targetInfo.getResolveInfo(),
-                                mChooserMultiProfilePagerAdapter.getCurrentUserHandle()));
+                        targetInfo.getResolveInfo().userHandle);
                 return;
             }
         }
 
         super.startSelected(which, always, filtered);
 
-        if (currentListAdapter.getCount() > 0) {
+        // TODO: both of the conditions around this switch logic *should* be redundant, and
+        // can be removed if certain invariants can be guaranteed. In particular, it seems
+        // like targetInfo (from `ChooserListAdapter.targetInfoForPosition()`) is *probably*
+        // expected to be null only at out-of-bounds indexes where `getPositionTargetType()`
+        // returns TARGET_BAD; then the switch falls through to a default no-op, and we don't
+        // need to null-check targetInfo. We only need the null check if it's possible that
+        // the ChooserListAdapter contains null elements "in the middle" of its list data,
+        // such that they're classified as belonging to one of the real target types. That
+        // should probably never happen. But why would this method ever be invoked with a
+        // null target at all? Even an out-of-bounds index should never be "selected"...
+        if ((currentListAdapter.getCount() > 0) && (targetInfo != null)) {
             switch (currentListAdapter.getPositionTargetType(which)) {
                 case ChooserListAdapter.TARGET_SERVICE:
-                    getChooserActivityLogger().logShareTargetSelected(
-                            ChooserActivityLogger.SELECTION_TYPE_SERVICE,
+                    getEventLog().logShareTargetSelected(
+                            EventLog.SELECTION_TYPE_SERVICE,
                             targetInfo.getResolveInfo().activityInfo.processName,
                             which,
                             /* directTargetAlsoRanked= */ getRankedPosition(targetInfo),
@@ -917,8 +925,8 @@ public class ChooserActivity extends ResolverActivity implements
                     return;
                 case ChooserListAdapter.TARGET_CALLER:
                 case ChooserListAdapter.TARGET_STANDARD:
-                    getChooserActivityLogger().logShareTargetSelected(
-                            ChooserActivityLogger.SELECTION_TYPE_APP,
+                    getEventLog().logShareTargetSelected(
+                            EventLog.SELECTION_TYPE_APP,
                             targetInfo.getResolveInfo().activityInfo.processName,
                             (which - currentListAdapter.getSurfacedTargetInfo().size()),
                             /* directTargetAlsoRanked= */ -1,
@@ -934,8 +942,8 @@ public class ChooserActivity extends ResolverActivity implements
                     // they are from the alphabetical pool.
                     // TODO: why do we log a different selection type if the -1 value already
                     // designates the same condition?
-                    getChooserActivityLogger().logShareTargetSelected(
-                            ChooserActivityLogger.SELECTION_TYPE_STANDARD,
+                    getEventLog().logShareTargetSelected(
+                            EventLog.SELECTION_TYPE_STANDARD,
                             targetInfo.getResolveInfo().activityInfo.processName,
                             /* value= */ -1,
                             /* directTargetAlsoRanked= */ -1,
@@ -987,7 +995,7 @@ public class ChooserActivity extends ResolverActivity implements
         if (profileRecord == null) {
             return;
         }
-        getChooserActivityLogger().logDirectShareTargetReceived(
+        getEventLog().logDirectShareTargetReceived(
                 MetricsEvent.ACTION_DIRECT_SHARE_TARGETS_LOADED_SHORTCUT_MANAGER,
                 (int) (SystemClock.elapsedRealtime() - profileRecord.loadingStartTime));
     }
@@ -1111,11 +1119,7 @@ public class ChooserActivity extends ResolverActivity implements
             // Adding two stage comparator, first stage compares using displayLabel, next stage
             //  compares using resolveInfo.userHandle
             mComparator = Comparator.comparing(DisplayResolveInfo::getDisplayLabel, collator)
-                    .thenComparingInt(displayResolveInfo ->
-                            getResolveInfoUserHandle(
-                                    displayResolveInfo.getResolveInfo(),
-                                    // TODO: User resolveInfo.userHandle, once its available.
-                                    UserHandle.SYSTEM).getIdentifier());
+                    .thenComparingInt(target -> target.getResolveInfo().userHandle.getIdentifier());
         }
 
         @Override
@@ -1125,11 +1129,11 @@ public class ChooserActivity extends ResolverActivity implements
         }
     }
 
-    protected ChooserActivityLogger getChooserActivityLogger() {
-        if (mChooserActivityLogger == null) {
-            mChooserActivityLogger = new ChooserActivityLogger();
+    protected EventLog getEventLog() {
+        if (mEventLog == null) {
+            mEventLog = new EventLog();
         }
-        return mChooserActivityLogger;
+        return mEventLog;
     }
 
     public class ChooserListController extends ResolverListController {
@@ -1255,7 +1259,7 @@ public class ChooserActivity extends ResolverActivity implements
                 targetIntent,
                 this,
                 context.getPackageManager(),
-                getChooserActivityLogger(),
+                getEventLog(),
                 chooserRequest,
                 maxTargetsPerRow,
                 initialIntentsUserSpace,
@@ -1279,7 +1283,7 @@ public class ChooserActivity extends ResolverActivity implements
         AbstractResolverComparator resolverComparator;
         if (appPredictor != null) {
             resolverComparator = new AppPredictionServiceResolverComparator(this, getTargetIntent(),
-                    getReferrerPackageName(), appPredictor, userHandle, getChooserActivityLogger(),
+                    getReferrerPackageName(), appPredictor, userHandle, getEventLog(),
                     getIntegratedDeviceComponents().getNearbySharingComponent());
         } else {
             resolverComparator =
@@ -1288,7 +1292,7 @@ public class ChooserActivity extends ResolverActivity implements
                             getTargetIntent(),
                             getReferrerPackageName(),
                             null,
-                            getChooserActivityLogger(),
+                            getEventLog(),
                             getResolverRankerServiceUserHandleList(userHandle),
                             getIntegratedDeviceComponents().getNearbySharingComponent());
         }
@@ -1313,7 +1317,7 @@ public class ChooserActivity extends ResolverActivity implements
                 this,
                 mChooserRequest,
                 mIntegratedDeviceComponents,
-                getChooserActivityLogger(),
+                getEventLog(),
                 (isExcluded) -> mExcludeSharedText = isExcluded,
                 this::getFirstVisibleImgPreviewView,
                 new ChooserActionFactory.ActionActivityStarter() {
@@ -1330,7 +1334,10 @@ public class ChooserActivity extends ResolverActivity implements
                                 ChooserActivity.this, sharedElement, sharedElementName);
                         safelyStartActivityAsUser(
                                 targetInfo, getPersonalProfileUserHandle(), options.toBundle());
-                        startFinishAnimation();
+                        // Can't finish right away because the shared element transition may not
+                        // be ready to start.
+                        mFinishWhenStopped = true;
+
                     }
                 },
                 (status) -> {
@@ -1528,7 +1535,7 @@ public class ChooserActivity extends ResolverActivity implements
                 Log.d(TAG, "app target loading time " + duration + " ms");
             }
             addCallerChooserTargets();
-            getChooserActivityLogger().logSharesheetAppLoadComplete();
+            getEventLog().logSharesheetAppLoadComplete();
             maybeQueryAdditionalPostProcessingTargets(chooserListAdapter);
             mLatencyTracker.onActionEnd(ACTION_LOAD_SHARE_SHEET);
         }
@@ -1575,7 +1582,7 @@ public class ChooserActivity extends ResolverActivity implements
         }
         logDirectShareTargetReceived(userHandle);
         sendVoiceChoicesIfNeeded();
-        getChooserActivityLogger().logSharesheetDirectLoadComplete();
+        getEventLog().logSharesheetDirectLoadComplete();
     }
 
     private void setupScrollListener() {
@@ -1715,25 +1722,6 @@ public class ChooserActivity extends ResolverActivity implements
         contentPreviewContainer.setVisibility(View.GONE);
     }
 
-    private void startFinishAnimation() {
-        View rootView = findRootView();
-        if (rootView != null) {
-            rootView.startAnimation(new FinishAnimation(this, rootView));
-        }
-    }
-
-    private boolean maybeCancelFinishAnimation() {
-        View rootView = findRootView();
-        Animation animation = (rootView == null) ? null : rootView.getAnimation();
-        if (animation instanceof FinishAnimation) {
-            boolean hasEnded = animation.hasEnded();
-            animation.cancel();
-            rootView.clearAnimation();
-            return !hasEnded;
-        }
-        return false;
-    }
-
     private View findRootView() {
         if (mContentView == null) {
             mContentView = findViewById(android.R.id.content);
@@ -1814,74 +1802,9 @@ public class ChooserActivity extends ResolverActivity implements
         }
     }
 
-    /**
-     * Used in combination with the scene transition when launching the image editor
-     */
-    private static class FinishAnimation extends AlphaAnimation implements
-            Animation.AnimationListener {
-        @Nullable
-        private Activity mActivity;
-        @Nullable
-        private View mRootView;
-        private final float mFromAlpha;
-
-        FinishAnimation(@NonNull Activity activity, @NonNull View rootView) {
-            super(rootView.getAlpha(), 0.0f);
-            mActivity = activity;
-            mRootView = rootView;
-            mFromAlpha = rootView.getAlpha();
-            setInterpolator(new LinearInterpolator());
-            long duration = activity.getWindow().getTransitionBackgroundFadeDuration();
-            setDuration(duration);
-            // The scene transition animation looks better when it's not overlapped with this
-            // fade-out animation thus the delay.
-            // It is most likely that the image editor will cause this activity to stop and this
-            // animation will be cancelled in the background without running (i.e. we'll animate
-            // only when this activity remains partially visible after the image editor launch).
-            setStartOffset(duration);
-            super.setAnimationListener(this);
-        }
-
-        @Override
-        public void setAnimationListener(AnimationListener listener) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void cancel() {
-            if (mRootView != null) {
-                mRootView.setAlpha(mFromAlpha);
-            }
-            cleanup();
-            super.cancel();
-        }
-
-        @Override
-        public void onAnimationStart(Animation animation) {
-        }
-
-        @Override
-        public void onAnimationEnd(Animation animation) {
-            Activity activity = mActivity;
-            cleanup();
-            if (activity != null) {
-                activity.finish();
-            }
-        }
-
-        @Override
-        public void onAnimationRepeat(Animation animation) {
-        }
-
-        private void cleanup() {
-            mActivity = null;
-            mRootView = null;
-        }
-    }
-
     @Override
     protected void maybeLogProfileChange() {
-        getChooserActivityLogger().logSharesheetProfileChanged();
+        getEventLog().logSharesheetProfileChanged();
     }
 
     private static class ProfileRecord {

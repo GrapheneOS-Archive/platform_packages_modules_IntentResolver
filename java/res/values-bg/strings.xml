@@ -53,26 +53,17 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Фиксиране на <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Премахване на фиксирането на <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Редактиране"</string>
+    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # файл}other{{file_name} + # файла}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # файл}other{+ # файла}}"</string>
-    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ още # файл}other{+ още # файла}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Текстът се споделя"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Връзката се споделя"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Изображението се споделя}other{# изображения се споделят}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Видеоклипът се споделя}other{# видеоклипа се споделят}}"</string>
-    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# файл се споделя}other{# файла се споделят}}"</string>
-    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Споделяне на изображението чрез SMS съобщение}other{Споделяне на # изображения чрез SMS съобщение}}"</string>
-    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Споделяне на изображението чрез връзка}other{Споделяне на # изображения чрез връзка}}"</string>
-    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Споделяне на видеоклипа чрез SMS съобщение}other{Споделяне на # видеоклипа чрез SMS съобщение}}"</string>
-    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Споделяне на видеоклипа чрез връзка}other{Споделяне на # видеоклипа чрез връзка}}"</string>
-    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Споделяне на файла чрез SMS съобщение}other{Споделяне на # файла чрез SMS съобщение}}"</string>
-    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Споделяне на файла чрез връзка}other{Споделяне на # файла чрез връзка}}"</string>
-    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Само изображение}other{Само изображения}}"</string>
-    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Само видеоклип}other{Само видеоклипове}}"</string>
-    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Само файл}other{Само файлове}}"</string>
-    <string name="image_preview_a11y_description" msgid="297102643932491797">"Миниизображение за визуализация на изображението"</string>
-    <string name="video_preview_a11y_description" msgid="683440858811095990">"Миниизображение за визуализация на видеоклипа"</string>
-    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Миниизображение за визуализация на файла"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# елемент се споделя}other{# елемента се споделят}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Изобр. се споделя с текст"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Изобр. се споделя с връзка"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Няма препоръки за хора, с които да споделяте"</string>
+    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Списък с приложения"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Приложението няма разрешение за записване, но може да записва звук чрез това USB устройство."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Лични"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Служебни"</string>
@@ -83,8 +74,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Това съдържание не може да се отваря със служебни приложения"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Това съдържание не може да се споделя с лични приложения"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Това съдържание не може да се отваря с лични приложения"</string>
-    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Служебните приложения са поставени на пауза"</string>
-    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Отмяна на паузата"</string>
+    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Служебният потребителски профил е поставен на пауза"</string>
+    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Докоснете за включване"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Няма подходящи служебни приложения"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Няма подходящи лични приложения"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Искате ли да отворите <xliff:g id="APP">%s</xliff:g> в личния си потребителски профил?"</string>

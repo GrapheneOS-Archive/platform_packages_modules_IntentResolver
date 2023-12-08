@@ -53,26 +53,17 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Fixează <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Anulează fixarea pentru <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Editează"</string>
+    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # fișier}few{{file_name} + # fișiere}other{{file_name} + # de fișiere}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # fișier}few{+ # fișiere}other{+ # de fișiere}}"</string>
-    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{Încă un fișier}few{Încă # fișiere}other{Încă # de fișiere}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Se trimite textul"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Se trimite linkul"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Se trimite imaginea}few{Se trimit # imagini}other{Se trimit # de imagini}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Se trimite videoclipul}few{Se trimit # videoclipuri}other{Se trimit # de videoclipuri}}"</string>
-    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Se trimite un fișier}few{Se trimit # fișiere}other{Se trimit # de fișiere}}"</string>
-    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Se trimite imaginea cu text}few{Se trimit # imagini cu text}other{Se trimit # de imagini cu text}}"</string>
-    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Se trimite imaginea cu linkul}few{Se trimit # imagini cu linkul}other{Se trimit # de imagini cu linkul}}"</string>
-    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Se trimite videoclipul cu text}few{Se trimit # videoclipuri cu text}other{Se trimit # de videoclipuri cu text}}"</string>
-    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Se trimite videoclipul cu linkul}few{Se trimit # videoclipuri cu linkul}other{Se trimit # de videoclipuri cu linkul}}"</string>
-    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Se trimite fișierul cu text}few{Se trimit # fișiere cu text}other{Se trimit # de fișiere cu text}}"</string>
-    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Se trimite fișierul cu linkul}few{Se trimit # fișiere cu linkul}other{Se trimit # de fișiere cu linkul}}"</string>
-    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Numai imaginea}few{Numai imaginile}other{Numai imaginile}}"</string>
-    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Numai videoclipul}few{Numai videoclipurile}other{Numai videoclipurile}}"</string>
-    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Numai fișierul}few{Numai fișierele}other{Numai fișierele}}"</string>
-    <string name="image_preview_a11y_description" msgid="297102643932491797">"Miniatură pentru previzualizarea imaginii"</string>
-    <string name="video_preview_a11y_description" msgid="683440858811095990">"Miniatură pentru previzualizarea videoclipului"</string>
-    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Miniatură pentru previzualizarea fișierului"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Se trimite # element}few{Se trimit # elemente}other{Se trimit # de elemente}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Se trimite imaginea cu text"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Se trimite imaginea cu linkul"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Nu există persoane recomandate pentru permiterea accesului"</string>
+    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Lista de aplicații"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Permisiunea de înregistrare nu a fost acordată aplicației, dar aceasta poate să înregistreze conținut audio prin intermediul acestui dispozitiv USB."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Personal"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Serviciu"</string>
@@ -81,10 +72,10 @@
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Blocat de administratorul IT"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Acest conținut nu poate fi trimis cu aplicații pentru lucru"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Acest conținut nu poate fi deschis cu aplicații pentru lucru"</string>
-    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Acest conținut nu poate fi trimis către aplicații personale"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Acest conținut nu poate fi trimis cu aplicații personale"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Acest conținut nu poate fi deschis cu aplicații personale"</string>
-    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Aplicațiile pentru lucru sunt întrerupte"</string>
-    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Reactivează"</string>
+    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Profilul de serviciu este întrerupt"</string>
+    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Atinge pentru a activa"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Nicio aplicație pentru lucru"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Nicio aplicație personală"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Deschizi <xliff:g id="APP">%s</xliff:g> în profilul personal?"</string>

@@ -53,26 +53,17 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Phina i-<xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Susa ukuphina ku-<xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Hlela"</string>
+    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + ifayela elingu-#}one{{file_name} + amafayela angu-#}other{{file_name} + amafayela angu-#}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{Ifayela eli-+ #}one{Amafayela angu-+ #}other{Amafayela angu-+ #}}"</string>
-    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{Ifayela elengeziwe eli-+ #}one{Amafayela engeziwe angu-+ #}other{Amafayela engeziwe angu-+ #}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Yabelana ngombhalo"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Yabelana ngelinki"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Yabelana ngomfanekiso}one{Yabelana ngemifanekiso engu-#}other{Yabelana ngemifanekiso engu-#}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Yabelana ngevidiyo}one{Yabelana ngamavidiyo angu-#}other{Yabelana ngamavidiyo angu-#}}"</string>
-    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Yabelana ngefayela eli-#}one{Yabelana ngamafayela angu-#}other{Yabelana ngamafayela angu-#}}"</string>
-    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Yabelana ngomfanekiso ngombhalo}one{Yabelana ngemifanekiso engu-# ngombhalo}other{Yabelana ngemifanekiso engu-# ngombhalo}}"</string>
-    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Yabelana ngomfanekiso ngelinki}one{Yabelana ngemifanekiso engu-# ngelinki}other{Yabelana ngemifanekiso engu-# ngelinki}}"</string>
-    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Yabelana ngevidiyo ngombhalo}one{Yabelana ngamavidiyo angu-# ngombhalo}other{Yabelana ngamavidiyo angu-# ngombhalo}}"</string>
-    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Yabelana ngevidiyo ngelinki}one{Yabelana ngamavidiyo angu-# ngelinki}other{Yabelana ngamavidiyo angu-# ngelinki}}"</string>
-    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Yabelana ngefayela ngombhalo}one{Yabelana ngamafayela angu-# ngombhalo}other{Yabelana ngamafayela angu-# ngombhalo}}"</string>
-    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Yabelana ngefayela ngelinki}one{Yabelana ngamafayela angu-# ngelinki}other{Yabelana ngamafayela angu-# ngelinki}}"</string>
-    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Isithombe kuphela}one{Izithombe kuphela}other{Izithombe kuphela}}"</string>
-    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{ividiyo kuphela}one{Amavidiyo kuphela}other{Amavidiyo kuphela}}"</string>
-    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Ifayela kuphela}one{Amafayela kuphela}other{Amafayela kuphela}}"</string>
-    <string name="image_preview_a11y_description" msgid="297102643932491797">"Isithonjana sokuhlola kuqala umfanekiso"</string>
-    <string name="video_preview_a11y_description" msgid="683440858811095990">"Isithonjana sokuhlola kuqala ividiyo"</string>
-    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Isithonjana sokuhlola kuqala ifayela"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Yabelana ngento engu-#}one{Yabelana ngezinto ezingu-#}other{Yabelana ngezinto ezingu-#}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Yabelana ngomfanekiso ngombhalo"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Yabelana ngomfanekiso ngelinki"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Ayinconyelwa ukuba abantu bayabelane"</string>
+    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Uhlu lwezinhlelo zokusebenza"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Lolu hlelo lokusebenza alunikeziwe imvume yokurekhoda kodwa lungathwebula umsindo ngale divayisi ye-USB."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Okomuntu siqu"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Umsebenzi"</string>
@@ -83,8 +74,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Lokhu okuqukethwe akukwazi ukukopishwa ngama-app womsebenzi"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Lokhu okuqukethwe akukwazi ukwabiwa nama-app womuntu siqu"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Lokhu okuqukethwe akukwazi ukukopishwa ngama-app womuntu siqu"</string>
-    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Ama-app omsebenzi amisiwe"</string>
-    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Qhubekisa"</string>
+    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Iphrofayela yomsebenzi iphunyuziwe"</string>
+    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Thepha ukuze uvule"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Awekho ama-app womsebenzi"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Awekho ama-app womuntu siqu"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Vula i-<xliff:g id="APP">%s</xliff:g> kwiphrofayela yakho siqu?"</string>

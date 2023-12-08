@@ -53,26 +53,17 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Ghim <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Bỏ ghim <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Chỉnh sửa"</string>
+    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # tệp}other{{file_name} + # tệp}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # tệp}other{+ # tệp}}"</string>
-    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # tệp khác}other{+ # tệp khác}}"</string>
-    <string name="sharing_text" msgid="8137537443603304062">"Chia sẻ văn bản"</string>
-    <string name="sharing_link" msgid="2307694372813942916">"Chia sẻ đường liên kết"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Chia sẻ hình ảnh}other{Chia sẻ # hình ảnh}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Đang chia sẻ văn bản"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Đang chia sẻ liên kết"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Đang chia sẻ hình ảnh}other{Đang chia sẻ # hình ảnh}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Đang chia sẻ video}other{Đang chia sẻ # video}}"</string>
-    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Đang chia sẻ # tệp}other{Đang chia sẻ # tệp}}"</string>
-    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Đang chia sẻ hình ảnh có văn bản}other{Đang chia sẻ # hình ảnh có văn bản}}"</string>
-    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Đang chia sẻ hình ảnh có đường liên kết}other{Đang chia sẻ # hình ảnh có đường liên kết}}"</string>
-    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Đang chia sẻ video có văn bản}other{Đang chia sẻ # video có văn bản}}"</string>
-    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Đang chia sẻ video có đường liên kết}other{Đang chia sẻ # video có đường liên kết}}"</string>
-    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Đang chia sẻ tệp có văn bản}other{Đang chia sẻ # tệp có văn bản}}"</string>
-    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Đang chia sẻ tệp có đường liên kết}other{Đang chia sẻ # tệp có đường liên kết}}"</string>
-    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Chỉ chia sẻ hình ảnh}other{Chỉ chia sẻ các hình ảnh}}"</string>
-    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Chỉ chia sẻ video}other{Chỉ chia sẻ các video}}"</string>
-    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Chỉ chia sẻ tệp}other{Chỉ chia sẻ các tệp}}"</string>
-    <string name="image_preview_a11y_description" msgid="297102643932491797">"Hình thu nhỏ của ảnh xem trước"</string>
-    <string name="video_preview_a11y_description" msgid="683440858811095990">"Hình thu nhỏ của video xem trước"</string>
-    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Hình thu nhỏ xem trước tệp"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Đang chia sẻ # mục}other{Đang chia sẻ # mục}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Đang chia sẻ hình ảnh có văn bản"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Đang chia sẻ hình ảnh có liên kết"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Không có gợi ý nào về người mà bạn có thể chia sẻ"</string>
+    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Danh sách ứng dụng"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Ứng dụng này chưa được cấp quyền ghi âm nhưng vẫn có thể ghi âm thông qua thiết bị USB này."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Cá nhân"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Công việc"</string>
@@ -83,16 +74,16 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Bạn không thể mở nội dung này bằng ứng dụng công việc"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Bạn không thể chia sẻ nội dung này bằng ứng dụng cá nhân"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Bạn không thể mở nội dung này bằng ứng dụng cá nhân"</string>
-    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Các ứng dụng công việc đã bị tạm dừng"</string>
-    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Tiếp tục"</string>
+    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Hồ sơ công việc đã bị tạm dừng"</string>
+    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Nhấn để bật"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Không có ứng dụng công việc"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Không có ứng dụng cá nhân"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Mở <xliff:g id="APP">%s</xliff:g> trong hồ sơ cá nhân của bạn?"</string>
     <string name="miniresolver_open_in_work" msgid="4271638122142624693">"Mở <xliff:g id="APP">%s</xliff:g> trong hồ sơ công việc của bạn?"</string>
     <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"Dùng trình duyệt cá nhân"</string>
     <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"Dùng trình duyệt công việc"</string>
-    <string name="exclude_text" msgid="5508128757025928034">"Không kèm văn bản"</string>
+    <string name="exclude_text" msgid="5508128757025928034">"Loại trừ văn bản"</string>
     <string name="include_text" msgid="642280283268536140">"Thêm văn bản"</string>
-    <string name="exclude_link" msgid="1332778255031992228">"Không kèm đường liên kết"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"Loại trừ đường liên kết"</string>
     <string name="include_link" msgid="827855767220339802">"Thêm đường liên kết"</string>
 </resources>

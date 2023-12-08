@@ -53,26 +53,17 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Bərkidin: <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"İşarələməyin: <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Redaktə edin"</string>
+    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # fayl}other{{file_name} + # fayl}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # fayl}other{+ # fayl}}"</string>
-    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # fayl}other{+ # fayl}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Mətn paylaşılır"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Link paylaşılır"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Şəkil paylaşılır}other{# şəkil paylaşılır}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Video paylaşılır}other{# video paylaşılır}}"</string>
-    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# fayl paylaşılır}other{# fayl paylaşılır}}"</string>
-    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Mətn olan şəkil paylaşılır}other{Mətn olan # şəkil paylaşılır}}"</string>
-    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Link olan şəkil paylaşılır}other{Link olan # şəkil paylaşılır}}"</string>
-    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Mətn olan video paylaşılır}other{Mətn olan # video paylaşılır}}"</string>
-    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Link olan video paylaşılır}other{Link olan # video paylaşılır}}"</string>
-    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Mətn olan fayl paylaşılır}other{Mətn olan # fayl paylaşılır}}"</string>
-    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Link olan fayl paylaşılır}other{Link olan # fayl paylaşılır}}"</string>
-    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Yalnız şəkil}other{Yalnız şəkillər}}"</string>
-    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Yalnız video}other{Yalnız videolar}}"</string>
-    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Yalnız fayl}other{Yalnız fayllar}}"</string>
-    <string name="image_preview_a11y_description" msgid="297102643932491797">"Şəkil önizləmə miniatürü"</string>
-    <string name="video_preview_a11y_description" msgid="683440858811095990">"Video önizləmə miniatürü"</string>
-    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Fayl önizləmə miniatürü"</string>
+    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# element paylaşılır}other{# element paylaşılır}}"</string>
+    <string name="sharing_image_with_text" msgid="3844438616236662145">"Şəkil mətn ilə paylaşılır"</string>
+    <string name="sharing_image_with_link" msgid="5318319026387721227">"Şəkil link ilə paylaşılır"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Paylaşmaq üçün tövsiyə edilən bir kimsə yoxdur"</string>
+    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Tətbiq siyahısı"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Tətbiqə qeydə almaq icazəsi verilməsə də, bu USB vasitəsilə səsi qeydə ala bilər."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Şəxsi"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"İş"</string>
@@ -83,8 +74,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Bu kontenti iş tətbiqləri ilə açmaq mümkün deyil"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Bu kontenti şəxsi tətbiqlər ilə paylaşmaq mümkün deyil"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Bu kontenti şəxsi tətbiqlər ilə açmaq mümkün deyil"</string>
-    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"İş tətbiqləri durdurulub"</string>
-    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Pauzanı bitirin"</string>
+    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"İş profilinə fasilə verilib"</string>
+    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Aktiv etmək üçün toxunun"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"İş tətbiqi yoxdur"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Şəxsi tətbiq yoxdur"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Şəxsi profilinizdə <xliff:g id="APP">%s</xliff:g> tətbiqi açılsın?"</string>
