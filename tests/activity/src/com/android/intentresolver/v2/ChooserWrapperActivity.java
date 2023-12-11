@@ -34,7 +34,6 @@ import android.os.UserHandle;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.android.intentresolver.ChooserListAdapter;
-import com.android.intentresolver.ChooserRequestParameters;
 import com.android.intentresolver.IChooserWrapper;
 import com.android.intentresolver.ResolverListController;
 import com.android.intentresolver.TestContentPreviewViewModel;
@@ -107,7 +106,8 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
                 getEventLog(),
                 maxTargetsPerRow,
                 userHandle,
-                targetDataLoader);
+                targetDataLoader,
+                null);
     }
 
     @Override

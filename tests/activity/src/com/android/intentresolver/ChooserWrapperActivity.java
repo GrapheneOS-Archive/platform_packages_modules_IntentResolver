@@ -92,7 +92,8 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
                 getEventLog(),
                 maxTargetsPerRow,
                 userHandle,
-                targetDataLoader);
+                targetDataLoader,
+                null);
     }
 
     @Override
