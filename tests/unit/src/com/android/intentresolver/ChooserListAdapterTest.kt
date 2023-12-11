@@ -33,6 +33,7 @@ import com.android.intentresolver.chooser.SelectableTargetInfo
 import com.android.intentresolver.chooser.TargetInfo
 import com.android.intentresolver.icons.TargetDataLoader
 import com.android.intentresolver.logging.EventLogImpl
+import com.android.intentresolver.widget.BadgeTextView
 import com.android.internal.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -57,6 +58,7 @@ class ChooserListAdapterTest {
     private val mEventLog = mock<EventLogImpl>()
     private val mTargetDataLoader = mock<TargetDataLoader>()
     private val mPackageChangeCallback = mock<ChooserListAdapter.PackageChangeCallback>()
+    private val featureFlags = FeatureFlagsImpl()
 
     private val testSubject by lazy {
         ChooserListAdapter(
@@ -75,7 +77,8 @@ class ChooserListAdapterTest {
             0,
             null,
             mTargetDataLoader,
-            mPackageChangeCallback
+            mPackageChangeCallback,
+            featureFlags,
         )
     }
 
@@ -216,10 +219,15 @@ class ChooserListAdapterTest {
 
     private fun createView(): View {
         val view = FrameLayout(context)
-        TextView(context).apply {
-            id = R.id.text1
-            view.addView(this)
-        }
+        if (featureFlags.bespokeLabelView()) {
+                BadgeTextView(context)
+            } else {
+                TextView(context)
+            }
+            .apply {
+                id = R.id.text1
+                view.addView(this)
+            }
         TextView(context).apply {
             id = R.id.text2
             view.addView(this)
