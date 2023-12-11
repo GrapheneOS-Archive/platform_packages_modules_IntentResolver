@@ -154,6 +154,14 @@ public class ChooserMultiProfilePagerAdapter extends MultiProfilePagerAdapter<
     }
 
     @Override
+    public boolean onHandlePackagesChanged(
+            ChooserListAdapter listAdapter, boolean waitingToEnableWorkProfile) {
+        // TODO: why do we need to do the extra `notifyDataSetChanged()` in (only) the Chooser case?
+        getActiveListAdapter().notifyDataSetChanged();
+        return super.onHandlePackagesChanged(listAdapter, waitingToEnableWorkProfile);
+    }
+
+    @Override
     protected final boolean rebuildTab(ChooserListAdapter listAdapter, boolean doPostProcessing) {
         if (doPostProcessing) {
             Tracer.INSTANCE.beginAppTargetLoadingSection(listAdapter.getUserHandle());
