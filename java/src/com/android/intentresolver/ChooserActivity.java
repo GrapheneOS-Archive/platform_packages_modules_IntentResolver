@@ -1251,7 +1251,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 getEventLog(),
                 maxTargetsPerRow,
                 initialIntentsUserSpace,
-                targetDataLoader);
+                targetDataLoader,
+                null);
     }
 
     @Override
