@@ -67,7 +67,6 @@ import android.os.StrictMode;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.stats.devicepolicy.DevicePolicyEnums;
 import android.text.TextUtils;
@@ -93,7 +92,6 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
@@ -120,6 +118,7 @@ import com.android.intentresolver.v2.emptystate.NoAppsAvailableEmptyStateProvide
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
 import com.android.intentresolver.v2.emptystate.WorkProfilePausedEmptyStateProvider;
+import com.android.intentresolver.v2.ui.ActionTitle;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.content.PackageMonitor;
@@ -132,12 +131,9 @@ import kotlin.Unit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * This is a copy of ResolverActivity to support IntentResolver's ChooserActivity. This code is
@@ -232,68 +228,6 @@ public class ResolverActivity extends FragmentActivity implements
     private OnSwitchOnWorkSelectedListener mOnSwitchOnWorkSelectedListener;
 
     protected final LatencyTracker mLatencyTracker = getLatencyTracker();
-
-    private enum ActionTitle {
-        VIEW(Intent.ACTION_VIEW,
-                R.string.whichViewApplication,
-                R.string.whichViewApplicationNamed,
-                R.string.whichViewApplicationLabel),
-        EDIT(Intent.ACTION_EDIT,
-                R.string.whichEditApplication,
-                R.string.whichEditApplicationNamed,
-                R.string.whichEditApplicationLabel),
-        SEND(Intent.ACTION_SEND,
-                R.string.whichSendApplication,
-                R.string.whichSendApplicationNamed,
-                R.string.whichSendApplicationLabel),
-        SENDTO(Intent.ACTION_SENDTO,
-                R.string.whichSendToApplication,
-                R.string.whichSendToApplicationNamed,
-                R.string.whichSendToApplicationLabel),
-        SEND_MULTIPLE(Intent.ACTION_SEND_MULTIPLE,
-                R.string.whichSendApplication,
-                R.string.whichSendApplicationNamed,
-                R.string.whichSendApplicationLabel),
-        CAPTURE_IMAGE(MediaStore.ACTION_IMAGE_CAPTURE,
-                R.string.whichImageCaptureApplication,
-                R.string.whichImageCaptureApplicationNamed,
-                R.string.whichImageCaptureApplicationLabel),
-        DEFAULT(null,
-                R.string.whichApplication,
-                R.string.whichApplicationNamed,
-                R.string.whichApplicationLabel),
-        HOME(Intent.ACTION_MAIN,
-                R.string.whichHomeApplication,
-                R.string.whichHomeApplicationNamed,
-                R.string.whichHomeApplicationLabel);
-
-        // titles for layout that deals with http(s) intents
-        public static final int BROWSABLE_TITLE_RES = R.string.whichOpenLinksWith;
-        public static final int BROWSABLE_HOST_TITLE_RES = R.string.whichOpenHostLinksWith;
-        public static final int BROWSABLE_HOST_APP_TITLE_RES = R.string.whichOpenHostLinksWithApp;
-        public static final int BROWSABLE_APP_TITLE_RES = R.string.whichOpenLinksWithApp;
-
-        public final String action;
-        public final int titleRes;
-        public final int namedTitleRes;
-        public final @StringRes int labelRes;
-
-        ActionTitle(String action, int titleRes, int namedTitleRes, @StringRes int labelRes) {
-            this.action = action;
-            this.titleRes = titleRes;
-            this.namedTitleRes = namedTitleRes;
-            this.labelRes = labelRes;
-        }
-
-        public static ActionTitle forAction(String action) {
-            for (ActionTitle title : values()) {
-                if (title != HOME && action != null && action.equals(title.action)) {
-                    return title;
-                }
-            }
-            return DEFAULT;
-        }
-    }
 
     protected PackageMonitor createPackageMonitor(ResolverListAdapter listAdapter) {
         return new PackageMonitor() {
