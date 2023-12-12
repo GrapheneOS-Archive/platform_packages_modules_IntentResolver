@@ -105,7 +105,6 @@ class ResolverListAdapterTest {
         assertThat(testSubject.unfilteredResolveList).containsExactlyElementsIn(resolvedTargets)
         assertThat(testSubject.isTabLoaded).isTrue()
         assertThat(backgroundExecutor.pendingCommandCount).isEqualTo(0)
-        assertThat(resolverListCommunicator.updateProfileViewButtonCount).isEqualTo(0)
         assertThat(resolverListCommunicator.sendVoiceCommandCount).isEqualTo(1)
     }
 
@@ -318,7 +317,6 @@ class ResolverListAdapterTest {
         assertThat(testSubject.unfilteredResolveList).containsExactlyElementsIn(resolvedTargets)
         assertThat(testSubject.isTabLoaded).isFalse()
         assertThat(backgroundExecutor.pendingCommandCount).isEqualTo(1)
-        assertThat(resolverListCommunicator.updateProfileViewButtonCount).isEqualTo(0)
         assertThat(resolverListCommunicator.sendVoiceCommandCount).isEqualTo(0)
 
         backgroundExecutor.runUntilIdle()
@@ -337,7 +335,6 @@ class ResolverListAdapterTest {
         }
         assertThat(testSubject.unfilteredResolveList).containsExactlyElementsIn(resolvedTargets)
         assertThat(testSubject.isTabLoaded).isTrue()
-        assertThat(resolverListCommunicator.updateProfileViewButtonCount).isEqualTo(1)
         assertThat(resolverListCommunicator.sendVoiceCommandCount).isEqualTo(1)
         assertThat(backgroundExecutor.pendingCommandCount).isEqualTo(0)
     }
@@ -391,7 +388,6 @@ class ResolverListAdapterTest {
         assertThat(testSubject.unfilteredResolveList).containsExactlyElementsIn(resolvedTargets)
         assertThat(testSubject.isTabLoaded).isFalse()
         assertThat(backgroundExecutor.pendingCommandCount).isEqualTo(1)
-        assertThat(resolverListCommunicator.updateProfileViewButtonCount).isEqualTo(0)
 
         backgroundExecutor.runUntilIdle()
 
@@ -403,7 +399,6 @@ class ResolverListAdapterTest {
         assertThat(testSubject.filteredPosition).isLessThan(0)
         assertThat(testSubject.unfilteredResolveList).containsExactlyElementsIn(resolvedTargets)
         assertThat(testSubject.isTabLoaded).isTrue()
-        assertThat(resolverListCommunicator.updateProfileViewButtonCount).isEqualTo(0)
         assertThat(backgroundExecutor.pendingCommandCount).isEqualTo(0)
     }
 
@@ -722,7 +717,6 @@ class ResolverListAdapterTest {
         assertThat(testSubject.unfilteredResolveList).containsExactlyElementsIn(resolvedTargets)
         assertThat(testSubject.isTabLoaded).isFalse()
         assertThat(backgroundExecutor.pendingCommandCount).isEqualTo(1)
-        assertThat(resolverListCommunicator.updateProfileViewButtonCount).isEqualTo(0)
         assertThat(resolverListCommunicator.sendVoiceCommandCount).isEqualTo(0)
 
         backgroundExecutor.runUntilIdle()
@@ -737,7 +731,6 @@ class ResolverListAdapterTest {
         assertThat(testSubject.filteredPosition).isLessThan(0)
         assertThat(testSubject.unfilteredResolveList).containsExactlyElementsIn(resolvedTargets)
         assertThat(testSubject.isTabLoaded).isTrue()
-        assertThat(resolverListCommunicator.updateProfileViewButtonCount).isEqualTo(1)
         assertThat(resolverListCommunicator.sendVoiceCommandCount).isEqualTo(1)
         assertThat(backgroundExecutor.pendingCommandCount).isEqualTo(0)
     }
@@ -794,7 +787,6 @@ class ResolverListAdapterTest {
         assertThat(testSubject.unfilteredResolveList).containsExactlyElementsIn(resolvedTargets)
         assertThat(testSubject.isTabLoaded).isFalse()
         assertThat(backgroundExecutor.pendingCommandCount).isEqualTo(1)
-        assertThat(resolverListCommunicator.updateProfileViewButtonCount).isEqualTo(0)
         assertThat(resolverListCommunicator.sendVoiceCommandCount).isEqualTo(0)
 
         backgroundExecutor.runUntilIdle()
@@ -809,7 +801,6 @@ class ResolverListAdapterTest {
         assertThat(testSubject.filteredPosition).isLessThan(0)
         assertThat(testSubject.unfilteredResolveList).containsExactlyElementsIn(resolvedTargets)
         assertThat(testSubject.isTabLoaded).isTrue()
-        assertThat(resolverListCommunicator.updateProfileViewButtonCount).isEqualTo(1)
         assertThat(resolverListCommunicator.sendVoiceCommandCount).isEqualTo(1)
         assertThat(backgroundExecutor.pendingCommandCount).isEqualTo(0)
     }

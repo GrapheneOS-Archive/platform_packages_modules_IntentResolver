@@ -85,19 +85,11 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
          * long-pressed.
          */
         void onTargetLongPressed(int itemIndex);
-
-        /**
-         * Notify the client that the provided {@code View} should be configured as the new
-         * "profile view" button. Callers should attach their own click listeners to implement
-         * behaviors on this view.
-         */
-        void updateProfileViewButton(View newButtonFromProfileRow);
     }
 
     private static final int VIEW_TYPE_DIRECT_SHARE = 0;
     private static final int VIEW_TYPE_NORMAL = 1;
     private static final int VIEW_TYPE_CONTENT_PREVIEW = 2;
-    private static final int VIEW_TYPE_PROFILE = 3;
     private static final int VIEW_TYPE_AZ_LABEL = 4;
     private static final int VIEW_TYPE_CALLER_AND_RANK = 5;
     private static final int VIEW_TYPE_FOOTER = 6;
@@ -201,7 +193,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
     public int getRowCount() {
         return (int) (
                 getSystemRowCount()
-                        + getProfileRowCount()
                         + getServiceTargetRowCount()
                         + getCallerAndRankedTargetRowCount()
                         + getAzLabelRowCount()
@@ -232,13 +223,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
         }
 
         return 1;
-    }
-
-    public int getProfileRowCount() {
-        if (mChooserActivityDelegate.shouldShowTabs()) {
-            return 0;
-        }
-        return mChooserListAdapter.getOtherProfile() == null ? 0 : 1;
     }
 
     public int getFooterRowCount() {
@@ -272,7 +256,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
         }
 
         return getSystemRowCount()
-                + getProfileRowCount()
                 + getServiceTargetRowCount()
                 + getCallerAndRankedTargetRowCount();
     }
@@ -280,7 +263,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
     @Override
     public int getItemCount() {
         return getSystemRowCount()
-                + getProfileRowCount()
                 + getServiceTargetRowCount()
                 + getCallerAndRankedTargetRowCount()
                 + getAzLabelRowCount()
@@ -295,12 +277,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
             case VIEW_TYPE_CONTENT_PREVIEW:
                 return new ItemViewHolder(
                         mChooserActivityDelegate.buildContentPreview(parent),
-                        viewType,
-                        null,
-                        null);
-            case VIEW_TYPE_PROFILE:
-                return new ItemViewHolder(
-                        createProfileView(parent),
                         viewType,
                         null,
                         null);
@@ -379,9 +355,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
         int countSum = (count = getSystemRowCount());
         if (count > 0 && position < countSum) return VIEW_TYPE_CONTENT_PREVIEW;
 
-        countSum += (count = getProfileRowCount());
-        if (count > 0 && position < countSum) return VIEW_TYPE_PROFILE;
-
         countSum += (count = getServiceTargetRowCount());
         if (count > 0 && position < countSum) return VIEW_TYPE_DIRECT_SHARE;
 
@@ -398,12 +371,6 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
 
     public int getTargetType(int position) {
         return mChooserListAdapter.getPositionTargetType(getListPosition(position));
-    }
-
-    private View createProfileView(ViewGroup parent) {
-        View profileRow = mLayoutInflater.inflate(R.layout.chooser_profile_row, parent, false);
-        mChooserActivityDelegate.updateProfileViewButton(profileRow);
-        return profileRow;
     }
 
     private View createAzLabelView(ViewGroup parent) {
@@ -583,7 +550,7 @@ public final class ChooserGridAdapter extends RecyclerView.Adapter<RecyclerView.
     }
 
     int getListPosition(int position) {
-        position -= getSystemRowCount() + getProfileRowCount();
+        position -= getSystemRowCount();
 
         final int serviceCount = mChooserListAdapter.getServiceTargetCount();
         final int serviceRows = (int) Math.ceil((float) serviceCount / mMaxTargetsPerRow);

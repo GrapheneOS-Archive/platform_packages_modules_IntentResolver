@@ -37,7 +37,6 @@ import java.util.function.Supplier;
 /**
  * A {@link PagerAdapter} which describes the work and personal profile intent resolver screens.
  */
-@VisibleForTesting
 public class ResolverMultiProfilePagerAdapter extends
         MultiProfilePagerAdapter<ListView, ResolverListAdapter, ResolverListAdapter> {
     private final BottomPaddingOverrideSupplier mBottomPaddingOverrideSupplier;

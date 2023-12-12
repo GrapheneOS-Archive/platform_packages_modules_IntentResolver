@@ -66,7 +66,7 @@ import java.util.function.Supplier;
  * be possible to get the list adapter from the page adapter via our
  * <code>mListAdapterExtractor</code>.
  */
-public class MultiProfilePagerAdapter<
+class MultiProfilePagerAdapter<
         PageViewT extends ViewGroup,
         SinglePageAdapterT,
         ListAdapterT extends ResolverListAdapter> extends PagerAdapter {
@@ -101,7 +101,7 @@ public class MultiProfilePagerAdapter<
     private final UserHandle mCloneProfileUserHandle;
     private final Supplier<Boolean> mWorkProfileQuietModeChecker;  // True when work is quiet.
 
-    private Set<Integer> mLoadedPages;
+    private final Set<Integer> mLoadedPages;
     private int mCurrentPage;
     private OnProfileSelectedListener mOnProfileSelectedListener;
 
