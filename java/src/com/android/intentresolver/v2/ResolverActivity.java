@@ -20,11 +20,6 @@ import static android.Manifest.permission.INTERACT_ACROSS_PROFILES;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_ACCESS_PERSONAL;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_ACCESS_WORK;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CROSS_PROFILE_BLOCKED_TITLE;
-import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_PERSONAL_TAB;
-import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_PERSONAL_TAB_ACCESSIBILITY;
-import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_WORK_PROFILE_NOT_SUPPORTED;
-import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_WORK_TAB;
-import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_WORK_TAB_ACCESSIBILITY;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.PermissionChecker.PID_UNKNOWN;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_PERSONAL;
@@ -114,6 +109,7 @@ import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.v2.MultiProfilePagerAdapter.MyUserIdProvider;
 import com.android.intentresolver.v2.MultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener;
 import com.android.intentresolver.v2.MultiProfilePagerAdapter.Profile;
+import com.android.intentresolver.v2.data.repository.DevicePolicyResources;
 import com.android.intentresolver.v2.emptystate.NoAppsAvailableEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
@@ -148,6 +144,8 @@ public class ResolverActivity extends FragmentActivity implements
     private final List<Runnable> mInit = new ArrayList<>();
 
     protected ActivityLogic mLogic;
+
+    private DevicePolicyResources mDevicePolicyResources;
 
     public ResolverActivity() {
         mIsIntentPicker = getClass().equals(ResolverActivity.class);
@@ -265,6 +263,8 @@ public class ResolverActivity extends FragmentActivity implements
             //    Skip initializing anything.
             return;
         }
+        mDevicePolicyResources = new DevicePolicyResources(getApplication().getResources(),
+                requireNonNull(getSystemService(DevicePolicyManager.class)));
         setLogic(new ResolverActivityLogic(
                 TAG,
                 () -> this,
@@ -561,9 +561,9 @@ public class ResolverActivity extends FragmentActivity implements
         ResolveInfo ri = mMultiProfilePagerAdapter.getActiveListAdapter()
                 .resolveInfoForPosition(which, hasIndexBeenFiltered);
         if (mLogic.getResolvingHome() && hasManagedProfile() && !supportsManagedProfiles(ri)) {
+            String launcherName = ri.activityInfo.loadLabel(getPackageManager()).toString();
             Toast.makeText(this,
-                    getWorkProfileNotSupportedMsg(
-                            ri.activityInfo.loadLabel(getPackageManager()).toString()),
+                    mDevicePolicyResources.getWorkProfileNotSupportedMessage(launcherName),
                     Toast.LENGTH_LONG).show();
             return;
         }
@@ -1401,15 +1401,6 @@ public class ResolverActivity extends FragmentActivity implements
         mAlwaysButton.setEnabled(enabled);
     }
 
-    private String getWorkProfileNotSupportedMsg(String launcherName) {
-        return getSystemService(DevicePolicyManager.class).getResources().getString(
-                RESOLVER_WORK_PROFILE_NOT_SUPPORTED,
-                () -> getString(
-                        R.string.activity_resolver_work_profiles_support,
-                        launcherName),
-                launcherName);
-    }
-
     @Override // ResolverListCommunicator
     public final void onPostListReady(ResolverListAdapter listAdapter, boolean doPostProcessing,
             boolean rebuildCompleted) {
@@ -1811,8 +1802,9 @@ public class ResolverActivity extends FragmentActivity implements
 
         Button personalButton = (Button) getLayoutInflater().inflate(
                 R.layout.resolver_profile_tab_button, tabHost.getTabWidget(), false);
-        personalButton.setText(getPersonalTabLabel());
-        personalButton.setContentDescription(getPersonalTabAccessibilityLabel());
+        personalButton.setText(mDevicePolicyResources.getPersonalTabLabel());
+        personalButton.setContentDescription(
+                mDevicePolicyResources.getPersonalTabAccessibilityLabel());
 
         TabHost.TabSpec tabSpec = tabHost.newTabSpec(TAB_TAG_PERSONAL)
                 .setContent(com.android.internal.R.id.profile_pager)
@@ -1821,8 +1813,8 @@ public class ResolverActivity extends FragmentActivity implements
 
         Button workButton = (Button) getLayoutInflater().inflate(
                 R.layout.resolver_profile_tab_button, tabHost.getTabWidget(), false);
-        workButton.setText(getWorkTabLabel());
-        workButton.setContentDescription(getWorkTabAccessibilityLabel());
+        workButton.setText(mDevicePolicyResources.getWorkTabLabel());
+        workButton.setContentDescription(mDevicePolicyResources.getWorkTabAccessibilityLabel());
 
         tabSpec = tabHost.newTabSpec(TAB_TAG_WORK)
                 .setContent(com.android.internal.R.id.profile_pager)
@@ -1874,16 +1866,6 @@ public class ResolverActivity extends FragmentActivity implements
         };
     }
 
-    private String getPersonalTabLabel() {
-        return getSystemService(DevicePolicyManager.class).getResources().getString(
-                RESOLVER_PERSONAL_TAB, () -> getString(R.string.resolver_personal_tab));
-    }
-
-    private String getWorkTabLabel() {
-        return getSystemService(DevicePolicyManager.class).getResources().getString(
-                RESOLVER_WORK_TAB, () -> getString(R.string.resolver_work_tab));
-    }
-
     private void maybeHideDivider() {
         if (!mIsIntentPicker) {
             return;
@@ -1904,18 +1886,6 @@ public class ResolverActivity extends FragmentActivity implements
         if (inactiveListView.getCheckedItemCount() > 0) {
             inactiveListView.setItemChecked(inactiveListView.getCheckedItemPosition(), false);
         }
-    }
-
-    private String getPersonalTabAccessibilityLabel() {
-        return getSystemService(DevicePolicyManager.class).getResources().getString(
-                RESOLVER_PERSONAL_TAB_ACCESSIBILITY,
-                () -> getString(R.string.resolver_personal_tab_accessibility));
-    }
-
-    private String getWorkTabAccessibilityLabel() {
-        return getSystemService(DevicePolicyManager.class).getResources().getString(
-                RESOLVER_WORK_TAB_ACCESSIBILITY,
-                () -> getString(R.string.resolver_work_tab_accessibility));
     }
 
     private static int getAttrColor(Context context, int attr) {
