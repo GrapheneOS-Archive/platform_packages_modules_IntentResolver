@@ -169,6 +169,13 @@ public class ChooserMultiProfilePagerAdapter extends MultiProfilePagerAdapter<
         return super.rebuildTab(listAdapter, doPostProcessing);
     }
 
+    /** Apply the specified {@code height} as the footer in each tab's adapter. */
+    public void setFooterHeightInEveryAdapter(int height) {
+        for (int i = 0; i < getItemCount(); ++i) {
+            getAdapterForIndex(i).setFooterHeight(height);
+        }
+    }
+
     private static class BottomPaddingOverrideSupplier implements Supplier<Optional<Integer>> {
         private final Context mContext;
         private int mBottomOffset;
