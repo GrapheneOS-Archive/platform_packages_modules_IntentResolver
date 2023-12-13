@@ -966,29 +966,12 @@ public class ResolverActivity extends FragmentActivity implements
     }
 
     @Override // ResolverListCommunicator
-    public void onHandlePackagesChanged(ResolverListAdapter listAdapter) {
-        if (listAdapter == mMultiProfilePagerAdapter.getActiveListAdapter()) {
-            if (listAdapter.getUserHandle().equals(
-                    requireAnnotatedUserHandles().workProfileUserHandle)
-                    && mLogic.getWorkProfileAvailabilityManager().isWaitingToEnableWorkProfile()) {
-                // We have just turned on the work profile and entered the pass code to start it,
-                // now we are waiting to receive the ACTION_USER_UNLOCKED broadcast. There is no
-                // point in reloading the list now, since the work profile user is still
-                // turning on.
-                return;
-            }
-            boolean listRebuilt = mMultiProfilePagerAdapter.rebuildActiveTab(true);
-            if (listRebuilt) {
-                ResolverListAdapter activeListAdapter =
-                        mMultiProfilePagerAdapter.getActiveListAdapter();
-                activeListAdapter.notifyDataSetChanged();
-                if (activeListAdapter.getCount() == 0 && !inactiveListAdapterHasItems()) {
-                    // We no longer have any items...  just finish the activity.
-                    finish();
-                }
-            }
-        } else {
-            mMultiProfilePagerAdapter.clearInactiveProfileCache();
+    public final void onHandlePackagesChanged(ResolverListAdapter listAdapter) {
+        if (!mMultiProfilePagerAdapter.onHandlePackagesChanged(
+                listAdapter,
+                mLogic.getWorkProfileAvailabilityManager().isWaitingToEnableWorkProfile())) {
+            // We no longer have any items... just finish the activity.
+            finish();
         }
     }
 
@@ -2124,13 +2107,6 @@ public class ResolverActivity extends FragmentActivity implements
      */
     protected final void setRetainInOnStop(boolean retainInOnStop) {
         mRetainInOnStop = retainInOnStop;
-    }
-
-    private boolean inactiveListAdapterHasItems() {
-        if (!shouldShowTabs()) {
-            return false;
-        }
-        return mMultiProfilePagerAdapter.getInactiveListAdapter().getCount() > 0;
     }
 
     final class ItemClickListener implements AdapterView.OnItemClickListener,

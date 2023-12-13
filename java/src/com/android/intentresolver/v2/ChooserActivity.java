@@ -593,10 +593,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         // Refresh pinned items
         mPinnedSharedPrefs = getPinnedSharedPrefs(this);
         if (listAdapter == null) {
-            mChooserMultiProfilePagerAdapter.getActiveListAdapter().handlePackagesChanged();
-            if (mChooserMultiProfilePagerAdapter.getCount() > 1) {
-                mChooserMultiProfilePagerAdapter.getInactiveListAdapter().handlePackagesChanged();
-            }
+            mChooserMultiProfilePagerAdapter.refreshPackagesInAllTabs();
         } else {
             listAdapter.handlePackagesChanged();
         }
@@ -1518,12 +1515,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         // We return personal profile, as it is the default when there is no work profile, personal
         // profile represents rootUser, clonedUser & secondaryUser, covering all use cases.
         return PROFILE_PERSONAL;
-    }
-
-    @Override // ResolverListCommunicator
-    public void onHandlePackagesChanged(ResolverListAdapter listAdapter) {
-        mChooserMultiProfilePagerAdapter.getActiveListAdapter().notifyDataSetChanged();
-        super.onHandlePackagesChanged(listAdapter);
     }
 
     @Override
