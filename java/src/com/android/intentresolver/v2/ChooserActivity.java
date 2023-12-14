@@ -787,10 +787,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         ChooserRequestParameters chooserRequest = requireChooserRequest();
         if (!chooserRequest.getCallerChooserTargets().isEmpty()) {
             // Send the caller's chooser targets only to the default profile.
-            UserHandle defaultUser = (findSelectedProfile() == PROFILE_WORK)
-                    ? requireAnnotatedUserHandles().workProfileUserHandle
-                    : requireAnnotatedUserHandles().personalProfileUserHandle;
-            if (mChooserMultiProfilePagerAdapter.getCurrentUserHandle() == defaultUser) {
+            if (mChooserMultiProfilePagerAdapter.getActiveProfile() == findSelectedProfile()) {
                 mChooserMultiProfilePagerAdapter.getActiveListAdapter().addServiceResults(
                         /* origTarget */ null,
                         new ArrayList<>(chooserRequest.getCallerChooserTargets()),
@@ -1404,8 +1401,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 updateTabPadding();
             }
 
-            UserHandle currentUserHandle = mChooserMultiProfilePagerAdapter.getCurrentUserHandle();
-            int currentProfile = getProfileForUser(currentUserHandle);
+            int currentProfile = mChooserMultiProfilePagerAdapter.getActiveProfile();
             int initialProfile = findSelectedProfile();
             if (currentProfile != initialProfile) {
                 return;

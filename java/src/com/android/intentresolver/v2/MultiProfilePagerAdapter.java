@@ -140,6 +140,14 @@ public class MultiProfilePagerAdapter<
                 mPageViewInflater.get(), adapter, containerBottomPaddingOverrideSupplier);
     }
 
+    private @Profile int getProfileForPageNumber(int position) {
+        return position;
+    }
+
+    private int getPageNumberForProfile(@Profile int profile) {
+        return profile;
+    }
+
     public void setOnProfileSelectedListener(OnProfileSelectedListener listener) {
         mOnProfileSelectedListener = listener;
     }
@@ -205,11 +213,7 @@ public class MultiProfilePagerAdapter<
     }
 
     public final @Profile int getActiveProfile() {
-        // TODO: here and elsewhere in this class, distinguish between a "profile ID" integer and
-        // its mapped "page index." When we support more than two profiles, this won't be a "stable
-        // mapping" -- some particular profile may not be represented by a "page," but the ones that
-        // are will be assigned contiguous page numbers that skip over the holes.
-        return getCurrentPage();
+        return getProfileForPageNumber(getCurrentPage());
     }
 
     @VisibleForTesting
@@ -304,6 +308,10 @@ public class MultiProfilePagerAdapter<
         return null;
     }
 
+    private ListAdapterT getListAdapterForPageNumber(int pageNumber) {
+        return mListAdapterExtractor.apply(getAdapterForIndex(pageNumber));
+    }
+
     /**
      * Returns the {@link ListAdapterT} instance of the profile that is currently visible
      * to the user.
@@ -313,7 +321,7 @@ public class MultiProfilePagerAdapter<
      */
     @VisibleForTesting
     public final ListAdapterT getActiveListAdapter() {
-        return mListAdapterExtractor.apply(getAdapterForIndex(getCurrentPage()));
+        return getListAdapterForPageNumber(getCurrentPage());
     }
 
     /**
@@ -330,28 +338,24 @@ public class MultiProfilePagerAdapter<
         if (getCount() < 2) {
             return null;
         }
-        return mListAdapterExtractor.apply(getAdapterForIndex(1 - getCurrentPage()));
+        return getListAdapterForPageNumber(1 - getCurrentPage());
     }
 
     public final ListAdapterT getPersonalListAdapter() {
-        return mListAdapterExtractor.apply(getAdapterForIndex(PROFILE_PERSONAL));
+        return getListAdapterForPageNumber(getPageNumberForProfile(PROFILE_PERSONAL));
     }
 
     /** @return whether our tab data contains a page for the specified {@code profile} ID. */
     public final boolean hasPageForProfile(@Profile int profile) {
-        // TODO: here and elsewhere in this class, distinguish between a "profile ID" integer and
-        // its mapped "page index." When we support more than two profiles, this won't be a "stable
-        // mapping" -- some particular profile may not be represented by a "page," but the ones that
-        // are will be assigned contiguous page numbers that skip over the holes.
-        return hasAdapterForIndex(profile);
+        return hasAdapterForIndex(getPageNumberForProfile(profile));
     }
 
     @Nullable
     public final ListAdapterT getWorkListAdapter() {
-        if (!hasAdapterForIndex(PROFILE_WORK)) {
+        if (!hasPageForProfile(PROFILE_WORK)) {
             return null;
         }
-        return mListAdapterExtractor.apply(getAdapterForIndex(PROFILE_WORK));
+        return getListAdapterForPageNumber(getPageNumberForProfile(PROFILE_WORK));
     }
 
     public final SinglePageAdapterT getCurrentRootAdapter() {
@@ -480,9 +484,9 @@ public class MultiProfilePagerAdapter<
 
     private int userHandleToPageIndex(UserHandle userHandle) {
         if (userHandle.equals(getPersonalListAdapter().getUserHandle())) {
-            return PROFILE_PERSONAL;
+            return getPageNumberForProfile(PROFILE_PERSONAL);
         } else {
-            return PROFILE_WORK;
+            return getPageNumberForProfile(PROFILE_WORK);
         }
     }
 
@@ -500,7 +504,7 @@ public class MultiProfilePagerAdapter<
     }
 
     private boolean hasAdapterForIndex(int pageIndex) {
-        return (pageIndex < getCount());
+        return (pageIndex >= 0) && (pageIndex < getCount());
     }
 
     /**
