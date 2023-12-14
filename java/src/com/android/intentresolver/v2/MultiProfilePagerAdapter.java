@@ -36,6 +36,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -184,10 +186,7 @@ public class MultiProfilePagerAdapter<
     }
 
     public void clearInactiveProfileCache() {
-        if (mLoadedPages.size() == 1) {
-            return;
-        }
-        mLoadedPages.remove(1 - mCurrentPage);
+        forEachInactivePage(pageNumber -> mLoadedPages.remove(pageNumber));
     }
 
     @Override
@@ -317,28 +316,10 @@ public class MultiProfilePagerAdapter<
      * to the user.
      * <p>For example, if the user is viewing the work tab in the share sheet, this method returns
      * the work profile {@link ListAdapterT}.
-     * @see #getInactiveListAdapter()
      */
     @VisibleForTesting
     public final ListAdapterT getActiveListAdapter() {
         return getListAdapterForPageNumber(getCurrentPage());
-    }
-
-    /**
-     * If this is a device with a work profile, returns the {@link ListAdapterT} instance
-     * of the profile that is <b><i>not</i></b> currently visible to the user. Otherwise returns
-     * {@code null}.
-     * <p>For example, if the user is viewing the work tab in the share sheet, this method returns
-     * the personal profile {@link ListAdapterT}.
-     * @see #getActiveListAdapter()
-     */
-    @VisibleForTesting
-    @Nullable
-    public final ListAdapterT getInactiveListAdapter() {
-        if (getCount() < 2) {
-            return null;
-        }
-        return getListAdapterForPageNumber(1 - getCurrentPage());
     }
 
     public final ListAdapterT getPersonalListAdapter() {
@@ -366,14 +347,6 @@ public class MultiProfilePagerAdapter<
         return getListViewForIndex(getCurrentPage());
     }
 
-    @Nullable
-    public final PageViewT getInactiveAdapterView() {
-        if (getCount() < 2) {
-            return null;
-        }
-        return getListViewForIndex(1 - getCurrentPage());
-    }
-
     private boolean anyAdapterHasItems() {
         for (int i = 0; i < mItems.size(); ++i) {
             ListAdapterT listAdapter = mListAdapterExtractor.apply(getAdapterForIndex(i));
@@ -385,13 +358,10 @@ public class MultiProfilePagerAdapter<
     }
 
     public void refreshPackagesInAllTabs() {
-        // TODO: handle all inactive profiles; for now we can only have at most one. It's unclear if
-        // this legacy logic really requires the active tab to be rebuilt first, or if we could just
-        // iterate over the tabs in arbitrary order.
+        // TODO: it's unclear if this legacy logic really requires the active tab to be rebuilt
+        // first, or if we could just iterate over the tabs in arbitrary order.
         getActiveListAdapter().handlePackagesChanged();
-        if (getCount() > 1) {
-            getInactiveListAdapter().handlePackagesChanged();
-        }
+        forEachInactivePage(page -> getListAdapterForPageNumber(page).handlePackagesChanged());
     }
 
     /**
@@ -449,9 +419,10 @@ public class MultiProfilePagerAdapter<
         // autolaunch conditions).
         boolean rebuildCompleted = rebuildActiveTab(true) || getActiveListAdapter().isTabLoaded();
         if (includePartialRebuildOfInactiveTabs) {
-            boolean rebuildInactiveCompleted =
-                    rebuildInactiveTab(false) || getInactiveListAdapter().isTabLoaded();
-            rebuildCompleted = rebuildCompleted && rebuildInactiveCompleted;
+            // Per legacy logic, avoid short-circuiting (TODO: why? possibly so that we *start*
+            // loading the inactive tabs even if we're still waiting on the active tab to finish?).
+            boolean completedRebuildingInactiveTabs = rebuildInactiveTabs(false);
+            rebuildCompleted = rebuildCompleted && completedRebuildingInactiveTabs;
         }
         return rebuildCompleted;
     }
@@ -468,18 +439,27 @@ public class MultiProfilePagerAdapter<
     }
 
     /**
-     * Rebuilds the tab that is not currently visible to the user, if such one exists.
-     * <p>Returns {@code true} if rebuild has completed.
+     * Rebuilds any tabs that are not currently visible to the user.
+     * <p>Returns {@code true} if rebuild has completed in all inactive tabs.
      */
-    private boolean rebuildInactiveTab(boolean doPostProcessing) {
+    private boolean rebuildInactiveTabs(boolean doPostProcessing) {
         Trace.beginSection("MultiProfilePagerAdapter#rebuildInactiveTab");
-        if (getItemCount() == 1) {
-            Trace.endSection();
-            return false;
-        }
-        boolean result = rebuildTab(getInactiveListAdapter(), doPostProcessing);
+        AtomicBoolean allRebuildsComplete = new AtomicBoolean(true);
+        forEachInactivePage(pageNumber -> {
+            // Evaluate the rebuild for every inactive page, even if we've already seen some adapter
+            // return an "incomplete" status (i.e., even if `allRebuildsComplete` is already false)
+            // and so we already know we'll end up returning false for the batch.
+            // TODO: any particular reason the per-page legacy logic was set up in this order, or
+            // could we possibly short-circuit the rebuild if the tab is already "loaded"?
+            ListAdapterT inactiveAdapter = getListAdapterForPageNumber(pageNumber);
+            boolean rebuildInactivePageCompleted =
+                    rebuildTab(inactiveAdapter, doPostProcessing) || inactiveAdapter.isTabLoaded();
+            if (!rebuildInactivePageCompleted) {
+                allRebuildsComplete.set(false);
+            }
+        });
         Trace.endSection();
-        return result;
+        return allRebuildsComplete.get();
     }
 
     private int userHandleToPageIndex(UserHandle userHandle) {
@@ -488,6 +468,20 @@ public class MultiProfilePagerAdapter<
         } else {
             return getPageNumberForProfile(PROFILE_WORK);
         }
+    }
+
+    protected void forEachPage(Consumer<Integer> pageNumberHandler) {
+        for (int pageNumber = 0; pageNumber < getItemCount(); ++pageNumber) {
+            pageNumberHandler.accept(pageNumber);
+        }
+    }
+
+    protected void forEachInactivePage(Consumer<Integer> inactivePageNumberHandler) {
+        forEachPage(pageNumber -> {
+            if (pageNumber != getCurrentPage()) {
+                inactivePageNumberHandler.accept(pageNumber);
+            }
+        });
     }
 
     protected boolean rebuildTab(ListAdapterT activeListAdapter, boolean doPostProcessing) {
@@ -585,11 +579,14 @@ public class MultiProfilePagerAdapter<
      * application state.
      */
     public final boolean shouldShowEmptyStateScreenInAnyInactiveAdapter() {
-        if (getCount() < 2) {
-            return false;
-        }
-        // TODO: check against *any* inactive adapter; for now we only have one.
-        return shouldShowEmptyStateScreen(getInactiveListAdapter());
+        AtomicBoolean anyEmpty = new AtomicBoolean(false);
+        // TODO: The "inactive" condition is legacy logic. Could we simplify and ask "any"?
+        forEachInactivePage(pageNumber -> {
+            if (shouldShowEmptyStateScreen(getListAdapterForPageNumber(pageNumber))) {
+                anyEmpty.set(true);
+            }
+        });
+        return anyEmpty.get();
     }
 
     public boolean shouldShowEmptyStateScreen(ListAdapterT listAdapter) {
