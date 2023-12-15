@@ -118,14 +118,11 @@ public class ResolverWrapperActivity extends ResolverActivity {
     }
 
     ResolverListAdapter getPersonalListAdapter() {
-        return ((ResolverListAdapter) mMultiProfilePagerAdapter.getAdapterForIndex(0));
+        return mMultiProfilePagerAdapter.getPersonalListAdapter();
     }
 
     ResolverListAdapter getWorkListAdapter() {
-        if (mMultiProfilePagerAdapter.getInactiveListAdapter() == null) {
-            return null;
-        }
-        return ((ResolverListAdapter) mMultiProfilePagerAdapter.getAdapterForIndex(1));
+        return mMultiProfilePagerAdapter.getWorkListAdapter();
     }
 
     @Override
