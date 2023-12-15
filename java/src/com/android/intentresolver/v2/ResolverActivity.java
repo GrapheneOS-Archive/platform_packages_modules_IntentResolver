@@ -87,6 +87,7 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
@@ -276,6 +277,15 @@ public class ResolverActivity extends FragmentActivity implements
     protected final void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         mInit.forEach(Runnable::run);
+
+        if (savedInstanceState != null) {
+            resetButtonBar();
+            ViewPager viewPager = findViewById(com.android.internal.R.id.profile_pager);
+            if (viewPager != null) {
+                viewPager.setCurrentItem(savedInstanceState.getInt(LAST_SHOWN_TAB_KEY));
+            }
+            mMultiProfilePagerAdapter.clearInactiveProfileCache();
+        }
     }
 
     private void init() {
@@ -298,7 +308,7 @@ public class ResolverActivity extends FragmentActivity implements
         // of the last used choice to highlight it in the list.  We need to always
         // turn this off when running under voice interaction, since it results in
         // a more complicated UI that the current voice interaction flow is not able
-        // to handle. We also turn it off when the work tab is shown to simplify the UX.
+        // to handle. We also turn it off when multiple tabs are shown to simplify the UX.
         // We also turn it off when clonedProfile is present on the device, because we might have
         // different "last chosen" activities in the different profiles, and PackageManager doesn't
         // provide any more information to help us select between them.
@@ -322,7 +332,7 @@ public class ResolverActivity extends FragmentActivity implements
                 requireAnnotatedUserHandles().personalProfileUserHandle,
                 false
         );
-        if (shouldShowTabs()) {
+        if (hasWorkProfile()) {
             mWorkPackageMonitor = createPackageMonitor(
                     mMultiProfilePagerAdapter.getWorkListAdapter());
             mWorkPackageMonitor.register(
@@ -1266,7 +1276,7 @@ public class ResolverActivity extends FragmentActivity implements
                     getMainLooper(),
                     requireAnnotatedUserHandles().personalProfileUserHandle,
                     false);
-            if (shouldShowTabs()) {
+            if (hasWorkProfile()) {
                 if (mWorkPackageMonitor == null) {
                     mWorkPackageMonitor = createPackageMonitor(
                             mMultiProfilePagerAdapter.getWorkListAdapter());
@@ -1281,7 +1291,7 @@ public class ResolverActivity extends FragmentActivity implements
         }
         WorkProfileAvailabilityManager workProfileAvailabilityManager =
                 mLogic.getWorkProfileAvailabilityManager();
-        if (shouldShowTabs() && workProfileAvailabilityManager.isWaitingToEnableWorkProfile()) {
+        if (hasWorkProfile() && workProfileAvailabilityManager.isWaitingToEnableWorkProfile()) {
             if (workProfileAvailabilityManager.isQuietModeEnabled()) {
                 workProfileAvailabilityManager.markWorkProfileEnabledBroadcastReceived();
             }
@@ -1295,29 +1305,18 @@ public class ResolverActivity extends FragmentActivity implements
         super.onStart();
 
         this.getWindow().addSystemFlags(SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS);
-        if (shouldShowTabs()) {
+        if (hasWorkProfile()) {
             mLogic.getWorkProfileAvailabilityManager().registerWorkProfileStateReceiver(this);
         }
     }
 
     @Override
-    protected final void onSaveInstanceState(Bundle outState) {
+    protected final void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         ViewPager viewPager = findViewById(com.android.internal.R.id.profile_pager);
         if (viewPager != null) {
             outState.putInt(LAST_SHOWN_TAB_KEY, viewPager.getCurrentItem());
         }
-    }
-
-    @Override
-    protected final void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        resetButtonBar();
-        ViewPager viewPager = findViewById(com.android.internal.R.id.profile_pager);
-        if (viewPager != null) {
-            viewPager.setCurrentItem(savedInstanceState.getInt(LAST_SHOWN_TAB_KEY));
-        }
-        mMultiProfilePagerAdapter.clearInactiveProfileCache();
     }
 
     private boolean hasManagedProfile() {
@@ -1511,13 +1510,8 @@ public class ResolverActivity extends FragmentActivity implements
         Trace.beginSection("configureContentView");
         // We partially rebuild the inactive adapter to determine if we should auto launch
         // isTabLoaded will be true here if the empty state screen is shown instead of the list.
-        boolean rebuildCompleted = mMultiProfilePagerAdapter.rebuildActiveTab(true)
-                || mMultiProfilePagerAdapter.getActiveListAdapter().isTabLoaded();
-        if (shouldShowTabs()) {
-            boolean rebuildInactiveCompleted = mMultiProfilePagerAdapter.rebuildInactiveTab(false)
-                    || mMultiProfilePagerAdapter.getInactiveListAdapter().isTabLoaded();
-            rebuildCompleted = rebuildCompleted && rebuildInactiveCompleted;
-        }
+        // To date, we really only care about "partially rebuilding" tabs for work and/or personal.
+        boolean rebuildCompleted = mMultiProfilePagerAdapter.rebuildTabs(shouldShowTabs());
 
         if (shouldUseMiniResolver()) {
             configureMiniResolverContent(targetDataLoader);
@@ -1547,12 +1541,25 @@ public class ResolverActivity extends FragmentActivity implements
         mLayoutId = R.layout.miniresolver;
         setContentView(mLayoutId);
 
-        DisplayResolveInfo sameProfileResolveInfo =
-                mMultiProfilePagerAdapter.getActiveListAdapter().getFirstDisplayResolveInfo();
+        // TODO: try to dedupe and use the pager's `getActiveProfile()` instead of the activity
+        // `getCurrentProfile()` (or align them if they're not currently equivalent). If they truly
+        // need to be distinct here, then `getCurrentProfile()` should at *least* get a more
+        // specific name -- but note that checking `getCurrentProfile()` here, then following
+        // `getActiveProfile()` to find the "in/active adapter," is exactly the legacy behavior.
         boolean inWorkProfile = getCurrentProfile() == PROFILE_WORK;
 
-        final ResolverListAdapter inactiveAdapter =
-                mMultiProfilePagerAdapter.getInactiveListAdapter();
+        ResolverListAdapter sameProfileAdapter =
+                (mMultiProfilePagerAdapter.getActiveProfile() == PROFILE_PERSONAL)
+                ? mMultiProfilePagerAdapter.getPersonalListAdapter()
+                : mMultiProfilePagerAdapter.getWorkListAdapter();
+
+        ResolverListAdapter inactiveAdapter =
+                (mMultiProfilePagerAdapter.getActiveProfile() == PROFILE_PERSONAL)
+                ? mMultiProfilePagerAdapter.getWorkListAdapter()
+                : mMultiProfilePagerAdapter.getPersonalListAdapter();
+
+        DisplayResolveInfo sameProfileResolveInfo = sameProfileAdapter.getFirstDisplayResolveInfo();
+
         final DisplayResolveInfo otherProfileResolveInfo =
                 inactiveAdapter.getFirstDisplayResolveInfo();
 
@@ -1591,24 +1598,36 @@ public class ResolverActivity extends FragmentActivity implements
         });
     }
 
+    private boolean isTwoPagePersonalAndWorkConfiguration() {
+        return (mMultiProfilePagerAdapter.getCount() == 2)
+                && mMultiProfilePagerAdapter.hasPageForProfile(PROFILE_PERSONAL)
+                && mMultiProfilePagerAdapter.hasPageForProfile(PROFILE_WORK);
+    }
+
     /**
      * Mini resolver should be used when all of the following are true:
      * 1. This is the intent picker (ResolverActivity).
-     * 2. This profile only has web browser matches.
-     * 3. The other profile has a single non-browser match.
+     * 2. There are exactly two tabs, for the "personal" and "work" profiles.
+     * 3. This profile only has web browser matches.
+     * 4. The other profile has a single non-browser match.
      */
     private boolean shouldUseMiniResolver() {
         if (!mIsIntentPicker) {
             return false;
         }
-        if (mMultiProfilePagerAdapter.getActiveListAdapter() == null
-                || mMultiProfilePagerAdapter.getInactiveListAdapter() == null) {
+        if (!isTwoPagePersonalAndWorkConfiguration()) {
             return false;
         }
+
         ResolverListAdapter sameProfileAdapter =
-                mMultiProfilePagerAdapter.getActiveListAdapter();
+                (mMultiProfilePagerAdapter.getActiveProfile() == PROFILE_PERSONAL)
+                ? mMultiProfilePagerAdapter.getPersonalListAdapter()
+                : mMultiProfilePagerAdapter.getWorkListAdapter();
+
         ResolverListAdapter otherProfileAdapter =
-                mMultiProfilePagerAdapter.getInactiveListAdapter();
+                (mMultiProfilePagerAdapter.getActiveProfile() == PROFILE_PERSONAL)
+                ? mMultiProfilePagerAdapter.getWorkListAdapter()
+                : mMultiProfilePagerAdapter.getPersonalListAdapter();
 
         if (sameProfileAdapter.getDisplayResolveInfoCount() == 0) {
             Log.d(TAG, "No targets in the current profile");
@@ -1668,10 +1687,7 @@ public class ResolverActivity extends FragmentActivity implements
         int numberOfProfiles = mMultiProfilePagerAdapter.getItemCount();
         if (numberOfProfiles == 1 && maybeAutolaunchIfSingleTarget()) {
             return true;
-        } else if (numberOfProfiles == 2
-                && mMultiProfilePagerAdapter.getActiveListAdapter().isTabLoaded()
-                && mMultiProfilePagerAdapter.getInactiveListAdapter().isTabLoaded()
-                && maybeAutolaunchIfCrossProfileSupported()) {
+        } else if (maybeAutolaunchIfCrossProfileSupported()) {
             // TODO(b/280988288): If the ChooserActivity is shown we should consider showing the
             //  correct intent-picker UIs (e.g., mini-resolver) if it was launched without
             //  ACTION_SEND.
@@ -1702,33 +1718,48 @@ public class ResolverActivity extends FragmentActivity implements
     }
 
     /**
-     * When we have a personal and a work profile, we auto launch in the following scenario:
+     * When we have just a personal and a work profile, we auto launch in the following scenario:
      * - There is 1 resolved target on each profile
      * - That target is the same app on both profiles
      * - The target app has permission to communicate cross profiles
      * - The target app has declared it supports cross-profile communication via manifest metadata
      */
     private boolean maybeAutolaunchIfCrossProfileSupported() {
-        ResolverListAdapter activeListAdapter = mMultiProfilePagerAdapter.getActiveListAdapter();
-        int count = activeListAdapter.getUnfilteredCount();
-        if (count != 1) {
+        if (!isTwoPagePersonalAndWorkConfiguration()) {
             return false;
         }
+
+        ResolverListAdapter activeListAdapter =
+                (mMultiProfilePagerAdapter.getActiveProfile() == PROFILE_PERSONAL)
+                ? mMultiProfilePagerAdapter.getPersonalListAdapter()
+                : mMultiProfilePagerAdapter.getWorkListAdapter();
+
         ResolverListAdapter inactiveListAdapter =
-                mMultiProfilePagerAdapter.getInactiveListAdapter();
-        if (inactiveListAdapter.getUnfilteredCount() != 1) {
+                (mMultiProfilePagerAdapter.getActiveProfile() == PROFILE_PERSONAL)
+                ? mMultiProfilePagerAdapter.getWorkListAdapter()
+                : mMultiProfilePagerAdapter.getPersonalListAdapter();
+
+        if (!activeListAdapter.isTabLoaded() || !inactiveListAdapter.isTabLoaded()) {
             return false;
         }
-        TargetInfo activeProfileTarget = activeListAdapter
-                .targetInfoForPosition(0, false);
+
+        if ((activeListAdapter.getUnfilteredCount() != 1)
+                || (inactiveListAdapter.getUnfilteredCount() != 1)) {
+            return false;
+        }
+
+        TargetInfo activeProfileTarget = activeListAdapter.targetInfoForPosition(0, false);
         TargetInfo inactiveProfileTarget = inactiveListAdapter.targetInfoForPosition(0, false);
-        if (!Objects.equals(activeProfileTarget.getResolvedComponentName(),
+        if (!Objects.equals(
+                activeProfileTarget.getResolvedComponentName(),
                 inactiveProfileTarget.getResolvedComponentName())) {
             return false;
         }
+
         if (!shouldAutoLaunchSingleChoice(activeProfileTarget)) {
             return false;
         }
+
         String packageName = activeProfileTarget.getResolvedComponentName().getPackageName();
         if (!canAppInteractCrossProfiles(packageName)) {
             return false;
@@ -1882,10 +1913,8 @@ public class ResolverActivity extends FragmentActivity implements
             return;
         }
         mLastSelected = ListView.INVALID_POSITION;
-        ListView inactiveListView = (ListView) mMultiProfilePagerAdapter.getInactiveAdapterView();
-        if (inactiveListView.getCheckedItemCount() > 0) {
-            inactiveListView.setItemChecked(inactiveListView.getCheckedItemPosition(), false);
-        }
+        ((ResolverMultiProfilePagerAdapter) mMultiProfilePagerAdapter)
+                .clearCheckedItemsInInactiveProfiles();
     }
 
     private static int getAttrColor(Context context, int attr) {

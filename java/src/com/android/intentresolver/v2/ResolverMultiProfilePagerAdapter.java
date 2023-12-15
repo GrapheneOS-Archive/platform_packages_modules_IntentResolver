@@ -107,6 +107,15 @@ public class ResolverMultiProfilePagerAdapter extends
         mBottomPaddingOverrideSupplier.setUseLayoutWithDefault(useLayoutWithDefault);
     }
 
+    /** Un-check any item(s) that may be checked in any of our inactive adapter(s). */
+    public void clearCheckedItemsInInactiveProfiles() {
+        // TODO: apply to all inactive adapters; for now we just have the one.
+        ListView inactiveListView = getInactiveAdapterView();
+        if (inactiveListView.getCheckedItemCount() > 0) {
+            inactiveListView.setItemChecked(inactiveListView.getCheckedItemPosition(), false);
+        }
+    }
+
     private static class BottomPaddingOverrideSupplier implements Supplier<Optional<Integer>> {
         private boolean mUseLayoutWithDefault;
 
