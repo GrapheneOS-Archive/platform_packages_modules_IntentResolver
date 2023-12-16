@@ -1252,7 +1252,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 maxTargetsPerRow,
                 initialIntentsUserSpace,
                 targetDataLoader,
-                null);
+                null,
+                mFeatureFlags);
     }
 
     @Override

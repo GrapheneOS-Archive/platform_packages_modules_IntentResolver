@@ -35,7 +35,6 @@
         android:clipToPadding="false"
         android:background="?androidprv:attr/materialColorSurfaceContainer"
         android:scrollbars="none"
-        android:elevation="1dp"
         android:nestedScrollingEnabled="true" />
 
     <include layout="@layout/resolver_empty_states" />

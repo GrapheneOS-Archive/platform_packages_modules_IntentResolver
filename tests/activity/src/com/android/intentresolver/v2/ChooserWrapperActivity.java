@@ -40,7 +40,6 @@ import com.android.intentresolver.TestContentPreviewViewModel;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
-import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
@@ -107,7 +106,8 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
                 maxTargetsPerRow,
                 userHandle,
                 targetDataLoader,
-                null);
+                null,
+                mFeatureFlags);
     }
 
     @Override
@@ -117,17 +117,12 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
 
     @Override
     public ChooserListAdapter getPersonalListAdapter() {
-        return ((ChooserGridAdapter) mMultiProfilePagerAdapter.getAdapterForIndex(0))
-                .getListAdapter();
+        return mChooserMultiProfilePagerAdapter.getPersonalListAdapter();
     }
 
     @Override
     public ChooserListAdapter getWorkListAdapter() {
-        if (mMultiProfilePagerAdapter.getInactiveListAdapter() == null) {
-            return null;
-        }
-        return ((ChooserGridAdapter) mMultiProfilePagerAdapter.getAdapterForIndex(1))
-                .getListAdapter();
+        return mChooserMultiProfilePagerAdapter.getWorkListAdapter();
     }
 
     @Override

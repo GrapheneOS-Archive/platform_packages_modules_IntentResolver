@@ -934,8 +934,7 @@ public class ResolverActivity extends FragmentActivity implements
     }
 
     protected Unit onWorkProfileStatusUpdated() {
-        if (mMultiProfilePagerAdapter.getCurrentUserHandle().equals(
-                requireAnnotatedUserHandles().workProfileUserHandle)) {
+        if (mMultiProfilePagerAdapter.getActiveProfile() == PROFILE_WORK) {
             mMultiProfilePagerAdapter.rebuildActiveTab(true);
         } else {
             mMultiProfilePagerAdapter.clearInactiveProfileCache();
@@ -1358,7 +1357,8 @@ public class ResolverActivity extends FragmentActivity implements
         // In case of clonedProfile being active, we do not allow the 'Always' option in the
         // disambiguation dialog of Personal Profile as the package manager cannot distinguish
         // between cross-profile preferred activities.
-        if (hasCloneProfile() && (mMultiProfilePagerAdapter.getCurrentPage() == PROFILE_PERSONAL)) {
+        if (hasCloneProfile()
+                && (mMultiProfilePagerAdapter.getActiveProfile() == PROFILE_PERSONAL)) {
             mAlwaysButton.setEnabled(false);
             return;
         }

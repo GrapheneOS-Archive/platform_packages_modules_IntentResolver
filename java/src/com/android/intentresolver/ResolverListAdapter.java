@@ -25,7 +25,6 @@ import android.content.pm.ResolveInfo;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.RemoteException;
 import android.os.Trace;
@@ -930,7 +929,7 @@ public class ResolverListAdapter extends BaseAdapter {
     @VisibleForTesting
     public static class ViewHolder {
         public View itemView;
-        public Drawable defaultItemViewBackground;
+        public final Drawable defaultItemViewBackground;
 
         public TextView text;
         public TextView text2;
@@ -940,8 +939,6 @@ public class ResolverListAdapter extends BaseAdapter {
             text.setText("");
             text.setMaxLines(2);
             text.setMaxWidth(Integer.MAX_VALUE);
-            text.setBackground(null);
-            text.setPaddingRelative(0, 0, 0, 0);
 
             text2.setVisibility(View.GONE);
             text2.setText("");
@@ -982,10 +979,6 @@ public class ResolverListAdapter extends BaseAdapter {
             itemView.setContentDescription(null);
         }
 
-        public void updateContentDescription(String description) {
-            itemView.setContentDescription(description);
-        }
-
         /**
          * Bind view holder to a TargetInfo.
          */
@@ -997,20 +990,6 @@ public class ResolverListAdapter extends BaseAdapter {
             } else {
                 icon.setColorFilter(null);
             }
-        }
-
-        public void bindPlaceholder() {
-            itemView.setBackground(null);
-        }
-
-        public void bindGroupIndicator(Drawable indicator) {
-            text.setPaddingRelative(0, 0, /*end = */indicator.getIntrinsicWidth(), 0);
-            text.setBackground(indicator);
-        }
-
-        public void bindPinnedIndicator(Drawable indicator) {
-            text.setPaddingRelative(/*start = */indicator.getIntrinsicWidth(), 0, 0, 0);
-            text.setBackground(indicator);
         }
     }
 }
