@@ -259,7 +259,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 new AppPredictorFactory(
                         this,
                         mChooserRequest.getSharedText(),
-                        mChooserRequest.getTargetIntentFilter()),
+                        mChooserRequest.getTargetIntentFilter(),
+                        getPackageManager().getAppPredictionServicePackageName() != null),
                 mChooserRequest.getTargetIntentFilter());
 
 

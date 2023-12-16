@@ -131,6 +131,8 @@ import com.android.intentresolver.contentpreview.ImageLoader;
 import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.logging.FakeEventLog;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
+import com.android.intentresolver.v2.platform.AppPredictionAvailable;
+import com.android.intentresolver.v2.platform.AppPredictionModule;
 import com.android.intentresolver.v2.platform.ImageEditor;
 import com.android.intentresolver.v2.platform.ImageEditorModule;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
@@ -150,12 +152,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -165,16 +167,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Instrumentation tests for ChooserActivity.
  * <p>
  * Legacy test suite migrated from framework CoreTests.
  */
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @RunWith(Parameterized.class)
 @HiltAndroidTest
-@UninstallModules(ImageEditorModule.class)
+@UninstallModules({ImageEditorModule.class, AppPredictionModule.class})
 public class UnbundledChooserActivityTest {
 
     private static FakeEventLog getEventLog(ChooserWrapperActivity activity) {
@@ -186,22 +188,12 @@ public class UnbundledChooserActivityTest {
     private static final UserHandle WORK_PROFILE_USER_HANDLE = UserHandle.of(10);
     private static final UserHandle CLONE_PROFILE_USER_HANDLE = UserHandle.of(11);
 
-    private static final Function<PackageManager, PackageManager> DEFAULT_PM = pm -> pm;
-    private static final Function<PackageManager, PackageManager> NO_APP_PREDICTION_SERVICE_PM =
-            pm -> {
-                PackageManager mock = Mockito.spy(pm);
-                when(mock.getAppPredictionServicePackageName()).thenReturn(null);
-                return mock;
-            };
-
-    @Parameterized.Parameters
-    public static Collection packageManagers() {
-        return Arrays.asList(new Object[][] {
-                // Default PackageManager
-                { DEFAULT_PM },
-                // No App Prediction Service
-                { NO_APP_PREDICTION_SERVICE_PM}
-        });
+    @Parameters(name = "appPrediction={0}")
+    public static Iterable<?> parameters() {
+        return Arrays.asList(
+                /* appPredictionAvailable = */ true,
+                /* appPredictionAvailable = */ false
+        );
     }
 
     private static final String TEST_MIME_TYPE = "application/TestType";
@@ -233,8 +225,6 @@ public class UnbundledChooserActivityTest {
         mHiltAndroidRule.inject();
     }
 
-    private final Function<PackageManager, PackageManager> mPackageManagerOverride;
-
     /** An arbitrary pre-installed activity that handles this type of intent. */
     @BindValue
     @ImageEditor
@@ -242,9 +232,13 @@ public class UnbundledChooserActivityTest {
             ComponentName.unflattenFromString("com.google.android.apps.messaging/"
                     + ".ui.conversationlist.ShareIntentActivity"));
 
-    public UnbundledChooserActivityTest(
-                Function<PackageManager, PackageManager> packageManagerOverride) {
-        mPackageManagerOverride = packageManagerOverride;
+    /** Whether an AppPredictionService is available for use. */
+    @BindValue
+    @AppPredictionAvailable
+    final boolean mAppPredictionAvailable;
+
+    public UnbundledChooserActivityTest(boolean appPredictionAvailable) {
+        mAppPredictionAvailable = appPredictionAvailable;
     }
 
     private void setDeviceConfigProperty(
@@ -267,7 +261,6 @@ public class UnbundledChooserActivityTest {
 
     public void cleanOverrideData() {
         ChooserActivityOverrideData.getInstance().reset();
-        ChooserActivityOverrideData.getInstance().createPackageManager = mPackageManagerOverride;
 
         setDeviceConfigProperty(
                 SystemUiDeviceConfigFlags.APPLY_SHARING_APP_LIMITS_IN_SYSUI,

@@ -145,6 +145,7 @@ import com.android.intentresolver.v2.emptystate.NoAppsAvailableEmptyStateProvide
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
 import com.android.intentresolver.v2.emptystate.WorkProfilePausedEmptyStateProvider;
+import com.android.intentresolver.v2.platform.AppPredictionAvailable;
 import com.android.intentresolver.v2.platform.ImageEditor;
 import com.android.intentresolver.v2.platform.NearbyShare;
 import com.android.intentresolver.v2.ui.ActionTitle;
@@ -221,7 +222,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     protected static final int PROFILE_PERSONAL = MultiProfilePagerAdapter.PROFILE_PERSONAL;
     protected static final int PROFILE_WORK = MultiProfilePagerAdapter.PROFILE_WORK;
     private boolean mRegistered;
-    protected PackageManager mPm;
     private PackageMonitor mPersonalPackageMonitor;
     private PackageMonitor mWorkPackageMonitor;
     protected View mProfileView;
@@ -262,11 +262,12 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     @Inject public FeatureFlags mFeatureFlags;
     @Inject public EventLog mEventLog;
+    @Inject @AppPredictionAvailable public boolean mAppPredictionAvailable;
     @Inject @ImageEditor public Optional<ComponentName> mImageEditor;
     @Inject @NearbyShare public Optional<ComponentName> mNearbyShare;
     @Inject public TargetDataLoader mTargetDataLoader;
-
     @Inject public DevicePolicyResources mDevicePolicyResources;
+
     private ChooserRefinementManager mRefinementManager;
 
     private ChooserContentPreviewUi mChooserContentPreviewUi;
@@ -356,7 +357,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 new AppPredictorFactory(
                         this,
                         chooserRequest.getSharedText(),
-                        chooserRequest.getTargetIntentFilter()
+                        chooserRequest.getTargetIntentFilter(),
+                        mAppPredictionAvailable
                 ),
                 chooserRequest.getTargetIntentFilter()
         );
@@ -371,7 +373,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             return;
         }
 
-        mPm = getPackageManager();
         mChooserMultiProfilePagerAdapter = createMultiProfilePagerAdapter(
                 requireNonNullElse(initialIntents, emptyList()).toArray(new Intent[0]),
                 /* resolutionList = */ null,
@@ -2180,7 +2181,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
         return new ChooserListController(
                 this,
-                mPm,
+                getPackageManager(),
                 mLogic.getTargetIntent(),
                 mLogic.getReferrerPackageName(),
                 requireAnnotatedUserHandles().userIdOfCallingApp,
