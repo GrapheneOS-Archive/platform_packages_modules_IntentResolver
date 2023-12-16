@@ -345,22 +345,22 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         mShouldDisplayLandscape =
                 shouldDisplayLandscape(getResources().getConfiguration().orientation);
 
-
         ChooserRequestParameters chooserRequest = getChooserRequest();
-        if (chooserRequest != null) {
-            setRetainInOnStop(chooserRequest.shouldRetainInOnStop());
+        if (chooserRequest == null) {
+            finish();
+            return;
         }
-        ChooserRequestParameters chooserRequest1 = getChooserRequest();
-        if (chooserRequest1 != null) {
-            createProfileRecords(
-                    new AppPredictorFactory(
-                            this,
-                            chooserRequest1.getSharedText(),
-                            chooserRequest1.getTargetIntentFilter()
-                    ),
-                    chooserRequest1.getTargetIntentFilter()
-            );
-        }
+
+        setRetainInOnStop(chooserRequest.shouldRetainInOnStop());
+        createProfileRecords(
+                new AppPredictorFactory(
+                        this,
+                        chooserRequest.getSharedText(),
+                        chooserRequest.getTargetIntentFilter()
+                ),
+                chooserRequest.getTargetIntentFilter()
+        );
+
         Intent intent = mLogic.getTargetIntent();
         List<Intent> initialIntents = mLogic.getInitialIntents();
         TargetDataLoader targetDataLoader = mLogic.getTargetDataLoader();
@@ -431,11 +431,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                             : ""));
         }
 
-        if (getChooserRequest() == null) {
-            finish();
-            return;
-        }
-
         getEventLog().logSharesheetTriggered();
         mRefinementManager = new ViewModelProvider(this).get(ChooserRefinementManager.class);
         mRefinementManager.getRefinementCompletion().observe(this, completion -> {
@@ -465,11 +460,10 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         BasePreviewViewModel previewViewModel =
                 new ViewModelProvider(this, createPreviewViewModelFactory())
                         .get(BasePreviewViewModel.class);
-        ChooserRequestParameters chooserRequest2 = requireChooserRequest();
         mChooserContentPreviewUi = new ChooserContentPreviewUi(
                 getCoroutineScope(getLifecycle()),
-                previewViewModel.createOrReuseProvider(chooserRequest2.getTargetIntent()),
-                chooserRequest2.getTargetIntent(),
+                previewViewModel.createOrReuseProvider(chooserRequest.getTargetIntent()),
+                chooserRequest.getTargetIntent(),
                 previewViewModel.createOrReuseImageLoader(),
                 createChooserActionFactory(),
                 mEnterTransitionAnimationDelegate,
@@ -484,7 +478,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         mChooserShownTime = System.currentTimeMillis();
         final long systemCost = mChooserShownTime - mIntentReceivedTime.get();
         getEventLog().logChooserActivityShown(
-                isWorkProfile(), chooserRequest2.getTargetType(), systemCost);
+                isWorkProfile(), chooserRequest.getTargetType(), systemCost);
         if (mResolverDrawerLayout != null) {
             mResolverDrawerLayout.addOnLayoutChangeListener(this::handleLayoutChange);
 
@@ -499,15 +493,15 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         }
         getEventLog().logShareStarted(
                 mLogic.getReferrerPackageName(),
-                chooserRequest2.getTargetType(),
-                chooserRequest2.getCallerChooserTargets().size(),
-                (chooserRequest2.getInitialIntents() == null)
-                        ? 0 : chooserRequest2.getInitialIntents().length,
+                chooserRequest.getTargetType(),
+                chooserRequest.getCallerChooserTargets().size(),
+                (chooserRequest.getInitialIntents() == null)
+                        ? 0 : chooserRequest.getInitialIntents().length,
                 isWorkProfile(),
                 mChooserContentPreviewUi.getPreferredContentPreview(),
-                chooserRequest2.getTargetAction(),
-                chooserRequest2.getChooserActions().size(),
-                chooserRequest2.getModifyShareAction() != null
+                chooserRequest.getTargetAction(),
+                chooserRequest.getChooserActions().size(),
+                chooserRequest.getModifyShareAction() != null
         );
         mEnterTransitionAnimationDelegate.postponeTransition();
 
