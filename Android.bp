@@ -32,6 +32,8 @@ java_defaults {
     min_sdk_version: "current",
     lint: {
         strict_updatability_linting: false,
+        extra_check_modules: ["SystemUILintChecker"],
+        warning_checks: ["MissingApacheLicenseDetector"],
     },
 }
 

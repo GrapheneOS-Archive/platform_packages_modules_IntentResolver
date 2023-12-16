@@ -107,6 +107,17 @@ public class ResolverMultiProfilePagerAdapter extends
         mBottomPaddingOverrideSupplier.setUseLayoutWithDefault(useLayoutWithDefault);
     }
 
+    /** Un-check any item(s) that may be checked in any of our inactive adapter(s). */
+    public void clearCheckedItemsInInactiveProfiles() {
+        // TODO: The "inactive" condition is legacy logic. Could we simplify and clear-all?
+        forEachInactivePage(pageNumber -> {
+            ListView inactiveListView = getListViewForIndex(pageNumber);
+            if (inactiveListView.getCheckedItemCount() > 0) {
+                inactiveListView.setItemChecked(inactiveListView.getCheckedItemPosition(), false);
+            }
+        });
+    }
+
     private static class BottomPaddingOverrideSupplier implements Supplier<Optional<Integer>> {
         private boolean mUseLayoutWithDefault;
 

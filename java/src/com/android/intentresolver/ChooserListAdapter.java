@@ -54,6 +54,7 @@ import com.android.intentresolver.chooser.SelectableTargetInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.logging.EventLog;
+import com.android.intentresolver.widget.BadgeTextView;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 
@@ -67,6 +68,17 @@ import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 public class ChooserListAdapter extends ResolverListAdapter {
+
+    /**
+     * Delegate interface for injecting a chooser-specific operation to be performed before handling
+     * a package-change event. This allows the "driver" invoking the package-change to be generic,
+     * with no knowledge specific to the chooser implementation.
+     */
+    public interface PackageChangeCallback {
+        /** Perform any steps necessary before processing the package-change event. */
+        void beforeHandlingPackagesChanged();
+    }
+
     private static final String TAG = "ChooserListAdapter";
     private static final boolean DEBUG = false;
 
@@ -84,16 +96,21 @@ public class ChooserListAdapter extends ResolverListAdapter {
     /** {@link #getBaseScore} */
     public static final float SHORTCUT_TARGET_SCORE_BOOST = 90.f;
 
-    private final ChooserRequestParameters mChooserRequest;
+    private final Intent mReferrerFillInIntent;
+
     private final int mMaxRankedTargets;
 
     private final EventLog mEventLog;
 
     private final Set<TargetInfo> mRequestedIcons = new HashSet<>();
 
+    @Nullable
+    private final PackageChangeCallback mPackageChangeCallback;
+
     // Reserve spots for incoming direct share targets by adding placeholders
     private final TargetInfo mPlaceHolderTargetInfo;
     private final TargetDataLoader mTargetDataLoader;
+    private final boolean mUseBadgeTextViewForLabels;
     private final List<TargetInfo> mServiceTargets = new ArrayList<>();
     private final List<DisplayResolveInfo> mCallerTargets = new ArrayList<>();
 
@@ -144,13 +161,15 @@ public class ChooserListAdapter extends ResolverListAdapter {
             ResolverListController resolverListController,
             UserHandle userHandle,
             Intent targetIntent,
+            Intent referrerFillInIntent,
             ResolverListCommunicator resolverListCommunicator,
             PackageManager packageManager,
             EventLog eventLog,
-            ChooserRequestParameters chooserRequest,
             int maxRankedTargets,
             UserHandle initialIntentsUserSpace,
-            TargetDataLoader targetDataLoader) {
+            TargetDataLoader targetDataLoader,
+            @Nullable PackageChangeCallback packageChangeCallback,
+            FeatureFlags featureFlags) {
         this(
                 context,
                 payloadIntents,
@@ -160,15 +179,17 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 resolverListController,
                 userHandle,
                 targetIntent,
+                referrerFillInIntent,
                 resolverListCommunicator,
                 packageManager,
                 eventLog,
-                chooserRequest,
                 maxRankedTargets,
                 initialIntentsUserSpace,
                 targetDataLoader,
+                packageChangeCallback,
                 AsyncTask.SERIAL_EXECUTOR,
-                context.getMainExecutor());
+                context.getMainExecutor(),
+                featureFlags);
     }
 
     @VisibleForTesting
@@ -181,15 +202,17 @@ public class ChooserListAdapter extends ResolverListAdapter {
             ResolverListController resolverListController,
             UserHandle userHandle,
             Intent targetIntent,
+            Intent referrerFillInIntent,
             ResolverListCommunicator resolverListCommunicator,
             PackageManager packageManager,
             EventLog eventLog,
-            ChooserRequestParameters chooserRequest,
             int maxRankedTargets,
             UserHandle initialIntentsUserSpace,
             TargetDataLoader targetDataLoader,
+            @Nullable PackageChangeCallback packageChangeCallback,
             Executor bgExecutor,
-            Executor mainExecutor) {
+            Executor mainExecutor,
+            FeatureFlags featureFlags) {
         // Don't send the initial intents through the shared ResolverActivity path,
         // we want to separate them into a different section.
         super(
@@ -207,11 +230,13 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 bgExecutor,
                 mainExecutor);
 
-        mChooserRequest = chooserRequest;
         mMaxRankedTargets = maxRankedTargets;
+        mReferrerFillInIntent = referrerFillInIntent;
 
         mPlaceHolderTargetInfo = NotSelectableTargetInfo.newPlaceHolderTargetInfo(context);
         mTargetDataLoader = targetDataLoader;
+        mPackageChangeCallback = packageChangeCallback;
+        mUseBadgeTextViewForLabels = featureFlags.bespokeLabelView();
         createPlaceHolders();
         mEventLog = eventLog;
         mShortcutSelectionLogic = new ShortcutSelectionLogic(
@@ -284,6 +309,9 @@ public class ChooserListAdapter extends ResolverListAdapter {
 
     @Override
     public void handlePackagesChanged() {
+        if (mPackageChangeCallback != null) {
+            mPackageChangeCallback.beforeHandlingPackagesChanged();
+        }
         if (DEBUG) {
             Log.d(TAG, "clearing queryTargets on package change");
         }
@@ -310,7 +338,12 @@ public class ChooserListAdapter extends ResolverListAdapter {
 
     @Override
     View onCreateView(ViewGroup parent) {
-        return mInflater.inflate(R.layout.resolve_grid_item, parent, false);
+        return mInflater.inflate(
+                mUseBadgeTextViewForLabels
+                        ? R.layout.chooser_grid_item
+                        : R.layout.resolve_grid_item,
+                parent,
+                false);
     }
 
     @VisibleForTesting
@@ -318,7 +351,7 @@ public class ChooserListAdapter extends ResolverListAdapter {
     public void onBindView(View view, TargetInfo info, int position) {
         final ViewHolder holder = (ViewHolder) view.getTag();
 
-        holder.reset();
+        resetViewHolder(holder);
         // Always remove the spacing listener, attach as needed to direct share targets below.
         holder.text.removeOnLayoutChangeListener(mPinTextSpacingListener);
 
@@ -355,16 +388,18 @@ public class ChooserListAdapter extends ResolverListAdapter {
                     contentDescription,
                     mContext.getResources().getString(R.string.pinned));
             }
-            holder.updateContentDescription(contentDescription);
+            updateContentDescription(holder, contentDescription);
             if (!info.hasDisplayIcon()) {
                 loadDirectShareIcon((SelectableTargetInfo) info);
             }
         } else if (info.isDisplayResolveInfo()) {
             if (info.isPinned()) {
-                holder.updateContentDescription(String.join(
-                        ". ",
-                        info.getDisplayLabel(),
-                        mContext.getResources().getString(R.string.pinned)));
+                updateContentDescription(
+                        holder,
+                        String.join(
+                                ". ",
+                                info.getDisplayLabel(),
+                                mContext.getResources().getString(R.string.pinned)));
             }
             DisplayResolveInfo dri = (DisplayResolveInfo) info;
             if (!dri.hasDisplayIcon()) {
@@ -376,20 +411,54 @@ public class ChooserListAdapter extends ResolverListAdapter {
         }
 
         if (info.isPlaceHolderTargetInfo()) {
-            holder.bindPlaceholder();
+            bindPlaceholder(holder);
         }
 
         if (info.isMultiDisplayResolveInfo()) {
             // If the target is grouped show an indicator
-            holder.bindGroupIndicator(
+            bindGroupIndicator(
+                    holder,
                     mContext.getDrawable(R.drawable.chooser_group_background));
         } else if (info.isPinned() && (getPositionTargetType(position) == TARGET_STANDARD
                 || getPositionTargetType(position) == TARGET_SERVICE)) {
             // If the appShare or directShare target is pinned and in the suggested row show a
             // pinned indicator
-            holder.bindPinnedIndicator(mContext.getDrawable(R.drawable.chooser_pinned_background));
+            bindPinnedIndicator(holder, mContext.getDrawable(R.drawable.chooser_pinned_background));
             holder.text.addOnLayoutChangeListener(mPinTextSpacingListener);
         }
+    }
+
+    private void resetViewHolder(ViewHolder holder) {
+        holder.reset();
+        holder.itemView.setBackground(holder.defaultItemViewBackground);
+
+        if (mUseBadgeTextViewForLabels) {
+            ((BadgeTextView) holder.text).setBadgeDrawable(null);
+        }
+        holder.text.setBackground(null);
+        holder.text.setPaddingRelative(0, 0, 0, 0);
+    }
+
+    private void updateContentDescription(ViewHolder holder, String description) {
+        holder.itemView.setContentDescription(description);
+    }
+
+    private void bindPlaceholder(ViewHolder holder) {
+        holder.itemView.setBackground(null);
+    }
+
+    private void bindGroupIndicator(ViewHolder holder, Drawable indicator) {
+        if (mUseBadgeTextViewForLabels) {
+            ((BadgeTextView) holder.text).setBadgeDrawable(indicator);
+        } else {
+            holder.text.setPaddingRelative(0, 0, /*end = */indicator.getIntrinsicWidth(), 0);
+            holder.text.setBackground(indicator);
+        }
+    }
+
+    private void bindPinnedIndicator(ViewHolder holder, Drawable indicator) {
+        holder.text.setPaddingRelative(/*start = */indicator.getIntrinsicWidth(), 0, 0, 0);
+        holder.text.setBackground(indicator);
     }
 
     private void loadDirectShareIcon(SelectableTargetInfo info) {
@@ -497,8 +566,14 @@ public class ChooserListAdapter extends ResolverListAdapter {
         return count;
     }
 
+    private static boolean hasSendAction(Intent intent) {
+        String action = intent.getAction();
+        return Intent.ACTION_SEND.equals(action)
+                || Intent.ACTION_SEND_MULTIPLE.equals(action);
+    }
+
     public int getServiceTargetCount() {
-        if (mChooserRequest.isSendActionTarget() && !ActivityManager.isLowRamDeviceStatic()) {
+        if (hasSendAction(getTargetIntent()) && !ActivityManager.isLowRamDeviceStatic()) {
             return Math.min(mServiceTargets.size(), mMaxRankedTargets);
         }
 
@@ -653,8 +728,8 @@ public class ChooserListAdapter extends ResolverListAdapter {
                 directShareToShortcutInfos,
                 directShareToAppTargets,
                 mContext.createContextAsUser(getUserHandle(), 0),
-                mChooserRequest.getTargetIntent(),
-                mChooserRequest.getReferrerFillInIntent(),
+                getTargetIntent(),
+                mReferrerFillInIntent,
                 mMaxRankedTargets,
                 mServiceTargets);
         if (isUpdated) {

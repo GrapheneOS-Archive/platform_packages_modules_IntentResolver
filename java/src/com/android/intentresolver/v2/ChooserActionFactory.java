@@ -35,7 +35,6 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
-import com.android.intentresolver.ChooserRequestParameters;
 import com.android.intentresolver.R;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
@@ -109,7 +108,6 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
 
     /**
      * @param context
-     * @param chooserRequest data about the invocation of the current Sharesheet session.
      * @param imageEditor an explicit Activity to launch for editing images
      * @param onUpdateSharedTextIsExcluded a delegate to be invoked when the "exclude shared text"
      * setting is updated. The argument is whether the shared text is to be excluded.
@@ -121,7 +119,10 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
      */
     public ChooserActionFactory(
             Context context,
-            ChooserRequestParameters chooserRequest,
+            Intent targetIntent,
+            String referrerPackageName,
+            List<ChooserAction> chooserActions,
+            ChooserAction modifyShareAction,
             Optional<ComponentName> imageEditor,
             EventLog log,
             Consumer<Boolean> onUpdateSharedTextIsExcluded,
@@ -132,20 +133,20 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
                 context,
                 makeCopyButtonRunnable(
                         context,
-                        chooserRequest.getTargetIntent(),
-                        chooserRequest.getReferrerPackageName(),
+                        targetIntent,
+                        referrerPackageName,
                         finishCallback,
                         log),
                 makeEditButtonRunnable(
                         getEditSharingTarget(
                                 context,
-                                chooserRequest.getTargetIntent(),
+                                targetIntent,
                                 imageEditor),
                         firstVisibleImageQuery,
                         activityStarter,
                         log),
-                chooserRequest.getChooserActions(),
-                chooserRequest.getModifyShareAction(),
+                chooserActions,
+                modifyShareAction,
                 onUpdateSharedTextIsExcluded,
                 log,
                 finishCallback);
