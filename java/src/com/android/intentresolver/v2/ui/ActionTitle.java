@@ -21,7 +21,6 @@ import android.provider.MediaStore;
 import androidx.annotation.StringRes;
 
 import com.android.intentresolver.R;
-import com.android.intentresolver.v2.ResolverActivity;
 
 /**
  * Provides a set of related resources for different use cases.

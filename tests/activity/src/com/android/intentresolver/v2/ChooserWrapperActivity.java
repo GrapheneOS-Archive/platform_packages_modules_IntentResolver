@@ -40,6 +40,7 @@ import com.android.intentresolver.TestContentPreviewViewModel;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
+import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
@@ -56,15 +57,13 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
     private UsageStatsManager mUsm;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setLogic(new TestChooserActivityLogic(
+    protected final ActivityLogic createActivityLogic() {
+        return new TestChooserActivityLogic(
                         "ChooserWrapper",
-                        () -> this,
+                        /* activity = */ this,
                         this::onWorkProfileStatusUpdated,
-                        () -> mTargetDataLoader,
-                        this::onPreinitialization,
-                        sOverrides));
+                        mTargetDataLoader,
+                        sOverrides);
     }
 
     // ResolverActivity (the base class of ChooserActivity) inspects the launched-from UID at
@@ -233,7 +232,7 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
 
     @Override
     public UserHandle getCurrentUserHandle() {
-        return mMultiProfilePagerAdapter.getCurrentUserHandle();
+        return mChooserMultiProfilePagerAdapter.getCurrentUserHandle();
     }
 
     @Override

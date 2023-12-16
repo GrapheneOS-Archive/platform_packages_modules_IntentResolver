@@ -32,7 +32,6 @@ import com.android.intentresolver.R;
 import com.android.intentresolver.emptystate.EmptyStateProvider;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.measurements.Tracer;
-import com.android.internal.annotations.VisibleForTesting;
 
 import com.google.common.collect.ImmutableList;
 
@@ -42,7 +41,6 @@ import java.util.function.Supplier;
 /**
  * A {@link PagerAdapter} which describes the work and personal profile share sheet screens.
  */
-@VisibleForTesting
 public class ChooserMultiProfilePagerAdapter extends MultiProfilePagerAdapter<
         RecyclerView, ChooserGridAdapter, ChooserListAdapter> {
     private static final int SINGLE_CELL_SPAN_SIZE = 1;

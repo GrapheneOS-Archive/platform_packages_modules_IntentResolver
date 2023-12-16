@@ -3,7 +3,6 @@ package com.android.intentresolver.v2
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.annotation.OpenForTesting
-import com.android.intentresolver.R
 import com.android.intentresolver.icons.DefaultTargetDataLoader
 import com.android.intentresolver.icons.TargetDataLoader
 import com.android.intentresolver.v2.util.mutableLazy
@@ -12,17 +11,17 @@ import com.android.intentresolver.v2.util.mutableLazy
 @OpenForTesting
 open class ResolverActivityLogic(
     tag: String,
-    activityProvider: () -> ComponentActivity,
+    activity: ComponentActivity,
     onWorkProfileStatusUpdated: () -> Unit,
 ) :
     ActivityLogic,
     CommonActivityLogic by CommonActivityLogicImpl(
         tag,
-        activityProvider,
+        activity,
         onWorkProfileStatusUpdated,
     ) {
 
-    override val targetIntent: Intent by lazy {
+    final override val targetIntent: Intent = let {
         val intent = Intent(activity.intent)
         intent.setComponent(null)
         // The resolver activity is set to be hidden from recent tasks.
@@ -40,10 +39,9 @@ open class ResolverActivityLogic(
         intent
     }
 
-    override val resolvingHome: Boolean by lazy {
+    override val resolvingHome: Boolean =
         targetIntent.action == Intent.ACTION_MAIN &&
-            targetIntent.categories.singleOrNull() == Intent.CATEGORY_HOME
-    }
+        targetIntent.categories.singleOrNull() == Intent.CATEGORY_HOME
 
     override val title: CharSequence? = null
 
@@ -51,31 +49,14 @@ open class ResolverActivityLogic(
 
     override val initialIntents: List<Intent>? = null
 
-    override val supportsAlwaysUseOption: Boolean = true
+    override val targetDataLoader: TargetDataLoader = DefaultTargetDataLoader(
+        activity,
+        activity.lifecycle,
+        activity.intent.getBooleanExtra(
+            ResolverActivity.EXTRA_IS_AUDIO_CAPTURE_DEVICE,
+            /* defaultValue = */ false,
+        ),
+    )
 
-    override val targetDataLoader: TargetDataLoader by lazy {
-        DefaultTargetDataLoader(
-            activity,
-            activity.lifecycle,
-            activity.intent.getBooleanExtra(
-                ResolverActivity.EXTRA_IS_AUDIO_CAPTURE_DEVICE,
-                /* defaultValue = */ false,
-            ),
-        )
-    }
-
-    override val themeResId: Int = R.style.Theme_DeviceDefault_Resolver
-
-    private val _profileSwitchMessage = mutableLazy { forwardMessageFor(targetIntent) }
-    override val profileSwitchMessage: String? by _profileSwitchMessage
-
-    override val payloadIntents: List<Intent> by lazy { listOf(targetIntent) }
-
-    override fun preInitialization() {
-        // Do nothing
-    }
-
-    override fun clearProfileSwitchMessage() {
-        _profileSwitchMessage.setLazy(null)
-    }
+    override val payloadIntents: List<Intent> = listOf(targetIntent)
 }

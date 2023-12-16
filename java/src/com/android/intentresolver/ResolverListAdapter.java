@@ -476,9 +476,6 @@ public class ResolverListAdapter extends BaseAdapter {
             @Nullable List<ResolvedComponentInfo> sortedComponents, boolean doPostProcessing) {
         processSortedList(sortedComponents, doPostProcessing);
         notifyDataSetChanged();
-        if (doPostProcessing) {
-            mResolverListCommunicator.updateProfileViewButton();
-        }
     }
 
     protected void processSortedList(
@@ -650,6 +647,7 @@ public class ResolverListAdapter extends BaseAdapter {
         return null;
     }
 
+    @Override
     public int getCount() {
         int totalSize = mDisplayList == null || mDisplayList.isEmpty() ? mPlaceholderCount :
                 mDisplayList.size();
@@ -663,6 +661,7 @@ public class ResolverListAdapter extends BaseAdapter {
         return mDisplayList.size();
     }
 
+    @Override
     @Nullable
     public TargetInfo getItem(int position) {
         if (mFilterLastUsed && mLastChosenPosition >= 0 && position >= mLastChosenPosition) {
@@ -675,6 +674,7 @@ public class ResolverListAdapter extends BaseAdapter {
         }
     }
 
+    @Override
     public long getItemId(int position) {
         return position;
     }
@@ -692,6 +692,7 @@ public class ResolverListAdapter extends BaseAdapter {
         return mDisplayList.get(index);
     }
 
+    @Override
     public final View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
         if (view == null) {
@@ -752,9 +753,7 @@ public class ResolverListAdapter extends BaseAdapter {
     }
 
     private void onIconLoaded(DisplayResolveInfo displayResolveInfo, Drawable drawable) {
-        if (getOtherProfile() == displayResolveInfo) {
-            mResolverListCommunicator.updateProfileViewButton();
-        } else if (!displayResolveInfo.hasDisplayIcon()) {
+        if (!displayResolveInfo.hasDisplayIcon()) {
             displayResolveInfo.getDisplayIconHolder().setDisplayIcon(drawable);
             notifyDataSetChanged();
         }
@@ -902,14 +901,18 @@ public class ResolverListAdapter extends BaseAdapter {
 
         Intent getReplacementIntent(ActivityInfo activityInfo, Intent defIntent);
 
+        // ResolverListCommunicator
+        default void updateProfileViewButton() {
+        }
+
         void onPostListReady(ResolverListAdapter listAdapter, boolean updateUi,
                 boolean rebuildCompleted);
 
         void sendVoiceChoicesIfNeeded();
 
-        void updateProfileViewButton();
-
-        boolean useLayoutWithDefault();
+        default boolean useLayoutWithDefault() {
+            return false;
+        }
 
         boolean shouldGetActivityMetadata();
 
@@ -917,7 +920,9 @@ public class ResolverListAdapter extends BaseAdapter {
          * @return true to filter only apps that can handle
          *     {@link android.content.Intent#CATEGORY_DEFAULT} intents
          */
-        default boolean shouldGetOnlyDefaultActivities() { return true; };
+        default boolean shouldGetOnlyDefaultActivities() {
+            return true;
+        }
 
         void onHandlePackagesChanged(ResolverListAdapter listAdapter);
     }

@@ -25,8 +25,10 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
 import static com.android.intentresolver.MatcherUtils.first;
 import static com.android.intentresolver.v2.ResolverWrapperActivity.sOverrides;
+
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -58,7 +60,11 @@ import com.android.intentresolver.R;
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.ResolverDataProvider;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
+
 import com.google.android.collect.Lists;
+
+import dagger.hilt.android.testing.HiltAndroidRule;
+import dagger.hilt.android.testing.HiltAndroidTest;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -74,6 +80,7 @@ import java.util.List;
  * Resolver activity instrumentation tests
  */
 @RunWith(AndroidJUnit4.class)
+@HiltAndroidTest
 public class ResolverActivityTest {
 
     private static final UserHandle PERSONAL_USER_HANDLE = androidx.test.platform.app
@@ -88,7 +95,10 @@ public class ResolverActivityTest {
         return clientIntent;
     }
 
-    @Rule
+    @Rule(order = 0)
+    public HiltAndroidRule mHiltAndroidRule = new HiltAndroidRule(this);
+
+    @Rule(order = 1)
     public ActivityTestRule<ResolverWrapperActivity> mActivityRule =
             new ActivityTestRule<>(ResolverWrapperActivity.class, false, false);
 

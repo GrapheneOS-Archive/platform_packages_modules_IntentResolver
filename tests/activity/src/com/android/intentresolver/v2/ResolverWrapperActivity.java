@@ -60,22 +60,17 @@ public class ResolverWrapperActivity extends ResolverActivity {
     private final CountingIdlingResource mLabelIdlingResource =
             new CountingIdlingResource("LoadLabelTask");
 
-    public ResolverWrapperActivity() {
-        super(/* isIntentPicker= */ true);
-    }
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setLogic(new TestResolverActivityLogic(
+    protected final ActivityLogic createActivityLogic() {
+        return new TestResolverActivityLogic(
                 "ResolverWrapper",
-                () -> this,
+                this,
                 () -> {
                     onWorkProfileStatusUpdated();
                     return Unit.INSTANCE;
                 },
                 sOverrides
-        ));
+        );
     }
 
     public CountingIdlingResource getLabelIdlingResource() {

@@ -27,8 +27,6 @@ class FakeResolverListCommunicator(private val layoutWithDefaults: Boolean = tru
 
     val sendVoiceCommandCount
         get() = sendVoiceCounter.get()
-    val updateProfileViewButtonCount
-        get() = updateProfileViewButtonCounter.get()
 
     override fun getReplacementIntent(activityInfo: ActivityInfo?, defIntent: Intent): Intent {
         return defIntent
@@ -42,10 +40,6 @@ class FakeResolverListCommunicator(private val layoutWithDefaults: Boolean = tru
 
     override fun sendVoiceChoicesIfNeeded() {
         sendVoiceCounter.incrementAndGet()
-    }
-
-    override fun updateProfileViewButton() {
-        updateProfileViewButtonCounter.incrementAndGet()
     }
 
     override fun useLayoutWithDefault(): Boolean = layoutWithDefaults

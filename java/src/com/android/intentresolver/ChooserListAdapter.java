@@ -791,9 +791,6 @@ public class ChooserListAdapter extends ResolverListAdapter {
             @Nullable List<ResolvedComponentInfo> sortedComponents, boolean doPostProcessing) {
         processSortedList(sortedComponents, doPostProcessing);
         if (doPostProcessing) {
-            mResolverListCommunicator.updateProfileViewButton();
-            //TODO: this method is different from super's only in that `notifyDataSetChanged` is
-            // called conditionally here; is it really important?
             notifyDataSetChanged();
         }
     }

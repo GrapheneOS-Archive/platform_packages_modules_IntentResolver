@@ -8,18 +8,16 @@ import com.android.intentresolver.icons.TargetDataLoader
 /** Activity logic for use when testing [ChooserActivity]. */
 class TestChooserActivityLogic(
     tag: String,
-    activityProvider: () -> ComponentActivity,
+    activity: ComponentActivity,
     onWorkProfileStatusUpdated: () -> Unit,
-    targetDataLoaderProvider: () -> TargetDataLoader,
-    onPreinitialization: () -> Unit,
+    targetDataLoader: TargetDataLoader,
     private val overrideData: ChooserActivityOverrideData,
 ) :
     ChooserActivityLogic(
         tag,
-        activityProvider,
+        activity,
         onWorkProfileStatusUpdated,
-        targetDataLoaderProvider,
-        onPreinitialization,
+        targetDataLoader,
     ) {
 
     override val annotatedUserHandles: AnnotatedUserHandles? by lazy {
