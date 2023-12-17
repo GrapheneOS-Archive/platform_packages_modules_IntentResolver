@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.annotation.OpenForTesting
 import com.android.intentresolver.ChooserRequestParameters
-import com.android.intentresolver.R
 import com.android.intentresolver.icons.TargetDataLoader
 import com.android.intentresolver.v2.util.mutableLazy
 
@@ -22,49 +21,18 @@ private const val TAG = "ChooserActivityLogic"
 @OpenForTesting
 open class ChooserActivityLogic(
     tag: String,
-    activityProvider: () -> ComponentActivity,
+    activity: ComponentActivity,
     onWorkProfileStatusUpdated: () -> Unit,
-    targetDataLoaderProvider: () -> TargetDataLoader,
-    private val onPreInitialization: () -> Unit,
+    override val targetDataLoader: TargetDataLoader,
 ) :
     ActivityLogic,
     CommonActivityLogic by CommonActivityLogicImpl(
         tag,
-        activityProvider,
+        activity,
         onWorkProfileStatusUpdated,
     ) {
 
-    override val targetIntent: Intent by lazy { chooserRequestParameters?.targetIntent ?: Intent() }
-
-    override val resolvingHome: Boolean = false
-
-    override val title: CharSequence? by lazy { chooserRequestParameters?.title }
-
-    override val defaultTitleResId: Int by lazy {
-        chooserRequestParameters?.defaultTitleResource ?: 0
-    }
-
-    override val initialIntents: List<Intent>? by lazy {
-        chooserRequestParameters?.initialIntents?.toList()
-    }
-
-    override val supportsAlwaysUseOption: Boolean = false
-
-    override val targetDataLoader: TargetDataLoader by lazy { targetDataLoaderProvider() }
-
-    override val themeResId: Int = R.style.Theme_DeviceDefault_Chooser
-
-    private val _profileSwitchMessage = mutableLazy { forwardMessageFor(targetIntent) }
-    override val profileSwitchMessage: String? by _profileSwitchMessage
-
-    override val payloadIntents: List<Intent> by lazy {
-        buildList {
-            add(targetIntent)
-            chooserRequestParameters?.additionalTargets?.let { addAll(it) }
-        }
-    }
-
-    val chooserRequestParameters: ChooserRequestParameters? by lazy {
+    val chooserRequestParameters: ChooserRequestParameters? =
         try {
             ChooserRequestParameters(
                 (activity as Activity).intent,
@@ -75,13 +43,19 @@ open class ChooserActivityLogic(
             Log.e(tag, "Caller provided invalid Chooser request parameters", e)
             null
         }
-    }
 
-    override fun preInitialization() {
-        onPreInitialization()
-    }
+    override val targetIntent: Intent = chooserRequestParameters?.targetIntent ?: Intent()
 
-    override fun clearProfileSwitchMessage() {
-        _profileSwitchMessage.setLazy(null)
+    override val resolvingHome: Boolean = false
+
+    override val title: CharSequence? = chooserRequestParameters?.title
+
+    override val defaultTitleResId: Int = chooserRequestParameters?.defaultTitleResource ?: 0
+
+    override val initialIntents: List<Intent>? = chooserRequestParameters?.initialIntents?.toList()
+
+    override val payloadIntents: List<Intent> = buildList {
+        add(targetIntent)
+        chooserRequestParameters?.additionalTargets?.let { addAll(it) }
     }
 }

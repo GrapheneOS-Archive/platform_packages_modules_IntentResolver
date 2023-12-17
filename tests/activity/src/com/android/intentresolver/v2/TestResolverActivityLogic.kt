@@ -7,10 +7,10 @@ import com.android.intentresolver.WorkProfileAvailabilityManager
 /** Activity logic for use when testing [ResolverActivity]. */
 class TestResolverActivityLogic(
     tag: String,
-    activityProvider: () -> ComponentActivity,
+    activity: ComponentActivity,
     onWorkProfileStatusUpdated: () -> Unit,
     private val overrideData: ResolverWrapperActivity.OverrideData,
-) : ResolverActivityLogic(tag, activityProvider, onWorkProfileStatusUpdated) {
+) : ResolverActivityLogic(tag, activity, onWorkProfileStatusUpdated) {
 
     override val annotatedUserHandles: AnnotatedUserHandles? by lazy {
         overrideData.annotatedUserHandles
