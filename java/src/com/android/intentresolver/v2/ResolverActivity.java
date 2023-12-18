@@ -774,6 +774,31 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     }
 
     /**
+     * Callback called when user changes the profile tab.
+     */
+    /* TODO: consider merging with the customized considerations of our implemented
+     * {@link MultiProfilePagerAdapter.OnProfileSelectedListener}. The only apparent distinctions
+     * between the respective listener callbacks would occur in the triggering patterns during init
+     * (when the `OnProfileSelectedListener` is registered after a possible tab-change), or possibly
+     * if there's some way to trigger an update in one model but not the other.  If there's an
+     * initialization dependency, we can probably reason about it with confidence. If there's a
+     * discrepancy between the `TabHost` and pager-adapter data models, that inconsistency is
+     * likely to be a bug that would benefit from consolidation.
+     */
+    protected void onProfileTabSelected(int currentPage) {
+        setupViewVisibilities();
+        maybeLogProfileChange();
+        if (hasWorkProfile()) {
+            // The device policy logger is only concerned with sessions that include a work profile.
+            DevicePolicyEventLogger
+                    .createEvent(DevicePolicyEnums.RESOLVER_SWITCH_TABS)
+                    .setInt(currentPage)
+                    .setStrings(getMetricsCategory())
+                    .write();
+        }
+    }
+
+    /**
      * Add a label to signify that the user can pick a different app.
      * @param adapter The adapter used to provide data to item views.
      */
@@ -1717,14 +1742,6 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                 .clearCheckedItemsInInactiveProfiles();
     }
 
-    private void updateActiveTabStyle(TabHost tabHost) {
-        int currentTab = tabHost.getCurrentTab();
-        TextView selected = (TextView) tabHost.getTabWidget().getChildAt(currentTab);
-        TextView unselected = (TextView) tabHost.getTabWidget().getChildAt(1 - currentTab);
-        selected.setSelected(true);
-        unselected.setSelected(false);
-    }
-
     private void setupViewVisibilities() {
         ResolverListAdapter activeListAdapter = mMultiProfilePagerAdapter.getActiveListAdapter();
         if (!mMultiProfilePagerAdapter.shouldShowEmptyStateScreen(activeListAdapter)) {
@@ -1906,22 +1923,25 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
 
         TabWidget tabWidget = tabHost.getTabWidget();
         tabWidget.setVisibility(View.VISIBLE);
-        updateActiveTabStyle(tabHost);
+
+        Runnable updateActiveTabStyle = () -> {
+            int currentTab = tabHost.getCurrentTab();
+            TextView selected = (TextView) tabHost.getTabWidget().getChildAt(currentTab);
+            TextView unselected = (TextView) tabHost.getTabWidget().getChildAt(1 - currentTab);
+            selected.setSelected(true);
+            unselected.setSelected(false);
+        };
+
+        updateActiveTabStyle.run();
 
         tabHost.setOnTabChangedListener(tabId -> {
-            updateActiveTabStyle(tabHost);
+            updateActiveTabStyle.run();
             if (TAB_TAG_PERSONAL.equals(tabId)) {
                 viewPager.setCurrentItem(0);
             } else {
                 viewPager.setCurrentItem(1);
             }
-            setupViewVisibilities();
-            maybeLogProfileChange();
-            DevicePolicyEventLogger
-                    .createEvent(DevicePolicyEnums.RESOLVER_SWITCH_TABS)
-                    .setInt(viewPager.getCurrentItem())
-                    .setStrings(getMetricsCategory())
-                    .write();
+            onProfileTabSelected(viewPager.getCurrentItem());
         });
 
         viewPager.setVisibility(View.VISIBLE);
@@ -1929,8 +1949,8 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         mMultiProfilePagerAdapter.setOnProfileSelectedListener(
                 new MultiProfilePagerAdapter.OnProfileSelectedListener() {
                     @Override
-                    public void onProfileSelected(int index) {
-                        tabHost.setCurrentTab(index);
+                    public void onProfilePageSelected(@Profile int profileId, int pageNumber) {
+                        tabHost.setCurrentTab(pageNumber);
                         resetButtonBar();
                         resetCheckedItem();
                     }
