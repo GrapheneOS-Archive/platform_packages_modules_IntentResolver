@@ -172,14 +172,6 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
     }
 
     @Override
-    public PackageManager getPackageManager() {
-        if (sOverrides.createPackageManager != null) {
-            return sOverrides.createPackageManager.apply(super.getPackageManager());
-        }
-        return super.getPackageManager();
-    }
-
-    @Override
     public Resources getResources() {
         if (sOverrides.resources != null) {
             return sOverrides.resources;

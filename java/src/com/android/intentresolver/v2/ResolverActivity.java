@@ -151,7 +151,6 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     private PickTargetOptionRequest mPickOptionRequest;
     // Expected to be true if this object is ResolverActivity or is ResolverWrapperActivity.
     protected ResolverDrawerLayout mResolverDrawerLayout;
-    protected PackageManager mPm;
 
     private static final String TAG = "ResolverActivity";
     private static final boolean DEBUG = false;
@@ -257,7 +256,6 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
             return;
         }
 
-        mPm = getPackageManager();
 
         // The last argument of createResolverListAdapter is whether to do special handling
         // of the last used choice to highlight it in the list.  We need to always
@@ -755,7 +753,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                         null);
         return new ResolverListController(
                 this,
-                mPm,
+                getPackageManager(),
                 mLogic.getTargetIntent(),
                 mLogic.getReferrerPackageName(),
                 requireAnnotatedUserHandles().userIdOfCallingApp,
@@ -1264,8 +1262,8 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         if (ri != null) {
             ActivityInfo activityInfo = ri.activityInfo;
 
-            boolean hasRecordPermission =
-                    mPm.checkPermission(android.Manifest.permission.RECORD_AUDIO,
+            boolean hasRecordPermission = getPackageManager()
+                    .checkPermission(android.Manifest.permission.RECORD_AUDIO,
                             activityInfo.packageName)
                             == PackageManager.PERMISSION_GRANTED;
 
