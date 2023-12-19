@@ -81,7 +81,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Space;
 import android.widget.TabHost;
-import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -1895,72 +1894,37 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
 
     private void setupProfileTabs() {
         maybeHideDivider();
+
         TabHost tabHost = findViewById(com.android.internal.R.id.profile_tabhost);
-        tabHost.setup();
         ViewPager viewPager = findViewById(com.android.internal.R.id.profile_pager);
-        viewPager.setSaveEnabled(false);
 
-        Button personalButton = (Button) getLayoutInflater().inflate(
-                R.layout.resolver_profile_tab_button, tabHost.getTabWidget(), false);
-        personalButton.setText(mDevicePolicyResources.getPersonalTabLabel());
-        personalButton.setContentDescription(
-                mDevicePolicyResources.getPersonalTabAccessibilityLabel());
-
-        TabHost.TabSpec tabSpec = tabHost.newTabSpec(TAB_TAG_PERSONAL)
-                .setContent(com.android.internal.R.id.profile_pager)
-                .setIndicator(personalButton);
-        tabHost.addTab(tabSpec);
-
-        Button workButton = (Button) getLayoutInflater().inflate(
-                R.layout.resolver_profile_tab_button, tabHost.getTabWidget(), false);
-        workButton.setText(mDevicePolicyResources.getWorkTabLabel());
-        workButton.setContentDescription(mDevicePolicyResources.getWorkTabAccessibilityLabel());
-
-        tabSpec = tabHost.newTabSpec(TAB_TAG_WORK)
-                .setContent(com.android.internal.R.id.profile_pager)
-                .setIndicator(workButton);
-        tabHost.addTab(tabSpec);
-
-        TabWidget tabWidget = tabHost.getTabWidget();
-        tabWidget.setVisibility(View.VISIBLE);
-
-        Runnable updateActiveTabStyle = () -> {
-            int currentTab = tabHost.getCurrentTab();
-            TextView selected = (TextView) tabHost.getTabWidget().getChildAt(currentTab);
-            TextView unselected = (TextView) tabHost.getTabWidget().getChildAt(1 - currentTab);
-            selected.setSelected(true);
-            unselected.setSelected(false);
-        };
-
-        updateActiveTabStyle.run();
-
-        tabHost.setOnTabChangedListener(tabId -> {
-            updateActiveTabStyle.run();
-            if (TAB_TAG_PERSONAL.equals(tabId)) {
-                viewPager.setCurrentItem(0);
-            } else {
-                viewPager.setCurrentItem(1);
-            }
-            onProfileTabSelected(viewPager.getCurrentItem());
-        });
-
-        viewPager.setVisibility(View.VISIBLE);
-        tabHost.setCurrentTab(mMultiProfilePagerAdapter.getCurrentPage());
-        mMultiProfilePagerAdapter.setOnProfileSelectedListener(
+        mMultiProfilePagerAdapter.setupProfileTabs(
+                getLayoutInflater(),
+                tabHost,
+                viewPager,
+                R.layout.resolver_profile_tab_button,
+                com.android.internal.R.id.profile_pager,
+                mDevicePolicyResources.getPersonalTabLabel(),
+                mDevicePolicyResources.getPersonalTabAccessibilityLabel(),
+                TAB_TAG_PERSONAL,
+                mDevicePolicyResources.getWorkTabLabel(),
+                mDevicePolicyResources.getWorkTabAccessibilityLabel(),
+                TAB_TAG_WORK,
+                () -> onProfileTabSelected(viewPager.getCurrentItem()),
                 new MultiProfilePagerAdapter.OnProfileSelectedListener() {
                     @Override
                     public void onProfilePageSelected(@Profile int profileId, int pageNumber) {
-                        tabHost.setCurrentTab(pageNumber);
                         resetButtonBar();
                         resetCheckedItem();
                     }
 
                     @Override
-                    public void onProfilePageStateChanged(int state) {
-                    }
+                    public void onProfilePageStateChanged(int state) {}
                 });
         mOnSwitchOnWorkSelectedListener = () -> {
-            final View workTab = tabHost.getTabWidget().getChildAt(1);
+            final View workTab =
+                    tabHost.getTabWidget().getChildAt(
+                            mMultiProfilePagerAdapter.getPageNumberForProfile(PROFILE_WORK));
             workTab.setFocusable(true);
             workTab.setFocusableInTouchMode(true);
             workTab.requestFocus();
