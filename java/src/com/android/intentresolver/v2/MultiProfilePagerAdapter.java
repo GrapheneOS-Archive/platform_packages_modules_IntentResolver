@@ -129,25 +129,54 @@ class MultiProfilePagerAdapter<
 
         ImmutableList.Builder<ProfileDescriptor<PageViewT, SinglePageAdapterT>> items =
                 new ImmutableList.Builder<>();
-        for (SinglePageAdapterT adapter : adapters) {
-            items.add(createProfileDescriptor(adapter, containerBottomPaddingOverrideSupplier));
+        // TODO: for now this only builds in personal and work tabs; any other provided `adapters`
+        // are ignored. Historically this class wouldn't have behaved correctly for any more than
+        // those two tabs, so this is more explicit about our current support. Upcoming changes will
+        // generalize to support more tabs.
+        for (SinglePageAdapterT pageAdapter : adapters) {
+            ListAdapterT listAdapter = mListAdapterExtractor.apply(pageAdapter);
+            if (listAdapter.getUserHandle().equals(workProfileUserHandle)) {
+                items.add(
+                        createProfileDescriptor(
+                                PROFILE_WORK, pageAdapter, containerBottomPaddingOverrideSupplier));
+            } else {
+                // TODO: it shouldn't be possible to add multiple "personal" descriptors. For now
+                // we're just trusting our clients to provide valid data. We should avoid making
+                // inferences from the adapter's user handle, and instead have the pager-adapter
+                // receive all the necessary configuration data (in some format that ensures
+                // uniqueness of the adapters assigned to a given profile).
+                items.add(
+                        createProfileDescriptor(
+                                PROFILE_PERSONAL,
+                                pageAdapter,
+                                containerBottomPaddingOverrideSupplier));
+            }
         }
         mItems = items.build();
     }
 
     private ProfileDescriptor<PageViewT, SinglePageAdapterT> createProfileDescriptor(
+            @Profile int profile,
             SinglePageAdapterT adapter,
             Supplier<Optional<Integer>> containerBottomPaddingOverrideSupplier) {
         return new ProfileDescriptor<>(
-                mPageViewInflater.get(), adapter, containerBottomPaddingOverrideSupplier);
+                profile, mPageViewInflater.get(), adapter, containerBottomPaddingOverrideSupplier);
     }
 
     private @Profile int getProfileForPageNumber(int position) {
-        return position;
+        if (hasAdapterForIndex(position)) {
+            return mItems.get(position).mProfile;
+        }
+        return -1;
     }
 
     private int getPageNumberForProfile(@Profile int profile) {
-        return profile;
+        for (int i = 0; i < mItems.size(); ++i) {
+            if (profile == mItems.get(i).mProfile) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public void setOnProfileSelectedListener(OnProfileSelectedListener listener) {
@@ -169,7 +198,8 @@ class MultiProfilePagerAdapter<
                     mLoadedPages.add(position);
                 }
                 if (mOnProfileSelectedListener != null) {
-                    mOnProfileSelectedListener.onProfileSelected(position);
+                    mOnProfileSelectedListener.onProfilePageSelected(
+                            getProfileForPageNumber(position), position);
                 }
             }
 
@@ -599,6 +629,8 @@ class MultiProfilePagerAdapter<
     // TODO: `ChooserActivity` also has a per-profile record type. Maybe the "multi-profile pager"
     // should be the owner of all per-profile data (especially now that the API is generic)?
     private static class ProfileDescriptor<PageViewT, SinglePageAdapterT> {
+        final @Profile int mProfile;
+
         final ViewGroup mRootView;
         final EmptyStateUiHelper mEmptyStateUi;
 
@@ -610,9 +642,11 @@ class MultiProfilePagerAdapter<
         private final PageViewT mView;
 
         ProfileDescriptor(
+                @Profile int forProfile,
                 ViewGroup rootView,
                 SinglePageAdapterT adapter,
                 Supplier<Optional<Integer>> containerBottomPaddingOverrideSupplier) {
+            mProfile = forProfile;
             mRootView = rootView;
             mAdapter = adapter;
             mEmptyStateView = rootView.findViewById(com.android.internal.R.id.resolver_empty_state);
@@ -635,13 +669,14 @@ class MultiProfilePagerAdapter<
     /** Listener interface for changes between the per-profile UI tabs. */
     public interface OnProfileSelectedListener {
         /**
-         * Callback for when the user changes the active tab from personal to work or vice versa.
+         * Callback for when the user changes the active tab.
          * <p>This callback is only called when the intent resolver or share sheet shows
-         * the work and personal profiles.
-         * @param profileIndex {@link #PROFILE_PERSONAL} if the personal profile was selected or
-         * {@link #PROFILE_WORK} if the work profile was selected.
+         * more than one profile.
+         * @param profileId the ID of the newly-selected profile, e.g. {@link #PROFILE_PERSONAL}
+         * if the personal profile tab was selected or {@link #PROFILE_WORK} if the work profile tab
+         * was selected.
          */
-        void onProfileSelected(int profileIndex);
+        void onProfilePageSelected(@Profile int profileId, int pageNumber);
 
 
         /**

@@ -140,6 +140,7 @@ import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
+import com.android.intentresolver.v2.MultiProfilePagerAdapter.Profile;
 import com.android.intentresolver.v2.data.repository.DevicePolicyResources;
 import com.android.intentresolver.v2.emptystate.NoAppsAvailableEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider;
@@ -345,22 +346,22 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         mShouldDisplayLandscape =
                 shouldDisplayLandscape(getResources().getConfiguration().orientation);
 
-
         ChooserRequestParameters chooserRequest = getChooserRequest();
-        if (chooserRequest != null) {
-            setRetainInOnStop(chooserRequest.shouldRetainInOnStop());
+        if (chooserRequest == null) {
+            finish();
+            return;
         }
-        ChooserRequestParameters chooserRequest1 = getChooserRequest();
-        if (chooserRequest1 != null) {
-            createProfileRecords(
-                    new AppPredictorFactory(
-                            this,
-                            chooserRequest1.getSharedText(),
-                            chooserRequest1.getTargetIntentFilter()
-                    ),
-                    chooserRequest1.getTargetIntentFilter()
-            );
-        }
+
+        setRetainInOnStop(chooserRequest.shouldRetainInOnStop());
+        createProfileRecords(
+                new AppPredictorFactory(
+                        this,
+                        chooserRequest.getSharedText(),
+                        chooserRequest.getTargetIntentFilter()
+                ),
+                chooserRequest.getTargetIntentFilter()
+        );
+
         Intent intent = mLogic.getTargetIntent();
         List<Intent> initialIntents = mLogic.getInitialIntents();
         TargetDataLoader targetDataLoader = mLogic.getTargetDataLoader();
@@ -431,11 +432,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                             : ""));
         }
 
-        if (getChooserRequest() == null) {
-            finish();
-            return;
-        }
-
         getEventLog().logSharesheetTriggered();
         mRefinementManager = new ViewModelProvider(this).get(ChooserRefinementManager.class);
         mRefinementManager.getRefinementCompletion().observe(this, completion -> {
@@ -465,11 +461,10 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         BasePreviewViewModel previewViewModel =
                 new ViewModelProvider(this, createPreviewViewModelFactory())
                         .get(BasePreviewViewModel.class);
-        ChooserRequestParameters chooserRequest2 = requireChooserRequest();
         mChooserContentPreviewUi = new ChooserContentPreviewUi(
                 getCoroutineScope(getLifecycle()),
-                previewViewModel.createOrReuseProvider(chooserRequest2.getTargetIntent()),
-                chooserRequest2.getTargetIntent(),
+                previewViewModel.createOrReuseProvider(chooserRequest.getTargetIntent()),
+                chooserRequest.getTargetIntent(),
                 previewViewModel.createOrReuseImageLoader(),
                 createChooserActionFactory(),
                 mEnterTransitionAnimationDelegate,
@@ -484,7 +479,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         mChooserShownTime = System.currentTimeMillis();
         final long systemCost = mChooserShownTime - mIntentReceivedTime.get();
         getEventLog().logChooserActivityShown(
-                isWorkProfile(), chooserRequest2.getTargetType(), systemCost);
+                isWorkProfile(), chooserRequest.getTargetType(), systemCost);
         if (mResolverDrawerLayout != null) {
             mResolverDrawerLayout.addOnLayoutChangeListener(this::handleLayoutChange);
 
@@ -499,15 +494,15 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         }
         getEventLog().logShareStarted(
                 mLogic.getReferrerPackageName(),
-                chooserRequest2.getTargetType(),
-                chooserRequest2.getCallerChooserTargets().size(),
-                (chooserRequest2.getInitialIntents() == null)
-                        ? 0 : chooserRequest2.getInitialIntents().length,
+                chooserRequest.getTargetType(),
+                chooserRequest.getCallerChooserTargets().size(),
+                (chooserRequest.getInitialIntents() == null)
+                        ? 0 : chooserRequest.getInitialIntents().length,
                 isWorkProfile(),
                 mChooserContentPreviewUi.getPreferredContentPreview(),
-                chooserRequest2.getTargetAction(),
-                chooserRequest2.getChooserActions().size(),
-                chooserRequest2.getModifyShareAction() != null
+                chooserRequest.getTargetAction(),
+                chooserRequest.getChooserActions().size(),
+                chooserRequest.getModifyShareAction() != null
         );
         mEnterTransitionAnimationDelegate.postponeTransition();
 
@@ -1161,14 +1156,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         return false;
     }
 
-    private void updateActiveTabStyle(TabHost tabHost) {
-        int currentTab = tabHost.getCurrentTab();
-        TextView selected = (TextView) tabHost.getTabWidget().getChildAt(currentTab);
-        TextView unselected = (TextView) tabHost.getTabWidget().getChildAt(1 - currentTab);
-        selected.setSelected(true);
-        unselected.setSelected(false);
-    }
-
     private void setupProfileTabs() {
         TabHost tabHost = findViewById(com.android.internal.R.id.profile_tabhost);
         tabHost.setup();
@@ -1198,23 +1185,25 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
         TabWidget tabWidget = tabHost.getTabWidget();
         tabWidget.setVisibility(View.VISIBLE);
-        updateActiveTabStyle(tabHost);
+
+        Runnable updateActiveTabStyle = () -> {
+            int currentTab = tabHost.getCurrentTab();
+            TextView selected = (TextView) tabHost.getTabWidget().getChildAt(currentTab);
+            TextView unselected = (TextView) tabHost.getTabWidget().getChildAt(1 - currentTab);
+            selected.setSelected(true);
+            unselected.setSelected(false);
+        };
+
+        updateActiveTabStyle.run();
 
         tabHost.setOnTabChangedListener(tabId -> {
-            updateActiveTabStyle(tabHost);
+            updateActiveTabStyle.run();
             if (TAB_TAG_PERSONAL.equals(tabId)) {
                 viewPager.setCurrentItem(0);
             } else {
                 viewPager.setCurrentItem(1);
             }
-            setupViewVisibilities();
-            maybeLogProfileChange();
-            onProfileTabSelected();
-            DevicePolicyEventLogger
-                    .createEvent(DevicePolicyEnums.RESOLVER_SWITCH_TABS)
-                    .setInt(viewPager.getCurrentItem())
-                    .setStrings(getMetricsCategory())
-                    .write();
+            onProfileTabSelected(viewPager.getCurrentItem());
         });
 
         viewPager.setVisibility(View.VISIBLE);
@@ -1222,8 +1211,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         mChooserMultiProfilePagerAdapter.setOnProfileSelectedListener(
                 new MultiProfilePagerAdapter.OnProfileSelectedListener() {
                     @Override
-                    public void onProfileSelected(int index) {
-                        tabHost.setCurrentTab(index);
+                    public void onProfilePageSelected(@Profile int profileId, int pageNumber) {
+                        tabHost.setCurrentTab(pageNumber);
 
                     }
 
@@ -2618,7 +2607,18 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         return METRICS_CATEGORY_CHOOSER;
     }
 
-    protected void onProfileTabSelected() {
+    protected void onProfileTabSelected(int currentPage) {
+        setupViewVisibilities();
+        maybeLogProfileChange();
+        if (hasWorkProfile()) {
+            // The device policy logger is only concerned with sessions that include a work profile.
+            DevicePolicyEventLogger
+                    .createEvent(DevicePolicyEnums.RESOLVER_SWITCH_TABS)
+                    .setInt(currentPage)
+                    .setStrings(getMetricsCategory())
+                    .write();
+        }
+
         // This fixes an edge case where after performing a variety of gestures, vertical scrolling
         // ends up disabled. That's because at some point the old tab's vertical scrolling is
         // disabled and the new tab's is enabled. For context, see b/159997845
