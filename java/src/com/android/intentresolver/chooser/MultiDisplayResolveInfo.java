@@ -17,9 +17,11 @@
 package com.android.intentresolver.chooser;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -118,6 +120,19 @@ public class MultiDisplayResolveInfo extends DisplayResolveInfo {
     @Override
     public boolean startAsCaller(Activity activity, Bundle options, int userId) {
         return mTargetInfos.get(mSelected).startAsCaller(activity, options, userId);
+    }
+
+    @Override
+    public ComponentName getResolvedComponentName() {
+        if (hasSelected()) {
+            return mTargetInfos.get(mSelected).getResolvedComponentName();
+        }
+        // It is not expected to have this method be called on an unselected multi-display item.
+        // Call super to preserve the legacy (most likely erroneous) behavior.
+        Log.wtf(
+                "ChooserActivity",
+                "retrieving ResolvedComponentName from an unselected MultiDisplayResolveInfo");
+        return super.getResolvedComponentName();
     }
 
     @Override

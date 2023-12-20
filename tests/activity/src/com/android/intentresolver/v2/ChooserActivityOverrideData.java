@@ -52,9 +52,6 @@ public class ChooserActivityOverrideData {
         }
         return sInstance;
     }
-
-    @SuppressWarnings("Since15")
-    public Function<PackageManager, PackageManager> createPackageManager;
     public Function<TargetInfo, Boolean> onSafelyStartInternalCallback;
     public Function<TargetInfo, Boolean> onSafelyStartCallback;
     public Function2<UserHandle, Consumer<ShortcutLoader.Result>, ShortcutLoader>
@@ -78,7 +75,6 @@ public class ChooserActivityOverrideData {
     public void reset() {
         onSafelyStartInternalCallback = null;
         isVoiceInteraction = null;
-        createPackageManager = null;
         imageLoader = null;
         resolverCursor = null;
         resolverForceException = false;

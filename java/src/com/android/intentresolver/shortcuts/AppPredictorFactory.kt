@@ -41,16 +41,14 @@ private const val SHARED_TEXT_KEY = "shared_text"
 class AppPredictorFactory(
     private val context: Context,
     private val sharedText: String?,
-    private val targetIntentFilter: IntentFilter?
+    private val targetIntentFilter: IntentFilter?,
+    private val appPredictionAvailable: Boolean,
 ) {
-    private val mIsComponentAvailable =
-        context.packageManager.appPredictionServicePackageName != null
-
     /**
      * Creates an AppPredictor instance for a profile or `null` if app predictor is not available.
      */
     fun create(userHandle: UserHandle): AppPredictor? {
-        if (!mIsComponentAvailable) return null
+        if (!appPredictionAvailable) return null
         val contextAsUser = context.createContextAsUser(userHandle, 0 /* flags */)
         val extras = Bundle().apply {
             putParcelable(APP_PREDICTION_INTENT_FILTER_KEY, targetIntentFilter)
