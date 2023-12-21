@@ -36,7 +36,6 @@
     <uses-permission android:name="android.permission.START_ACTIVITY_AS_CALLER" />
     <uses-permission android:name="android.permission.UNLIMITED_SHORTCUTS_API_CALLS" />
     <uses-permission android:name="android.permission.QUERY_CLONED_APPS" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:hardwareAccelerated="true"
@@ -46,15 +45,12 @@
         android:requiredForAllUsers="true"
         android:supportsRtl="true">
 
-        <activity android:name=".ChooserActivity"
-                android:theme="@style/Theme.DeviceDefault.Chooser"
-                android:finishOnCloseSystemDialogs="true"
-                android:excludeFromRecents="true"
-                android:documentLaunchMode="never"
-                android:relinquishTaskIdentity="true"
-                android:configChanges="screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden"
-                android:visibleToInstantApps="true"
-                android:exported="true">
+        <!-- This alias needs to be maintained until there are no more devices that could be
+             upgrading from T QPR3. (b/283722356) -->
+        <activity-alias
+            android:name=".ChooserActivityLauncher"
+            android:targetActivity=".ChooserActivity"
+            android:exported="true">
 
             <!-- This intent filter is assigned a priority greater than 100 so
                  that it will take precedence over the framework ChooserActivity
@@ -65,14 +61,17 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.VOICE" />
             </intent-filter>
-        </activity>
+        </activity-alias>
 
-        <receiver android:name=".ChooserActivityReEnabler"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
+        <activity android:name=".ChooserActivity"
+                android:theme="@style/Theme.DeviceDefault.Chooser"
+                android:finishOnCloseSystemDialogs="true"
+                android:excludeFromRecents="true"
+                android:documentLaunchMode="never"
+                android:relinquishTaskIdentity="true"
+                android:configChanges="screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden"
+                android:visibleToInstantApps="true"
+                android:exported="false"/>
 
     </application>
 
