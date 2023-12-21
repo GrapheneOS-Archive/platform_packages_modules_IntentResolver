@@ -19,8 +19,12 @@ import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.os.Trace;
 import android.os.UserHandle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TabHost;
+import android.widget.TextView;
 
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -170,7 +174,7 @@ class MultiProfilePagerAdapter<
         return -1;
     }
 
-    private int getPageNumberForProfile(@Profile int profile) {
+    public int getPageNumberForProfile(@Profile int profile) {
         for (int i = 0; i < mItems.size(); ++i) {
             if (profile == mItems.get(i).mProfile) {
                 return i;
@@ -179,8 +183,85 @@ class MultiProfilePagerAdapter<
         return -1;
     }
 
-    public void setOnProfileSelectedListener(OnProfileSelectedListener listener) {
-        mOnProfileSelectedListener = listener;
+    private void updateActiveTabStyle(TabHost tabHost) {
+        int currentTab = tabHost.getCurrentTab();
+
+        for (int pageNumber = 0; pageNumber < getItemCount(); ++pageNumber) {
+            // TODO: can we avoid this downcast by pushing our knowledge of the intended view type
+            // somewhere else?
+            TextView tabText = (TextView) tabHost.getTabWidget().getChildAt(pageNumber);
+            tabText.setSelected(currentTab == pageNumber);
+        }
+    }
+
+    public void setupProfileTabs(
+            LayoutInflater layoutInflater,
+            TabHost tabHost,
+            ViewPager viewPager,
+            int tabButtonLayoutResId,
+            int tabPageContentViewId,
+            String personalTabLabel,
+            String personalTabAccessibilityLabel,
+            String personalTabTag,
+            String workTabLabel,
+            String workTabAccessibilityLabel,
+            String workTabTag,
+            Runnable onTabChangeListener,
+            MultiProfilePagerAdapter.OnProfileSelectedListener clientOnProfileSelectedListener) {
+        tabHost.setup();
+        viewPager.setSaveEnabled(false);
+
+        Button personalButton = (Button) layoutInflater.inflate(
+                tabButtonLayoutResId, tabHost.getTabWidget(), false);
+        personalButton.setText(personalTabLabel);
+        personalButton.setContentDescription(personalTabAccessibilityLabel);
+
+        TabHost.TabSpec personalTabSpec = tabHost.newTabSpec(personalTabTag)
+                .setContent(tabPageContentViewId)
+                .setIndicator(personalButton);
+        tabHost.addTab(personalTabSpec);
+
+        Button workButton = (Button) layoutInflater.inflate(
+                tabButtonLayoutResId, tabHost.getTabWidget(), false);
+        workButton.setText(workTabLabel);
+        workButton.setContentDescription(workTabAccessibilityLabel);
+
+        TabHost.TabSpec workTabSpec = tabHost.newTabSpec(workTabTag)
+                .setContent(tabPageContentViewId)
+                .setIndicator(workButton);
+        tabHost.addTab(workTabSpec);
+
+        tabHost.getTabWidget().setVisibility(View.VISIBLE);
+
+        updateActiveTabStyle(tabHost);
+
+        tabHost.setOnTabChangedListener(tabId -> {
+            updateActiveTabStyle(tabHost);
+            // TODO: update for 3+ tabs.
+            if (personalTabTag.equals(tabId)) {
+                viewPager.setCurrentItem(0);
+            } else {
+                viewPager.setCurrentItem(1);
+            }
+            onTabChangeListener.run();
+        });
+
+        viewPager.setVisibility(View.VISIBLE);
+        tabHost.setCurrentTab(getCurrentPage());
+        mOnProfileSelectedListener =
+                new MultiProfilePagerAdapter.OnProfileSelectedListener() {
+                    @Override
+                    public void onProfilePageSelected(@Profile int profileId, int pageNumber) {
+                        tabHost.setCurrentTab(pageNumber);
+                        clientOnProfileSelectedListener.onProfilePageSelected(
+                                profileId, pageNumber);
+                    }
+
+                    @Override
+                    public void onProfilePageStateChanged(int state) {
+                        clientOnProfileSelectedListener.onProfilePageStateChanged(state);
+                    }
+                };
     }
 
     /**
