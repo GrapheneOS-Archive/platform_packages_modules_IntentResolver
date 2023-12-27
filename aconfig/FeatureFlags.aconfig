@@ -5,13 +5,6 @@ package: "com.android.intentresolver"
 # bug: "Feature_Bug_#" or "<none>"
 
 flag {
-  name: "example_new_sharing_method"
-  namespace: "intentresolver"
-  description: "Enables the example new sharing mechanism."
-  bug: "<none>"
-}
-
-flag {
   name: "scrollable_preview"
   namespace: "intentresolver"
   description: "Makes preview scrollable with multiple profiles"
