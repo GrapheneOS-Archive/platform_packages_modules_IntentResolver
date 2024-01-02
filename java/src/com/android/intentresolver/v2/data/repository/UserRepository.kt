@@ -21,6 +21,7 @@ import com.android.intentresolver.inject.Main
 import com.android.intentresolver.inject.ProfileParent
 import com.android.intentresolver.v2.data.broadcastFlow
 import com.android.intentresolver.v2.data.model.User
+import com.android.intentresolver.v2.data.model.User.Role
 import com.android.intentresolver.v2.data.repository.UserRepositoryImpl.UserEvent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -42,7 +43,7 @@ interface UserRepository {
      * A [Flow] user profile groups. Each map contains the context user along with all members of
      * the profile group. This includes the (Full) parent user, if the context user is a profile.
      */
-    val users: Flow<Map<UserHandle, User>>
+    val users: Flow<Map<Role, User>>
 
     /**
      * A [Flow] of availability. Only profile users may become unavailable.
@@ -140,8 +141,9 @@ constructor(
             .stateIn(scope, SharingStarted.Eagerly, emptyMap())
             .filterNot { it.isEmpty() }
 
-    override val users: Flow<Map<UserHandle, User>> =
-        usersWithState.map { map -> map.mapValues { it.value.user } }.distinctUntilChanged()
+    override val users: Flow<Map<Role, User>> = usersWithState.map { userStateMap ->
+        userStateMap.map { it.value.user }.associateBy { it.role }
+    }.distinctUntilChanged()
 
     private val availability: Flow<Map<UserHandle, Boolean>> =
         usersWithState.map { map -> map.mapValues { it.value.available } }.distinctUntilChanged()
