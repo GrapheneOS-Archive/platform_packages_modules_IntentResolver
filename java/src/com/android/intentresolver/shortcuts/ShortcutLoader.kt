@@ -186,6 +186,11 @@ constructor(
         // Default to just querying ShortcutManager if AppPredictor not present.
         if (targetIntentFilter == null) {
             Log.d(TAG, "skip querying ShortcutManager for $userHandle")
+            sendShareShortcutInfoList(
+                emptyList(),
+                isFromAppPredictor = false,
+                appPredictorTargets = null
+            )
             return
         }
         Log.d(TAG, "query ShortcutManager for user $userHandle")
