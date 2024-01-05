@@ -36,6 +36,7 @@ import com.android.intentresolver.createShareShortcutInfo
 import com.android.intentresolver.createShortcutInfo
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.function.Consumer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -393,6 +394,47 @@ class ShortcutLoaderTest {
 
         verify(appPredictor, times(1)).unregisterPredictionUpdates(any())
     }
+
+    @Test
+    fun test_nullIntentFilterNoAppAppPredictorResults_returnEmptyResult() =
+        scope.runTest {
+            val shortcutManager = mock<ShortcutManager>()
+            whenever(context.getSystemService(Context.SHORTCUT_SERVICE)).thenReturn(shortcutManager)
+            val testSubject =
+                ShortcutLoader(
+                    context,
+                    backgroundScope,
+                    appPredictor,
+                    UserHandle.of(0),
+                    isPersonalProfile = true,
+                    targetIntentFilter = null,
+                    dispatcher,
+                    callback
+                )
+
+            testSubject.updateAppTargets(appTargets)
+
+            verify(appPredictor, times(1)).requestPredictionUpdate()
+            val appPredictorCallbackCaptor = argumentCaptor<AppPredictor.Callback>()
+            verify(appPredictor, times(1))
+                .registerPredictionUpdates(any(), capture(appPredictorCallbackCaptor))
+            appPredictorCallbackCaptor.value.onTargetsAvailable(emptyList())
+
+            verify(shortcutManager, never()).getShareTargets(any())
+            val resultCaptor = argumentCaptor<ShortcutLoader.Result>()
+            verify(callback, times(1)).accept(capture(resultCaptor))
+
+            val result = resultCaptor.value
+            assertWithMessage("A ShortcutManager result is expected")
+                .that(result.isFromAppPredictor)
+                .isFalse()
+            assertArrayEquals(
+                "Wrong input app targets in the result",
+                appTargets,
+                result.appTargets
+            )
+            assertWithMessage("An empty result is expected").that(result.shortcutsByApp).isEmpty()
+        }
 
     @Test
     fun test_workProfileNotRunning_doNotCallServices() {
