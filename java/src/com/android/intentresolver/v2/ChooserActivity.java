@@ -113,10 +113,12 @@ import com.android.intentresolver.ChooserTargetActionsDialogFragment;
 import com.android.intentresolver.EnterTransitionAnimationDelegate;
 import com.android.intentresolver.FeatureFlags;
 import com.android.intentresolver.IntentForwarderActivity;
+import com.android.intentresolver.PackagesChangedListener;
 import com.android.intentresolver.R;
 import com.android.intentresolver.ResolverListAdapter;
 import com.android.intentresolver.ResolverListController;
 import com.android.intentresolver.ResolverViewPager;
+import com.android.intentresolver.StartsSelectedItem;
 import com.android.intentresolver.WorkProfileAvailabilityManager;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
@@ -184,7 +186,7 @@ import javax.inject.Inject;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @AndroidEntryPoint(FragmentActivity.class)
 public class ChooserActivity extends Hilt_ChooserActivity implements
-        ResolverListAdapter.ResolverListCommunicator {
+        ResolverListAdapter.ResolverListCommunicator, PackagesChangedListener, StartsSelectedItem {
     private static final String TAG = "ChooserActivity";
 
     /**
@@ -1413,6 +1415,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     /**
      * Update UI to reflect changes in data.
      */
+    @Override
     public void handlePackagesChanged() {
         handlePackagesChanged(/* listAdapter */ null);
     }
@@ -1721,7 +1724,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         return !target.isSuspended();
     }
 
-    public void startSelected(int which, boolean filtered) {
+    @Override
+    public void startSelected(int which, /* unused */ boolean always, boolean filtered) {
         ChooserListAdapter currentListAdapter =
                 mChooserMultiProfilePagerAdapter.getActiveListAdapter();
         TargetInfo targetInfo = currentListAdapter
@@ -2033,7 +2037,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
                     @Override
                     public void onTargetSelected(int itemIndex) {
-                        startSelected(itemIndex, true);
+                        startSelected(itemIndex, false, true);
                     }
 
                     @Override

@@ -63,7 +63,7 @@ public class ChooserStackedAppDialogFragment extends ChooserTargetActionsDialogF
     @Override
     public void onClick(DialogInterface dialog, int which) {
         mMultiDisplayResolveInfo.setSelected(which);
-        ((ChooserActivity) getActivity()).startSelected(mParentWhich, false, true);
+        ((StartsSelectedItem) getActivity()).startSelected(mParentWhich, false, true);
         dismiss();
     }
 
