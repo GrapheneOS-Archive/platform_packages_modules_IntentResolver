@@ -27,7 +27,6 @@ import androidx.viewpager.widget.PagerAdapter;
 import com.android.intentresolver.R;
 import com.android.intentresolver.ResolverListAdapter;
 import com.android.intentresolver.emptystate.EmptyStateProvider;
-import com.android.internal.annotations.VisibleForTesting;
 
 import com.google.common.collect.ImmutableList;
 
@@ -43,14 +42,23 @@ public class ResolverMultiProfilePagerAdapter extends
 
     public ResolverMultiProfilePagerAdapter(
             Context context,
-            ResolverListAdapter adapter,
+            String personalTabLabel,
+            String personalTabAccessibilityLabel,
+            String personalTabTag,
+            ResolverListAdapter personalAdapter,
             EmptyStateProvider emptyStateProvider,
             Supplier<Boolean> workProfileQuietModeChecker,
             UserHandle workProfileUserHandle,
             UserHandle cloneProfileUserHandle) {
         this(
                 context,
-                ImmutableList.of(adapter),
+                ImmutableList.of(
+                        new TabConfig<>(
+                                PROFILE_PERSONAL,
+                                personalTabLabel,
+                                personalTabAccessibilityLabel,
+                                personalTabTag,
+                                personalAdapter)),
                 emptyStateProvider,
                 workProfileQuietModeChecker,
                 /* defaultProfile= */ 0,
@@ -60,7 +68,13 @@ public class ResolverMultiProfilePagerAdapter extends
     }
 
     public ResolverMultiProfilePagerAdapter(Context context,
+                                            String personalTabLabel,
+                                            String personalTabAccessibilityLabel,
+                                            String personalTabTag,
                                             ResolverListAdapter personalAdapter,
+                                            String workTabLabel,
+                                            String workTabAccessibilityLabel,
+                                            String workTabTag,
                                             ResolverListAdapter workAdapter,
                                             EmptyStateProvider emptyStateProvider,
                                             Supplier<Boolean> workProfileQuietModeChecker,
@@ -69,7 +83,19 @@ public class ResolverMultiProfilePagerAdapter extends
                                             UserHandle cloneProfileUserHandle) {
         this(
                 context,
-                ImmutableList.of(personalAdapter, workAdapter),
+                ImmutableList.of(
+                        new TabConfig<>(
+                                PROFILE_PERSONAL,
+                                personalTabLabel,
+                                personalTabAccessibilityLabel,
+                                personalTabTag,
+                                personalAdapter),
+                        new TabConfig<>(
+                                PROFILE_WORK,
+                                workTabLabel,
+                                workTabAccessibilityLabel,
+                                workTabTag,
+                                workAdapter)),
                 emptyStateProvider,
                 workProfileQuietModeChecker,
                 defaultProfile,
@@ -80,7 +106,7 @@ public class ResolverMultiProfilePagerAdapter extends
 
     private ResolverMultiProfilePagerAdapter(
             Context context,
-            ImmutableList<ResolverListAdapter> listAdapters,
+            ImmutableList<TabConfig<ResolverListAdapter>> tabs,
             EmptyStateProvider emptyStateProvider,
             Supplier<Boolean> workProfileQuietModeChecker,
             @Profile int defaultProfile,
@@ -90,7 +116,7 @@ public class ResolverMultiProfilePagerAdapter extends
         super(
                         listAdapter -> listAdapter,
                         (listView, bindAdapter) -> listView.setAdapter(bindAdapter),
-                listAdapters,
+                tabs,
                 emptyStateProvider,
                 workProfileQuietModeChecker,
                 defaultProfile,
