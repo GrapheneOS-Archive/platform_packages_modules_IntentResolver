@@ -135,7 +135,7 @@ public class ChooserMultiProfilePagerAdapter extends MultiProfilePagerAdapter<
      */
     public void setIsCollapsed(boolean isCollapsed) {
         for (int i = 0, size = getItemCount(); i < size; i++) {
-            getAdapterForIndex(i).setAzLabelVisibility(!isCollapsed);
+            getPageAdapterForIndex(i).setAzLabelVisibility(!isCollapsed);
         }
     }
 
@@ -170,7 +170,7 @@ public class ChooserMultiProfilePagerAdapter extends MultiProfilePagerAdapter<
     /** Apply the specified {@code height} as the footer in each tab's adapter. */
     public void setFooterHeightInEveryAdapter(int height) {
         for (int i = 0; i < getItemCount(); ++i) {
-            getAdapterForIndex(i).setFooterHeight(height);
+            getPageAdapterForIndex(i).setFooterHeight(height);
         }
     }
 
