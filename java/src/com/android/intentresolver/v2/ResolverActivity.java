@@ -166,8 +166,8 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     /** Tracks if we should ignore future broadcasts telling us the work profile is enabled */
     private final boolean mWorkProfileHasBeenEnabled = false;
 
-    private static final String TAB_TAG_PERSONAL = "personal";
-    private static final String TAB_TAG_WORK = "work";
+    protected static final String TAB_TAG_PERSONAL = "personal";
+    protected static final String TAB_TAG_WORK = "work";
 
     private PackageMonitor mPersonalPackageMonitor;
     private PackageMonitor mWorkPackageMonitor;
@@ -944,7 +944,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                     List<ResolveInfo> resolutionList,
                     boolean filterLastUsed,
                     TargetDataLoader targetDataLoader) {
-        ResolverListAdapter adapter = createResolverListAdapter(
+        ResolverListAdapter personalAdapter = createResolverListAdapter(
                 /* context */ this,
                 mLogic.getPayloadIntents(),
                 initialIntents,
@@ -954,7 +954,10 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                 targetDataLoader);
         return new ResolverMultiProfilePagerAdapter(
                 /* context */ this,
-                adapter,
+                mDevicePolicyResources.getPersonalTabLabel(),
+                mDevicePolicyResources.getPersonalTabAccessibilityLabel(),
+                TAB_TAG_PERSONAL,
+                personalAdapter,
                 createEmptyStateProvider(/* workProfileUserHandle= */ null),
                 /* workProfileQuietModeChecker= */ () -> false,
                 /* workProfileUserHandle= */ null,
@@ -1013,7 +1016,13 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                 targetDataLoader);
         return new ResolverMultiProfilePagerAdapter(
                 /* context */ this,
+                mDevicePolicyResources.getPersonalTabLabel(),
+                mDevicePolicyResources.getPersonalTabAccessibilityLabel(),
+                TAB_TAG_PERSONAL,
                 personalAdapter,
+                mDevicePolicyResources.getWorkTabLabel(),
+                mDevicePolicyResources.getWorkTabAccessibilityLabel(),
+                TAB_TAG_WORK,
                 workAdapter,
                 createEmptyStateProvider(workProfileUserHandle),
                 () -> mLogic.getWorkProfileAvailabilityManager().isQuietModeEnabled(),
@@ -1902,12 +1911,6 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                 viewPager,
                 R.layout.resolver_profile_tab_button,
                 com.android.internal.R.id.profile_pager,
-                mDevicePolicyResources.getPersonalTabLabel(),
-                mDevicePolicyResources.getPersonalTabAccessibilityLabel(),
-                TAB_TAG_PERSONAL,
-                mDevicePolicyResources.getWorkTabLabel(),
-                mDevicePolicyResources.getWorkTabAccessibilityLabel(),
-                TAB_TAG_WORK,
                 () -> onProfileTabSelected(viewPager.getCurrentItem()),
                 new MultiProfilePagerAdapter.OnProfileSelectedListener() {
                     @Override
