@@ -1165,12 +1165,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 viewPager,
                 R.layout.resolver_profile_tab_button,
                 com.android.internal.R.id.profile_pager,
-                mDevicePolicyResources.getPersonalTabLabel(),
-                mDevicePolicyResources.getPersonalTabAccessibilityLabel(),
-                TAB_TAG_PERSONAL,
-                mDevicePolicyResources.getWorkTabLabel(),
-                mDevicePolicyResources.getWorkTabAccessibilityLabel(),
-                TAB_TAG_WORK,
                 () -> onProfileTabSelected(viewPager.getCurrentItem()),
                 new MultiProfilePagerAdapter.OnProfileSelectedListener() {
                     @Override
@@ -1339,6 +1333,9 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 targetDataLoader);
         return new ChooserMultiProfilePagerAdapter(
                 /* context */ this,
+                mDevicePolicyResources.getPersonalTabLabel(),
+                mDevicePolicyResources.getPersonalTabAccessibilityLabel(),
+                TAB_TAG_PERSONAL,
                 adapter,
                 createEmptyStateProvider(/* workProfileUserHandle= */ null),
                 /* workProfileQuietModeChecker= */ () -> false,
@@ -1372,7 +1369,13 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 targetDataLoader);
         return new ChooserMultiProfilePagerAdapter(
                 /* context */ this,
+                mDevicePolicyResources.getPersonalTabLabel(),
+                mDevicePolicyResources.getPersonalTabAccessibilityLabel(),
+                TAB_TAG_PERSONAL,
                 personalAdapter,
+                mDevicePolicyResources.getWorkTabLabel(),
+                mDevicePolicyResources.getWorkTabAccessibilityLabel(),
+                TAB_TAG_WORK,
                 workAdapter,
                 createEmptyStateProvider(requireAnnotatedUserHandles().workProfileUserHandle),
                 () -> mLogic.getWorkProfileAvailabilityManager().isQuietModeEnabled(),
