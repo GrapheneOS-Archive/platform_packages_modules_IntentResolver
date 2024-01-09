@@ -16,12 +16,10 @@
 
 package com.android.intentresolver.v2;
 
-import static android.Manifest.permission.INTERACT_ACROSS_PROFILES;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_ACCESS_PERSONAL;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_ACCESS_WORK;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CROSS_PROFILE_BLOCKED_TITLE;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static android.content.PermissionChecker.PID_UNKNOWN;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_PERSONAL;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_WORK;
 import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
@@ -32,7 +30,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNullElse;
 
-import android.app.ActivityManager;
 import android.app.ActivityThread;
 import android.app.VoiceInteractor.PickOptionRequest;
 import android.app.VoiceInteractor.PickOptionRequest.Option;
@@ -42,7 +39,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.PermissionChecker;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -138,7 +134,9 @@ import javax.inject.Inject;
 @AndroidEntryPoint(FragmentActivity.class)
 public class ResolverActivity extends Hilt_ResolverActivity implements
         ResolverListAdapter.ResolverListCommunicator {
+
     @Inject public DevicePolicyResources mDevicePolicyResources;
+    @Inject public IntentForwarding mIntentForwarding;
 
     protected ActivityLogic mLogic;
 
@@ -1466,7 +1464,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         }
         // If needed, show that intent is forwarded
         // from managed profile to owner or other way around.
-        String profileSwitchMessage = mLogic.forwardMessageFor(mLogic.getTargetIntent());
+        String profileSwitchMessage = mIntentForwarding.forwardMessageFor(mLogic.getTargetIntent());
         if (profileSwitchMessage != null) {
             Toast.makeText(this, profileSwitchMessage, Toast.LENGTH_LONG).show();
         }
@@ -1503,11 +1501,6 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         }
 
         return false;
-    }
-
-    private int isPermissionGranted(String permission, int uid) {
-        return ActivityManager.checkComponentPermission(permission, uid,
-                /* owningUid= */-1, /* exported= */ true);
     }
 
     /**
@@ -1619,7 +1612,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         }
 
         String packageName = activeProfileTarget.getResolvedComponentName().getPackageName();
-        if (!canAppInteractCrossProfiles(packageName)) {
+        if (!mIntentForwarding.canAppInteractAcrossProfiles(this, packageName)) {
             return false;
         }
 
@@ -1632,47 +1625,6 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         safelyStartActivity(activeProfileTarget);
         finish();
         return true;
-    }
-
-    /**
-     * Returns whether the package has the necessary permissions to interact across profiles on
-     * behalf of a given user.
-     *
-     * <p>This means meeting the following condition:
-     * <ul>
-     *     <li>The app's {@link ApplicationInfo#crossProfile} flag must be true, and at least
-     *     one of the following conditions must be fulfilled</li>
-     *     <li>{@code Manifest.permission.INTERACT_ACROSS_USERS_FULL} granted.</li>
-     *     <li>{@code Manifest.permission.INTERACT_ACROSS_USERS} granted.</li>
-     *     <li>{@code Manifest.permission.INTERACT_ACROSS_PROFILES} granted, or the corresponding
-     *     AppOps {@code android:interact_across_profiles} is set to "allow".</li>
-     * </ul>
-     *
-     */
-    private boolean canAppInteractCrossProfiles(String packageName) {
-        ApplicationInfo applicationInfo;
-        try {
-            applicationInfo = getPackageManager().getApplicationInfo(packageName, 0);
-        } catch (NameNotFoundException e) {
-            Log.e(TAG, "Package " + packageName + " does not exist on current user.");
-            return false;
-        }
-        if (!applicationInfo.crossProfile) {
-            return false;
-        }
-
-        int packageUid = applicationInfo.uid;
-
-        if (isPermissionGranted(android.Manifest.permission.INTERACT_ACROSS_USERS_FULL,
-                packageUid) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (isPermissionGranted(android.Manifest.permission.INTERACT_ACROSS_USERS, packageUid)
-                == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        return PermissionChecker.checkPermissionForPreflight(this, INTERACT_ACROSS_PROFILES,
-                PID_UNKNOWN, packageUid, packageName) == PackageManager.PERMISSION_GRANTED;
     }
 
     private boolean isAutolaunching() {
@@ -1719,7 +1671,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         }
 
         String packageName = activeProfileTarget.getResolvedComponentName().getPackageName();
-        if (!canAppInteractCrossProfiles(packageName)) {
+        if (!mIntentForwarding.canAppInteractAcrossProfiles(this, packageName)) {
             return false;
         }
 
