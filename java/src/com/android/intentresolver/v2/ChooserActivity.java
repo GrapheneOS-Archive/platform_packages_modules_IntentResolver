@@ -268,6 +268,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     @Inject @NearbyShare public Optional<ComponentName> mNearbyShare;
     @Inject public TargetDataLoader mTargetDataLoader;
     @Inject public DevicePolicyResources mDevicePolicyResources;
+    @Inject public PackageManager mPackageManager;
 
     private ChooserRefinementManager mRefinementManager;
 
@@ -410,7 +411,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                     }
                 });
 
-                boolean hasTouchScreen = getPackageManager()
+                boolean hasTouchScreen = mPackageManager
                         .hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
 
                 if (isVoiceInteraction() || !hasTouchScreen) {
@@ -575,7 +576,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private boolean canAppInteractCrossProfiles(String packageName) {
         ApplicationInfo applicationInfo;
         try {
-            applicationInfo = getPackageManager().getApplicationInfo(packageName, 0);
+            applicationInfo = mPackageManager.getApplicationInfo(packageName, 0);
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "Package " + packageName + " does not exist on current user.");
             return false;
@@ -933,7 +934,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     private boolean supportsManagedProfiles(ResolveInfo resolveInfo) {
         try {
-            ApplicationInfo appInfo = getPackageManager().getApplicationInfo(
+            ApplicationInfo appInfo = mPackageManager.getApplicationInfo(
                     resolveInfo.activityInfo.packageName, 0 /* default flags */);
             return appInfo.targetSdkVersion >= Build.VERSION_CODES.LOLLIPOP;
         } catch (PackageManager.NameNotFoundException e) {
@@ -2087,7 +2088,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 targetIntent,
                 referrerFillInIntent,
                 this,
-                context.getPackageManager(),
+                mPackageManager,
                 getEventLog(),
                 maxTargetsPerRow,
                 initialIntentsUserSpace,
@@ -2144,7 +2145,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
         return new ChooserListController(
                 this,
-                getPackageManager(),
+                mPackageManager,
                 mLogic.getTargetIntent(),
                 mLogic.getReferrerPackageName(),
                 requireAnnotatedUserHandles().userIdOfCallingApp,
