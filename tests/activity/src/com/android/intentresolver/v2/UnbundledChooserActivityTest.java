@@ -128,6 +128,7 @@ import com.android.intentresolver.TestContentProvider;
 import com.android.intentresolver.TestPreviewImageLoader;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.contentpreview.ImageLoader;
+import com.android.intentresolver.inject.PackageManagerModule;
 import com.android.intentresolver.logging.EventLog;
 import com.android.intentresolver.logging.FakeEventLog;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
@@ -138,6 +139,7 @@ import com.android.intentresolver.v2.platform.ImageEditorModule;
 import com.android.internal.config.sysui.SystemUiDeviceConfigFlags;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.android.testing.BindValue;
 import dagger.hilt.android.testing.HiltAndroidRule;
 import dagger.hilt.android.testing.HiltAndroidTest;
@@ -168,6 +170,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import javax.inject.Inject;
+
 /**
  * Instrumentation tests for ChooserActivity.
  * <p>
@@ -176,7 +180,11 @@ import java.util.function.Consumer;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @RunWith(Parameterized.class)
 @HiltAndroidTest
-@UninstallModules({ImageEditorModule.class, AppPredictionModule.class})
+@UninstallModules({
+        AppPredictionModule.class,
+        ImageEditorModule.class,
+        PackageManagerModule.class
+})
 public class UnbundledChooserActivityTest {
 
     private static FakeEventLog getEventLog(ChooserWrapperActivity activity) {
@@ -212,18 +220,9 @@ public class UnbundledChooserActivityTest {
     public ActivityTestRule<ChooserWrapperActivity> mActivityRule =
             new ActivityTestRule<>(ChooserWrapperActivity.class, false, false);
 
-    @Before
-    public void setUp() {
-        // TODO: use the other form of `adoptShellPermissionIdentity()` where we explicitly list the
-        // permissions we require (which we'll read from the manifest at runtime).
-        InstrumentationRegistry
-                .getInstrumentation()
-                .getUiAutomation()
-                .adoptShellPermissionIdentity();
-
-        cleanOverrideData();
-        mHiltAndroidRule.inject();
-    }
+    @Inject
+    @ApplicationContext
+    Context mContext;
 
     /** An arbitrary pre-installed activity that handles this type of intent. */
     @BindValue
@@ -236,6 +235,29 @@ public class UnbundledChooserActivityTest {
     @BindValue
     @AppPredictionAvailable
     final boolean mAppPredictionAvailable;
+
+    @BindValue
+    PackageManager mPackageManager;
+
+    @Before
+    public void setUp() {
+        // TODO: use the other form of `adoptShellPermissionIdentity()` where we explicitly list the
+        // permissions we require (which we'll read from the manifest at runtime).
+        InstrumentationRegistry
+                .getInstrumentation()
+                .getUiAutomation()
+                .adoptShellPermissionIdentity();
+
+        cleanOverrideData();
+
+        // Assign @Inject fields
+        mHiltAndroidRule.inject();
+
+        // Populate @BindValue dependencies using injected values. These fields contribute
+        // values to the dependency graph at activity launch time. This allows replacing
+        // arbitrary bindings per-test case if needed.
+        mPackageManager = mContext.getPackageManager();
+    }
 
     public UnbundledChooserActivityTest(boolean appPredictionAvailable) {
         mAppPredictionAvailable = appPredictionAvailable;
@@ -265,6 +287,12 @@ public class UnbundledChooserActivityTest {
         setDeviceConfigProperty(
                 SystemUiDeviceConfigFlags.APPLY_SHARING_APP_LIMITS_IN_SYSUI,
                 Boolean.toString(true));
+    }
+
+    private static PackageManager createFakePackageManager(ResolveInfo resolveInfo) {
+        PackageManager packageManager = mock(PackageManager.class);
+        when(packageManager.resolveActivity(any(Intent.class), any())).thenReturn(resolveInfo);
+        return packageManager;
     }
 
     @Test
@@ -948,8 +976,10 @@ public class UnbundledChooserActivityTest {
                         throw exception;
                     }
                     RecyclerView recyclerView = (RecyclerView) view;
-                    assertThat(recyclerView.getAdapter().getItemCount(), is(1));
-                    assertThat(recyclerView.getChildCount(), is(1));
+                    assertThat("recyclerView adapter item count",
+                            recyclerView.getAdapter().getItemCount(), is(1));
+                    assertThat("recyclerView child view count",
+                            recyclerView.getChildCount(), is(1));
                     View imageView = recyclerView.getChildAt(0);
                     Rect rect = new Rect();
                     boolean isPartiallyVisible = imageView.getGlobalVisibleRect(rect);
@@ -2527,13 +2557,7 @@ public class UnbundledChooserActivityTest {
             chosen[0] = targetInfo.getResolveInfo();
             return true;
         };
-        ChooserActivityOverrideData.getInstance().packageManager = mock(PackageManager.class);
-        ResolveInfo ri = createFakeResolveInfo();
-        when(
-                ChooserActivityOverrideData
-                        .getInstance().packageManager
-                        .resolveActivity(any(Intent.class), any()))
-                .thenReturn(ri);
+        mPackageManager = createFakePackageManager(createFakeResolveInfo());
         waitForIdle();
 
         IChooserWrapper activity = (IChooserWrapper) mActivityRule.launchActivity(chooserIntent);
@@ -2558,13 +2582,7 @@ public class UnbundledChooserActivityTest {
                 new Intent("action.fake2")
         };
         Intent chooserIntent = createChooserIntent(createSendTextIntent(), initialIntents);
-        ChooserActivityOverrideData.getInstance().packageManager = mock(PackageManager.class);
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .packageManager
-                        .resolveActivity(any(Intent.class), any()))
-                .thenReturn(createFakeResolveInfo());
+        mPackageManager = createFakePackageManager(createFakeResolveInfo());
         waitForIdle();
 
         IChooserWrapper activity = (IChooserWrapper) mActivityRule.launchActivity(chooserIntent);
@@ -2589,13 +2607,8 @@ public class UnbundledChooserActivityTest {
                 new Intent("action.fake2")
         };
         Intent chooserIntent = createChooserIntent(new Intent(), initialIntents);
-        ChooserActivityOverrideData.getInstance().packageManager = mock(PackageManager.class);
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .packageManager
-                        .resolveActivity(any(Intent.class), any()))
-                .thenReturn(createFakeResolveInfo());
+        mPackageManager = createFakePackageManager(createFakeResolveInfo());
+
 
         mActivityRule.launchActivity(chooserIntent);
         waitForIdle();
@@ -2621,13 +2634,8 @@ public class UnbundledChooserActivityTest {
                 new Intent("action.fake2")
         };
         Intent chooserIntent = createChooserIntent(new Intent(), initialIntents);
-        ChooserActivityOverrideData.getInstance().packageManager = mock(PackageManager.class);
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .packageManager
-                        .resolveActivity(any(Intent.class), any()))
-                .thenReturn(createFakeResolveInfo());
+        mPackageManager = createFakePackageManager(createFakeResolveInfo());
+
 
         mActivityRule.launchActivity(chooserIntent);
         waitForIdle();
@@ -2649,15 +2657,8 @@ public class UnbundledChooserActivityTest {
         // Create caller target which is duplicate with one of app targets
         Intent chooserIntent = createChooserIntent(createSendTextIntent(),
                 new Intent[] {new Intent("action.fake")});
-        ChooserActivityOverrideData.getInstance().packageManager = mock(PackageManager.class);
-        ResolveInfo ri = ResolverDataProvider.createResolveInfo(0,
-                UserHandle.USER_CURRENT, PERSONAL_USER_HANDLE);
-        when(
-                ChooserActivityOverrideData
-                        .getInstance()
-                        .packageManager
-                        .resolveActivity(any(Intent.class), any()))
-                .thenReturn(ri);
+        mPackageManager = createFakePackageManager(ResolverDataProvider.createResolveInfo(0,
+                UserHandle.USER_CURRENT, PERSONAL_USER_HANDLE));
         waitForIdle();
 
         IChooserWrapper activity = (IChooserWrapper) mActivityRule.launchActivity(chooserIntent);

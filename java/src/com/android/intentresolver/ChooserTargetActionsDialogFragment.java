@@ -205,7 +205,7 @@ public class ChooserTargetActionsDialogFragment extends DialogFragment
         } else {
             pinComponent(mTargetInfos.get(which).getResolvedComponentName());
         }
-        ((ChooserActivity) getActivity()).handlePackagesChanged();
+        ((PackagesChangedListener) getActivity()).handlePackagesChanged();
         dismiss();
     }
 
