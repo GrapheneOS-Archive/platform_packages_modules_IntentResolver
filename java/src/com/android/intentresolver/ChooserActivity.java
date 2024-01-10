@@ -125,7 +125,7 @@ import javax.inject.Inject;
  */
 @AndroidEntryPoint(ResolverActivity.class)
 public class ChooserActivity extends Hilt_ChooserActivity implements
-        ResolverListAdapter.ResolverListCommunicator {
+        ResolverListAdapter.ResolverListCommunicator, PackagesChangedListener, StartsSelectedItem {
     private static final String TAG = "ChooserActivity";
 
     /**
@@ -565,6 +565,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     /**
      * Update UI to reflect changes in data.
      */
+    @Override
     public void handlePackagesChanged() {
         handlePackagesChanged(/* listAdapter */ null);
     }

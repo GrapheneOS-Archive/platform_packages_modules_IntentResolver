@@ -113,10 +113,12 @@ import com.android.intentresolver.ChooserTargetActionsDialogFragment;
 import com.android.intentresolver.EnterTransitionAnimationDelegate;
 import com.android.intentresolver.FeatureFlags;
 import com.android.intentresolver.IntentForwarderActivity;
+import com.android.intentresolver.PackagesChangedListener;
 import com.android.intentresolver.R;
 import com.android.intentresolver.ResolverListAdapter;
 import com.android.intentresolver.ResolverListController;
 import com.android.intentresolver.ResolverViewPager;
+import com.android.intentresolver.StartsSelectedItem;
 import com.android.intentresolver.WorkProfileAvailabilityManager;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.MultiDisplayResolveInfo;
@@ -184,7 +186,7 @@ import javax.inject.Inject;
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @AndroidEntryPoint(FragmentActivity.class)
 public class ChooserActivity extends Hilt_ChooserActivity implements
-        ResolverListAdapter.ResolverListCommunicator {
+        ResolverListAdapter.ResolverListCommunicator, PackagesChangedListener, StartsSelectedItem {
     private static final String TAG = "ChooserActivity";
 
     /**
@@ -266,6 +268,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     @Inject @NearbyShare public Optional<ComponentName> mNearbyShare;
     @Inject public TargetDataLoader mTargetDataLoader;
     @Inject public DevicePolicyResources mDevicePolicyResources;
+    @Inject public PackageManager mPackageManager;
 
     private ChooserRefinementManager mRefinementManager;
 
@@ -408,7 +411,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                     }
                 });
 
-                boolean hasTouchScreen = getPackageManager()
+                boolean hasTouchScreen = mPackageManager
                         .hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
 
                 if (isVoiceInteraction() || !hasTouchScreen) {
@@ -573,7 +576,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private boolean canAppInteractCrossProfiles(String packageName) {
         ApplicationInfo applicationInfo;
         try {
-            applicationInfo = getPackageManager().getApplicationInfo(packageName, 0);
+            applicationInfo = mPackageManager.getApplicationInfo(packageName, 0);
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "Package " + packageName + " does not exist on current user.");
             return false;
@@ -931,7 +934,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     private boolean supportsManagedProfiles(ResolveInfo resolveInfo) {
         try {
-            ApplicationInfo appInfo = getPackageManager().getApplicationInfo(
+            ApplicationInfo appInfo = mPackageManager.getApplicationInfo(
                     resolveInfo.activityInfo.packageName, 0 /* default flags */);
             return appInfo.targetSdkVersion >= Build.VERSION_CODES.LOLLIPOP;
         } catch (PackageManager.NameNotFoundException e) {
@@ -1413,6 +1416,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     /**
      * Update UI to reflect changes in data.
      */
+    @Override
     public void handlePackagesChanged() {
         handlePackagesChanged(/* listAdapter */ null);
     }
@@ -1721,7 +1725,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         return !target.isSuspended();
     }
 
-    public void startSelected(int which, boolean filtered) {
+    @Override
+    public void startSelected(int which, /* unused */ boolean always, boolean filtered) {
         ChooserListAdapter currentListAdapter =
                 mChooserMultiProfilePagerAdapter.getActiveListAdapter();
         TargetInfo targetInfo = currentListAdapter
@@ -2033,7 +2038,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
                     @Override
                     public void onTargetSelected(int itemIndex) {
-                        startSelected(itemIndex, true);
+                        startSelected(itemIndex, false, true);
                     }
 
                     @Override
@@ -2083,7 +2088,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 targetIntent,
                 referrerFillInIntent,
                 this,
-                context.getPackageManager(),
+                mPackageManager,
                 getEventLog(),
                 maxTargetsPerRow,
                 initialIntentsUserSpace,
@@ -2140,7 +2145,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
         return new ChooserListController(
                 this,
-                getPackageManager(),
+                mPackageManager,
                 mLogic.getTargetIntent(),
                 mLogic.getReferrerPackageName(),
                 requireAnnotatedUserHandles().userIdOfCallingApp,

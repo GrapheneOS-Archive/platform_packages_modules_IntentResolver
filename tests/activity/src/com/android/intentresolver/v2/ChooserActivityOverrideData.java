@@ -21,7 +21,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.UserHandle;
@@ -33,10 +32,10 @@ import com.android.intentresolver.contentpreview.ImageLoader;
 import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 
+import kotlin.jvm.functions.Function2;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import kotlin.jvm.functions.Function2;
 
 /**
  * Singleton providing overrides to be applied by any {@code IChooserWrapper} used in testing.
@@ -70,7 +69,6 @@ public class ChooserActivityOverrideData {
     public Integer myUserId;
     public WorkProfileAvailabilityManager mWorkProfileAvailability;
     public CrossProfileIntentsChecker mCrossProfileIntentsChecker;
-    public PackageManager packageManager;
 
     public void reset() {
         onSafelyStartInternalCallback = null;
@@ -90,7 +88,6 @@ public class ChooserActivityOverrideData {
         hasCrossProfileIntents = true;
         isQuietModeEnabled = false;
         myUserId = null;
-        packageManager = null;
         mWorkProfileAvailability = new WorkProfileAvailabilityManager(null, null, null) {
             @Override
             public boolean isQuietModeEnabled() {
