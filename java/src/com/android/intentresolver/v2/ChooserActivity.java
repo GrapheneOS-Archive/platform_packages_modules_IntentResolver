@@ -317,8 +317,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         return new ChooserActivityLogic(
                 TAG,
                 /* activity = */ this,
-                this::onWorkProfileStatusUpdated,
-                mTargetDataLoader);
+                this::onWorkProfileStatusUpdated);
     }
 
     @Override
@@ -365,7 +364,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
         Intent intent = mLogic.getTargetIntent();
         List<Intent> initialIntents = mLogic.getInitialIntents();
-        TargetDataLoader targetDataLoader = mLogic.getTargetDataLoader();
 
         // Calling UID did not have valid permissions
         if (mLogic.getAnnotatedUserHandles() == null) {
@@ -376,10 +374,9 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         mChooserMultiProfilePagerAdapter = createMultiProfilePagerAdapter(
                 requireNonNullElse(initialIntents, emptyList()).toArray(new Intent[0]),
                 /* resolutionList = */ null,
-                false,
-                targetDataLoader
+                false
         );
-        if (!configureContentView(targetDataLoader)) {
+        if (!configureContentView(mTargetDataLoader)) {
             mPersonalPackageMonitor = createPackageMonitor(
                     mChooserMultiProfilePagerAdapter.getPersonalListAdapter());
             mPersonalPackageMonitor.register(
@@ -659,7 +656,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     private CharSequence getOrLoadDisplayLabel(TargetInfo info) {
         if (info.isDisplayResolveInfo()) {
-            mLogic.getTargetDataLoader().getOrLoadLabel((DisplayResolveInfo) info);
+            mTargetDataLoader.getOrLoadLabel((DisplayResolveInfo) info);
         }
         CharSequence displayLabel = info.getDisplayLabel();
         return displayLabel == null ? "" : displayLabel;
@@ -1225,14 +1222,13 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     protected ChooserMultiProfilePagerAdapter createMultiProfilePagerAdapter(
             Intent[] initialIntents,
             List<ResolveInfo> rList,
-            boolean filterLastUsed,
-            TargetDataLoader targetDataLoader) {
+            boolean filterLastUsed) {
         if (hasWorkProfile()) {
             mChooserMultiProfilePagerAdapter = createChooserMultiProfilePagerAdapterForTwoProfiles(
-                    initialIntents, rList, filterLastUsed, targetDataLoader);
+                    initialIntents, rList, filterLastUsed);
         } else {
             mChooserMultiProfilePagerAdapter = createChooserMultiProfilePagerAdapterForOneProfile(
-                    initialIntents, rList, filterLastUsed, targetDataLoader);
+                    initialIntents, rList, filterLastUsed);
         }
         return mChooserMultiProfilePagerAdapter;
     }
@@ -1277,16 +1273,15 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private ChooserMultiProfilePagerAdapter createChooserMultiProfilePagerAdapterForOneProfile(
             Intent[] initialIntents,
             List<ResolveInfo> rList,
-            boolean filterLastUsed,
-            TargetDataLoader targetDataLoader) {
+            boolean filterLastUsed) {
         ChooserGridAdapter adapter = createChooserGridAdapter(
                 /* context */ this,
                 mLogic.getPayloadIntents(),
                 initialIntents,
                 rList,
                 filterLastUsed,
-                /* userHandle */ requireAnnotatedUserHandles().personalProfileUserHandle,
-                targetDataLoader);
+                /* userHandle */ requireAnnotatedUserHandles().personalProfileUserHandle
+        );
         return new ChooserMultiProfilePagerAdapter(
                 /* context */ this,
                 mDevicePolicyResources.getPersonalTabLabel(),
@@ -1304,8 +1299,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private ChooserMultiProfilePagerAdapter createChooserMultiProfilePagerAdapterForTwoProfiles(
             Intent[] initialIntents,
             List<ResolveInfo> rList,
-            boolean filterLastUsed,
-            TargetDataLoader targetDataLoader) {
+            boolean filterLastUsed) {
         int selectedProfile = findSelectedProfile();
         ChooserGridAdapter personalAdapter = createChooserGridAdapter(
                 /* context */ this,
@@ -1313,16 +1307,16 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 selectedProfile == PROFILE_PERSONAL ? initialIntents : null,
                 rList,
                 filterLastUsed,
-                /* userHandle */ requireAnnotatedUserHandles().personalProfileUserHandle,
-                targetDataLoader);
+                /* userHandle */ requireAnnotatedUserHandles().personalProfileUserHandle
+        );
         ChooserGridAdapter workAdapter = createChooserGridAdapter(
                 /* context */ this,
                 mLogic.getPayloadIntents(),
                 selectedProfile == PROFILE_WORK ? initialIntents : null,
                 rList,
                 filterLastUsed,
-                /* userHandle */ requireAnnotatedUserHandles().workProfileUserHandle,
-                targetDataLoader);
+                /* userHandle */ requireAnnotatedUserHandles().workProfileUserHandle
+        );
         return new ChooserMultiProfilePagerAdapter(
                 /* context */ this,
                 mDevicePolicyResources.getPersonalTabLabel(),
@@ -1960,8 +1954,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             Intent[] initialIntents,
             List<ResolveInfo> rList,
             boolean filterLastUsed,
-            UserHandle userHandle,
-            TargetDataLoader targetDataLoader) {
+            UserHandle userHandle) {
         ChooserRequestParameters parameters = requireChooserRequest();
         ChooserListAdapter chooserListAdapter = createChooserListAdapter(
                 context,
@@ -1973,8 +1966,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 userHandle,
                 mLogic.getTargetIntent(),
                 parameters.getReferrerFillInIntent(),
-                mMaxTargetsPerRow,
-                targetDataLoader);
+                mMaxTargetsPerRow
+        );
 
         return new ChooserGridAdapter(
                 context,
@@ -2025,8 +2018,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             UserHandle userHandle,
             Intent targetIntent,
             Intent referrerFillInIntent,
-            int maxTargetsPerRow,
-            TargetDataLoader targetDataLoader) {
+            int maxTargetsPerRow) {
         UserHandle initialIntentsUserSpace = isLaunchedAsCloneProfile()
                 && userHandle.equals(requireAnnotatedUserHandles().personalProfileUserHandle)
                 ? requireAnnotatedUserHandles().cloneProfileUserHandle : userHandle;
@@ -2045,7 +2037,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 getEventLog(),
                 maxTargetsPerRow,
                 initialIntentsUserSpace,
-                targetDataLoader,
+                mTargetDataLoader,
                 () -> {
                     ProfileRecord record = getProfileRecord(userHandle);
                     if (record != null && record.shortcutLoader != null) {

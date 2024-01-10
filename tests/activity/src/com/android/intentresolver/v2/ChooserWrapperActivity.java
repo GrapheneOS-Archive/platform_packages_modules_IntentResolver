@@ -39,7 +39,6 @@ import com.android.intentresolver.TestContentPreviewViewModel;
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
-import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
@@ -60,7 +59,6 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
                         "ChooserWrapper",
                         /* activity = */ this,
                         this::onWorkProfileStatusUpdated,
-                        mTargetDataLoader,
                         sOverrides);
     }
 
@@ -82,8 +80,7 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
             UserHandle userHandle,
             Intent targetIntent,
             Intent referrerFillInIntent,
-            int maxTargetsPerRow,
-            TargetDataLoader targetDataLoader) {
+            int maxTargetsPerRow) {
 
         return new ChooserListAdapter(
                 context,
@@ -100,7 +97,7 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
                 getEventLog(),
                 maxTargetsPerRow,
                 userHandle,
-                targetDataLoader,
+                mTargetDataLoader,
                 null,
                 mFeatureFlags);
     }
