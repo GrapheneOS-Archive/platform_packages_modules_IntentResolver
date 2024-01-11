@@ -16,6 +16,8 @@
 package com.android.intentresolver.v2.data.repository
 
 import android.app.admin.DevicePolicyManager
+import android.app.admin.DevicePolicyResources.Strings.Core.FORWARD_INTENT_TO_PERSONAL
+import android.app.admin.DevicePolicyResources.Strings.Core.FORWARD_INTENT_TO_WORK
 import android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_PERSONAL_TAB
 import android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_PERSONAL_TAB_ACCESSIBILITY
 import android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_WORK_PROFILE_NOT_SUPPORTED
@@ -28,41 +30,71 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DevicePolicyResources @Inject constructor(
+class DevicePolicyResources
+@Inject
+constructor(
     @ApplicationOwned private val resources: Resources,
     devicePolicyManager: DevicePolicyManager
 ) {
     private val policyResources = devicePolicyManager.resources
 
     val personalTabLabel by lazy {
-        requireNotNull(policyResources.getString(RESOLVER_PERSONAL_TAB) {
-            resources.getString(R.string.resolver_personal_tab)
-        })
+        requireNotNull(
+            policyResources.getString(RESOLVER_PERSONAL_TAB) {
+                resources.getString(R.string.resolver_personal_tab)
+            }
+        )
     }
 
     val workTabLabel by lazy {
-        requireNotNull(policyResources.getString(RESOLVER_WORK_TAB) {
-            resources.getString(R.string.resolver_work_tab)
-        })
+        requireNotNull(
+            policyResources.getString(RESOLVER_WORK_TAB) {
+                resources.getString(R.string.resolver_work_tab)
+            }
+        )
     }
 
     val personalTabAccessibilityLabel by lazy {
-        requireNotNull(policyResources.getString(RESOLVER_PERSONAL_TAB_ACCESSIBILITY) {
-            resources.getString(R.string.resolver_personal_tab_accessibility)
-        })
+        requireNotNull(
+            policyResources.getString(RESOLVER_PERSONAL_TAB_ACCESSIBILITY) {
+                resources.getString(R.string.resolver_personal_tab_accessibility)
+            }
+        )
     }
 
     val workTabAccessibilityLabel by lazy {
-        requireNotNull(policyResources.getString(RESOLVER_WORK_TAB_ACCESSIBILITY) {
-            resources.getString(R.string.resolver_work_tab_accessibility)
-        })
+        requireNotNull(
+            policyResources.getString(RESOLVER_WORK_TAB_ACCESSIBILITY) {
+                resources.getString(R.string.resolver_work_tab_accessibility)
+            }
+        )
+    }
+
+    val forwardToPersonalMessage: String? =
+        devicePolicyManager.resources.getString(FORWARD_INTENT_TO_PERSONAL) {
+            resources.getString(R.string.forward_intent_to_owner)
+        }
+
+    val forwardToWorkMessage by lazy {
+        requireNotNull(
+            policyResources.getString(FORWARD_INTENT_TO_WORK) {
+                resources.getString(R.string.forward_intent_to_work)
+            }
+        )
     }
 
     fun getWorkProfileNotSupportedMessage(launcherName: String): String {
-        return requireNotNull(policyResources.getString(RESOLVER_WORK_PROFILE_NOT_SUPPORTED, {
-            resources.getString(
-                R.string.activity_resolver_work_profiles_support,
-                launcherName)
-        }, launcherName))
+        return requireNotNull(
+            policyResources.getString(
+                RESOLVER_WORK_PROFILE_NOT_SUPPORTED,
+                {
+                    resources.getString(
+                        R.string.activity_resolver_work_profiles_support,
+                        launcherName
+                    )
+                },
+                launcherName
+            )
+        )
     }
 }

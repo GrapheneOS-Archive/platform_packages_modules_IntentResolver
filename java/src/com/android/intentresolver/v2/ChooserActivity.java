@@ -16,7 +16,6 @@
 
 package com.android.intentresolver.v2;
 
-import static android.Manifest.permission.INTERACT_ACROSS_PROFILES;
 import static android.app.VoiceInteractor.PickOptionRequest.Option;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_ACCESS_PERSONAL;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_ACCESS_WORK;
@@ -24,7 +23,6 @@ import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CANT_SHARE_WITH_WORK;
 import static android.app.admin.DevicePolicyResources.Strings.Core.RESOLVER_CROSS_PROFILE_BLOCKED_TITLE;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static android.content.PermissionChecker.PID_UNKNOWN;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_PERSONAL;
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_WORK;
 import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
@@ -54,7 +52,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.content.PermissionChecker;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
@@ -269,6 +266,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     @Inject public TargetDataLoader mTargetDataLoader;
     @Inject public DevicePolicyResources mDevicePolicyResources;
     @Inject public PackageManager mPackageManager;
+    @Inject public IntentForwarding mIntentForwarding;
 
     private ChooserRefinementManager mRefinementManager;
 
@@ -553,51 +551,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         return false;
     }
 
-    private int isPermissionGranted(String permission, int uid) {
-        return ActivityManager.checkComponentPermission(permission, uid,
-                /* owningUid= */-1, /* exported= */ true);
-    }
-
-    /**
-     * Returns whether the package has the necessary permissions to interact across profiles on
-     * behalf of a given user.
-     *
-     * <p>This means meeting the following condition:
-     * <ul>
-     *     <li>The app's {@link ApplicationInfo#crossProfile} flag must be true, and at least
-     *     one of the following conditions must be fulfilled</li>
-     *     <li>{@code Manifest.permission.INTERACT_ACROSS_USERS_FULL} granted.</li>
-     *     <li>{@code Manifest.permission.INTERACT_ACROSS_USERS} granted.</li>
-     *     <li>{@code Manifest.permission.INTERACT_ACROSS_PROFILES} granted, or the corresponding
-     *     AppOps {@code android:interact_across_profiles} is set to "allow".</li>
-     * </ul>
-     *
-     */
-    private boolean canAppInteractCrossProfiles(String packageName) {
-        ApplicationInfo applicationInfo;
-        try {
-            applicationInfo = mPackageManager.getApplicationInfo(packageName, 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Package " + packageName + " does not exist on current user.");
-            return false;
-        }
-        if (!applicationInfo.crossProfile) {
-            return false;
-        }
-
-        int packageUid = applicationInfo.uid;
-
-        if (isPermissionGranted(android.Manifest.permission.INTERACT_ACROSS_USERS_FULL,
-                packageUid) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (isPermissionGranted(android.Manifest.permission.INTERACT_ACROSS_USERS, packageUid)
-                == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        return PermissionChecker.checkPermissionForPreflight(this, INTERACT_ACROSS_PROFILES,
-                PID_UNKNOWN, packageUid, packageName) == PackageManager.PERMISSION_GRANTED;
-    }
 
     private boolean isTwoPagePersonalAndWorkConfiguration() {
         return (mChooserMultiProfilePagerAdapter.getCount() == 2)
@@ -649,7 +602,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         }
 
         String packageName = activeProfileTarget.getResolvedComponentName().getPackageName();
-        if (!canAppInteractCrossProfiles(packageName)) {
+        if (!mIntentForwarding.canAppInteractAcrossProfiles(this, packageName)) {
             return false;
         }
 
@@ -849,7 +802,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         }
         // If needed, show that intent is forwarded
         // from managed profile to owner or other way around.
-        String profileSwitchMessage = mLogic.forwardMessageFor(mLogic.getTargetIntent());
+        String profileSwitchMessage = mIntentForwarding.forwardMessageFor(mLogic.getTargetIntent());
         if (profileSwitchMessage != null) {
             Toast.makeText(this, profileSwitchMessage, Toast.LENGTH_LONG).show();
         }
