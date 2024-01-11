@@ -1,8 +1,5 @@
 package com.android.intentresolver.v2
 
-import android.app.admin.DevicePolicyManager
-import android.app.admin.DevicePolicyResources.Strings.Core.FORWARD_INTENT_TO_PERSONAL
-import android.app.admin.DevicePolicyResources.Strings.Core.FORWARD_INTENT_TO_WORK
 import android.content.Intent
 import android.os.UserHandle
 import android.os.UserManager
@@ -10,7 +7,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.core.content.getSystemService
 import com.android.intentresolver.AnnotatedUserHandles
-import com.android.intentresolver.R
 import com.android.intentresolver.WorkProfileAvailabilityManager
 import com.android.intentresolver.icons.TargetDataLoader
 
@@ -50,15 +46,10 @@ interface CommonActivityLogic {
     val referrerPackageName: String?
     /** User manager system service. */
     val userManager: UserManager
-    /** Device policy manager system service. */
-    val devicePolicyManager: DevicePolicyManager
     /** Current [UserHandle]s retrievable by type. */
     val annotatedUserHandles: AnnotatedUserHandles?
     /** Monitors for changes to work profile availability. */
     val workProfileAvailabilityManager: WorkProfileAvailabilityManager
-
-    /** Returns display message indicating intent forwarding or null if not intent forwarding. */
-    fun forwardMessageFor(intent: Intent): String?
 }
 
 /**
@@ -72,57 +63,31 @@ class CommonActivityLogicImpl(
     onWorkProfileStatusUpdated: () -> Unit,
 ) : CommonActivityLogic {
 
-    override val referrerPackageName: String? = activity.referrer.let {
-        if (ANDROID_APP_URI_SCHEME == it?.scheme) {
-            it.host
-        } else {
-            null
+    override val referrerPackageName: String? =
+        activity.referrer.let {
+            if (ANDROID_APP_URI_SCHEME == it?.scheme) {
+                it.host
+            } else {
+                null
+            }
         }
-    }
 
     override val userManager: UserManager = activity.getSystemService()!!
 
-    override val devicePolicyManager: DevicePolicyManager = activity.getSystemService()!!
+    override val annotatedUserHandles: AnnotatedUserHandles? =
+        try {
+            AnnotatedUserHandles.forShareActivity(activity)
+        } catch (e: SecurityException) {
+            Log.e(tag, "Request from UID without necessary permissions", e)
+            null
+        }
 
-    override val annotatedUserHandles: AnnotatedUserHandles? = try {
-        AnnotatedUserHandles.forShareActivity(activity)
-    } catch (e: SecurityException) {
-        Log.e(tag, "Request from UID without necessary permissions", e)
-        null
-    }
-
-    override val workProfileAvailabilityManager = WorkProfileAvailabilityManager(
+    override val workProfileAvailabilityManager =
+        WorkProfileAvailabilityManager(
             userManager,
             annotatedUserHandles?.workProfileUserHandle,
             onWorkProfileStatusUpdated,
         )
-
-    private val forwardToPersonalMessage: String? =
-        devicePolicyManager.resources.getString(FORWARD_INTENT_TO_PERSONAL) {
-            activity.getString(R.string.forward_intent_to_owner)
-        }
-
-    private val forwardToWorkMessage: String? =
-        devicePolicyManager.resources.getString(FORWARD_INTENT_TO_WORK) {
-            activity.getString(R.string.forward_intent_to_work)
-        }
-
-    override fun forwardMessageFor(intent: Intent): String? {
-        val contentUserHint = intent.contentUserHint
-        if (
-            contentUserHint != UserHandle.USER_CURRENT && contentUserHint != UserHandle.myUserId()
-        ) {
-            val originUserInfo = userManager.getUserInfo(contentUserHint)
-            val originIsManaged = originUserInfo?.isManagedProfile ?: false
-            val targetIsManaged = userManager.isManagedProfile
-            return when {
-                originIsManaged && !targetIsManaged -> forwardToPersonalMessage
-                !originIsManaged && targetIsManaged -> forwardToWorkMessage
-                else -> null
-            }
-        }
-        return null
-    }
 
     companion object {
         private const val ANDROID_APP_URI_SCHEME = "android-app"
