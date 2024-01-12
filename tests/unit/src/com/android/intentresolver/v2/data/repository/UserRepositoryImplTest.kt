@@ -34,10 +34,7 @@ internal class UserRepositoryImplTest {
 
         assertWithMessage("collectLastValue(repo.users)").that(users).isNotNull()
         assertThat(users)
-            .containsExactly(
-                Role.PERSONAL,
-                User(userState.primaryUserHandle.identifier, Role.PERSONAL)
-            )
+            .containsExactly(User(userState.primaryUserHandle.identifier, Role.PERSONAL))
     }
 
     @Test
@@ -46,10 +43,10 @@ internal class UserRepositoryImplTest {
         val users by collectLastValue(repo.users)
 
         assertWithMessage("collectLastValue(repo.users)").that(users).isNotNull()
-        assertThat(users!!.values.filter { it.role.type == User.Type.PROFILE }).isEmpty()
+        assertThat(users!!.filter { it.role.type == User.Type.PROFILE }).isEmpty()
 
         val profile = userState.createProfile(ProfileType.WORK)
-        assertThat(users).containsEntry(Role.WORK, User(profile.identifier, Role.WORK))
+        assertThat(users).contains(User(profile.identifier, Role.WORK))
     }
 
     @Test
@@ -59,10 +56,10 @@ internal class UserRepositoryImplTest {
 
         assertWithMessage("collectLastValue(repo.users)").that(users).isNotNull()
         val work = userState.createProfile(ProfileType.WORK)
-        assertThat(users).containsEntry(Role.WORK, User(work.identifier, Role.WORK))
+        assertThat(users).contains(User(work.identifier, Role.WORK))
 
         userState.removeProfile(work)
-        assertThat(users).doesNotContainEntry(Role.WORK, User(work.identifier, Role.WORK))
+        assertThat(users).doesNotContain(User(work.identifier, Role.WORK))
     }
 
     @Test
@@ -129,7 +126,7 @@ internal class UserRepositoryImplTest {
         val users by collectLastValue(repo.users)
 
         assertWithMessage("collectLastValue(repo.users)").that(users).isNotNull()
-        assertThat(users).containsExactly(Role.PERSONAL, User(USER_SYSTEM, Role.PERSONAL))
+        assertThat(users).containsExactly(User(USER_SYSTEM, Role.PERSONAL))
     }
 
     @Test
@@ -154,7 +151,7 @@ internal class UserRepositoryImplTest {
         val users by collectLastValue(repo.users)
 
         assertWithMessage("collectLastValue(repo.users)").that(users).isNotNull()
-        assertThat(users).containsExactly(Role.PERSONAL, User(USER_SYSTEM, Role.PERSONAL))
+        assertThat(users).containsExactly(User(USER_SYSTEM, Role.PERSONAL))
     }
 
     @Test
@@ -173,7 +170,7 @@ internal class UserRepositoryImplTest {
         val users by collectLastValue(repo.users)
 
         assertWithMessage("collectLastValue(repo.users)").that(users).isNotNull()
-        assertThat(users).containsExactly(Role.PERSONAL, User(USER_SYSTEM, Role.PERSONAL))
+        assertThat(users).containsExactly(User(USER_SYSTEM, Role.PERSONAL))
     }
 
     @Test
@@ -195,7 +192,7 @@ internal class UserRepositoryImplTest {
         val users by collectLastValue(repo.users)
 
         assertWithMessage("collectLastValue(repo.users)").that(users).isNotNull()
-        assertThat(users).containsExactly(Role.PERSONAL, User(USER_SYSTEM, Role.PERSONAL))
+        assertThat(users).containsExactly(User(USER_SYSTEM, Role.PERSONAL))
     }
 }
 
