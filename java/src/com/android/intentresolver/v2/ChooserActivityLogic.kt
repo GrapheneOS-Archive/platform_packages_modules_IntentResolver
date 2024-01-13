@@ -6,8 +6,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.annotation.OpenForTesting
 import com.android.intentresolver.ChooserRequestParameters
-import com.android.intentresolver.icons.TargetDataLoader
-import com.android.intentresolver.v2.util.mutableLazy
 
 private const val TAG = "ChooserActivityLogic"
 
@@ -22,8 +20,7 @@ private const val TAG = "ChooserActivityLogic"
 open class ChooserActivityLogic(
     tag: String,
     activity: ComponentActivity,
-    onWorkProfileStatusUpdated: () -> Unit,
-    override val targetDataLoader: TargetDataLoader,
+    onWorkProfileStatusUpdated: () -> Unit
 ) :
     ActivityLogic,
     CommonActivityLogic by CommonActivityLogicImpl(

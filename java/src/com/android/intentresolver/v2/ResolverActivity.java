@@ -96,6 +96,7 @@ import com.android.intentresolver.emptystate.CompositeEmptyStateProvider;
 import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
 import com.android.intentresolver.emptystate.EmptyState;
 import com.android.intentresolver.emptystate.EmptyStateProvider;
+import com.android.intentresolver.icons.DefaultTargetDataLoader;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.v2.MultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener;
@@ -139,6 +140,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     @Inject public IntentForwarding mIntentForwarding;
 
     protected ActivityLogic mLogic;
+    protected TargetDataLoader mTargetDataLoader;
 
     private Button mAlwaysButton;
     private Button mOnceButton;
@@ -233,6 +235,13 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_DeviceDefault_Resolver);
         mLogic = createActivityLogic();
+        mTargetDataLoader = new DefaultTargetDataLoader(
+                this,
+                getLifecycle(),
+                getIntent().getBooleanExtra(
+                        ResolverActivity.EXTRA_IS_AUDIO_CAPTURE_DEVICE,
+                        /* defaultValue = */ false)
+                );
     }
 
     @Override
@@ -245,7 +254,6 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     private void init() {
         Intent intent = mLogic.getTargetIntent();
         List<Intent> initialIntents = mLogic.getInitialIntents();
-        TargetDataLoader targetDataLoader = mLogic.getTargetDataLoader();
 
         // Calling UID did not have valid permissions
         if (mLogic.getAnnotatedUserHandles() == null) {
@@ -267,10 +275,9 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         mMultiProfilePagerAdapter = createMultiProfilePagerAdapter(
                 requireNonNullElse(initialIntents, emptyList()).toArray(new Intent[0]),
                 /* resolutionList = */ null,
-                filterLastUsed,
-                targetDataLoader
+                filterLastUsed
         );
-        if (configureContentView(targetDataLoader)) {
+        if (configureContentView(mTargetDataLoader)) {
             return;
         }
 
@@ -342,16 +349,15 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     protected ResolverMultiProfilePagerAdapter createMultiProfilePagerAdapter(
             Intent[] initialIntents,
             List<ResolveInfo> resolutionList,
-            boolean filterLastUsed,
-            TargetDataLoader targetDataLoader) {
+            boolean filterLastUsed) {
         ResolverMultiProfilePagerAdapter resolverMultiProfilePagerAdapter = null;
         if (hasWorkProfile()) {
             resolverMultiProfilePagerAdapter =
                     createResolverMultiProfilePagerAdapterForTwoProfiles(
-                            initialIntents, resolutionList, filterLastUsed, targetDataLoader);
+                            initialIntents, resolutionList, filterLastUsed);
         } else {
             resolverMultiProfilePagerAdapter = createResolverMultiProfilePagerAdapterForOneProfile(
-                    initialIntents, resolutionList, filterLastUsed, targetDataLoader);
+                    initialIntents, resolutionList, filterLastUsed);
         }
         return resolverMultiProfilePagerAdapter;
     }
@@ -886,8 +892,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
             Intent[] initialIntents,
             List<ResolveInfo> resolutionList,
             boolean filterLastUsed,
-            UserHandle userHandle,
-            TargetDataLoader targetDataLoader) {
+            UserHandle userHandle) {
         UserHandle initialIntentsUserSpace = isLaunchedAsCloneProfile()
                 && userHandle.equals(requireAnnotatedUserHandles().personalProfileUserHandle)
                 ? requireAnnotatedUserHandles().cloneProfileUserHandle : userHandle;
@@ -902,7 +907,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                 mLogic.getTargetIntent(),
                 this,
                 initialIntentsUserSpace,
-                targetDataLoader);
+                mTargetDataLoader);
     }
 
     protected final EmptyStateProvider createEmptyStateProvider(
@@ -940,16 +945,15 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
             createResolverMultiProfilePagerAdapterForOneProfile(
                     Intent[] initialIntents,
                     List<ResolveInfo> resolutionList,
-                    boolean filterLastUsed,
-                    TargetDataLoader targetDataLoader) {
+                    boolean filterLastUsed) {
         ResolverListAdapter personalAdapter = createResolverListAdapter(
                 /* context */ this,
                 mLogic.getPayloadIntents(),
                 initialIntents,
                 resolutionList,
                 filterLastUsed,
-                /* userHandle */ requireAnnotatedUserHandles().personalProfileUserHandle,
-                targetDataLoader);
+                /* userHandle */ requireAnnotatedUserHandles().personalProfileUserHandle
+        );
         return new ResolverMultiProfilePagerAdapter(
                 /* context */ this,
                 mDevicePolicyResources.getPersonalTabLabel(),
@@ -971,8 +975,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     private ResolverMultiProfilePagerAdapter createResolverMultiProfilePagerAdapterForTwoProfiles(
             Intent[] initialIntents,
             List<ResolveInfo> resolutionList,
-            boolean filterLastUsed,
-            TargetDataLoader targetDataLoader) {
+            boolean filterLastUsed) {
         // In the edge case when we have 0 apps in the current profile and >1 apps in the other,
         // the intent resolver is started in the other profile. Since this is the only case when
         // this happens, we check for it here and set the current profile's tab.
@@ -1000,8 +1003,8 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                 resolutionList,
                 (filterLastUsed && UserHandle.myUserId()
                         == requireAnnotatedUserHandles().personalProfileUserHandle.getIdentifier()),
-                /* userHandle */ requireAnnotatedUserHandles().personalProfileUserHandle,
-                targetDataLoader);
+                /* userHandle */ requireAnnotatedUserHandles().personalProfileUserHandle
+        );
         UserHandle workProfileUserHandle = requireAnnotatedUserHandles().workProfileUserHandle;
         ResolverListAdapter workAdapter = createResolverListAdapter(
                 /* context */ this,
@@ -1010,8 +1013,8 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                 resolutionList,
                 (filterLastUsed && UserHandle.myUserId()
                         == workProfileUserHandle.getIdentifier()),
-                /* userHandle */ workProfileUserHandle,
-                targetDataLoader);
+                /* userHandle */ workProfileUserHandle
+        );
         return new ResolverMultiProfilePagerAdapter(
                 /* context */ this,
                 mDevicePolicyResources.getPersonalTabLabel(),
@@ -1954,7 +1957,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
 
     private CharSequence getOrLoadDisplayLabel(TargetInfo info) {
         if (info.isDisplayResolveInfo()) {
-            mLogic.getTargetDataLoader().getOrLoadLabel((DisplayResolveInfo) info);
+            mTargetDataLoader.getOrLoadLabel((DisplayResolveInfo) info);
         }
         CharSequence displayLabel = info.getDisplayLabel();
         return displayLabel == null ? "" : displayLabel;

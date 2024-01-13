@@ -8,7 +8,6 @@ import androidx.activity.ComponentActivity
 import androidx.core.content.getSystemService
 import com.android.intentresolver.AnnotatedUserHandles
 import com.android.intentresolver.WorkProfileAvailabilityManager
-import com.android.intentresolver.icons.TargetDataLoader
 
 /**
  * Logic for IntentResolver Activities. Anything that is not the same across activities (including
@@ -27,8 +26,6 @@ interface ActivityLogic : CommonActivityLogic {
     val defaultTitleResId: Int
     /** Intents received to be processed. */
     val initialIntents: List<Intent>?
-    /** Fetches display info for processed candidates. */
-    val targetDataLoader: TargetDataLoader
     /** The intents for potential actual targets. [targetIntent] must be first. */
     val payloadIntents: List<Intent>
 }

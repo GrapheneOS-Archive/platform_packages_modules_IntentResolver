@@ -3,9 +3,6 @@ package com.android.intentresolver.v2
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.annotation.OpenForTesting
-import com.android.intentresolver.icons.DefaultTargetDataLoader
-import com.android.intentresolver.icons.TargetDataLoader
-import com.android.intentresolver.v2.util.mutableLazy
 
 /** Activity logic for [ResolverActivity]. */
 @OpenForTesting
@@ -41,22 +38,13 @@ open class ResolverActivityLogic(
 
     override val resolvingHome: Boolean =
         targetIntent.action == Intent.ACTION_MAIN &&
-        targetIntent.categories.singleOrNull() == Intent.CATEGORY_HOME
+            targetIntent.categories.singleOrNull() == Intent.CATEGORY_HOME
 
     override val title: CharSequence? = null
 
     override val defaultTitleResId: Int = 0
 
     override val initialIntents: List<Intent>? = null
-
-    override val targetDataLoader: TargetDataLoader = DefaultTargetDataLoader(
-        activity,
-        activity.lifecycle,
-        activity.intent.getBooleanExtra(
-            ResolverActivity.EXTRA_IS_AUDIO_CAPTURE_DEVICE,
-            /* defaultValue = */ false,
-        ),
-    )
 
     override val payloadIntents: List<Intent> = listOf(targetIntent)
 }

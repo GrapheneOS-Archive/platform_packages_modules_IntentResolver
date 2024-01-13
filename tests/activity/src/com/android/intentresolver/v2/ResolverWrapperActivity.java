@@ -84,8 +84,7 @@ public class ResolverWrapperActivity extends ResolverActivity {
             Intent[] initialIntents,
             List<ResolveInfo> rList,
             boolean filterLastUsed,
-            UserHandle userHandle,
-            TargetDataLoader targetDataLoader) {
+            UserHandle userHandle) {
         return new ResolverListAdapter(
                 context,
                 payloadIntents,
@@ -97,7 +96,7 @@ public class ResolverWrapperActivity extends ResolverActivity {
                 payloadIntents.get(0),  // TODO: extract upstream
                 this,
                 userHandle,
-                new TargetDataLoaderWrapper(targetDataLoader, mLabelIdlingResource));
+                new TargetDataLoaderWrapper(mTargetDataLoader, mLabelIdlingResource));
     }
 
     @Override
