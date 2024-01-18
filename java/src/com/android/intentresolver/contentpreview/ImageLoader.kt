@@ -18,8 +18,8 @@ package com.android.intentresolver.contentpreview
 
 import android.graphics.Bitmap
 import android.net.Uri
-import androidx.lifecycle.Lifecycle
 import java.util.function.Consumer
+import kotlinx.coroutines.CoroutineScope
 
 /** A content preview image loader. */
 interface ImageLoader : suspend (Uri) -> Bitmap?, suspend (Uri, Boolean) -> Bitmap? {
@@ -30,7 +30,7 @@ interface ImageLoader : suspend (Uri) -> Bitmap?, suspend (Uri, Boolean) -> Bitm
      * @param callback a callback that will be invoked with the loaded image or null if loading has
      *   failed.
      */
-    fun loadImage(callerLifecycle: Lifecycle, uri: Uri, callback: Consumer<Bitmap?>)
+    fun loadImage(callerScope: CoroutineScope, uri: Uri, callback: Consumer<Bitmap?>)
 
     /** Prepopulate the image loader cache. */
     fun prePopulate(uris: List<Uri>)

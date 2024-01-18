@@ -53,29 +53,38 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Закрепить приложение \"<xliff:g id="LABEL">%1$s</xliff:g>\""</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Открепить приложение \"<xliff:g id="LABEL">%1$s</xliff:g>\""</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Изменить"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{\"{file_name}\" и ещё # файл}one{\"{file_name}\" и ещё # файл}few{\"{file_name}\" и ещё # файла}many{\"{file_name}\" и ещё # файлов}other{\"{file_name}\" и ещё # файла}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{и ещё # файл}one{и ещё # файл}few{и ещё # файла}many{и ещё # файлов}other{и ещё # файла}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ ещё # файл}one{+ ещё # файл}few{+ ещё # файла}many{+ ещё # файлов}other{+ ещё # файла}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Отправка сообщения"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Отправка ссылки"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Отправка изображения}one{Отправка # изображения}few{Отправка # изображений}many{Отправка # изображений}other{Отправка # изображения}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Отправка видео}one{Отправка # видео}few{Отправка # видео}many{Отправка # видео}other{Отправка # видео}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Отправка # объекта}one{Отправка # объекта}few{Отправка # объектов}many{Отправка # объектов}other{Отправка # объекта}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"Сообщение с изображением"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"Ссылка на изображение"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Предоставляется доступ к # файлу}one{Предоставляется доступ к # файлу}few{Предоставляется доступ к # файлам}many{Предоставляется доступ к # файлам}other{Предоставляется доступ к # файла}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Отправка изображения с текстом}one{Отправка # изображения с текстом}few{Отправка # изображений с текстом}many{Отправка # изображений с текстом}other{Отправка # изображения с текстом}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Отправка изображения со ссылкой}one{Отправка # изображения со ссылкой}few{Отправка # изображений со ссылкой}many{Отправка # изображений со ссылкой}other{Отправка # изображения со ссылкой}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Отправка видео с текстом}one{Отправка # видео с текстом}few{Отправка # видео с текстом}many{Отправка # видео с текстом}other{Отправка # видео с текстом}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Отправка видео со ссылкой}one{Отправка # видео со ссылкой}few{Отправка # видео со ссылкой}many{Отправка # видео со ссылкой}other{Отправка # видео со ссылкой}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Отправка файла с текстом}one{Отправка # файла с текстом}few{Отправка # файлов с текстом}many{Отправка # файлов с текстом}other{Отправка # файла с текстом}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Отправка файла со ссылкой}one{Отправка # файла со ссылкой}few{Отправка # файлов со ссылкой}many{Отправка # файлов со ссылкой}other{Отправка # файла со ссылкой}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Только изображение}one{Только изображения}few{Только изображения}many{Только изображения}other{Только изображения}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Только видео}one{Только видео}few{Только видео}many{Только видео}other{Только видео}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Только файл}one{Только файлы}few{Только файлы}many{Только файлы}other{Только файлы}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Значок предварительного просмотра изображения"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Значок предварительного просмотра видео"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Значок предварительного просмотра файла"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Рекомендованных получателей нет."</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Список приложений"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Приложению не разрешено записывать звук, однако оно может делать это с помощью этого USB-устройства."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Личное"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Рабочее"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Просмотр личных данных"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Просмотр рабочих данных"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Заблокировано вашим администратором"</string>
-    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Этот контент нельзя открывать через рабочие приложения."</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Этим контентом нельзя делиться с рабочими приложениями."</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Этот контент нельзя открыть в рабочем приложении."</string>
-    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Этот контент нельзя открывать через личные приложения."</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Этим контентом нельзя делиться с личными приложениями."</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Этот контент нельзя открыть в личном приложении."</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Действие рабочего профиля приостановлено."</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Нажмите, чтобы включить"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Рабочие приложения приостановлены"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Включить"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Не поддерживается рабочими приложениями."</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Не поддерживается личными приложениями."</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Открыть приложение \"<xliff:g id="APP">%s</xliff:g>\" в личном профиле?"</string>
@@ -86,4 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"Вернуть текст"</string>
     <string name="exclude_link" msgid="1332778255031992228">"Исключить ссылку"</string>
     <string name="include_link" msgid="827855767220339802">"Вернуть ссылку"</string>
+    <string name="pinned" msgid="7623664001331394139">"Закреплено"</string>
 </resources>

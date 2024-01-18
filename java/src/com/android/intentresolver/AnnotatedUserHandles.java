@@ -16,12 +16,12 @@
 
 package com.android.intentresolver;
 
-import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.os.UserHandle;
 import android.os.UserManager;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 /**
@@ -35,7 +35,7 @@ public final class AnnotatedUserHandles {
     /**
      * The {@link UserHandle} that launched Sharesheet.
      * TODO: I believe this would always be the handle corresponding to {@code userIdOfCallingApp}
-     * except possibly if the caller used {@link Activity#startActivityAsUser()} to launch
+     * except possibly if the caller used {@link Activity#startActivityAsUser} to launch
      * Sharesheet as a different user than they themselves were running as. Verify and document.
      */
     public final UserHandle userHandleSharesheetLaunchedAs;
@@ -57,21 +57,21 @@ public final class AnnotatedUserHandles {
 
     /**
      * The {@link UserHandle} that owns the "work tab" in a tabbed share UI. This is (an arbitrary)
-     * one of the "managed" profiles associated with {@link personalProfileUserHandle}.
+     * one of the "managed" profiles associated with {@link #personalProfileUserHandle}.
      */
     @Nullable
     public final UserHandle workProfileUserHandle;
 
     /**
-     * The {@link UserHandle} of the clone profile belonging to {@link personalProfileUserHandle}.
+     * The {@link UserHandle} of the clone profile belonging to {@link #personalProfileUserHandle}.
      */
     @Nullable
     public final UserHandle cloneProfileUserHandle;
 
     /**
-     * The "tab owner" user handle (i.e., either {@link personalProfileUserHandle} or
-     * {@link workProfileUserHandle}) that either matches or owns the profile of the
-     * {@link userHandleSharesheetLaunchedAs}.
+     * The "tab owner" user handle (i.e., either {@link #personalProfileUserHandle} or
+     * {@link #workProfileUserHandle}) that either matches or owns the profile of the
+     * {@link #userHandleSharesheetLaunchedAs}.
      *
      * In the current implementation, we can assert that this is the same as
      * `userHandleSharesheetLaunchedAs` except when the latter is the clone profile; then this is
@@ -105,7 +105,7 @@ public final class AnnotatedUserHandles {
                 .build();
     }
 
-    @VisibleForTesting static Builder newBuilder() {
+    @VisibleForTesting public static Builder newBuilder() {
         return new Builder();
     }
 
@@ -173,7 +173,7 @@ public final class AnnotatedUserHandles {
     }
 
     @VisibleForTesting
-    static class Builder {
+    public static class Builder {
         private int mUserIdOfCallingApp;
         private UserHandle mUserHandleSharesheetLaunchedAs;
         private UserHandle mPersonalProfileUserHandle;

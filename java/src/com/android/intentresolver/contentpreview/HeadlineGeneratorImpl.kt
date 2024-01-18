@@ -16,36 +16,55 @@
 
 package com.android.intentresolver.contentpreview
 
-import android.annotation.StringRes
 import android.content.Context
-import com.android.intentresolver.R
 import android.util.PluralsMessageFormatter
+import androidx.annotation.StringRes
+import com.android.intentresolver.R
 
 private const val PLURALS_COUNT = "count"
 
 /**
- * HeadlineGenerator generates the text to show at the top of the sharesheet as a brief
- * description of the content being shared.
+ * HeadlineGenerator generates the text to show at the top of the sharesheet as a brief description
+ * of the content being shared.
  */
 class HeadlineGeneratorImpl(private val context: Context) : HeadlineGenerator {
     override fun getTextHeadline(text: CharSequence): String {
         return context.getString(
-            getTemplateResource(text, R.string.sharing_link, R.string.sharing_text))
+            getTemplateResource(text, R.string.sharing_link, R.string.sharing_text)
+        )
     }
 
     override fun getImagesWithTextHeadline(text: CharSequence, count: Int): String {
-        return getPluralString(getTemplateResource(
-            text, R.string.sharing_images_with_link, R.string.sharing_images_with_text), count)
+        return getPluralString(
+            getTemplateResource(
+                text,
+                R.string.sharing_images_with_link,
+                R.string.sharing_images_with_text
+            ),
+            count
+        )
     }
 
     override fun getVideosWithTextHeadline(text: CharSequence, count: Int): String {
-        return getPluralString(getTemplateResource(
-            text, R.string.sharing_videos_with_link, R.string.sharing_videos_with_text), count)
+        return getPluralString(
+            getTemplateResource(
+                text,
+                R.string.sharing_videos_with_link,
+                R.string.sharing_videos_with_text
+            ),
+            count
+        )
     }
 
     override fun getFilesWithTextHeadline(text: CharSequence, count: Int): String {
-        return getPluralString(getTemplateResource(
-            text, R.string.sharing_files_with_link, R.string.sharing_files_with_text), count)
+        return getPluralString(
+            getTemplateResource(
+                text,
+                R.string.sharing_files_with_link,
+                R.string.sharing_files_with_text
+            ),
+            count
+        )
     }
 
     override fun getImagesHeadline(count: Int): String {
@@ -70,7 +89,9 @@ class HeadlineGeneratorImpl(private val context: Context) : HeadlineGenerator {
 
     @StringRes
     private fun getTemplateResource(
-        text: CharSequence, @StringRes linkResource: Int, @StringRes nonLinkResource: Int
+        text: CharSequence,
+        @StringRes linkResource: Int,
+        @StringRes nonLinkResource: Int
     ): Int {
         return if (text.toString().isHttpUri()) linkResource else nonLinkResource
     }

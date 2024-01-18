@@ -26,11 +26,16 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.animation.Animation.AnimationListener
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.VisibleForTesting
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.intentresolver.R
@@ -45,6 +50,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 private const val TRANSITION_NAME = "screenshot_preview_image"
 private const val PLURALS_COUNT = "count"
@@ -65,7 +71,6 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         defStyleAttr: Int
     ) : super(context, attrs, defStyleAttr) {
         layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        adapter = Adapter(context)
 
         context
             .obtainStyledAttributes(attrs, R.styleable.ScrollableImagePreviewView, defStyleAttr, 0)
@@ -98,11 +103,14 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
                             )
                             .toInt()
                 }
-                addItemDecoration(SpacingDecoration(innerSpacing, outerSpacing))
+                super.addItemDecoration(SpacingDecoration(innerSpacing, outerSpacing))
 
                 maxWidthHint =
                     a.getDimensionPixelSize(R.styleable.ScrollableImagePreviewView_maxWidthHint, -1)
             }
+        val itemAnimator = ItemAnimator()
+        super.setItemAnimator(itemAnimator)
+        super.setAdapter(Adapter(context, itemAnimator.getAddDuration()))
     }
 
     private var batchLoader: BatchPreviewLoader? = null
@@ -165,6 +173,14 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
             if (vh is PreviewViewHolder && vh.image.transitionName != null) return child
         }
         return null
+    }
+
+    override fun setAdapter(adapter: RecyclerView.Adapter<*>?) {
+        error("This method is not supported")
+    }
+
+    override fun setItemAnimator(animator: RecyclerView.ItemAnimator?) {
+        error("This method is not supported")
     }
 
     fun setImageLoader(imageLoader: CachingImageLoader) {
@@ -269,7 +285,10 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         File
     }
 
-    private class Adapter(private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
+    private class Adapter(
+        private val context: Context,
+        private val fadeInDurationMs: Long,
+    ) : RecyclerView.Adapter<ViewHolder>() {
         private val previews = ArrayList<Preview>()
         private val imagePreviewDescription =
             context.resources.getString(R.string.image_preview_a11y_description)
@@ -311,15 +330,17 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
             if (newPreviews.isEmpty()) return
             val insertPos = previews.size
             val hadOtherItem = hasOtherItem
-            val wasEmpty = previews.isEmpty()
+            val oldItemCount = getItemCount()
             previews.addAll(newPreviews)
             if (firstImagePos < 0) {
                 val pos = newPreviews.indexOfFirst { it.type == PreviewType.Image }
                 if (pos >= 0) firstImagePos = insertPos + pos
             }
-            if (wasEmpty) {
-                // we don't want any item animation in that case
-                notifyDataSetChanged()
+            if (insertPos == 0) {
+                if (oldItemCount > 0) {
+                    notifyItemRangeRemoved(0, oldItemCount)
+                }
+                notifyItemRangeInserted(insertPos, getItemCount())
             } else {
                 notifyItemRangeInserted(insertPos, newPreviews.size)
                 when {
@@ -366,6 +387,7 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
                     vh.bind(
                         previews[position],
                         imageLoader ?: error("ImageLoader is missing"),
+                        fadeInDurationMs,
                         isSharedTransitionElement = position == firstImagePos,
                         previewReadyCallback =
                             if (
@@ -416,10 +438,13 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
         fun bind(
             preview: Preview,
             imageLoader: CachingImageLoader,
+            fadeInDurationMs: Long,
             isSharedTransitionElement: Boolean,
             previewReadyCallback: ((String) -> Unit)?
         ) {
             image.setImageDrawable(null)
+            image.alpha = 1f
+            image.clearAnimation()
             (image.layoutParams as? ConstraintLayout.LayoutParams)?.let { params ->
                 params.dimensionRatio = preview.aspectRatioString
             }
@@ -453,11 +478,11 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
             }
             resetScope().launch {
                 loadImage(preview, imageLoader)
-                if (preview.type == PreviewType.Image) {
-                    previewReadyCallback?.let { callback ->
-                        image.waitForPreDraw()
-                        callback(TRANSITION_NAME)
-                    }
+                if (preview.type == PreviewType.Image && previewReadyCallback != null) {
+                    image.waitForPreDraw()
+                    previewReadyCallback(TRANSITION_NAME)
+                } else if (image.isAttachedToWindow()) {
+                    fadeInPreview(fadeInDurationMs)
                 }
             }
         }
@@ -472,6 +497,30 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
                     .getOrNull()
             image.setImageBitmap(bitmap)
         }
+
+        private suspend fun fadeInPreview(durationMs: Long) =
+            suspendCancellableCoroutine { continuation ->
+                val animation =
+                    AlphaAnimation(0f, 1f).apply {
+                        duration = durationMs
+                        interpolator = DecelerateInterpolator()
+                        setAnimationListener(
+                            object : AnimationListener {
+                                override fun onAnimationStart(animation: Animation?) = Unit
+                                override fun onAnimationRepeat(animation: Animation?) = Unit
+
+                                override fun onAnimationEnd(animation: Animation?) {
+                                    continuation.resumeWith(Result.success(Unit))
+                                }
+                            }
+                        )
+                    }
+                image.startAnimation(animation)
+                continuation.invokeOnCancellation {
+                    image.clearAnimation()
+                    image.alpha = 1f
+                }
+            }
 
         private fun resetScope(): CoroutineScope =
             CoroutineScope(Dispatchers.Main.immediate).also {
@@ -517,6 +566,70 @@ class ScrollableImagePreviewView : RecyclerView, ImagePreviewView {
                 outRect.set(endMargin, 0, startMargin, 0)
             } else {
                 outRect.set(startMargin, 0, endMargin, 0)
+            }
+        }
+    }
+
+    /**
+     * ItemAnimator to handle a special case of addng first image items into the view. The view is
+     * used with wrap_content width spec thus after adding the first views it, generally, changes
+     * its size and position breaking the animation. This class handles that by preserving loading
+     * idicator position in this special case.
+     */
+    private inner class ItemAnimator() : DefaultItemAnimator() {
+        private var animatedVH: ViewHolder? = null
+        private var originalTranslation = 0f
+
+        override fun recordPreLayoutInformation(
+            state: State,
+            viewHolder: RecyclerView.ViewHolder,
+            changeFlags: Int,
+            payloads: MutableList<Any>
+        ): ItemHolderInfo {
+            return super.recordPreLayoutInformation(state, viewHolder, changeFlags, payloads).let {
+                holderInfo ->
+                if (viewHolder is LoadingItemViewHolder && getChildCount() == 1) {
+                    LoadingItemHolderInfo(holderInfo, parentLeft = left)
+                } else {
+                    holderInfo
+                }
+            }
+        }
+
+        override fun animateDisappearance(
+            viewHolder: RecyclerView.ViewHolder,
+            preLayoutInfo: ItemHolderInfo,
+            postLayoutInfo: ItemHolderInfo?
+        ): Boolean {
+            if (viewHolder is LoadingItemViewHolder && preLayoutInfo is LoadingItemHolderInfo) {
+                val view = viewHolder.itemView
+                animatedVH = viewHolder
+                originalTranslation = view.getTranslationX()
+                view.setTranslationX(
+                    (preLayoutInfo.parentLeft - left + preLayoutInfo.left).toFloat() - view.left
+                )
+            }
+            return super.animateDisappearance(viewHolder, preLayoutInfo, postLayoutInfo)
+        }
+
+        override fun onRemoveFinished(viewHolder: RecyclerView.ViewHolder) {
+            if (animatedVH === viewHolder) {
+                viewHolder.itemView.setTranslationX(originalTranslation)
+                animatedVH = null
+            }
+            super.onRemoveFinished(viewHolder)
+        }
+
+        private inner class LoadingItemHolderInfo(
+            holderInfo: ItemHolderInfo,
+            val parentLeft: Int,
+        ) : ItemHolderInfo() {
+            init {
+                left = holderInfo.left
+                top = holderInfo.top
+                right = holderInfo.right
+                bottom = holderInfo.bottom
+                changeFlags = holderInfo.changeFlags
             }
         }
     }

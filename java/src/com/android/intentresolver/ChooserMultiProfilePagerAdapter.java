@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 
+import com.android.intentresolver.emptystate.EmptyStateProvider;
 import com.android.intentresolver.grid.ChooserGridAdapter;
 import com.android.intentresolver.measurements.Tracer;
 import com.android.internal.annotations.VisibleForTesting;
@@ -38,21 +39,22 @@ import java.util.function.Supplier;
  * A {@link PagerAdapter} which describes the work and personal profile share sheet screens.
  */
 @VisibleForTesting
-public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAdapter<
+public class ChooserMultiProfilePagerAdapter extends MultiProfilePagerAdapter<
         RecyclerView, ChooserGridAdapter, ChooserListAdapter> {
     private static final int SINGLE_CELL_SPAN_SIZE = 1;
 
     private final ChooserProfileAdapterBinder mAdapterBinder;
     private final BottomPaddingOverrideSupplier mBottomPaddingOverrideSupplier;
 
-    ChooserMultiProfilePagerAdapter(
+    public ChooserMultiProfilePagerAdapter(
             Context context,
             ChooserGridAdapter adapter,
             EmptyStateProvider emptyStateProvider,
             Supplier<Boolean> workProfileQuietModeChecker,
             UserHandle workProfileUserHandle,
             UserHandle cloneProfileUserHandle,
-            int maxTargetsPerRow) {
+            int maxTargetsPerRow,
+            FeatureFlags featureFlags) {
         this(
                 context,
                 new ChooserProfileAdapterBinder(maxTargetsPerRow),
@@ -62,10 +64,11 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
                 /* defaultProfile= */ 0,
                 workProfileUserHandle,
                 cloneProfileUserHandle,
-                new BottomPaddingOverrideSupplier(context));
+                new BottomPaddingOverrideSupplier(context),
+                featureFlags);
     }
 
-    ChooserMultiProfilePagerAdapter(
+    public ChooserMultiProfilePagerAdapter(
             Context context,
             ChooserGridAdapter personalAdapter,
             ChooserGridAdapter workAdapter,
@@ -74,7 +77,8 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
             @Profile int defaultProfile,
             UserHandle workProfileUserHandle,
             UserHandle cloneProfileUserHandle,
-            int maxTargetsPerRow) {
+            int maxTargetsPerRow,
+            FeatureFlags featureFlags) {
         this(
                 context,
                 new ChooserProfileAdapterBinder(maxTargetsPerRow),
@@ -84,7 +88,8 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
                 defaultProfile,
                 workProfileUserHandle,
                 cloneProfileUserHandle,
-                new BottomPaddingOverrideSupplier(context));
+                new BottomPaddingOverrideSupplier(context),
+                featureFlags);
     }
 
     private ChooserMultiProfilePagerAdapter(
@@ -96,9 +101,9 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
             @Profile int defaultProfile,
             UserHandle workProfileUserHandle,
             UserHandle cloneProfileUserHandle,
-            BottomPaddingOverrideSupplier bottomPaddingOverrideSupplier) {
+            BottomPaddingOverrideSupplier bottomPaddingOverrideSupplier,
+            FeatureFlags featureFlags) {
         super(
-                context,
                         gridAdapter -> gridAdapter.getListAdapter(),
                 adapterBinder,
                 gridAdapters,
@@ -107,7 +112,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
                 defaultProfile,
                 workProfileUserHandle,
                 cloneProfileUserHandle,
-                        () -> makeProfileView(context),
+                        () -> makeProfileView(context, featureFlags),
                 bottomPaddingOverrideSupplier);
         mAdapterBinder = adapterBinder;
         mBottomPaddingOverrideSupplier = bottomPaddingOverrideSupplier;
@@ -131,10 +136,12 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
         }
     }
 
-    private static ViewGroup makeProfileView(Context context) {
+    private static ViewGroup makeProfileView(
+            Context context, FeatureFlags featureFlags) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        ViewGroup rootView = (ViewGroup) inflater.inflate(
-                R.layout.chooser_list_per_profile, null, false);
+        ViewGroup rootView = featureFlags.scrollablePreview()
+                ? (ViewGroup) inflater.inflate(R.layout.chooser_list_per_profile_wrap, null, false)
+                : (ViewGroup) inflater.inflate(R.layout.chooser_list_per_profile, null, false);
         RecyclerView recyclerView = rootView.findViewById(com.android.internal.R.id.resolver_list);
         recyclerView.setAccessibilityDelegateCompat(
                 new ChooserRecyclerViewAccessibilityDelegate(recyclerView));
@@ -142,7 +149,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
     }
 
     @Override
-    boolean rebuildActiveTab(boolean doPostProcessing) {
+    public boolean rebuildActiveTab(boolean doPostProcessing) {
         if (doPostProcessing) {
             Tracer.INSTANCE.beginAppTargetLoadingSection(getActiveListAdapter().getUserHandle());
         }
@@ -150,7 +157,7 @@ public class ChooserMultiProfilePagerAdapter extends GenericMultiProfilePagerAda
     }
 
     @Override
-    boolean rebuildInactiveTab(boolean doPostProcessing) {
+    public boolean rebuildInactiveTab(boolean doPostProcessing) {
         if (getItemCount() != 1 && doPostProcessing) {
             Tracer.INSTANCE.beginAppTargetLoadingSection(getInactiveListAdapter().getUserHandle());
         }

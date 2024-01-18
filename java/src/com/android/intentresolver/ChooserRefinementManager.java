@@ -16,8 +16,6 @@
 
 package com.android.intentresolver;
 
-import android.annotation.Nullable;
-import android.annotation.UiThread;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
@@ -28,22 +26,30 @@ import android.os.Parcel;
 import android.os.ResultReceiver;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.android.intentresolver.chooser.TargetInfo;
 
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
 import java.util.List;
 import java.util.function.Consumer;
+
+import javax.inject.Inject;
+
 
 /**
  * Helper class to manage Sharesheet's "refinement" flow, where callers supply a "refinement
  * activity" that will be invoked when a target is selected, allowing the calling app to add
- * additional extras and other refinements (subject to {@link Intent#filterEquals()}), e.g., to
+ * additional extras and other refinements (subject to {@link Intent#filterEquals}), e.g., to
  * convert the format of the payload, or lazy-download some data that was deferred in the original
  * call).
  */
+@HiltViewModel
 @UiThread
 public final class ChooserRefinementManager extends ViewModel {
     private static final String TAG = "ChooserRefinement";
@@ -87,6 +93,9 @@ public final class ChooserRefinementManager extends ViewModel {
     }
 
     private MutableLiveData<RefinementCompletion> mRefinementCompletion = new MutableLiveData<>();
+
+    @Inject
+    public ChooserRefinementManager() {}
 
     public LiveData<RefinementCompletion> getRefinementCompletion() {
         return mRefinementCompletion;

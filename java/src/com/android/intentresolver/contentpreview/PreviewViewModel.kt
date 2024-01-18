@@ -17,6 +17,7 @@
 package com.android.intentresolver.contentpreview
 
 import android.app.Application
+import android.content.Intent
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -25,26 +26,32 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.android.intentresolver.ChooserRequestParameters
 import com.android.intentresolver.R
+import com.android.intentresolver.inject.Background
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.plus
 
 /** A trivial view model to keep a [PreviewDataProvider] instance over a configuration change */
-class PreviewViewModel(
+@HiltViewModel
+class PreviewViewModel
+@Inject
+constructor(
     private val application: Application,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    @Background private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : BasePreviewViewModel() {
     private var previewDataProvider: PreviewDataProvider? = null
     private var imageLoader: ImagePreviewImageLoader? = null
 
     @MainThread
     override fun createOrReuseProvider(
-        chooserRequest: ChooserRequestParameters
+        targetIntent: Intent
     ): PreviewDataProvider =
         previewDataProvider
             ?: PreviewDataProvider(
                     viewModelScope + dispatcher,
-                    chooserRequest.targetIntent,
+                    targetIntent,
                     application.contentResolver
                 )
                 .also { previewDataProvider = it }

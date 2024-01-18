@@ -28,16 +28,16 @@ import com.android.intentresolver.chooser.DisplayResolveInfo;
 
 import java.util.function.Consumer;
 
-class LoadLabelTask extends AsyncTask<Void, Void, CharSequence[]> {
+class LoadLabelTask extends AsyncTask<Void, Void, LabelInfo> {
     private final Context mContext;
     private final DisplayResolveInfo mDisplayResolveInfo;
     private final boolean mIsAudioCaptureDevice;
     protected final TargetPresentationGetter.Factory mPresentationFactory;
-    private final Consumer<CharSequence[]> mCallback;
+    private final Consumer<LabelInfo> mCallback;
 
     LoadLabelTask(Context context, DisplayResolveInfo dri,
             boolean isAudioCaptureDevice, TargetPresentationGetter.Factory presentationFactory,
-            Consumer<CharSequence[]> callback) {
+            Consumer<LabelInfo> callback) {
         mContext = context;
         mDisplayResolveInfo = dri;
         mIsAudioCaptureDevice = isAudioCaptureDevice;
@@ -46,49 +46,52 @@ class LoadLabelTask extends AsyncTask<Void, Void, CharSequence[]> {
     }
 
     @Override
-    protected CharSequence[] doInBackground(Void... voids) {
+    protected LabelInfo doInBackground(Void... voids) {
         try {
             Trace.beginSection("app-label");
-            return loadLabel();
+            return loadLabel(
+                    mContext, mDisplayResolveInfo, mIsAudioCaptureDevice, mPresentationFactory);
         } finally {
             Trace.endSection();
         }
     }
 
-    private CharSequence[] loadLabel() {
-        TargetPresentationGetter pg = mPresentationFactory.makePresentationGetter(
-                mDisplayResolveInfo.getResolveInfo());
+    static LabelInfo loadLabel(
+            Context context,
+            DisplayResolveInfo displayResolveInfo,
+            boolean isAudioCaptureDevice,
+            TargetPresentationGetter.Factory presentationFactory) {
+        TargetPresentationGetter pg = presentationFactory.makePresentationGetter(
+                displayResolveInfo.getResolveInfo());
 
-        if (mIsAudioCaptureDevice) {
+        if (isAudioCaptureDevice) {
             // This is an audio capture device, so check record permissions
-            ActivityInfo activityInfo = mDisplayResolveInfo.getResolveInfo().activityInfo;
+            ActivityInfo activityInfo = displayResolveInfo.getResolveInfo().activityInfo;
             String packageName = activityInfo.packageName;
 
             int uid = activityInfo.applicationInfo.uid;
             boolean hasRecordPermission =
                     PermissionChecker.checkPermissionForPreflight(
-                            mContext,
+                            context,
                             android.Manifest.permission.RECORD_AUDIO, -1, uid,
                             packageName)
                             == android.content.pm.PackageManager.PERMISSION_GRANTED;
 
             if (!hasRecordPermission) {
                 // Doesn't have record permission, so warn the user
-                return new CharSequence[]{
+                return new LabelInfo(
                         pg.getLabel(),
-                        mContext.getString(R.string.usb_device_resolve_prompt_warn)
-                };
+                        context.getString(R.string.usb_device_resolve_prompt_warn));
             }
         }
 
-        return new CharSequence[]{
+        return new LabelInfo(
                 pg.getLabel(),
-                pg.getSubLabel()
-        };
+                pg.getSubLabel());
     }
 
     @Override
-    protected void onPostExecute(CharSequence[] result) {
+    protected void onPostExecute(LabelInfo result) {
         mCallback.accept(result);
     }
 }

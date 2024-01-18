@@ -35,14 +35,13 @@ import androidx.annotation.MainThread
 import androidx.annotation.OpenForTesting
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.coroutineScope
 import com.android.intentresolver.chooser.DisplayResolveInfo
 import com.android.intentresolver.measurements.Tracer
 import com.android.intentresolver.measurements.runTracing
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.channels.BufferOverflow
@@ -50,6 +49,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
@@ -58,14 +58,14 @@ import kotlinx.coroutines.launch
  * A ShortcutLoader instance can be viewed as a per-profile singleton hot stream of shortcut
  * updates. The shortcut loading is triggered in the constructor or by the [reset] method, the
  * processing happens on the [dispatcher] and the result is delivered through the [callback] on the
- * default [lifecycle]'s dispatcher, the main thread.
+ * default [scope]'s dispatcher, the main thread.
  */
 @OpenForTesting
 open class ShortcutLoader
 @VisibleForTesting
 constructor(
     private val context: Context,
-    private val lifecycle: Lifecycle,
+    private val scope: CoroutineScope,
     private val appPredictor: AppPredictorProxy?,
     private val userHandle: UserHandle,
     private val isPersonalProfile: Boolean,
@@ -75,7 +75,9 @@ constructor(
 ) {
     private val shortcutToChooserTargetConverter = ShortcutToChooserTargetConverter()
     private val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
-    private val appPredictorCallback = AppPredictor.Callback { onAppPredictorCallback(it) }
+    private val appPredictorCallback =
+        ScopedAppTargetListCallback(scope) { onAppPredictorCallback(it) }.toAppPredictorCallback()
+
     private val appTargetSource =
         MutableSharedFlow<Array<DisplayResolveInfo>?>(
             replay = 1,
@@ -84,19 +86,19 @@ constructor(
     private val shortcutSource =
         MutableSharedFlow<ShortcutData?>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val isDestroyed
-        get() = !lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)
+        get() = !scope.isActive
 
     @MainThread
     constructor(
         context: Context,
-        lifecycle: Lifecycle,
+        scope: CoroutineScope,
         appPredictor: AppPredictor?,
         userHandle: UserHandle,
         targetIntentFilter: IntentFilter?,
         callback: Consumer<Result>
     ) : this(
         context,
-        lifecycle,
+        scope,
         appPredictor?.let { AppPredictorProxy(it) },
         userHandle,
         userHandle == UserHandle.of(ActivityManager.getCurrentUser()),
@@ -107,7 +109,7 @@ constructor(
 
     init {
         appPredictor?.registerPredictionUpdates(dispatcher.asExecutor(), appPredictorCallback)
-        lifecycle.coroutineScope
+        scope
             .launch {
                 appTargetSource
                     .combine(shortcutSource) { appTargets, shortcutData ->
@@ -135,13 +137,13 @@ constructor(
         reset()
     }
 
-    /** Clear application targets (see [updateAppTargets] and initiate shrtcuts loading. */
+    /** Clear application targets (see [updateAppTargets] and initiate shortcuts loading. */
     @OpenForTesting
     open fun reset() {
         Log.d(TAG, "reset shortcut loader for user $userHandle")
         appTargetSource.tryEmit(null)
         shortcutSource.tryEmit(null)
-        lifecycle.coroutineScope.launch(dispatcher) { loadShortcuts() }
+        scope.launch(dispatcher) { loadShortcuts() }
     }
 
     /**

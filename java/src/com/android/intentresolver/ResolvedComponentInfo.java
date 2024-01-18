@@ -20,6 +20,8 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 
+import com.android.intentresolver.chooser.TargetInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,7 +88,7 @@ public final class ResolvedComponentInfo {
     }
 
     /**
-     * @return whether this component was pinned by a call to {@link #setPinned()}.
+     * @return whether this component was pinned by a call to {@link #setPinned}.
      * TODO: consolidate sources of pinning data and/or document how this differs from other places
      * we make a "pinning" determination.
      */

@@ -44,27 +44,36 @@
     <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"Λήψη εικόνας"</string>
     <string name="use_a_different_app" msgid="2062380818535918975">"Χρήση άλλης εφαρμογής"</string>
     <string name="chooseActivity" msgid="6659724877523973446">"Επιλέξτε μια ενέργεια"</string>
-    <string name="noApplications" msgid="1139487441772284671">"Δεν υπάρχουν εφαρμογές, οι οποίες μπορούν να εκτελέσουν αυτήν την ενέργεια."</string>
-    <string name="forward_intent_to_owner" msgid="6454987608971162379">"Χρησιμοποιείτε αυτήν την εφαρμογή εκτός του προφίλ εργασίας σας"</string>
-    <string name="forward_intent_to_work" msgid="2906094223089139419">"Χρησιμοποιείτε αυτήν την εφαρμογή στο προφίλ εργασίας"</string>
+    <string name="noApplications" msgid="1139487441772284671">"Δεν υπάρχουν εφαρμογές, οι οποίες μπορούν να εκτελέσουν αυτή την ενέργεια."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"Χρησιμοποιείτε αυτή την εφαρμογή εκτός του προφίλ εργασίας σας"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"Χρησιμοποιείτε αυτή την εφαρμογή στο προφίλ εργασίας"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"Πάντα"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"Μόνο μία φορά"</string>
     <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"Η εφαρμογή <xliff:g id="APP">%1$s</xliff:g> δεν υποστηρίζει προφίλ εργασίας"</string>
     <string name="pin_specific_target" msgid="5057063421361441406">"Καρφίτσωμα <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Ξεκαρφίτσωμα <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Επεξεργασία"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # αρχείο}other{{file_name} + # αρχεία}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # αρχείο}other{+ # αρχεία}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # ακόμη αρχείο}other{+ # ακόμη αρχεία}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Κοινοποίηση μηνύματος"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Κοινοποίηση συνδέσμου"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Κοινοποίηση εικόνας}other{Κοινοποίηση # εικόνων}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Κοινοποίηση βίντεο}other{Κοινοποίηση # βίντεο}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Κοινοποίηση # στοιχείου}other{Κοινοποίηση # στοιχείων}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"Κοινοπ. εικόνας με κείμ."</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"Κοινοπ. εικόνας με σύνδ."</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Κοινή χρήση # αρχείου}other{Κοινή χρήση # αρχείων}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Κοινοποίηση εικόνας με κείμενο}other{Κοινοποίηση # εικόνων με κείμενο}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Κοινοποίηση εικόνας με σύνδεσμο}other{Κοινοποίηση # εικόνων με σύνδεσμο}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Κοινοποίηση βίντεο με κείμενο}other{Κοινοποίηση # βίντεο με κείμενο}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Κοινοποίηση βίντεο με σύνδεσμο}other{Κοινοποίηση # βίντεο με σύνδεσμο}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Κοινοποίηση αρχείου με κείμενο}other{Κοινοποίηση # αρχείων με κείμενο}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Κοινοποίηση αρχείου με σύνδεσμο}other{Κοινοποίηση # αρχείων με σύνδεσμο}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Μόνο εικόνα}other{Μόνο εικόνες}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Μόνο βίντεο}other{Μόνο βίντεο}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Μόνο αρχείο}other{Μόνο αρχεία}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Μικρογραφία προεπισκόπησης εικόνας"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Μικρογραφία προεπισκόπησης βίντεο"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Μικρογραφία προεπισκόπησης αρχείου"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Δεν υπάρχουν προτεινόμενα άτομα για κοινοποίηση"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Λίστα εφαρμογών"</string>
-    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Δεν έχει εκχωρηθεί άδεια εγγραφής σε αυτήν την εφαρμογή, αλλά μέσω αυτής της συσκευής USB θα μπορεί να εγγράφει ήχο."</string>
+    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Δεν έχει εκχωρηθεί άδεια εγγραφής σε αυτή την εφαρμογή, αλλά μέσω αυτής της συσκευής USB θα μπορεί να εγγράφει ήχο."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Προσωπικό"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Εργασία"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Προσωπική προβολή"</string>
@@ -74,8 +83,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Δεν είναι δυνατό το άνοιγμα αυτού του περιεχομένου με εφαρμογές εργασιών"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Δεν είναι δυνατή η κοινοποίηση αυτού του περιεχομένου με προσωπικές εφαρμογές"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Δεν είναι δυνατό το άνοιγμα αυτού του περιεχομένου με προσωπικές εφαρμογές"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Το προφίλ εργασίας σας έχει τεθεί σε παύση."</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Πατήστε για ενεργοποίηση"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Οι εφαρμογές εργασιών τέθηκαν σε παύση"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Αναίρεση παύσης"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Δεν υπάρχουν εφαρμογές εργασιών"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Δεν υπάρχουν προσωπικές εφαρμογές"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Θέλετε να ανοίξετε την εφαρμογή <xliff:g id="APP">%s</xliff:g> στο προσωπικό σας προφίλ;"</string>
@@ -86,4 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"Συμπερίληψη κειμένου"</string>
     <string name="exclude_link" msgid="1332778255031992228">"Εξαίρεση συνδέσμου"</string>
     <string name="include_link" msgid="827855767220339802">"Συμπερίληψη συνδέσμου"</string>
+    <string name="pinned" msgid="7623664001331394139">"Καρφιτσωμένο"</string>
 </resources>

@@ -53,17 +53,26 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"將「<xliff:g id="LABEL">%1$s</xliff:g>」置頂"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"將「<xliff:g id="LABEL">%1$s</xliff:g>」取消固定"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"編輯"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{「{file_name}」和另外 # 個檔案}other{「{file_name}」和另外 # 個檔案}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{和 # 個檔案}other{和 # 個檔案}}"</string>
-    <string name="sharing_text" msgid="8137537443603304062">"正在分享文字"</string>
-    <string name="sharing_link" msgid="2307694372813942916">"正在分享連結"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{正在分享圖片}other{正在分享 # 張圖片}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{和另外 # 個檔案}other{和另外 # 個檔案}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"分享文字"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"分享連結"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{分享圖片}other{分享 # 張圖片}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{正在分享影片}other{正在分享 # 部影片}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{正在分享 # 個項目}other{正在分享 # 個項目}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"正在分享含有文字的圖片"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"正在分享含有連結的圖片"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{正在分享 # 個檔案}other{正在分享 # 個檔案}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{分享含有文字的圖片}other{分享 # 張含有文字的圖片}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{分享含有連結的圖片}other{分享 # 張含有連結的圖片}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{分享含有文字的影片}other{分享 # 部含有文字的影片}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{分享含有連結的影片}other{分享 # 部含有連結的影片}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{分享含有文字的檔案}other{分享含有文字的 # 個檔案}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{分享含有連結的檔案}other{分享含有連結的 # 個檔案}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{只有圖片}other{只有圖片}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{只有影片}other{只有影片}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{只有檔案}other{只有檔案}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"圖片預覽縮圖"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"影片預覽縮圖"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"檔案預覽縮圖"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"沒有建議的分享對象"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"應用程式清單"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"這個應用程式未取得錄製內容的權限，但可以透過這部 USB 裝置錄製音訊。"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"個人"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"工作"</string>
@@ -72,10 +81,10 @@
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"IT 管理員已封鎖這項操作"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"無法透過工作應用程式分享這項內容"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"無法使用工作應用程式開啟這項內容"</string>
-    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"無法透過個人應用程式分享這項內容"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"無法與個人應用程式分享這項內容"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"無法使用個人應用程式開啟這項內容"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"工作資料夾已暫停使用"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"輕觸即可啟用"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"工作應用程式目前為暫停狀態"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"取消暫停"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"沒有適用的工作應用程式"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"沒有適用的個人應用程式"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"要在個人資料夾中開啟「<xliff:g id="APP">%s</xliff:g>」嗎？"</string>
@@ -86,4 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"加回文字"</string>
     <string name="exclude_link" msgid="1332778255031992228">"排除連結"</string>
     <string name="include_link" msgid="827855767220339802">"加回連結"</string>
+    <string name="pinned" msgid="7623664001331394139">"已固定"</string>
 </resources>

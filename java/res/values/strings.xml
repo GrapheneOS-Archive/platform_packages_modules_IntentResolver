@@ -303,4 +303,8 @@
     <string name="exclude_link">Exclude link</string>
     <!-- Title for a button. Adds back a (previously excluded) web link into the shared content. -->
     <string name="include_link">Include link</string>
+
+    <!-- Accesssibility content description for a sharesheet target that has been pinned to the
+         front of the list by the user. [CHAR LIMIT=NONE] -->
+    <string name="pinned">Pinned</string>
 </resources>

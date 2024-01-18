@@ -24,8 +24,6 @@ import android.util.Size
 import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
 import androidx.collection.LruCache
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.coroutineScope
 import java.util.function.Consumer
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -70,8 +68,8 @@ constructor(
 
     override suspend fun invoke(uri: Uri, caching: Boolean): Bitmap? = loadImageAsync(uri, caching)
 
-    override fun loadImage(callerLifecycle: Lifecycle, uri: Uri, callback: Consumer<Bitmap?>) {
-        callerLifecycle.coroutineScope.launch {
+    override fun loadImage(callerScope: CoroutineScope, uri: Uri, callback: Consumer<Bitmap?>) {
+        callerScope.launch {
             val image = loadImageAsync(uri, caching = true)
             if (isActive) {
                 callback.accept(image)

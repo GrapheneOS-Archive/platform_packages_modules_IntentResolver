@@ -53,17 +53,26 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Ainguratu <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Kendu aingura <xliff:g id="LABEL">%1$s</xliff:g> aplikazioari"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Editatu"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} eta beste # fitxategi}other{{file_name} eta beste # fitxategi}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{eta beste # fitxategi}other{eta beste # fitxategi}}"</string>
-    <string name="sharing_text" msgid="8137537443603304062">"Testua partekatzen"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{eta beste # fitxategi}other{eta beste # fitxategi}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Partekatuko den testua"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Esteka partekatzen"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Irudia partekatzen}other{# irudi partekatzen}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Bideoa partekatzen}other{# bideo partekatzen}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# elementu partekatzen}other{# elementu partekatzen}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"Irudi testuduna partekatzen"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"Irudi estekaduna partekatzen"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# fitxategi partekatuko da}other{# fitxategi partekatuko dira}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Irudi testudun bat partekatuko da}other{# irudi testudun partekatuko dira}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Irudi estekadun bat partekatuko da}other{# irudi estekadun partekatuko dira}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Bideo testudun bat partekatuko da}other{# bideo testudun partekatuko dira}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Bideo estekadun bat partekatuko da}other{# bideo estekadun partekatuko dira}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Fitxategi testudun bat partekatuko da}other{# fitxategi testudun partekatuko dira}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Fitxategi estekadun bat partekatuko da}other{# fitxategi estekadun partekatuko dira}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Irudia soilik}other{Irudiak bakarrik}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Bideoa soilik}other{Bideoak soilik}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Fitxategia soilik}other{Fitxategiak soilik}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Irudiaren aurrebista gisako irudi txikia"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Bideoaren aurrebista gisako irudi txikia"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Fitxategiaren aurrebista gisako irudi txikia"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Ez dago edukia partekatzeko pertsona gomendaturik"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Aplikazioen zerrenda"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Aplikazioak ez du grabatzeko baimenik, baina baliteke audioa grabatzea USB bidezko gailu horren bidez."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Pertsonala"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Lanekoa"</string>
@@ -74,8 +83,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Eduki hau ezin da laneko aplikazioekin ireki"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Eduki hau ezin da aplikazio pertsonalekin partekatu"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Eduki hau ezin da aplikazio pertsonalekin ireki"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Laneko profila pausatuta dago"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Sakatu aktibatzeko"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Pausatuta daude laneko aplikazioak"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Berraktibatu"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Ez dago laneko aplikaziorik"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Ez dago aplikazio pertsonalik"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Profil pertsonalean ireki nahi duzu <xliff:g id="APP">%s</xliff:g>?"</string>
@@ -86,4 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"Sartu testua"</string>
     <string name="exclude_link" msgid="1332778255031992228">"Utzi kanpoan esteka"</string>
     <string name="include_link" msgid="827855767220339802">"Sartu esteka"</string>
+    <string name="pinned" msgid="7623664001331394139">"Ainguratuta"</string>
 </resources>

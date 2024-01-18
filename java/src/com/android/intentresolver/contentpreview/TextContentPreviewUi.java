@@ -20,6 +20,7 @@ import static com.android.intentresolver.util.UriFilters.isOwnedByCurrentUser;
 
 import android.content.res.Resources;
 import android.net.Uri;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,13 +29,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Lifecycle;
 
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
 
+import kotlinx.coroutines.CoroutineScope;
+
 class TextContentPreviewUi extends ContentPreviewUi {
-    private final Lifecycle mLifecycle;
+    private final CoroutineScope mScope;
     @Nullable
     private final CharSequence mSharingText;
     @Nullable
@@ -46,14 +48,14 @@ class TextContentPreviewUi extends ContentPreviewUi {
     private final HeadlineGenerator mHeadlineGenerator;
 
     TextContentPreviewUi(
-            Lifecycle lifecycle,
+            CoroutineScope scope,
             @Nullable CharSequence sharingText,
             @Nullable CharSequence previewTitle,
             @Nullable Uri previewThumbnail,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
             HeadlineGenerator headlineGenerator) {
-        mLifecycle = lifecycle;
+        mScope = scope;
         mSharingText = sharingText;
         mPreviewTitle = previewTitle;
         mPreviewThumbnail = previewThumbnail;
@@ -68,17 +70,27 @@ class TextContentPreviewUi extends ContentPreviewUi {
     }
 
     @Override
-    public ViewGroup display(Resources resources, LayoutInflater layoutInflater, ViewGroup parent) {
-        ViewGroup layout = displayInternal(layoutInflater, parent);
-        displayModifyShareAction(layout, mActionFactory);
+    public ViewGroup display(
+            Resources resources,
+            LayoutInflater layoutInflater,
+            ViewGroup parent,
+            @Nullable View headlineViewParent) {
+        ViewGroup layout = displayInternal(layoutInflater, parent, headlineViewParent);
+        displayModifyShareAction(
+                headlineViewParent == null ? layout : headlineViewParent, mActionFactory);
         return layout;
     }
 
     private ViewGroup displayInternal(
             LayoutInflater layoutInflater,
-            ViewGroup parent) {
+            ViewGroup parent,
+            @Nullable View headlineViewParent) {
         ViewGroup contentPreviewLayout = (ViewGroup) layoutInflater.inflate(
                 R.layout.chooser_grid_preview_text, parent, false);
+        if (headlineViewParent == null) {
+            headlineViewParent = contentPreviewLayout;
+        }
+        inflateHeadline(headlineViewParent);
 
         final ActionRow actionRow =
                 contentPreviewLayout.findViewById(com.android.internal.R.id.chooser_action_row);
@@ -93,13 +105,9 @@ class TextContentPreviewUi extends ContentPreviewUi {
 
         TextView textView = contentPreviewLayout.findViewById(
                 com.android.internal.R.id.content_preview_text);
-        String text = mSharingText.toString();
 
-        // If we're only previewing one line, then strip out newlines.
-        if (textView.getMaxLines() == 1) {
-            text = text.replace("\n", " ");
-        }
-        textView.setText(text);
+        textView.setText(
+                textView.getMaxLines() == 1 ? replaceLineBreaks(mSharingText) : mSharingText);
 
         TextView previewTitleView = contentPreviewLayout.findViewById(
                 com.android.internal.R.id.content_preview_title);
@@ -115,7 +123,7 @@ class TextContentPreviewUi extends ContentPreviewUi {
             previewThumbnailView.setVisibility(View.GONE);
         } else {
             mImageLoader.loadImage(
-                    mLifecycle,
+                    mScope,
                     mPreviewThumbnail,
                     (bitmap) -> updateViewWithImage(
                             contentPreviewLayout.findViewById(
@@ -131,8 +139,22 @@ class TextContentPreviewUi extends ContentPreviewUi {
             copyButton.setVisibility(View.GONE);
         }
 
-        displayHeadline(contentPreviewLayout, mHeadlineGenerator.getTextHeadline(mSharingText));
+        displayHeadline(headlineViewParent, mHeadlineGenerator.getTextHeadline(mSharingText));
 
         return contentPreviewLayout;
+    }
+
+    @Nullable
+    private static CharSequence replaceLineBreaks(@Nullable CharSequence text) {
+        if (text == null) {
+            return null;
+        }
+        SpannableStringBuilder string = new SpannableStringBuilder(text);
+        for (int i = 0, size = string.length(); i < size; i++) {
+            if (string.charAt(i) == '\n') {
+                string.replace(i, i + 1, " ");
+            }
+        }
+        return string;
     }
 }

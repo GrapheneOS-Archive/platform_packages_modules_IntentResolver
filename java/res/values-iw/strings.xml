@@ -53,17 +53,26 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"הצמדה של <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"ביטול ההצמדה של <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"עריכה"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} ועוד קובץ אחד}one{{file_name} ועוד # קבצים}two{{file_name} ועוד # קבצים}other{{file_name} ועוד # קבצים}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ קובץ אחד}one{+ # קבצים}two{+ # קבצים}other{+ # קבצים}}"</string>
-    <string name="sharing_text" msgid="8137537443603304062">"שיתוף הטקסט מתבצע"</string>
-    <string name="sharing_link" msgid="2307694372813942916">"שיתוף הקישור מתבצע"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{מתבצע שיתוף של תמונה}one{מתבצע שיתוף של # תמונות}two{מתבצע שיתוף של # תמונות}other{מתבצע שיתוף של # תמונות}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{קובץ אחד נוסף}one{# קבצים נוספים}two{# קבצים נוספים}other{# קבצים נוספים}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"שיתוף טקסט"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"שיתוף קישור"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{שיתוף של תמונה}one{שיתוף של # תמונות}two{שיתוף של # תמונות}other{שיתוף של # תמונות}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{מתבצע שיתוף של סרטון}one{מתבצע שיתוף של # סרטונים}two{מתבצע שיתוף של # סרטונים}other{מתבצע שיתוף של # סרטונים}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{מתבצע שיתוף של פריט אחד (#)}one{מתבצע שיתוף של # פריטים}two{מתבצע שיתוף של # פריטים}other{מתבצע שיתוף של # פריטים}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"שיתוף תמונה עם טקסט"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"שיתוף תמונה עם קישור"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{מתבצע שיתוף של קובץ אחד}one{מתבצע שיתוף של # קבצים}two{מתבצע שיתוף של # קבצים}other{מתבצע שיתוף של # קבצים}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{שיתוף תמונה עם טקסט}one{שיתוף # תמונות עם טקסט}two{שיתוף # תמונות עם טקסט}other{שיתוף # תמונות עם טקסט}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{שיתוף תמונה עם קישור}one{שיתוף # תמונות עם קישור}two{שיתוף # תמונות עם קישור}other{שיתוף # תמונות עם קישור}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{שיתוף סרטון עם טקסט}one{שיתוף # סרטונים עם טקסט}two{שיתוף # סרטונים עם טקסט}other{שיתוף # סרטונים עם טקסט}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{שיתוף סרטון עם קישור}one{שיתוף # סרטונים עם קישור}two{שיתוף # סרטונים עם קישור}other{שיתוף # סרטונים עם קישור}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{שיתוף קובץ עם טקסט}one{שיתוף # קבצים עם טקסט}two{שיתוף # קבצים עם טקסט}other{שיתוף # קבצים עם טקסט}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{שיתוף תמונה עם קישור}one{שיתוף # תמונות עם קישור}two{שיתוף # תמונות עם קישור}other{שיתוף # תמונות עם קישור}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{תמונה בלבד}one{תמונות בלבד}two{תמונות בלבד}other{תמונות בלבד}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{סרטון בלבד}one{סרטונים בלבד}two{סרטונים בלבד}other{סרטונים בלבד}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{קובץ בלבד}one{קבצים בלבד}two{קבצים בלבד}other{קבצים בלבד}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"תמונה ממוזערת של תצוגה מקדימה של תמונה"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"תמונה ממוזערת של תצוגה מקדימה של סרטון"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"תמונה ממוזערת של תצוגה מקדימה של קובץ"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"אין אנשים שניתן לשתף איתם"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"רשימת האפליקציות"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"‏לאפליקציה זו לא ניתנה הרשאת הקלטה, אבל אפשר להקליט אודיו באמצעות התקן ה-USB הזה."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"אישי"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"עבודה"</string>
@@ -74,8 +83,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"אי אפשר לפתוח את התוכן הזה באמצעות אפליקציות לעבודה"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"אי אפשר לשתף את התוכן הזה עם אפליקציות לשימוש אישי"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"אי אפשר לפתוח את התוכן הזה באמצעות אפליקציות לשימוש אישי"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"פרופיל העבודה מושהה"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"יש להקיש כדי להפעיל את פרופיל העבודה"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"האפליקציות לעבודה מושהות"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"ביטול ההשהיה"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"אין אפליקציות לעבודה"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"אין אפליקציות לשימוש אישי"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"לפתוח את <xliff:g id="APP">%s</xliff:g> בפרופיל האישי?"</string>
@@ -86,4 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"הכללת הטקסט"</string>
     <string name="exclude_link" msgid="1332778255031992228">"החרגת הקישור"</string>
     <string name="include_link" msgid="827855767220339802">"הכללת הקישור"</string>
+    <string name="pinned" msgid="7623664001331394139">"מוצמד"</string>
 </resources>

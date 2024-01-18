@@ -17,7 +17,6 @@
 
 package com.android.intentresolver;
 
-import android.annotation.WorkerThread;
 import android.app.ActivityManager;
 import android.app.AppGlobals;
 import android.content.ComponentName;
@@ -30,6 +29,8 @@ import android.content.pm.ResolveInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
+
+import androidx.annotation.WorkerThread;
 
 import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
@@ -254,7 +255,6 @@ public class ResolverListController {
         isComputed = true;
     }
 
-    @VisibleForTesting
     @WorkerThread
     public void sort(List<ResolvedComponentInfo> inputList) {
         try {
@@ -273,7 +273,6 @@ public class ResolverListController {
         }
     }
 
-    @VisibleForTesting
     @WorkerThread
     public void topK(List<ResolvedComponentInfo> inputList, int k) {
         if (inputList == null || inputList.isEmpty() || k <= 0) {
@@ -335,7 +334,7 @@ public class ResolverListController {
                 && ai.name.equals(b.name.getClassName());
     }
 
-    boolean isComponentFiltered(ComponentName componentName) {
+    public boolean isComponentFiltered(ComponentName componentName) {
         return false;
     }
 

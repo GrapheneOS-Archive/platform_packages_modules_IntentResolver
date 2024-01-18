@@ -17,12 +17,14 @@
  */
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
         package="com.android.intentresolver"
         android:versionCode="0"
         android:versionName="2021-11"
         coreApp="true">
 
     <application
+        android:name=".MainApplication"
         android:hardwareAccelerated="true"
         android:label="@string/app_label"
         android:directBootAware="true"
@@ -57,6 +59,41 @@
                 android:configChanges="screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden"
                 android:visibleToInstantApps="true"
                 android:exported="false"/>
+
+        <receiver android:name="com.android.intentresolver.v2.ChooserSelector"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name="com.android.intentresolver.v2.ChooserActivity"
+            android:enabled="false"
+            android:theme="@style/Theme.DeviceDefault.Chooser"
+            android:finishOnCloseSystemDialogs="true"
+            android:excludeFromRecents="true"
+            android:documentLaunchMode="never"
+            android:relinquishTaskIdentity="true"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden"
+            android:visibleToInstantApps="true"
+            android:exported="true">
+
+            <!-- This intent filter is assigned a priority greater than 500 so
+                 that it will take precedence over the ChooserActivity
+                 in the process of resolving implicit action.CHOOSER intents
+                 whenever this activity is enabled by the experiment flag. -->
+            <intent-filter android:priority="501">
+                <action android:name="android.intent.action.CHOOSER" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.VOICE" />
+            </intent-filter>
+
+        </activity>
+
+        <provider android:name="androidx.startup.InitializationProvider"
+                android:authorities="${applicationId}.androidx-startup"
+                tools:replace="android:authorities"
+                tools:node="remove" />
 
     </application>
 

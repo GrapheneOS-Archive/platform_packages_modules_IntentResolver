@@ -53,17 +53,26 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g> අමුණන්න"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> ඇමුණුම ඉවත් කරන්න"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"සංස්කරණය"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + ගොනු #}one{{file_name} + ගොනු #}other{{file_name} + ගොනු #}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ගොනුවක්}one{ගොනු + #}other{ගොනු + #}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{තව + # ගොනුවක්}one{තව ගොනු + #}other{තව ගොනු + #}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"පෙළ බෙදා ගැනීම"</string>
     <string name="sharing_link" msgid="2307694372813942916">"සබැඳිය බෙදා ගැනීම"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{රූපය බෙදා ගැනීම}one{රූප #ක් බෙදා ගැනීම}other{රූප #ක් බෙදා ගැනීම}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{වීඩියෝව බෙදා ගැනීම}one{වීඩියෝ #ක් බෙදා ගැනීම}other{වීඩියෝ #ක් බෙදා ගැනීම}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# අයිතමයක් බෙදා ගැනීම}one{අයිතම #ක් බෙදා ගැනීම}other{අයිතම #ක් බෙදා ගැනීම}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"පෙළ සමග රූපය බෙදා ගැනීම"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"සබැඳිය සමග රූපය බෙදාගැනීම"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# ගොනුවක් බෙදා ගැනීම}one{ගොනු #ක් බෙදා ගැනීම}other{ගොනු #ක් බෙදා ගැනීම}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{පෙළ සමග රූපය බෙදා ගැනීම}one{පෙළ සමග රූප #ක් බෙදා ගැනීම}other{පෙළ සමග රූප #ක් බෙදා ගැනීම}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{සබැඳිය සමග රූපය බෙදා ගැනීම}one{සබැඳිය සමග රූප #ක් බෙදා ගැනීම}other{සබැඳිය සමග රූප #ක් බෙදා ගැනීම}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{පෙළ සමග වීඩියෝව බෙදා ගැනීම}one{පෙළ සමග වීඩියෝ #ක් බෙදා ගැනීම}other{පෙළ සමග වීඩියෝ #ක් බෙදා ගැනීම}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{සබැඳිය සමග වීඩියෝව බෙදා ගැනීම}one{සබැඳිය සමග වීඩියෝ #ක් බෙදා ගැනීම}other{සබැඳිය සමග වීඩියෝ #ක් බෙදා ගැනීම}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{පෙළ සමග ගොනුව බෙදා ගැනීම}one{පෙළ සමග ගොනු #ක් බෙදා ගැනීම}other{පෙළ සමග ගොනු #ක් බෙදා ගැනීම}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{සබැඳිය සමග ගොනුව බෙදා ගැනීම}one{සබැඳිය සමග ගොනු #ක් බෙදා ගැනීම}other{සබැඳිය සමග ගොනු #ක් බෙදා ගැනීම}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{රූපය පමණි}one{රූප පමණි}other{රූප පමණි}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{වීඩියෝව පමණි}one{වීඩියෝ පමණි}other{වීඩියෝ පමණි}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ගොනුව පමණි}one{ගොනු පමණි}other{ගොනු පමණි}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"රූප පෙරදසුන් සිඟිති රුව"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"වීඩියෝ පෙරදසුන් සිඟිති රුව"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"ගොනු පෙරදසුන් සිඟිති රුව"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"බෙදා ගැනීමට නිර්දේශිත පුද්ගලයන් නැත"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"යෙදුම් ලැයිස්තුව"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"මෙම යෙදුමට පටිගත කිරීම් අවසරයක් ලබා දී නොමැති නමුත් මෙම USB උපාංගය හරහා ශ්‍රව්‍ය ග්‍රහණය කර ගත හැකිය."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"පුද්ගලික"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"කාර්යාල"</string>
@@ -74,8 +83,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"මෙම අන්තර්ගතය කාර්යාල යෙදුම් සමඟ විවෘත කළ නොහැකිය"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"මෙම අන්තර්ගතය පුද්ගලික යෙදුම් සමඟ බෙදා ගත නොහැකිය"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"මෙම අන්තර්ගතය පුද්ගලික යෙදුම් සමඟ විවෘත කළ නොහැකිය"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"කාර්යාල පැතිකඩ විරාම කර ඇත"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"ක්‍රියාත්මක කිරීමට තට්ටු කරන්න"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"කාර්යාල යෙදුම් විරාම කර ඇත"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"විරාම නොකරන්න"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"කාර්යාල යෙදුම් නැත"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"පුද්ගලික යෙදුම් නැත"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"<xliff:g id="APP">%s</xliff:g> ඔබගේ පුද්ගලික පැතිකඩ තුළ විවෘත කරන්නද?"</string>
@@ -86,4 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"පාඨය ඇතළත් කරන්න"</string>
     <string name="exclude_link" msgid="1332778255031992228">"සබැඳිය බැහැර කරන්න"</string>
     <string name="include_link" msgid="827855767220339802">"සබැඳිය ඇතුළත් කරන්න"</string>
+    <string name="pinned" msgid="7623664001331394139">"අමුණා ඇත"</string>
 </resources>

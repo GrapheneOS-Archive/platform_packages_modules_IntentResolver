@@ -1,0 +1,33 @@
+package: "com.android.intentresolver"
+
+# name: [a-z0-9][_a-z0-9]+
+# namespace: intentresolver
+# bug: "Feature_Bug_#" or "<none>"
+
+flag {
+  name: "example_new_sharing_method"
+  namespace: "intentresolver"
+  description: "Enables the example new sharing mechanism."
+  bug: "<none>"
+}
+
+flag {
+  name: "scrollable_preview"
+  namespace: "intentresolver"
+  description: "Makes preview scrollable with multiple profiles"
+  bug: "287102904"
+}
+
+flag {
+  name: "target_data_caching"
+  namespace: "intentresolver"
+  description: "Enables caching target icons and labels in a local DB"
+  bug: "285314844"
+}
+
+flag {
+  name: "modular_framework"
+  namespace: "intentresolver"
+  description: "Enables the new modular framework"
+  bug: "302113519"
+}

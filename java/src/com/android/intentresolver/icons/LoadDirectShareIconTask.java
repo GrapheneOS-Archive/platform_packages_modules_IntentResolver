@@ -16,7 +16,6 @@
 
 package com.android.intentresolver.icons;
 
-import android.annotation.Nullable;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -30,6 +29,7 @@ import android.graphics.drawable.Icon;
 import android.os.Trace;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
 import com.android.intentresolver.SimpleIconFactory;

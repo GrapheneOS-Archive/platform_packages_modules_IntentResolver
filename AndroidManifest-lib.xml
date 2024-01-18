@@ -31,4 +31,5 @@
     <uses-permission android:name="android.permission.UNLIMITED_SHORTCUTS_API_CALLS" />
     <uses-permission android:name="android.permission.QUERY_CLONED_APPS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.REPORT_USAGE_STATS" />
 </manifest>

@@ -53,17 +53,26 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Piespraust lietotni <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Atspraust lietotni <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Rediģēt"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} un vēl # fails}zero{{file_name} un vēl # failu}one{{file_name} un vēl # fails}other{{file_name} un vēl # faili}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{un vēl # fails}zero{un vēl # faili}one{un vēl # fails}other{un vēl # faili}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{Un vēl # fails}zero{Un vēl # failu}one{Un vēl # fails}other{Un vēl # faili}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Tiek kopīgots teksts"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Tiek kopīgota saite"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Tiek kopīgots attēls}zero{Tiek kopīgoti # attēli}one{Tiek kopīgots # attēls}other{Tiek kopīgoti # attēli}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Tiek kopīgots video}zero{Tiek kopīgoti # video}one{Tiek kopīgots # video}other{Tiek kopīgoti # video}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Tiek kopīgots # vienums}zero{Tiek kopīgoti # vienumi}one{Tiek kopīgots # vienums}other{Tiek kopīgoti # vienumi}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"Tiek kopīgots attēls ar tekstu"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"Tiek kopīgots attēls ar saiti"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Notiek # faila kopīgošana}zero{Notiek # failu kopīgošana}one{Notiek # faila kopīgošana}other{Notiek # failu kopīgošana}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Tiek kopīgots attēls ar tekstu}zero{Tiek kopīgoti # attēli ar tekstu}one{Tiek kopīgots # attēls ar tekstu}other{Tiek kopīgoti # attēli ar tekstu}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Tiek kopīgots attēls ar saiti}zero{Tiek kopīgoti # attēli ar saitēm}one{Tiek kopīgots # attēls ar saitēm}other{Tiek kopīgoti # attēli ar saitēm}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Tiek kopīgots videoklips ar tekstu}zero{Tiek kopīgoti # videoklipi ar tekstu}one{Tiek kopīgots # videoklips ar tekstu}other{Tiek kopīgoti # videoklipi ar tekstu}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Tiek kopīgots videoklips ar saiti}zero{Tiek kopīgoti # videoklipi ar saitēm}one{Tiek kopīgots # videoklips ar saitēm}other{Tiek kopīgoti # videoklipi ar saitēm}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Tiek kopīgots fails ar tekstu}zero{Tiek kopīgoti # faili ar tekstu}one{Tiek kopīgots # fails ar tekstu}other{Tiek kopīgoti # faili ar tekstu}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Tiek kopīgots fails ar saiti}zero{Tiek kopīgoti # faili ar saitēm}one{Tiek kopīgots # fails ar saitēm}other{Tiek kopīgoti # faili ar saitēm}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Tikai attēls}zero{Tikai attēli}one{Tikai attēli}other{Tikai attēli}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Tikai videoklips}zero{Tikai videoklipi}one{Tikai videoklipi}other{Tikai videoklipi}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Tikai fails}zero{Tikai faili}one{Tikai faili}other{Tikai faili}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Attēla priekšskatījuma sīktēls"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Videoklipa priekšskatījuma sīktēls"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Faila priekšskatījuma sīktēls"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Nav ieteikta neviena persona, ar ko kopīgot"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Lietotņu saraksts"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Šai lietotnei nav piešķirta ierakstīšanas atļauja, taču tā varētu tvert audio, izmantojot šo USB ierīci."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Privātais profils"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Darba profils"</string>
@@ -74,8 +83,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Šo saturu nevar atvērt darba lietotnēs"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Šo saturu nevar kopīgot ar personīgajām lietotnēm"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Šo saturu nevar atvērt personīgajās lietotnēs"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Darba profila darbība ir apturēta."</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Lai ieslēgtu, pieskarieties"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Darba lietotnes ir apturētas."</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Aktivizēt"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Nav darba lietotņu"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Nav personīgu lietotņu"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Vai atvērt lietotni <xliff:g id="APP">%s</xliff:g> jūsu personīgajā profilā?"</string>
@@ -86,4 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"Iekļaut tekstu"</string>
     <string name="exclude_link" msgid="1332778255031992228">"Izslēgt saiti"</string>
     <string name="include_link" msgid="827855767220339802">"Iekļaut saiti"</string>
+    <string name="pinned" msgid="7623664001331394139">"Piespraustās"</string>
 </resources>

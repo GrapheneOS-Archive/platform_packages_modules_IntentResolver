@@ -18,7 +18,6 @@ package com.android.intentresolver.model;
 
 import static android.app.prediction.AppTargetEvent.ACTION_LAUNCH;
 
-import android.annotation.Nullable;
 import android.app.prediction.AppPredictor;
 import android.app.prediction.AppTarget;
 import android.app.prediction.AppTargetEvent;
@@ -31,9 +30,12 @@ import android.os.Message;
 import android.os.UserHandle;
 import android.util.Log;
 
-import com.android.intentresolver.logging.EventLog;
+import androidx.annotation.Nullable;
+
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.logging.EventLog;
+import com.android.intentresolver.shortcuts.ScopedAppTargetListCallback;
 
 import com.google.android.collect.Lists;
 
@@ -85,12 +87,12 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
     }
 
     @Override
-    int compare(ResolveInfo lhs, ResolveInfo rhs) {
+    public int compare(ResolveInfo lhs, ResolveInfo rhs) {
         return mComparatorModel.getComparator().compare(lhs, rhs);
     }
 
     @Override
-    void doCompute(List<ResolvedComponentInfo> targets) {
+    public void doCompute(List<ResolvedComponentInfo> targets) {
         if (targets.isEmpty()) {
             mHandler.sendEmptyMessage(RANKER_SERVICE_RESULT);
             return;
@@ -105,33 +107,44 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
                     .setClassName(target.name.getClassName())
                     .build());
         }
-        mAppPredictor.sortTargets(appTargets, Executors.newSingleThreadExecutor(),
-                sortedAppTargets -> {
-                    if (sortedAppTargets.isEmpty()) {
-                        Log.i(TAG, "AppPredictionService disabled. Using resolver.");
-                        // APS for chooser is disabled. Fallback to resolver.
-                        mResolverRankerService =
-                                new ResolverRankerServiceResolverComparator(
-                                        mContext,
-                                        mIntent,
-                                        mReferrerPackage,
-                                        () -> mHandler.sendEmptyMessage(RANKER_SERVICE_RESULT),
-                                        getEventLog(),
-                                        mUser,
-                                        mPromoteToFirst);
-                        mComparatorModel = buildUpdatedModel();
-                        mResolverRankerService.compute(targets);
-                    } else {
-                        Log.i(TAG, "AppPredictionService response received");
-                        // Skip sending to Handler which takes extra time to dispatch messages.
-                        handleResult(sortedAppTargets);
-                    }
-                }
+        mAppPredictor.sortTargets(
+                appTargets,
+                Executors.newSingleThreadExecutor(),
+                new ScopedAppTargetListCallback(
+                        mContext,
+                        sortedAppTargets -> {
+                            onAppTargetsSorted(targets, sortedAppTargets);
+                            return kotlin.Unit.INSTANCE;
+                        }).toConsumer()
         );
     }
 
+    private void onAppTargetsSorted(
+            List<ResolvedComponentInfo> targets, List<AppTarget> sortedAppTargets) {
+        if (sortedAppTargets.isEmpty()) {
+            Log.i(TAG, "AppPredictionService disabled. Using resolver.");
+            // APS for chooser is disabled. Fallback to resolver.
+            mResolverRankerService =
+                    new ResolverRankerServiceResolverComparator(
+                            mContext,
+                            mIntent,
+                            mReferrerPackage,
+                            () -> mHandler.sendEmptyMessage(RANKER_SERVICE_RESULT),
+                            getEventLog(),
+                            mUser,
+                            mPromoteToFirst);
+            mComparatorModel = buildUpdatedModel();
+            mResolverRankerService.compute(targets);
+        } else {
+            Log.i(TAG, "AppPredictionService response received");
+            // Skip sending to Handler which takes extra time to dispatch
+            // messages.
+            handleResult(sortedAppTargets);
+        }
+    }
+
     @Override
-    void handleResultMessage(Message msg) {
+    public void handleResultMessage(Message msg) {
         // Null value is okay if we have defaulted to the ResolverRankerService.
         if (msg.what == RANKER_SERVICE_RESULT && msg.obj != null) {
             final List<AppTarget> sortedAppTargets = (List<AppTarget>) msg.obj;

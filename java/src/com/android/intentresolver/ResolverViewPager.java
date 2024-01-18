@@ -69,7 +69,7 @@ public class ResolverViewPager extends ViewPager {
      * Sets whether swiping sideways should happen.
      * <p>Note that swiping is always disabled for RTL layouts (b/159110029 for context).
      */
-    void setSwipingEnabled(boolean swipingEnabled) {
+    public void setSwipingEnabled(boolean swipingEnabled) {
         mSwipingEnabled = swipingEnabled;
     }
 

@@ -53,17 +53,26 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Şunu sabitle: <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> uygulamasının sabitlemesini kaldır"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Düzenle"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # dosya}other{{file_name} + # dosya}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # dosya}other{+ # dosya}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # dosya daha}other{+ # dosya daha}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Metin paylaşılıyor"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Bağlantı paylaşılıyor"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Resim paylaşılıyor}other{# resim paylaşılıyor}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Video paylaşılıyor}other{# video paylaşılıyor}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# öğe paylaşılıyor}other{# öğe paylaşılıyor}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"Metin ekli resim paylaşılıyor"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"Bağlantı ekli resim paylaşılıyor"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# dosya paylaşılıyor}other{# dosya paylaşılıyor}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Metin ekli resim paylaşılıyor}other{Metin ekli # resim paylaşılıyor}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Bağlantı ekli resim paylaşılıyor}other{Bağlantı ekli # resim paylaşılıyor}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Metin ekli video paylaşılıyor}other{Metin ekli # video paylaşılıyor}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Bağlantı ekli video paylaşılıyor}other{Bağlantı ekli # video paylaşılıyor}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Metin ekli dosya paylaşılıyor}other{Metin ekli # dosya paylaşılıyor}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Bağlantı ekli dosya paylaşılıyor}other{Bağlantı ekli # dosya paylaşılıyor}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Yalnızca resim}other{Yalnızca resimler}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Yalnızca video}other{Yalnızca videolar}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Yalnızca dosya}other{Yalnızca dosyalar}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Resim önizleme küçük resmi"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Video önizleme küçük resmi"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Dosya önizleme küçük resmi"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Paylaşmak için önerilen kullanıcı yok"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Uygulama listesi"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Bu uygulamaya ses kaydetme izni verilmedi ancak bu USB cihazı üzerinden sesleri yakalayabilir."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Kişisel"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"İş"</string>
@@ -74,8 +83,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Bu içerik, iş uygulamalarıyla açılamaz"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Bu içerik, kişisel uygulamalarla paylaşılamaz"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Bu içerik, kişisel uygulamalarla açılamaz"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"İş profili duraklatıldı"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Açmak için dokunun"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"İş uygulamaları duraklatıldı"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Devam ettir"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"İş uygulaması yok"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Kişisel uygulama yok"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"<xliff:g id="APP">%s</xliff:g> uygulaması kişisel profilinizde açılsın mı?"</string>
@@ -86,4 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"Metni dahil et"</string>
     <string name="exclude_link" msgid="1332778255031992228">"Bağlantıyı hariç tut"</string>
     <string name="include_link" msgid="827855767220339802">"Bağlantıyı dahil et"</string>
+    <string name="pinned" msgid="7623664001331394139">"Sabitlendi"</string>
 </resources>

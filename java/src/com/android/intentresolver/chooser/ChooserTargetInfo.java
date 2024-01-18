@@ -16,6 +16,8 @@
 
 package com.android.intentresolver.chooser;
 
+import android.service.chooser.ChooserTarget;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 

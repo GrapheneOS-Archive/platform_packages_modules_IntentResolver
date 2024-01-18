@@ -17,7 +17,6 @@
 
 package com.android.intentresolver.model;
 
-import android.annotation.Nullable;
 import android.app.usage.UsageStats;
 import android.content.ComponentName;
 import android.content.Context;
@@ -39,9 +38,11 @@ import android.service.resolver.ResolverRankerService;
 import android.service.resolver.ResolverTarget;
 import android.util.Log;
 
-import com.android.intentresolver.logging.EventLog;
+import androidx.annotation.Nullable;
+
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.chooser.TargetInfo;
+import com.android.intentresolver.logging.EventLog;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
@@ -101,9 +102,9 @@ public class ResolverRankerServiceResolverComparator extends AbstractResolverCom
      *                        the userSpace provided by context.
      */
     public ResolverRankerServiceResolverComparator(Context launchedFromContext, Intent intent,
-            String referrerPackage, Runnable afterCompute,
-            EventLog eventLog, UserHandle targetUserSpace,
-            ComponentName promoteToFirst) {
+                                                   String referrerPackage, Runnable afterCompute,
+                                                   EventLog eventLog, UserHandle targetUserSpace,
+                                                   ComponentName promoteToFirst) {
         this(launchedFromContext, intent, referrerPackage, afterCompute, eventLog,
                 Lists.newArrayList(targetUserSpace), promoteToFirst);
     }
@@ -117,9 +118,8 @@ public class ResolverRankerServiceResolverComparator extends AbstractResolverCom
      *                            different from the userSpace provided by context.
      */
     public ResolverRankerServiceResolverComparator(Context launchedFromContext, Intent intent,
-            String referrerPackage, Runnable afterCompute,
-            EventLog eventLog, List<UserHandle> targetUserSpaceList,
-            @Nullable ComponentName promoteToFirst) {
+            String referrerPackage, Runnable afterCompute, EventLog eventLog,
+            List<UserHandle> targetUserSpaceList, @Nullable ComponentName promoteToFirst) {
         super(launchedFromContext, intent, targetUserSpaceList, promoteToFirst);
         mCollator = Collator.getInstance(
                 launchedFromContext.getResources().getConfiguration().locale);

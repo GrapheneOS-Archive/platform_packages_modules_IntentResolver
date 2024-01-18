@@ -53,17 +53,26 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"Zakači aplikaciju <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"Otkači aplikaciju <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Uredi"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} i # fajl}one{{file_name} i # fajl}few{{file_name} i # fajla}other{{file_name} i # fajlova}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{i još # fajl}one{i još # fajl}few{i još # fajla}other{i još # fajlova}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{i još # fajl}one{i još # fajl}few{i još # fajla}other{i još # fajlova}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Dijeljenje teksta"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Dijeljenje linka"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Dijeljenje slike}one{Dijeljenje # slike}few{Dijeljenje # slike}other{Dijeljenje # slika}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Dijeljenje videozapisa}one{Dijeljenje # videozapisa}few{Dijeljenje # videozapisa}other{Dijeljenje # videozapisa}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{Dijeljenje # stavke}one{Dijeljenje # stavke}few{Dijeljenje # stavke}other{Dijeljenje # stavki}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"Dijeljenje slike s tekstom"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"Dijeljenje slike s linkom"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Dijeljenje # fajla}one{Dijeljenje # fajla}few{Dijeljenje # fajla}other{Dijeljenje # fajlova}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Dijeljenje slike putem poruke}one{Dijeljenje # slike putem poruke}few{Dijeljenje # slike putem poruke}other{Dijeljenje # slika putem poruke}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Dijeljenje slike putem linka}one{Dijeljenje # slike putem linka}few{Dijeljenje # slike putem linka}other{Dijeljenje # slika putem linka}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Dijeljenje videozapisa putem poruke}one{Dijeljenje # videozapisa putem poruke}few{Dijeljenje # videozapisa putem poruke}other{Dijeljenje # videozapisa putem poruke}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Dijeljenje videozapisa putem linka}one{Dijeljenje # videozapisa putem linka}few{Dijeljenje # videozapisa putem linka}other{Dijeljenje # videozapisa putem linka}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Dijeljenje fajla putem poruke}one{Dijeljenje # fajla putem poruke}few{Dijeljenje # fajla putem poruke}other{Dijeljenje # fajlova putem poruke}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Dijeljenje fajla putem linka}one{Dijeljenje # fajla putem linka}few{Dijeljenje # fajla putem linka}other{Dijeljenje # fajlova putem linka}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Samo slika}one{Samo slike}few{Samo slike}other{Samo slike}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Samo videozapis}one{Samo videozapisi}few{Samo videozapisi}other{Samo videozapisi}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Samo fajl}one{Samo fajlovi}few{Samo fajlovi}other{Samo fajlovi}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Sličica pregleda slike"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Sličica pregleda videozapisa"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Sličica pregleda fajla"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Nema preporučenih osoba s kojima biste dijelili"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Lista aplikacija"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Ovoj aplikaciji nije dato odobrenje za snimanje, ali može snimati zvuk putem ovog USB uređaja."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Lično"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Posao"</string>
@@ -74,8 +83,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Ovaj sadržaj nije moguće otvoriti pomoću poslovnih aplikacija"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Ovaj sadržaj nije moguće dijeliti pomoću ličnih aplikacija"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Ovaj sadržaj nije moguće otvoriti pomoću ličnih aplikacija"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Radni profil je pauziran"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Dodirnite da uključite"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Poslovne aplikacije su pauzirane"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Ponovo pokreni"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Nema poslovnih aplikacija"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Nema ličnih aplikacija"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Otvoriti aplikaciju <xliff:g id="APP">%s</xliff:g> na ličnom profilu?"</string>
@@ -86,4 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"Uključi tekst"</string>
     <string name="exclude_link" msgid="1332778255031992228">"Izuzmi link"</string>
     <string name="include_link" msgid="827855767220339802">"Uključi link"</string>
+    <string name="pinned" msgid="7623664001331394139">"Zakačeno"</string>
 </resources>

@@ -53,17 +53,26 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g>ને પિન કરો"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g>ને અનપિન કરો"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"ફેરફાર કરો"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # ફાઇલ}one{{file_name} + # ફાઇલ}other{{file_name} + # ફાઇલો}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ફાઇલ}one{+ # ફાઇલ}other{+ # ફાઇલ}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ વધુ # ફાઇલ}one{+ વધુ # ફાઇલ}other{+ વધુ # ફાઇલ}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"ટેક્સ્ટ શેર કરીએ છીએ"</string>
     <string name="sharing_link" msgid="2307694372813942916">"લિંક શેર કરી રહ્યાં છીએ"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{છબી શેર કરી રહ્યાં છીએ}one{# છબી શેર કરી રહ્યાં છીએ}other{# છબી શેર કરી રહ્યાં છીએ}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{વીડિયો શેર કરીએ છીએ}one{# વીડિયો શેર કરીએ છીએ}other{# વીડિયો શેર કરીએ છીએ}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# આઇટમ શેર કરી રહ્યાં છીએ}one{# આઇટમ શેર કરી રહ્યાં છીએ}other{# આઇટમ શેર કરી રહ્યાં છીએ}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"ટેક્સ્ટ સાથે છબી શેર થશે"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"લિંક સાથે છબી શેર થાય છે"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# ફાઇલ શેર કરી રહ્યાં છીએ}one{# ફાઇલ શેર કરી રહ્યાં છીએ}other{# ફાઇલ શેર કરી રહ્યાં છીએ}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{ટેક્સ્ટ સાથે છબી શેર કરી રહ્યાં છીએ}one{ટેક્સ્ટ સાથે # છબી શેર કરી રહ્યાં છીએ}other{ટેક્સ્ટ સાથે # છબી શેર કરી રહ્યાં છીએ}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{લિંક સાથે છબી શેર કરી રહ્યાં છીએ}one{લિંક સાથે # છબી શેર કરી રહ્યાં છીએ}other{લિંક સાથે # છબી શેર કરી રહ્યાં છીએ}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{ટેક્સ્ટ સાથે વીડિયો શેર કરી રહ્યાં છીએ}one{ટેક્સ્ટ સાથે # વીડિયો શેર કરી રહ્યાં છીએ}other{ટેક્સ્ટ સાથે # વીડિયો શેર કરી રહ્યાં છીએ}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{લિંક સાથે વીડિયો શેર કરી રહ્યાં છીએ}one{લિંક સાથે # વીડિયો શેર કરી રહ્યાં છીએ}other{લિંક સાથે # વીડિયો શેર કરી રહ્યાં છીએ}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{ટેક્સ્ટ સાથે ફાઇલ શેર કરી રહ્યાં છીએ}one{ટેક્સ્ટ સાથે # ફાઇલ શેર કરી રહ્યાં છીએ}other{ટેક્સ્ટ સાથે # ફાઇલ શેર કરી રહ્યાં છીએ}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{લિંક સાથે ફાઇલ શેર કરી રહ્યાં છીએ}one{લિંક સાથે # ફાઇલ શેર કરી રહ્યાં છીએ}other{લિંક સાથે # ફાઇલ શેર કરી રહ્યાં છીએ}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{માત્ર છબી}one{માત્ર છબી}other{માત્ર છબીઓ}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{ફક્ત વીડિયો}one{ફક્ત વીડિયો}other{ફક્ત વીડિયો}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ફક્ત ફાઇલ}one{ફક્ત ફાઇલ}other{ફક્ત ફાઇલો}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"છબીના પ્રીવ્યૂની થંબનેલ"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"વીડિયોના પ્રીવ્યૂની થંબનેલ"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"ફાઇલના પ્રીવ્યૂની થંબનેલ"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"શેર કરવા માટે સુઝાવ આપવામાં આવેલા કોઈ લોકો નથી"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"ઍપની સૂચિ"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"આ ઍપને રેકૉર્ડ કરવાની પરવાનગી આપવામાં આવી નથી પરંતુ તે આ USB ડિવાઇસ મારફતે ઑડિયો કૅપ્ચર કરી શકે છે."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"વ્યક્તિગત"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ઑફિસ"</string>
@@ -74,8 +83,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"આ કન્ટેન્ટ ઑફિસ માટેની ઍપ વડે ખોલી શકાતું નથી"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"આ કન્ટેન્ટ વ્યક્તિગત ઍપ સાથે શેર કરી શકાતું નથી"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"આ કન્ટેન્ટ વ્યક્તિગત ઍપ વડે ખોલી શકાતું નથી"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"ઑફિસની પ્રોફાઇલ થોભાવી છે"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"ચાલુ કરવા માટે ટૅપ કરો"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"ઑફિસ માટેની ઍપ થોભાવવામાં આવી છે"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"ફરી ચાલુ કરો"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"કોઈ ઑફિસ માટેની ઍપ સપોર્ટ કરતી નથી"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"કોઈ વ્યક્તિગત ઍપ સપોર્ટ કરતી નથી"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"તમારી વ્યક્તિગત પ્રોફાઇલમાં <xliff:g id="APP">%s</xliff:g> ખોલીએ?"</string>
@@ -86,4 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"ટેક્સ્ટ શામેલ કરો"</string>
     <string name="exclude_link" msgid="1332778255031992228">"લિંકને બાકાત કરો"</string>
     <string name="include_link" msgid="827855767220339802">"લિંક શામેલ કરો"</string>
+    <string name="pinned" msgid="7623664001331394139">"પિન કરેલી"</string>
 </resources>

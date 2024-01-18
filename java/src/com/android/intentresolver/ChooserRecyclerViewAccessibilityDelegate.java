@@ -16,20 +16,20 @@
 
 package com.android.intentresolver;
 
-import android.annotation.NonNull;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate;
 
-class ChooserRecyclerViewAccessibilityDelegate extends RecyclerViewAccessibilityDelegate {
+public class ChooserRecyclerViewAccessibilityDelegate extends RecyclerViewAccessibilityDelegate {
     private final Rect mTempRect = new Rect();
     private final int[] mConsumed = new int[2];
 
-    ChooserRecyclerViewAccessibilityDelegate(RecyclerView recyclerView) {
+    public ChooserRecyclerViewAccessibilityDelegate(RecyclerView recyclerView) {
         super(recyclerView);
     }
 

@@ -19,7 +19,6 @@ package com.android.intentresolver.widget;
 
 import static android.content.res.Resources.ID_NULL;
 
-import android.annotation.IdRes;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -45,6 +44,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.OverScroller;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.view.ScrollingView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.intentresolver.R;
@@ -131,6 +134,9 @@ public class ResolverDrawerLayout extends ViewGroup {
     private AbsListView mNestedListChild;
     private RecyclerView mNestedRecyclerChild;
 
+    @Nullable
+    private final ScrollablePreviewFlingLogicDelegate mFlingLogicDelegate;
+
     private final ViewTreeObserver.OnTouchModeChangeListener mTouchModeChangeListener =
             new ViewTreeObserver.OnTouchModeChangeListener() {
                 @Override
@@ -167,6 +173,12 @@ public class ResolverDrawerLayout extends ViewGroup {
             mIgnoreOffsetTopLimitViewId = a.getResourceId(
                     R.styleable.ResolverDrawerLayout_ignoreOffsetTopLimit, ID_NULL);
         }
+        mFlingLogicDelegate =
+                a.getBoolean(
+                        R.styleable.ResolverDrawerLayout_useScrollablePreviewNestedFlingLogic,
+                        false)
+                    ? new ScrollablePreviewFlingLogicDelegate() {}
+                    : null;
         a.recycle();
 
         mScrollIndicatorDrawable = mContext.getDrawable(
@@ -832,6 +844,9 @@ public class ResolverDrawerLayout extends ViewGroup {
 
     @Override
     public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+        if (mFlingLogicDelegate != null) {
+            return mFlingLogicDelegate.onNestedPreFling(this, target, velocityX, velocityY);
+        }
         if (!getShowAtTop() && velocityY > mMinFlingVelocity && mCollapseOffset != 0) {
             smoothScrollTo(0, velocityY);
             return true;
@@ -841,9 +856,12 @@ public class ResolverDrawerLayout extends ViewGroup {
 
     @Override
     public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
+        if (mFlingLogicDelegate != null) {
+            return mFlingLogicDelegate.onNestedFling(this, target, velocityX, velocityY, consumed);
+        }
         // TODO: find a more suitable way to fix it.
         //  RecyclerView started reporting `consumed` as true whenever a scrolling is enabled,
-        //  previously the value was based whether the fling can be performed in given direction
+        //  previously the value was based on whether the fling can be performed in given direction
         //  i.e. whether it is at the top or at the bottom. isRecyclerViewAtTheTop method is a
         //  workaround that restores the legacy functionality.
         boolean shouldConsume = (Math.abs(velocityY) > mMinFlingVelocity)
@@ -883,6 +901,13 @@ public class ResolverDrawerLayout extends ViewGroup {
         View firstChild = recyclerView.getChildAt(0);
         return recyclerView.getChildAdapterPosition(firstChild) == 0
                 && firstChild.getTop() >= recyclerView.getPaddingTop();
+    }
+
+    private static boolean isFlingTargetAtTop(View target) {
+        if (target instanceof ScrollingView) {
+            return !target.canScrollVertically(-1);
+        }
+        return false;
     }
 
     private boolean performAccessibilityActionCommon(int action) {
@@ -974,7 +999,7 @@ public class ResolverDrawerLayout extends ViewGroup {
     }
 
     @Override
-    public void onDrawForeground(Canvas canvas) {
+    public void onDrawForeground(@NonNull Canvas canvas) {
         if (mScrollIndicatorDrawable != null) {
             mScrollIndicatorDrawable.draw(canvas);
         }
@@ -1298,5 +1323,75 @@ public class ResolverDrawerLayout extends ViewGroup {
             mMetricsLogger = new MetricsLogger();
         }
         return mMetricsLogger;
+    }
+
+    /**
+     * Controlled by
+     * {@link com.android.intentresolver.Flags#FLAG_SCROLLABLE_PREVIEW}
+     */
+    private interface ScrollablePreviewFlingLogicDelegate {
+        default boolean onNestedPreFling(
+                ResolverDrawerLayout drawer, View target, float velocityX, float velocityY) {
+            boolean shouldScroll = !drawer.getShowAtTop() && velocityY > drawer.mMinFlingVelocity
+                    && drawer.mCollapseOffset != 0;
+            if (shouldScroll) {
+                drawer.smoothScrollTo(0, velocityY);
+                return true;
+            }
+            boolean shouldDismiss = (Math.abs(velocityY) > drawer.mMinFlingVelocity)
+                    && velocityY < 0
+                    && isFlingTargetAtTop(target);
+            if (shouldDismiss) {
+                if (drawer.getShowAtTop()) {
+                    drawer.smoothScrollTo(drawer.mCollapsibleHeight, velocityY);
+                } else {
+                    if (drawer.isDismissable()
+                            && drawer.mCollapseOffset > drawer.mCollapsibleHeight) {
+                        drawer.smoothScrollTo(drawer.mHeightUsed, velocityY);
+                        drawer.mDismissOnScrollerFinished = true;
+                    } else {
+                        drawer.smoothScrollTo(drawer.mCollapsibleHeight, velocityY);
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        default boolean onNestedFling(
+                ResolverDrawerLayout drawer,
+                View target,
+                float velocityX,
+                float velocityY,
+                boolean consumed) {
+            // TODO: find a more suitable way to fix it.
+            //  RecyclerView started reporting `consumed` as true whenever a scrolling is enabled,
+            //  previously the value was based on whether the fling can be performed in given
+            //  direction i.e. whether it is at the top or at the bottom. isRecyclerViewAtTheTop
+            //  method is a workaround that restores the legacy functionality.
+            boolean shouldConsume = (Math.abs(velocityY) > drawer.mMinFlingVelocity) && !consumed;
+            if (shouldConsume) {
+                if (drawer.getShowAtTop()) {
+                    if (drawer.isDismissable() && velocityY > 0) {
+                        drawer.abortAnimation();
+                        drawer.dismiss();
+                    } else {
+                        drawer.smoothScrollTo(
+                                velocityY < 0 ? drawer.mCollapsibleHeight : 0, velocityY);
+                    }
+                } else {
+                    if (drawer.isDismissable()
+                            && velocityY < 0
+                            && drawer.mCollapseOffset > drawer.mCollapsibleHeight) {
+                        drawer.smoothScrollTo(drawer.mHeightUsed, velocityY);
+                        drawer.mDismissOnScrollerFinished = true;
+                    } else {
+                        drawer.smoothScrollTo(
+                                velocityY > 0 ? 0 : drawer.mCollapsibleHeight, velocityY);
+                    }
+                }
+            }
+            return shouldConsume;
+        }
     }
 }

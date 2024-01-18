@@ -53,17 +53,26 @@
     <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g> anpinnen"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> loslösen"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"Bearbeiten"</string>
-    <string name="file_count" msgid="3991190034661965836">"{count,plural, =1{{file_name} + # Datei}other{{file_name} + # Dateien}}"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # Datei}other{+ # Dateien}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # weitere Datei}other{+ # weitere Dateien}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Text wird geteilt"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Link wird geteilt"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Bild wird geteilt}other{# Bilder werden geteilt}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Video wird geteilt}other{# Videos werden geteilt}}"</string>
-    <string name="sharing_items" msgid="5266543892527310331">"{count,plural, =1{# Element wird geteilt}other{# Elemente werden geteilt}}"</string>
-    <string name="sharing_image_with_text" msgid="3844438616236662145">"Bild mit Text geteilt"</string>
-    <string name="sharing_image_with_link" msgid="5318319026387721227">"Bild mit Link geteilt"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# Datei wird freigegeben}other{# Dateien werden freigegeben}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Bild wird mit Text geteilt}other{# Bilder werden mit Text geteilt}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Bild wird per Link geteilt}other{# Bilder werden per Link geteilt}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Video wird per SMS geteilt}other{# Videos werden per SMS geteilt}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Video wird per Link geteilt}other{# Videos werden per Link geteilt}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Datei wird per SMS geteilt}other{# Dateien werden per SMS geteilt}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Datei wird per Link geteilt}other{# Dateien werden per Link geteilt}}"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Nur Bild}other{Nur Bilder}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Nur Video}other{Nur Videos}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Nur Datei}other{Nur Dateien}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Vorschau-Miniaturansicht für Bild"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Vorschau-Miniaturansicht für Video"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Vorschau-Miniaturansicht für Datei"</string>
     <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Keine empfohlenen Empfänger"</string>
-    <string name="chooser_all_apps_button_label" msgid="5655027129615750712">"Liste der Apps"</string>
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Diese App hat noch keine Berechtigung zum Aufnehmen erhalten, könnte aber Audioaufnahmen über dieses USB-Gerät machen."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Privat"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Geschäftlich"</string>
@@ -74,8 +83,8 @@
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Diese Art von Inhalt kann nicht mit geschäftlichen Apps geöffnet werden"</string>
     <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Diese Art von Inhalt kann nicht über private Apps geteilt werden"</string>
     <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Diese Art von Inhalt kann nicht mit privaten Apps geöffnet werden"</string>
-    <string name="resolver_turn_on_work_apps" msgid="6464225110988983641">"Arbeitsprofil pausiert"</string>
-    <string name="resolver_switch_on_work" msgid="4615505942222617333">"Zum Aktivieren tippen"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Geschäftliche Apps sind pausiert"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Nicht mehr pausieren"</string>
     <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Keine geschäftlichen Apps"</string>
     <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Keine privaten Apps"</string>
     <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"<xliff:g id="APP">%s</xliff:g> in deinem privaten Profil öffnen?"</string>
@@ -86,4 +95,5 @@
     <string name="include_text" msgid="642280283268536140">"Text einschließen"</string>
     <string name="exclude_link" msgid="1332778255031992228">"Link ausschließen"</string>
     <string name="include_link" msgid="827855767220339802">"Link einschließen"</string>
+    <string name="pinned" msgid="7623664001331394139">"Angepinnt"</string>
 </resources>

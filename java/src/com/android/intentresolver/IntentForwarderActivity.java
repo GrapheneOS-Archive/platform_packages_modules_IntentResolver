@@ -23,7 +23,6 @@ import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
 import static com.android.intentresolver.ResolverActivity.EXTRA_CALLING_USER;
 import static com.android.intentresolver.ResolverActivity.EXTRA_SELECTED_PROFILE;
 
-import android.annotation.Nullable;
 import android.app.Activity;
 import android.app.ActivityThread;
 import android.app.AppGlobals;
@@ -44,6 +43,8 @@ import android.os.UserManager;
 import android.provider.Settings;
 import android.util.Slog;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.logging.MetricsLogger;
@@ -309,7 +310,7 @@ public class IntentForwarderActivity extends Activity  {
      * Check whether the intent can be forwarded to target user. Return the intent used for
      * forwarding if it can be forwarded, {@code null} otherwise.
      */
-    static Intent canForward(Intent incomingIntent, int sourceUserId, int targetUserId,
+    public static Intent canForward(Intent incomingIntent, int sourceUserId, int targetUserId,
             IPackageManager packageManager, ContentResolver contentResolver)  {
         Intent forwardIntent = new Intent(incomingIntent);
         forwardIntent.addFlags(

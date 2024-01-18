@@ -70,7 +70,7 @@ public class ChooserGridLayoutManager extends GridLayoutManager {
         return super.getRowCountForAccessibility(recycler, state) - 1;
     }
 
-    void setVerticalScrollEnabled(boolean verticalScrollEnabled) {
+    public void setVerticalScrollEnabled(boolean verticalScrollEnabled) {
         mVerticalScrollEnabled = verticalScrollEnabled;
     }
 
