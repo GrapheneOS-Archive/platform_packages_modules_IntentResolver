@@ -36,10 +36,6 @@ open class ResolverActivityLogic(
         intent
     }
 
-    override val resolvingHome: Boolean =
-        targetIntent.action == Intent.ACTION_MAIN &&
-            targetIntent.categories.singleOrNull() == Intent.CATEGORY_HOME
-
     override val title: CharSequence? = null
 
     override val defaultTitleResId: Int = 0

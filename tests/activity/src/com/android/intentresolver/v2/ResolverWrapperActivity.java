@@ -61,7 +61,7 @@ public class ResolverWrapperActivity extends ResolverActivity {
             new CountingIdlingResource("LoadLabelTask");
 
     @Override
-    protected final ActivityLogic createActivityLogic() {
+    protected final ResolverActivityLogic createActivityLogic() {
         return new TestResolverActivityLogic(
                 "ResolverWrapper",
                 this,
