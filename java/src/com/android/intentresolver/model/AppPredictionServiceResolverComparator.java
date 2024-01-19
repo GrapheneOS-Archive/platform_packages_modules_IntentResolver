@@ -107,16 +107,20 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
                     .setClassName(target.name.getClassName())
                     .build());
         }
-        mAppPredictor.sortTargets(
-                appTargets,
-                Executors.newSingleThreadExecutor(),
-                new ScopedAppTargetListCallback(
-                        mContext,
-                        sortedAppTargets -> {
-                            onAppTargetsSorted(targets, sortedAppTargets);
-                            return kotlin.Unit.INSTANCE;
-                        }).toConsumer()
-        );
+        try {
+            mAppPredictor.sortTargets(
+                    appTargets,
+                    Executors.newSingleThreadExecutor(),
+                    new ScopedAppTargetListCallback(
+                            mContext,
+                            sortedAppTargets -> {
+                                onAppTargetsSorted(targets, sortedAppTargets);
+                                return kotlin.Unit.INSTANCE;
+                            }).toConsumer()
+            );
+        } catch (IllegalStateException e) {
+            Log.w(TAG, "Couldn't sort targets with AppPredictionService", e);
+        }
     }
 
     private void onAppTargetsSorted(
@@ -292,8 +296,12 @@ public class AppPredictionServiceResolverComparator extends AbstractResolverComp
                     new AppTarget.Builder(targetId, targetComponent.getPackageName(), mUser)
                             .setClassName(targetComponent.getClassName())
                             .build();
-            mAppPredictor.notifyAppTargetEvent(
-                    new AppTargetEvent.Builder(appTarget, ACTION_LAUNCH).build());
+            try {
+                mAppPredictor.notifyAppTargetEvent(
+                        new AppTargetEvent.Builder(appTarget, ACTION_LAUNCH).build());
+            } catch (IllegalStateException e) {
+                Log.w(TAG, "Couldn't send feedback to AppPredictionService", e);
+            }
         }
     }
 }
