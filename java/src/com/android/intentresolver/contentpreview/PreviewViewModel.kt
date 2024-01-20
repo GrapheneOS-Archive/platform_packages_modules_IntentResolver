@@ -24,7 +24,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.android.intentresolver.ChooserRequestParameters
 import com.android.intentresolver.R
 import com.android.intentresolver.inject.Background
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,9 +44,7 @@ constructor(
     private var imageLoader: ImagePreviewImageLoader? = null
 
     @MainThread
-    override fun createOrReuseProvider(
-        targetIntent: Intent
-    ): PreviewDataProvider =
+    override fun createOrReuseProvider(targetIntent: Intent): PreviewDataProvider =
         previewDataProvider
             ?: PreviewDataProvider(
                     viewModelScope + dispatcher,

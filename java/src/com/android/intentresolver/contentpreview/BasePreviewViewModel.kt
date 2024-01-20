@@ -19,14 +19,10 @@ package com.android.intentresolver.contentpreview
 import android.content.Intent
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
-import com.android.intentresolver.ChooserRequestParameters
 
 /** A contract for the preview view model. Added for testing. */
 abstract class BasePreviewViewModel : ViewModel() {
-    @MainThread
-    abstract fun createOrReuseProvider(
-        targetIntent: Intent
-    ): PreviewDataProvider
+    @MainThread abstract fun createOrReuseProvider(targetIntent: Intent): PreviewDataProvider
 
     @MainThread abstract fun createOrReuseImageLoader(): ImageLoader
 }
