@@ -93,7 +93,7 @@ class MultiProfilePagerAdapter<
     public static final int PROFILE_WORK = 1;
 
     @IntDef({PROFILE_PERSONAL, PROFILE_WORK})
-    public @interface Profile {}
+    public @interface ProfileType {}
 
     private final Function<SinglePageAdapterT, ListAdapterT> mListAdapterExtractor;
     private final AdapterBinder<PageViewT, SinglePageAdapterT> mAdapterBinder;
@@ -111,14 +111,14 @@ class MultiProfilePagerAdapter<
     private OnProfileSelectedListener mOnProfileSelectedListener;
 
     public static class TabConfig<PageAdapterT> {
-        private final @Profile int mProfile;
+        private final @ProfileType int mProfile;
         private final String mTabLabel;
         private final String mTabAccessibilityLabel;
         private final String mTabTag;
         private final PageAdapterT mPageAdapter;
 
         public TabConfig(
-                @Profile int profile,
+                @ProfileType int profile,
                 String tabLabel,
                 String tabAccessibilityLabel,
                 String tabTag,
@@ -137,7 +137,7 @@ class MultiProfilePagerAdapter<
             ImmutableList<TabConfig<SinglePageAdapterT>> tabs,
             EmptyStateProvider emptyStateProvider,
             Supplier<Boolean> workProfileQuietModeChecker,
-            @Profile int defaultProfile,
+            @ProfileType int defaultProfile,
             UserHandle workProfileUserHandle,
             UserHandle cloneProfileUserHandle,
             Supplier<ViewGroup> pageViewInflater,
@@ -174,7 +174,7 @@ class MultiProfilePagerAdapter<
     }
 
     private ProfileDescriptor<PageViewT, SinglePageAdapterT> createProfileDescriptor(
-            @Profile int profile,
+            @ProfileType int profile,
             String tabLabel,
             String tabAccessibilityLabel,
             String tabTag,
@@ -194,18 +194,18 @@ class MultiProfilePagerAdapter<
         return (pageIndex >= 0) && (pageIndex < getCount());
     }
 
-    public final boolean hasPageForProfile(@Profile int profile) {
+    public final boolean hasPageForProfile(@ProfileType int profile) {
         return hasPageForIndex(getPageNumberForProfile(profile));
     }
 
-    private @Profile int getProfileForPageNumber(int position) {
+    private @ProfileType int getProfileForPageNumber(int position) {
         if (hasPageForIndex(position)) {
             return mItems.get(position).mProfile;
         }
         return -1;
     }
 
-    public int getPageNumberForProfile(@Profile int profile) {
+    public int getPageNumberForProfile(@ProfileType int profile) {
         for (int i = 0; i < mItems.size(); ++i) {
             if (profile == mItems.get(i).mProfile) {
                 return i;
@@ -222,7 +222,7 @@ class MultiProfilePagerAdapter<
         return mListAdapterExtractor.apply(pageAdapter);
     }
 
-    private @Profile int getProfileForUserHandle(UserHandle userHandle) {
+    private @ProfileType int getProfileForUserHandle(UserHandle userHandle) {
         if (userHandle.equals(getCloneUserHandle())) {
             // TODO: can we push this special case elsewhere -- e.g., when we check against each
             // list adapter's user handle in the loop below, could we instead ask the list adapter
@@ -327,7 +327,7 @@ class MultiProfilePagerAdapter<
         mOnProfileSelectedListener =
                 new MultiProfilePagerAdapter.OnProfileSelectedListener() {
                     @Override
-                    public void onProfilePageSelected(@Profile int profileId, int pageNumber) {
+                    public void onProfilePageSelected(@ProfileType int profileId, int pageNumber) {
                         tabHost.setCurrentTab(pageNumber);
                         clientOnProfileSelectedListener.onProfilePageSelected(
                                 profileId, pageNumber);
@@ -398,7 +398,7 @@ class MultiProfilePagerAdapter<
         return mCurrentPage;
     }
 
-    public final @Profile int getActiveProfile() {
+    public final @ProfileType int getActiveProfile() {
         return getProfileForPageNumber(getCurrentPage());
     }
 
@@ -753,7 +753,7 @@ class MultiProfilePagerAdapter<
     // TODO: `ChooserActivity` also has a per-profile record type. Maybe the "multi-profile pager"
     // should be the owner of all per-profile data (especially now that the API is generic)?
     private static class ProfileDescriptor<PageViewT, SinglePageAdapterT> {
-        final @Profile int mProfile;
+        final @ProfileType int mProfile;
         final String mTabLabel;
         final String mTabAccessibilityLabel;
         final String mTabTag;
@@ -769,7 +769,7 @@ class MultiProfilePagerAdapter<
         private final PageViewT mView;
 
         ProfileDescriptor(
-                @Profile int forProfile,
+                @ProfileType int forProfile,
                 String tabLabel,
                 String tabAccessibilityLabel,
                 String tabTag,
@@ -809,7 +809,7 @@ class MultiProfilePagerAdapter<
          * if the personal profile tab was selected or {@link #PROFILE_WORK} if the work profile tab
          * was selected.
          */
-        void onProfilePageSelected(@Profile int profileId, int pageNumber);
+        void onProfilePageSelected(@ProfileType int profileId, int pageNumber);
 
 
         /**
