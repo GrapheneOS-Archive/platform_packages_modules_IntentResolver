@@ -78,7 +78,7 @@ public class ResolverMultiProfilePagerAdapter extends
                                             ResolverListAdapter workAdapter,
                                             EmptyStateProvider emptyStateProvider,
                                             Supplier<Boolean> workProfileQuietModeChecker,
-                                            @Profile int defaultProfile,
+                                            @ProfileType int defaultProfile,
                                             UserHandle workProfileUserHandle,
                                             UserHandle cloneProfileUserHandle) {
         this(
@@ -109,7 +109,7 @@ public class ResolverMultiProfilePagerAdapter extends
             ImmutableList<TabConfig<ResolverListAdapter>> tabs,
             EmptyStateProvider emptyStateProvider,
             Supplier<Boolean> workProfileQuietModeChecker,
-            @Profile int defaultProfile,
+            @ProfileType int defaultProfile,
             UserHandle workProfileUserHandle,
             UserHandle cloneProfileUserHandle,
             BottomPaddingOverrideSupplier bottomPaddingOverrideSupplier) {
