@@ -138,7 +138,7 @@ import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
-import com.android.intentresolver.v2.MultiProfilePagerAdapter.Profile;
+import com.android.intentresolver.v2.MultiProfilePagerAdapter.ProfileType;
 import com.android.intentresolver.v2.data.repository.DevicePolicyResources;
 import com.android.intentresolver.v2.emptystate.NoAppsAvailableEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider;
@@ -1132,7 +1132,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 () -> onProfileTabSelected(viewPager.getCurrentItem()),
                 new MultiProfilePagerAdapter.OnProfileSelectedListener() {
                     @Override
-                    public void onProfilePageSelected(@Profile int profileId, int pageNumber) {}
+                    public void onProfilePageSelected(@ProfileType int profileId, int pageNumber) {}
 
                     @Override
                     public void onProfilePageStateChanged(int state) {
