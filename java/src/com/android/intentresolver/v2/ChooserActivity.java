@@ -306,7 +306,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     private final View mContentView = null;
 
-    private final SparseArray<ProfileRecord> mProfileRecords = new SparseArray<>();
+    private final Map<Integer, ProfileRecord> mProfileRecords = new HashMap<>();
 
     private boolean mExcludeSharedText = false;
     /**
@@ -1201,7 +1201,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     @Nullable
     private ProfileRecord getProfileRecord(UserHandle userHandle) {
-        return mProfileRecords.get(userHandle.getIdentifier(), null);
+        return mProfileRecords.get(userHandle.getIdentifier());
     }
 
     @VisibleForTesting
@@ -1556,9 +1556,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     }
 
     private void destroyProfileRecords() {
-        for (int i = 0; i < mProfileRecords.size(); ++i) {
-            mProfileRecords.valueAt(i).destroy();
-        }
+        mProfileRecords.values().forEach(ProfileRecord::destroy);
         mProfileRecords.clear();
     }
 
