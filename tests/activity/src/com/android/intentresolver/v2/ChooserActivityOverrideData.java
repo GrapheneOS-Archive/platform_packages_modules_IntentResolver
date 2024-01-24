@@ -55,8 +55,8 @@ public class ChooserActivityOverrideData {
     public Function<TargetInfo, Boolean> onSafelyStartCallback;
     public Function2<UserHandle, Consumer<ShortcutLoader.Result>, ShortcutLoader>
             shortcutLoaderFactory = (userHandle, callback) -> null;
-    public ChooserActivity.ChooserListController resolverListController;
-    public ChooserActivity.ChooserListController workResolverListController;
+    public ChooserListController resolverListController;
+    public ChooserListController workResolverListController;
     public Boolean isVoiceInteraction;
     public Cursor resolverCursor;
     public boolean resolverForceException;
@@ -76,8 +76,8 @@ public class ChooserActivityOverrideData {
         imageLoader = null;
         resolverCursor = null;
         resolverForceException = false;
-        resolverListController = mock(ChooserActivity.ChooserListController.class);
-        workResolverListController = mock(ChooserActivity.ChooserListController.class);
+        resolverListController = mock(ChooserListController.class);
+        workResolverListController = mock(ChooserListController.class);
         alternateProfileSetting = 0;
         resources = null;
         annotatedUserHandles = AnnotatedUserHandles.newBuilder()
