@@ -101,6 +101,7 @@ import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.v2.MultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener;
 import com.android.intentresolver.v2.MultiProfilePagerAdapter.ProfileType;
+import com.android.intentresolver.v2.MultiProfilePagerAdapter.TabConfig;
 import com.android.intentresolver.v2.data.repository.DevicePolicyResources;
 import com.android.intentresolver.v2.emptystate.NoAppsAvailableEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider;
@@ -113,6 +114,8 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.content.PackageMonitor;
 import com.android.internal.logging.MetricsLogger;
 import com.android.internal.logging.nano.MetricsProto;
+
+import com.google.common.collect.ImmutableList;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -954,12 +957,16 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         );
         return new ResolverMultiProfilePagerAdapter(
                 /* context */ this,
-                mDevicePolicyResources.getPersonalTabLabel(),
-                mDevicePolicyResources.getPersonalTabAccessibilityLabel(),
-                TAB_TAG_PERSONAL,
-                personalAdapter,
+                ImmutableList.of(
+                        new TabConfig<>(
+                                PROFILE_PERSONAL,
+                                mDevicePolicyResources.getPersonalTabLabel(),
+                                mDevicePolicyResources.getPersonalTabAccessibilityLabel(),
+                                TAB_TAG_PERSONAL,
+                                personalAdapter)),
                 createEmptyStateProvider(/* workProfileUserHandle= */ null),
                 /* workProfileQuietModeChecker= */ () -> false,
+                /* defaultProfile= */ PROFILE_PERSONAL,
                 /* workProfileUserHandle= */ null,
                 requireAnnotatedUserHandles().cloneProfileUserHandle);
     }
@@ -1015,14 +1022,19 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         );
         return new ResolverMultiProfilePagerAdapter(
                 /* context */ this,
-                mDevicePolicyResources.getPersonalTabLabel(),
-                mDevicePolicyResources.getPersonalTabAccessibilityLabel(),
-                TAB_TAG_PERSONAL,
-                personalAdapter,
-                mDevicePolicyResources.getWorkTabLabel(),
-                mDevicePolicyResources.getWorkTabAccessibilityLabel(),
-                TAB_TAG_WORK,
-                workAdapter,
+                ImmutableList.of(
+                        new TabConfig<>(
+                                PROFILE_PERSONAL,
+                                mDevicePolicyResources.getPersonalTabLabel(),
+                                mDevicePolicyResources.getPersonalTabAccessibilityLabel(),
+                                TAB_TAG_PERSONAL,
+                                personalAdapter),
+                        new TabConfig<>(
+                                PROFILE_WORK,
+                                mDevicePolicyResources.getWorkTabLabel(),
+                                mDevicePolicyResources.getWorkTabAccessibilityLabel(),
+                                TAB_TAG_WORK,
+                                workAdapter)),
                 createEmptyStateProvider(workProfileUserHandle),
                 () -> mLogic.getWorkProfileAvailabilityManager().isQuietModeEnabled(),
                 selectedProfile,
