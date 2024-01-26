@@ -24,6 +24,7 @@ import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_S
 import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_STATE_NO_SHARING_TO_WORK;
 import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
 
+import static com.android.intentresolver.v2.ext.CreationExtrasExtKt.addDefaultArgs;
 import static com.android.internal.annotations.VisibleForTesting.Visibility.PROTECTED;
 
 import static java.util.Collections.emptyList;
@@ -83,6 +84,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.viewmodel.CreationExtras;
 import androidx.viewpager.widget.ViewPager;
 
 import com.android.intentresolver.AnnotatedUserHandles;
@@ -109,6 +111,7 @@ import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider
 import com.android.intentresolver.v2.emptystate.WorkProfilePausedEmptyStateProvider;
 import com.android.intentresolver.v2.ext.IntentExtKt;
 import com.android.intentresolver.v2.ui.ActionTitle;
+import com.android.intentresolver.v2.ui.model.ActivityLaunch;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.content.PackageMonitor;
@@ -119,6 +122,7 @@ import com.google.common.collect.ImmutableList;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import kotlin.Pair;
 import kotlin.Unit;
 
 import java.util.ArrayList;
@@ -140,6 +144,7 @@ import javax.inject.Inject;
 public class ResolverActivity extends Hilt_ResolverActivity implements
         ResolverListAdapter.ResolverListCommunicator {
 
+    @Inject public ActivityLaunch mActivityLaunch;
     @Inject public DevicePolicyResources mDevicePolicyResources;
     @Inject public IntentForwarding mIntentForwarding;
 
@@ -235,10 +240,26 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                 this::onWorkProfileStatusUpdated);
     }
 
+    @NonNull
+    @Override
+    public CreationExtras getDefaultViewModelCreationExtras() {
+        return addDefaultArgs(
+                super.getDefaultViewModelCreationExtras(),
+                new Pair<>(ActivityLaunch.ACTIVITY_LAUNCH_KEY,  mActivityLaunch));
+    }
+
     @Override
     protected final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_DeviceDefault_Resolver);
+        Log.i(TAG, "onCreate");
+        Log.i(TAG, "activityLaunch=" + mActivityLaunch.toString());
+        int callerUid = mActivityLaunch.getFromUid();
+        if (callerUid < 0 || UserHandle.isIsolated(callerUid)) {
+            Log.e(TAG, "Can't start a resolver from uid " + callerUid);
+            finish();
+        }
+
         mLogic = createActivityLogic();
         mResolvingHome = IntentExtKt.isHomeIntent(getIntent());
         mTargetDataLoader = new DefaultTargetDataLoader(
@@ -255,13 +276,6 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     private void init() {
         Intent intent = mLogic.getTargetIntent();
         List<Intent> initialIntents = mLogic.getInitialIntents();
-
-        // Calling UID did not have valid permissions
-        if (mLogic.getAnnotatedUserHandles() == null) {
-            finish();
-            return;
-        }
-
 
         // The last argument of createResolverListAdapter is whether to do special handling
         // of the last used choice to highlight it in the list.  We need to always
@@ -760,7 +774,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                 getPackageManager(),
                 mLogic.getTargetIntent(),
                 mLogic.getReferrerPackageName(),
-                requireAnnotatedUserHandles().userIdOfCallingApp,
+                mActivityLaunch.getFromUid(),
                 resolverComparator,
                 getQueryIntentsUser(userHandle));
     }
@@ -1486,7 +1500,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
             }
         } catch (RuntimeException e) {
             Slog.wtf(TAG,
-                    "Unable to launch as uid " + requireAnnotatedUserHandles().userIdOfCallingApp
+                    "Unable to launch as uid " + mActivityLaunch.getFromUid()
                     + " package " + getLaunchedFromPackage() + ", while running in "
                     + ActivityThread.currentProcessName(), e);
         }
