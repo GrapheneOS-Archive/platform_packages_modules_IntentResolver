@@ -33,7 +33,10 @@ object ActivityLaunchModule {
         return ActivityLaunch(
             activity.intent,
             activity.launchedFromUid,
-            activity.launchedFromPackage,
+            requireNotNull(activity.launchedFromPackage) {
+                "activity.launchedFromPackage was null. This is expected to be non-null for " +
+                    "any system-signed application!"
+            },
             activity.referrer
         )
     }

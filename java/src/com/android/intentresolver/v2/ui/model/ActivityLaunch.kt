@@ -29,7 +29,7 @@ data class ActivityLaunch(
     /** The identifier for the sending app and user */
     val fromUid: Int,
     /** The package of the sending app */
-    val fromPackage: String?,
+    val fromPackage: String,
     /** The referrer as supplied to the activity. */
     val referrer: Uri?
 ) : Parcelable {
@@ -38,9 +38,12 @@ data class ActivityLaunch(
     ) : this(
         intent = source.requireParcelable(),
         fromUid = source.readInt(),
-        fromPackage = source.readString(),
+        fromPackage = requireNotNull(source.readString()),
         referrer = source.readParcelable()
     )
+
+    /** A package name from referrer, if it is an android-app URI */
+    val referrerPackage = referrer?.takeIf { it.scheme == ANDROID_APP_SCHEME }?.authority
 
     override fun describeContents() = 0 /* flags */
 

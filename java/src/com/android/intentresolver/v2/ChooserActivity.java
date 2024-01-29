@@ -322,12 +322,11 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private ChooserViewModel mViewModel;
 
     @VisibleForTesting
-    protected ChooserActivityLogic createActivityLogic(ChooserRequest chooserRequest) {
+    protected ChooserActivityLogic createActivityLogic() {
         return new ChooserActivityLogic(
                 TAG,
                 /* activity = */ this,
-                this::onWorkProfileStatusUpdated,
-                chooserRequest);
+                this::onWorkProfileStatusUpdated);
     }
 
     @NonNull
@@ -355,7 +354,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             finish();
             return;
         }
-        mLogic = createActivityLogic(mViewModel.getChooserRequest());
+        mLogic = createActivityLogic();
         init();
     }
 
@@ -381,14 +380,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 chooserRequest.getShareTargetFilter()
         );
 
-        Intent intent = mLogic.getTargetIntent();
-        List<Intent> initialIntents = mLogic.getInitialIntents();
-
-        // Calling UID did not have valid permissions
-        if (mLogic.getAnnotatedUserHandles() == null) {
-            finish();
-            return;
-        }
+        Intent intent = mViewModel.getChooserRequest().getTargetIntent();
+        List<Intent> initialIntents = mViewModel.getChooserRequest().getInitialIntents();
 
         mChooserMultiProfilePagerAdapter = createMultiProfilePagerAdapter(
                 requireNonNullElse(initialIntents, emptyList()).toArray(new Intent[0]),
@@ -509,7 +502,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             Log.d(TAG, "System Time Cost is " + systemCost);
         }
         getEventLog().logShareStarted(
-                mLogic.getReferrerPackageName(),
+                chooserRequest.getReferrerPackage(),
                 chooserRequest.getTargetType(),
                 chooserRequest.getCallerChooserTargets().size(),
                 chooserRequest.getInitialIntents().size(),
@@ -714,9 +707,10 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             }
         }
 
-        CharSequence title = mLogic.getTitle() != null
-                ? mLogic.getTitle()
-                : getTitleForAction(mLogic.getTargetIntent(), mLogic.getDefaultTitleResId());
+        CharSequence title = mViewModel.getChooserRequest().getTitle() != null
+                ? mViewModel.getChooserRequest().getTitle()
+                : getTitleForAction(mViewModel.getChooserRequest().getTargetIntent(),
+                        mViewModel.getChooserRequest().getDefaultTitleResource());
 
         if (!TextUtils.isEmpty(title)) {
             final TextView titleView = findViewById(com.android.internal.R.id.title);
@@ -815,7 +809,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         }
         // If needed, show that intent is forwarded
         // from managed profile to owner or other way around.
-        String profileSwitchMessage = mIntentForwarding.forwardMessageFor(mLogic.getTargetIntent());
+        String profileSwitchMessage = mIntentForwarding.forwardMessageFor(
+                mViewModel.getChooserRequest().getTargetIntent());
         if (profileSwitchMessage != null) {
             Toast.makeText(this, profileSwitchMessage, Toast.LENGTH_LONG).show();
         }
@@ -1283,7 +1278,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             boolean filterLastUsed) {
         ChooserGridAdapter adapter = createChooserGridAdapter(
                 /* context */ this,
-                mLogic.getPayloadIntents(),
+                mViewModel.getChooserRequest().getPayloadIntents(),
                 initialIntents,
                 rList,
                 filterLastUsed,
@@ -1314,7 +1309,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         int selectedProfile = findSelectedProfile();
         ChooserGridAdapter personalAdapter = createChooserGridAdapter(
                 /* context */ this,
-                mLogic.getPayloadIntents(),
+                mViewModel.getChooserRequest().getPayloadIntents(),
                 selectedProfile == PROFILE_PERSONAL ? initialIntents : null,
                 rList,
                 filterLastUsed,
@@ -1322,7 +1317,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         );
         ChooserGridAdapter workAdapter = createChooserGridAdapter(
                 /* context */ this,
-                mLogic.getPayloadIntents(),
+                mViewModel.getChooserRequest().getPayloadIntents(),
                 selectedProfile == PROFILE_WORK ? initialIntents : null,
                 rList,
                 filterLastUsed,
@@ -1823,7 +1818,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         if (info != null) {
             sendClickToAppPredictor(info);
             final ResolveInfo ri = info.getResolveInfo();
-            Intent targetIntent = mLogic.getTargetIntent();
+            Intent targetIntent = mViewModel.getChooserRequest().getTargetIntent();
             if (ri != null && ri.activityInfo != null && targetIntent != null) {
                 ChooserListAdapter currentListAdapter =
                         mChooserMultiProfilePagerAdapter.getActiveListAdapter();
@@ -1959,7 +1954,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         }
     }
 
-    @VisibleForTesting
     public ChooserGridAdapter createChooserGridAdapter(
             Context context,
             List<Intent> payloadIntents,
@@ -1967,7 +1961,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             List<ResolveInfo> rList,
             boolean filterLastUsed,
             UserHandle userHandle) {
-        ChooserRequest parameters = mViewModel.getChooserRequest();
+        ChooserRequest request = mViewModel.getChooserRequest();
         ChooserListAdapter chooserListAdapter = createChooserListAdapter(
                 context,
                 payloadIntents,
@@ -1976,8 +1970,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 filterLastUsed,
                 createListController(userHandle),
                 userHandle,
-                mLogic.getTargetIntent(),
-                parameters.getReferrerFillInIntent(),
+                request.getTargetIntent(),
+                request.getReferrerFillInIntent(),
                 mMaxTargetsPerRow
         );
 
@@ -2081,8 +2075,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         if (appPredictor != null) {
             resolverComparator = new AppPredictionServiceResolverComparator(
                     this,
-                    mLogic.getTargetIntent(),
-                    mLogic.getReferrerPackageName(),
+                    mViewModel.getChooserRequest().getTargetIntent(),
+                    mViewModel.getChooserRequest().getLaunchedFromPackage(),
                     appPredictor,
                     userHandle,
                     getEventLog(),
@@ -2092,8 +2086,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             resolverComparator =
                     new ResolverRankerServiceResolverComparator(
                             this,
-                            mLogic.getTargetIntent(),
-                            mLogic.getReferrerPackageName(),
+                            mViewModel.getChooserRequest().getTargetIntent(),
+                            mViewModel.getChooserRequest().getReferrerPackage(),
                             null,
                             getEventLog(),
                             getResolverRankerServiceUserHandleList(userHandle),
@@ -2103,9 +2097,9 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         return new ChooserListController(
                 this,
                 mPackageManager,
-                mLogic.getTargetIntent(),
-                mLogic.getReferrerPackageName(),
-                mActivityLaunch.getFromUid(),
+                mViewModel.getChooserRequest().getTargetIntent(),
+                mViewModel.getChooserRequest().getReferrerPackage(),
+                requireAnnotatedUserHandles().userIdOfCallingApp,
                 resolverComparator,
                 getQueryIntentsUser(userHandle));
     }
