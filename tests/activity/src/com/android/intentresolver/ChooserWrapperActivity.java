@@ -54,13 +54,6 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
     static final ChooserActivityOverrideData sOverrides = ChooserActivityOverrideData.getInstance();
     private UsageStatsManager mUsm;
 
-    // ResolverActivity (the base class of ChooserActivity) inspects the launched-from UID at
-    // onCreate and needs to see some non-negative value in the test.
-    @Override
-    public int getLaunchedFromUid() {
-        return 1234;
-    }
-
     @Override
     public ChooserListAdapter createChooserListAdapter(
             Context context,

@@ -18,7 +18,8 @@ package com.android.intentresolver.v2.ui.viewmodel
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.android.intentresolver.v2.ui.model.CallerInfo
+import com.android.intentresolver.v2.ui.model.ActivityLaunch
+import com.android.intentresolver.v2.ui.model.ActivityLaunch.Companion.ACTIVITY_LAUNCH_KEY
 import com.android.intentresolver.v2.ui.model.ChooserRequest
 import com.android.intentresolver.v2.validation.ValidationResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,19 +28,15 @@ import javax.inject.Inject
 private const val TAG = "ChooserViewModel"
 
 @HiltViewModel
-class ChooserViewModel
-@Inject
-constructor(
-    private val args: SavedStateHandle,
-) : ViewModel() {
+class ChooserViewModel @Inject constructor(args: SavedStateHandle) : ViewModel() {
 
-    private val callerInfo: CallerInfo =
-        requireNotNull(args[CallerInfo.SAVED_STATE_HANDLE_KEY]) {
-            "CallerInfo missing in SavedStateHandle! (${CallerInfo.SAVED_STATE_HANDLE_KEY})"
+    private val mActivityLaunch: ActivityLaunch =
+        requireNotNull(args[ACTIVITY_LAUNCH_KEY]) {
+            "ActivityLaunch missing in SavedStateHandle! ($ACTIVITY_LAUNCH_KEY)"
         }
 
     /** The result of reading and validating the inputs provided in savedState. */
-    private val status: ValidationResult<ChooserRequest> = readChooserRequest(callerInfo, args::get)
+    private val status: ValidationResult<ChooserRequest> = readChooserRequest(mActivityLaunch)
 
     val chooserRequest: ChooserRequest by lazy { status.getOrThrow() }
 

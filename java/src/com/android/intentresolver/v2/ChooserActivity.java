@@ -29,6 +29,7 @@ import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTE
 
 import static androidx.lifecycle.LifecycleKt.getCoroutineScope;
 
+import static com.android.intentresolver.v2.ext.CreationExtrasExtKt.addDefaultArgs;
 import static com.android.internal.annotations.VisibleForTesting.Visibility.PROTECTED;
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
 
@@ -75,7 +76,6 @@ import android.stats.devicepolicy.DevicePolicyEnums;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Slog;
-import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -95,7 +95,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.SavedStateHandleSupport;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.viewmodel.CreationExtras;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -149,7 +148,7 @@ import com.android.intentresolver.v2.platform.AppPredictionAvailable;
 import com.android.intentresolver.v2.platform.ImageEditor;
 import com.android.intentresolver.v2.platform.NearbyShare;
 import com.android.intentresolver.v2.ui.ActionTitle;
-import com.android.intentresolver.v2.ui.model.CallerInfo;
+import com.android.intentresolver.v2.ui.model.ActivityLaunch;
 import com.android.intentresolver.v2.ui.model.ChooserRequest;
 import com.android.intentresolver.v2.ui.viewmodel.ChooserViewModel;
 import com.android.intentresolver.widget.ImagePreviewView;
@@ -164,6 +163,7 @@ import com.google.common.collect.ImmutableList;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+import kotlin.Pair;
 import kotlin.Unit;
 
 import java.util.ArrayList;
@@ -265,6 +265,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private static final int SCROLL_STATUS_SCROLLING_VERTICAL = 1;
     private static final int SCROLL_STATUS_SCROLLING_HORIZONTAL = 2;
 
+    @Inject public ActivityLaunch mActivityLaunch;
     @Inject public FeatureFlags mFeatureFlags;
     @Inject public EventLog mEventLog;
     @Inject @AppPredictionAvailable public boolean mAppPredictionAvailable;
@@ -332,20 +333,21 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     @NonNull
     @Override
     public CreationExtras getDefaultViewModelCreationExtras() {
-        CreationExtras extras = super.getDefaultViewModelCreationExtras();
-        // Inserts a CallerInfo into the Bundle at stored at DEFAULT_ARGS_KEY
-        Bundle defaultArgs = requireNonNull(extras.get(SavedStateHandleSupport.DEFAULT_ARGS_KEY));
-        defaultArgs.putParcelable(CallerInfo.SAVED_STATE_HANDLE_KEY,
-                new CallerInfo(getLaunchedFromUid(),
-                        getLaunchedFromPackage(),
-                        requireNonNull(getReferrer())));
-        return extras;
+        return addDefaultArgs(
+                super.getDefaultViewModelCreationExtras(),
+                new Pair<>(ActivityLaunch.ACTIVITY_LAUNCH_KEY, mActivityLaunch));
     }
 
     @Override
     protected final void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+        Log.i(TAG, "onCreate");
+        Log.i(TAG, "activityLaunch=" + mActivityLaunch.toString());
+        int callerUid = mActivityLaunch.getFromUid();
+        if (callerUid < 0 || UserHandle.isIsolated(callerUid)) {
+            Log.e(TAG, "Can't start a resolver from uid " + callerUid);
+            finish();
+        }
         setTheme(R.style.Theme_DeviceDefault_Chooser);
         Tracer.INSTANCE.markLaunched();
         mViewModel = new ViewModelProvider(this).get(ChooserViewModel.class);
@@ -824,7 +826,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             }
         } catch (RuntimeException e) {
             Slog.wtf(TAG,
-                    "Unable to launch as uid " + requireAnnotatedUserHandles().userIdOfCallingApp
+                    "Unable to launch as uid " + mActivityLaunch.getFromUid()
                             + " package " + getLaunchedFromPackage() + ", while running in "
                             + ActivityThread.currentProcessName(), e);
         }
@@ -2103,7 +2105,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 mPackageManager,
                 mLogic.getTargetIntent(),
                 mLogic.getReferrerPackageName(),
-                requireAnnotatedUserHandles().userIdOfCallingApp,
+                mActivityLaunch.getFromUid(),
                 resolverComparator,
                 getQueryIntentsUser(userHandle));
     }

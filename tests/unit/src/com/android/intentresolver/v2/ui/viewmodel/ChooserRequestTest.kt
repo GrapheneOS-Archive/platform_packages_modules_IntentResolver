@@ -16,11 +16,12 @@
 package com.android.intentresolver.v2.ui.viewmodel
 
 import android.content.Intent
+import android.content.Intent.ACTION_CHOOSER
 import android.content.Intent.ACTION_SEND
 import android.content.Intent.EXTRA_INTENT
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
-import com.android.intentresolver.v2.ui.model.CallerInfo
+import com.android.intentresolver.v2.ui.model.ActivityLaunch
 import com.android.intentresolver.v2.ui.model.ChooserRequest
 import com.android.intentresolver.v2.validation.RequiredValueMissing
 import com.android.intentresolver.v2.validation.ValidationResultSubject.Companion.assertThat
@@ -30,18 +31,18 @@ import org.junit.Test
 @Suppress("DEPRECATION")
 class ChooserRequestTest {
 
-    private val callerInfo =
-        CallerInfo(
-            launchedFromUid = 10000,
-            launchedFomPackage = "com.android.example",
+    val intent = Intent(ACTION_CHOOSER)
+    private val mActivityLaunch =
+        ActivityLaunch(
+            intent,
+            fromUid = 10000,
+            fromPackage = "com.android.example",
             referrer = "android-app://com.android.example".toUri()
         )
 
     @Test
     fun missingIntent() {
-        val args = bundleOf()
-
-        val result = readChooserRequest(callerInfo, args::get)
+        val result = readChooserRequest(mActivityLaunch)
 
         assertThat(result).value().isNull()
         assertThat(result)
@@ -51,13 +52,13 @@ class ChooserRequestTest {
 
     @Test
     fun minimal() {
-        val args = bundleOf(EXTRA_INTENT to Intent(ACTION_SEND))
+        intent.putExtras(bundleOf(EXTRA_INTENT to Intent(ACTION_SEND)))
 
-        val result = readChooserRequest(callerInfo, args::get)
+        val result = readChooserRequest(mActivityLaunch)
 
         assertThat(result).value().isNotNull()
         val value: ChooserRequest = result.getOrThrow()
-        assertThat(value.launchedFromPackage).isEqualTo(callerInfo.launchedFomPackage)
+        assertThat(value.launchedFromPackage).isEqualTo(mActivityLaunch.fromPackage)
         assertThat(result).findings().isEmpty()
     }
 }
