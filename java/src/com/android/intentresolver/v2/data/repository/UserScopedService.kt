@@ -2,7 +2,7 @@ package com.android.intentresolver.v2.data.repository
 
 import android.content.Context
 import androidx.core.content.getSystemService
-import com.android.intentresolver.v2.data.model.User
+import com.android.intentresolver.v2.shared.model.User
 
 /**
  * Provides cached instances of a [system service][Context.getSystemService] created with
