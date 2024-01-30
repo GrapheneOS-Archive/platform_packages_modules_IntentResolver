@@ -8,10 +8,10 @@ import android.os.UserHandle.USER_SYSTEM
 import android.os.UserManager
 import com.android.intentresolver.mock
 import com.android.intentresolver.v2.coroutines.collectLastValue
-import com.android.intentresolver.v2.data.model.User
-import com.android.intentresolver.v2.data.model.User.Role
 import com.android.intentresolver.v2.platform.FakeUserManager
 import com.android.intentresolver.v2.platform.FakeUserManager.ProfileType
+import com.android.intentresolver.v2.shared.model.User
+import com.android.intentresolver.v2.shared.model.User.Role
 import com.android.intentresolver.whenever
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -66,30 +66,32 @@ internal class UserRepositoryImplTest {
     fun isAvailable() = runTest {
         val repo = createUserRepository(userManager)
         val work = userState.createProfile(ProfileType.WORK)
+        val workUser = User(work.identifier, Role.WORK)
 
-        val available by collectLastValue(repo.isAvailable(work))
-        assertThat(available).isTrue()
+        val available by collectLastValue(repo.availability)
+        assertThat(available?.get(workUser)).isTrue()
 
         userState.setQuietMode(work, true)
-        assertThat(available).isFalse()
+        assertThat(available?.get(workUser)).isFalse()
 
         userState.setQuietMode(work, false)
-        assertThat(available).isTrue()
+        assertThat(available?.get(workUser)).isTrue()
     }
 
     @Test
     fun requestState() = runTest {
         val repo = createUserRepository(userManager)
         val work = userState.createProfile(ProfileType.WORK)
+        val workUser = User(work.identifier, Role.WORK)
 
-        val available by collectLastValue(repo.isAvailable(work))
-        assertThat(available).isTrue()
+        val available by collectLastValue(repo.availability)
+        assertThat(available?.get(workUser)).isTrue()
 
-        repo.requestState(work, false)
-        assertThat(available).isFalse()
+        repo.requestState(workUser, false)
+        assertThat(available?.get(workUser)).isFalse()
 
-        repo.requestState(work, true)
-        assertThat(available).isTrue()
+        repo.requestState(workUser, true)
+        assertThat(available?.get(workUser)).isTrue()
     }
 
     @Test(expected = IllegalArgumentException::class)

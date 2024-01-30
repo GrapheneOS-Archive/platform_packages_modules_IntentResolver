@@ -20,8 +20,8 @@ import com.android.intentresolver.inject.Background
 import com.android.intentresolver.inject.Main
 import com.android.intentresolver.inject.ProfileParent
 import com.android.intentresolver.v2.data.broadcastFlow
-import com.android.intentresolver.v2.data.model.User
 import com.android.intentresolver.v2.data.repository.UserRepositoryImpl.UserEvent
+import com.android.intentresolver.v2.shared.model.User
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -49,7 +49,7 @@ interface UserRepository {
      *
      * Availability is currently defined as not being in [quietMode][UserInfo.isQuietModeEnabled].
      */
-    fun isAvailable(user: User): Flow<Boolean>
+    val availability: Flow<Map<User, Boolean>>
 
     /**
      * Request that availability be updated to the requested state. This currently includes toggling
@@ -145,30 +145,16 @@ constructor(
     override val users: Flow<List<User>> =
         usersWithState.map { userStateMap -> userStateMap.map { it.user } }.distinctUntilChanged()
 
-    private val availability: Flow<Map<UserHandle, Boolean>> =
+    override val availability: Flow<Map<User, Boolean>> =
         usersWithState
-            .map { list -> list.associateBy { it.user.handle }.mapValues { it.value.available } }
+            .map { list -> list.associate { it.user to it.available } }
             .distinctUntilChanged()
-
-    override fun isAvailable(user: User): Flow<Boolean> {
-        return isAvailable(user.handle)
-    }
-
-    @VisibleForTesting
-    fun isAvailable(handle: UserHandle): Flow<Boolean> {
-        return availability.map { it[handle] ?: false }
-    }
 
     override suspend fun requestState(user: User, available: Boolean) {
         require(user.type == User.Type.PROFILE) { "Only profile users are supported" }
-        return requestState(user.handle, available)
-    }
-
-    @VisibleForTesting
-    suspend fun requestState(user: UserHandle, available: Boolean) {
         return withContext(backgroundDispatcher) {
             Log.i(TAG, "requestQuietModeEnabled: ${!available} for user $user")
-            userManager.requestQuietModeEnabled(/* enableQuietMode = */ !available, user)
+            userManager.requestQuietModeEnabled(/* enableQuietMode = */ !available, user.handle)
         }
     }
 

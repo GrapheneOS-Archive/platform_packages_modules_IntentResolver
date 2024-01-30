@@ -25,8 +25,11 @@ interface UserRepositoryModule {
         @Provides
         @Singleton
         @ProfileParent
-        fun profileParent(@ApplicationUser user: UserHandle, userManager: UserManager): UserHandle {
-            return userManager.getProfileParent(user) ?: user
+        fun profileParent(
+            @ApplicationContext context: Context,
+            userManager: UserManager
+        ): UserHandle {
+            return userManager.getProfileParent(context.user) ?: context.user
         }
     }
 

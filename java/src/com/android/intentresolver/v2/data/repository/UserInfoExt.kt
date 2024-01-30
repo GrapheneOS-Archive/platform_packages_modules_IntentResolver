@@ -1,8 +1,8 @@
 package com.android.intentresolver.v2.data.repository
 
 import android.content.pm.UserInfo
-import com.android.intentresolver.v2.data.model.User
-import com.android.intentresolver.v2.data.model.User.Role
+import com.android.intentresolver.v2.shared.model.User
+import com.android.intentresolver.v2.shared.model.User.Role
 
 /** Maps the UserInfo to one of the defined [Roles][User.Role], if possible. */
 fun UserInfo.getSupportedUserRole(): Role? =
