@@ -27,6 +27,7 @@ import android.os.Bundle
 import android.service.chooser.ChooserAction
 import android.service.chooser.ChooserTarget
 import androidx.annotation.StringRes
+import com.android.intentresolver.ContentTypeHint
 import com.android.intentresolver.v2.ext.hasAction
 
 const val ANDROID_APP_SCHEME = "android-app"
@@ -169,6 +170,9 @@ data class ChooserRequest(
 
     /** Focused item index (from target intent's STREAM_EXTRA) */
     val focusedItemPosition: Int = 0,
+
+    /** Value for [Intent.EXTRA_CHOOSER_CONTENT_TYPE_HINT] on the incoming chooser intent. */
+    val contentTypeHint: ContentTypeHint = ContentTypeHint.NONE
 ) {
     val referrerPackage = referrer?.takeIf { it.scheme == ANDROID_APP_SCHEME }?.authority
 

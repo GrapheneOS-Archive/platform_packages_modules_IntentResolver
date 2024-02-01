@@ -18,8 +18,9 @@ package com.android.intentresolver.contentpreview
 
 import android.content.Intent
 import android.net.Uri
-import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
+import com.android.intentresolver.ContentTypeHint
 import com.android.intentresolver.TestPreviewImageLoader
+import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
 import com.android.intentresolver.widget.ActionRow
@@ -62,6 +63,7 @@ class ChooserContentPreviewUiTest {
                 actionFactory,
                 transitionCallback,
                 headlineGenerator,
+                ContentTypeHint.NONE,
             )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_TEXT)
@@ -81,6 +83,7 @@ class ChooserContentPreviewUiTest {
                 actionFactory,
                 transitionCallback,
                 headlineGenerator,
+                ContentTypeHint.NONE,
             )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
@@ -105,6 +108,7 @@ class ChooserContentPreviewUiTest {
                 actionFactory,
                 transitionCallback,
                 headlineGenerator,
+                ContentTypeHint.NONE,
             )
         assertThat(testSubject.mContentPreviewUi)
             .isInstanceOf(FilesPlusTextContentPreviewUi::class.java)
@@ -129,6 +133,7 @@ class ChooserContentPreviewUiTest {
                 actionFactory,
                 transitionCallback,
                 headlineGenerator,
+                ContentTypeHint.NONE,
             )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)

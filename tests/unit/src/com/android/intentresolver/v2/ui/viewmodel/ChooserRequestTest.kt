@@ -28,8 +28,10 @@ import android.platform.test.annotations.RequiresFlagsDisabled
 import android.platform.test.annotations.RequiresFlagsEnabled
 import android.platform.test.flag.junit.CheckFlagsRule
 import android.platform.test.flag.junit.DeviceFlagsValueProvider
+import android.service.chooser.FeatureFlagsImpl
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
+import com.android.intentresolver.ContentTypeHint
 import com.android.intentresolver.v2.ui.model.ActivityLaunch
 import com.android.intentresolver.v2.ui.model.ChooserRequest
 import com.android.intentresolver.v2.validation.RequiredValueMissing
@@ -41,6 +43,7 @@ import org.junit.Test
 // TODO: replace with the new API constant, Intent#EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI
 private const val EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI =
     "android.intent.extra.CHOOSER_ADDITIONAL_CONTENT_URI"
+
 // TODO: replace with the new API constant, Intent#EXTRA_CHOOSER_FOCUSED_ITEM_POSITION
 private const val EXTRA_CHOOSER_FOCUSED_ITEM_POSITION =
     "android.intent.extra.CHOOSER_FOCUSED_ITEM_POSITION"
@@ -63,10 +66,12 @@ private fun createLaunch(
 class ChooserRequestTest {
     @get:Rule val checkFlagsRule: CheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule()
 
+    private val flags = FeatureFlagsImpl()
+
     @Test
     fun missingIntent() {
         val launch = createLaunch(targetIntent = null)
-        val result = readChooserRequest(launch)
+        val result = readChooserRequest(launch, flags)
 
         assertThat(result).value().isNull()
         assertThat(result)
@@ -80,7 +85,7 @@ class ChooserRequestTest {
         val launch = createLaunch(targetIntent = Intent(ACTION_SEND), referrer)
         launch.intent.putExtras(bundleOf(EXTRA_REFERRER to referrer))
 
-        val result = readChooserRequest(launch)
+        val result = readChooserRequest(launch, flags)
 
         val fillIn = result.value?.getReferrerFillInIntent()
         assertThat(fillIn?.hasExtra(EXTRA_REFERRER)).isTrue()
@@ -94,7 +99,7 @@ class ChooserRequestTest {
 
         val launch = createLaunch(targetIntent = intent, referrer = referrer)
 
-        val result = readChooserRequest(launch)
+        val result = readChooserRequest(launch, flags)
 
         assertThat(result.value?.referrerPackage).isNull()
     }
@@ -106,7 +111,7 @@ class ChooserRequestTest {
 
         launch.intent.putExtras(bundleOf(EXTRA_REFERRER to referrer))
 
-        val result = readChooserRequest(launch)
+        val result = readChooserRequest(launch, flags)
 
         assertThat(result.value?.referrerPackage).isEqualTo(referrer.authority)
     }
@@ -116,7 +121,7 @@ class ChooserRequestTest {
         val intent1 = Intent(ACTION_SEND)
         val intent2 = Intent(ACTION_SEND_MULTIPLE)
         val launch = createLaunch(targetIntent = intent1, additionalIntents = listOf(intent2))
-        val result = readChooserRequest(launch)
+        val result = readChooserRequest(launch, flags)
 
         assertThat(result.value?.payloadIntents).containsExactly(intent1, intent2)
     }
@@ -125,7 +130,7 @@ class ChooserRequestTest {
     fun testRequest_withOnlyRequiredValues() {
         val intent = Intent().putExtras(bundleOf(EXTRA_INTENT to Intent(ACTION_SEND)))
         val launch = createLaunch(targetIntent = intent)
-        val result = readChooserRequest(launch)
+        val result = readChooserRequest(launch, flags)
 
         assertThat(result).value().isNotNull()
         val value: ChooserRequest = result.getOrThrow()
@@ -143,7 +148,7 @@ class ChooserRequestTest {
                 intent.putExtra(EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI, uri)
                 intent.putExtra(EXTRA_CHOOSER_FOCUSED_ITEM_POSITION, position)
             }
-        val result = readChooserRequest(launch)
+        val result = readChooserRequest(launch, flags)
 
         assertThat(result).value().isNotNull()
         val value: ChooserRequest = result.getOrThrow()
@@ -162,7 +167,7 @@ class ChooserRequestTest {
                 intent.putExtra(EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI, uri)
                 intent.putExtra(EXTRA_CHOOSER_FOCUSED_ITEM_POSITION, position)
             }
-        val result = readChooserRequest(launch)
+        val result = readChooserRequest(launch, flags)
 
         assertThat(result).value().isNotNull()
         val value: ChooserRequest = result.getOrThrow()
@@ -179,7 +184,7 @@ class ChooserRequestTest {
                 intent.putExtra(EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI, "content://org.pkg/path")
                 intent.putExtra(EXTRA_CHOOSER_FOCUSED_ITEM_POSITION, "1")
             }
-        val result = readChooserRequest(launch)
+        val result = readChooserRequest(launch, flags)
 
         assertThat(result).value().isNotNull()
         val value: ChooserRequest = result.getOrThrow()
@@ -191,7 +196,7 @@ class ChooserRequestTest {
     @RequiresFlagsEnabled(android.service.chooser.Flags.FLAG_CHOOSER_PAYLOAD_TOGGLING)
     fun testRequest_actionSendWithoutAdditionalContentUri() {
         val launch = createLaunch(targetIntent = Intent(ACTION_SEND))
-        val result = readChooserRequest(launch)
+        val result = readChooserRequest(launch, flags)
 
         assertThat(result).value().isNotNull()
         val value: ChooserRequest = result.getOrThrow()
@@ -209,12 +214,28 @@ class ChooserRequestTest {
                 intent.putExtra(EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI, uri)
                 intent.putExtra(EXTRA_CHOOSER_FOCUSED_ITEM_POSITION, position)
             }
-        val result = readChooserRequest(launch)
+        val result = readChooserRequest(launch, flags)
 
         assertThat(result).value().isNotNull()
         val value: ChooserRequest = result.getOrThrow()
         assertThat(value.additionalContentUri).isNull()
         assertThat(value.focusedItemPosition).isEqualTo(0)
+        assertThat(result).findings().isEmpty()
+    }
+
+    @Test
+    @RequiresFlagsEnabled(android.service.chooser.Flags.FLAG_CHOOSER_ALBUM_TEXT)
+    fun testAlbumType() {
+        val launch = createLaunch(Intent(ACTION_SEND))
+        launch.intent.putExtra(
+            Intent.EXTRA_CHOOSER_CONTENT_TYPE_HINT,
+            Intent.CHOOSER_CONTENT_TYPE_ALBUM
+        )
+
+        val result = readChooserRequest(launch, flags)
+
+        val value: ChooserRequest = result.getOrThrow()
+        assertThat(value.contentTypeHint).isEqualTo(ContentTypeHint.ALBUM)
         assertThat(result).findings().isEmpty()
     }
 }

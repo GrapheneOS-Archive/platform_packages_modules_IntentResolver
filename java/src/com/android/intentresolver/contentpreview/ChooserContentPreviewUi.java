@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
+import com.android.intentresolver.ContentTypeHint;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback;
 
@@ -98,7 +99,8 @@ public final class ChooserContentPreviewUi {
             ImageLoader imageLoader,
             ActionFactory actionFactory,
             TransitionElementStatusCallback transitionElementStatusCallback,
-            HeadlineGenerator headlineGenerator) {
+            HeadlineGenerator headlineGenerator,
+            ContentTypeHint contentTypeHint) {
         mScope = scope;
         mContentPreviewUi = createContentPreview(
                 previewData,
@@ -107,7 +109,8 @@ public final class ChooserContentPreviewUi {
                 imageLoader,
                 actionFactory,
                 transitionElementStatusCallback,
-                headlineGenerator);
+                headlineGenerator,
+                contentTypeHint);
         if (mContentPreviewUi.getType() != CONTENT_PREVIEW_IMAGE) {
             transitionElementStatusCallback.onAllTransitionElementsReady();
         }
@@ -120,7 +123,8 @@ public final class ChooserContentPreviewUi {
             ImageLoader imageLoader,
             ActionFactory actionFactory,
             TransitionElementStatusCallback transitionElementStatusCallback,
-            HeadlineGenerator headlineGenerator) {
+            HeadlineGenerator headlineGenerator,
+            ContentTypeHint contentTypeHint) {
 
         int previewType = previewData.getPreviewType();
         if (previewType == CONTENT_PREVIEW_TEXT) {
@@ -129,7 +133,8 @@ public final class ChooserContentPreviewUi {
                     targetIntent,
                     actionFactory,
                     imageLoader,
-                    headlineGenerator);
+                    headlineGenerator,
+                    contentTypeHint);
         }
         if (previewType == CONTENT_PREVIEW_FILE) {
             FileContentPreviewUi fileContentPreviewUi = new FileContentPreviewUi(
@@ -142,7 +147,7 @@ public final class ChooserContentPreviewUi {
             return fileContentPreviewUi;
         }
         boolean isSingleImageShare = previewData.getUriCount() == 1
-                        && typeClassifier.isImageType(previewData.getFirstFileInfo().getMimeType());
+                && typeClassifier.isImageType(previewData.getFirstFileInfo().getMimeType());
         CharSequence text = targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         if (!TextUtils.isEmpty(text)) {
             FilesPlusTextContentPreviewUi previewUi =
@@ -200,7 +205,8 @@ public final class ChooserContentPreviewUi {
             Intent targetIntent,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
-            HeadlineGenerator headlineGenerator) {
+            HeadlineGenerator headlineGenerator,
+            ContentTypeHint contentTypeHint) {
         CharSequence sharingText = targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         CharSequence previewTitle = targetIntent.getCharSequenceExtra(Intent.EXTRA_TITLE);
         ClipData previewData = targetIntent.getClipData();
@@ -211,6 +217,7 @@ public final class ChooserContentPreviewUi {
                 previewThumbnail = previewDataItem.getUri();
             }
         }
+
         return new TextContentPreviewUi(
                 scope,
                 sharingText,
@@ -218,6 +225,7 @@ public final class ChooserContentPreviewUi {
                 previewThumbnail,
                 actionFactory,
                 imageLoader,
-                headlineGenerator);
+                headlineGenerator,
+                contentTypeHint);
     }
 }
