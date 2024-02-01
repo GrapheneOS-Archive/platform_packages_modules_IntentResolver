@@ -147,6 +147,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     @Inject public ActivityLaunch mActivityLaunch;
     @Inject public DevicePolicyResources mDevicePolicyResources;
     @Inject public IntentForwarding mIntentForwarding;
+    @Inject public PackageManager mPackageManager;
 
     protected ActivityLogic mLogic;
     protected TargetDataLoader mTargetDataLoader;
@@ -326,7 +327,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                 }
             });
 
-            boolean hasTouchScreen = getPackageManager()
+            boolean hasTouchScreen = mPackageManager
                     .hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
 
             if (isVoiceInteraction() || !hasTouchScreen) {
@@ -548,7 +549,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         ResolveInfo ri = mMultiProfilePagerAdapter.getActiveListAdapter()
                 .resolveInfoForPosition(which, hasIndexBeenFiltered);
         if (mResolvingHome && hasManagedProfile() && !supportsManagedProfiles(ri)) {
-            String launcherName = ri.activityInfo.loadLabel(getPackageManager()).toString();
+            String launcherName = ri.activityInfo.loadLabel(mPackageManager).toString();
             Toast.makeText(this,
                     mDevicePolicyResources.getWorkProfileNotSupportedMessage(launcherName),
                     Toast.LENGTH_LONG).show();
@@ -718,7 +719,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
 
                 if (always) {
                     final int userId = getUserId();
-                    final PackageManager pm = getPackageManager();
+                    final PackageManager pm = mPackageManager;
 
                     // Set the preferred Activity
                     pm.addUniquePreferredActivity(filter, bestMatch, set, intent.getComponent());
@@ -771,7 +772,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                         null);
         return new ResolverListController(
                 this,
-                getPackageManager(),
+                mPackageManager,
                 mLogic.getTargetIntent(),
                 mLogic.getReferrerPackageName(),
                 mActivityLaunch.getFromUid(),
@@ -1249,7 +1250,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
 
     private boolean supportsManagedProfiles(ResolveInfo resolveInfo) {
         try {
-            ApplicationInfo appInfo = getPackageManager().getApplicationInfo(
+            ApplicationInfo appInfo = mPackageManager.getApplicationInfo(
                     resolveInfo.activityInfo.packageName, 0 /* default flags */);
             return appInfo.targetSdkVersion >= Build.VERSION_CODES.LOLLIPOP;
         } catch (NameNotFoundException e) {
@@ -1294,7 +1295,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         if (ri != null) {
             ActivityInfo activityInfo = ri.activityInfo;
 
-            boolean hasRecordPermission = getPackageManager()
+            boolean hasRecordPermission = mPackageManager
                     .checkPermission(android.Manifest.permission.RECORD_AUDIO,
                             activityInfo.packageName)
                             == PackageManager.PERMISSION_GRANTED;

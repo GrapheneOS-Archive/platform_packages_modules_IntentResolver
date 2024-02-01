@@ -145,14 +145,6 @@ public class ResolverWrapperActivity extends ResolverActivity {
         return sOverrides.workResolverListController;
     }
 
-    @Override
-    public PackageManager getPackageManager() {
-        if (sOverrides.createPackageManager != null) {
-            return sOverrides.createPackageManager.apply(super.getPackageManager());
-        }
-        return super.getPackageManager();
-    }
-
     protected UserHandle getCurrentUserHandle() {
         return mMultiProfilePagerAdapter.getCurrentUserHandle();
     }
