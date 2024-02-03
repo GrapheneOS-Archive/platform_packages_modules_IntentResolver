@@ -176,4 +176,27 @@ class UserInteractorTest {
         userRepo.removeUser(workUser)
         assertWithMessage("workAvailable").that(workAvailable).isFalse()
     }
+
+    /**
+     * Similar to the above test in reverse: uses UserInteractor to modify state, and verify the
+     * state of the UserRepository.
+     */
+    @Test
+    fun updateState() = runTest {
+        val userRepo = FakeUserRepository(workUser, personalUser)
+        val userInteractor =
+            UserInteractor(userRepository = userRepo, launchedAs = personalUser.handle)
+        val workProfile = Profile(Profile.Type.WORK, workUser)
+
+        val availability by collectLastValue(userRepo.availability)
+
+        // Default state is enabled in FakeUserManager
+        assertWithMessage("workAvailable").that(availability?.get(workUser)).isTrue()
+
+        userInteractor.updateState(workProfile, false)
+        assertWithMessage("workAvailable").that(availability?.get(workUser)).isFalse()
+
+        userInteractor.updateState(workProfile, true)
+        assertWithMessage("workAvailable").that(availability?.get(workUser)).isTrue()
+    }
 }

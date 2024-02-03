@@ -82,6 +82,14 @@ constructor(
         }
     }
 
+    /**
+     * Request the profile state be updated. In the case of enabling, the operation could take
+     * significant time and/or require user input.
+     */
+    suspend fun updateState(profile: Profile, available: Boolean) {
+        userRepository.requestState(profile.primary, available)
+    }
+
     private fun profileFromRole(role: Role): Type =
         when (role) {
             Role.PERSONAL -> Type.PERSONAL
