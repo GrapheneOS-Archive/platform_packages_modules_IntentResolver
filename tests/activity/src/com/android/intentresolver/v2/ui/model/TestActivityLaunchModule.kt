@@ -36,6 +36,6 @@ class TestActivityLaunchModule {
     companion object {
         const val LAUNCHED_FROM_PACKAGE = "example.com"
         const val LAUNCHED_FROM_UID = 1234
-        val REFERRER: Uri = Uri.parse("android-app://$LAUNCHED_FROM_PACKAGE")
+        val REFERRER: Uri = Uri.fromParts(ANDROID_APP_SCHEME, LAUNCHED_FROM_PACKAGE, "")
     }
 }
