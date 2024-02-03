@@ -25,11 +25,10 @@ import static android.stats.devicepolicy.nano.DevicePolicyEnums.RESOLVER_EMPTY_S
 import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
 
 import static com.android.intentresolver.v2.ext.CreationExtrasExtKt.addDefaultArgs;
+import static com.android.intentresolver.v2.ui.viewmodel.ResolverRequestReaderKt.readResolverRequest;
 import static com.android.internal.annotations.VisibleForTesting.Visibility.PROTECTED;
 
-import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
-import static java.util.Objects.requireNonNullElse;
 
 import android.app.ActivityThread;
 import android.app.VoiceInteractor.PickOptionRequest;
@@ -105,13 +104,15 @@ import com.android.intentresolver.v2.MultiProfilePagerAdapter.OnSwitchOnWorkSele
 import com.android.intentresolver.v2.MultiProfilePagerAdapter.ProfileType;
 import com.android.intentresolver.v2.MultiProfilePagerAdapter.TabConfig;
 import com.android.intentresolver.v2.data.repository.DevicePolicyResources;
+import com.android.intentresolver.v2.domain.model.Profile;
 import com.android.intentresolver.v2.emptystate.NoAppsAvailableEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
 import com.android.intentresolver.v2.emptystate.WorkProfilePausedEmptyStateProvider;
-import com.android.intentresolver.v2.ext.IntentExtKt;
 import com.android.intentresolver.v2.ui.ActionTitle;
 import com.android.intentresolver.v2.ui.model.ActivityLaunch;
+import com.android.intentresolver.v2.ui.model.ResolverRequest;
+import com.android.intentresolver.v2.validation.ValidationResult;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.content.PackageMonitor;
@@ -144,10 +145,11 @@ import javax.inject.Inject;
 public class ResolverActivity extends Hilt_ResolverActivity implements
         ResolverListAdapter.ResolverListCommunicator {
 
+    @Inject public PackageManager mPackageManager;
     @Inject public ActivityLaunch mActivityLaunch;
     @Inject public DevicePolicyResources mDevicePolicyResources;
     @Inject public IntentForwarding mIntentForwarding;
-    @Inject public PackageManager mPackageManager;
+    private ResolverRequest mResolverRequest;
 
     protected ActivityLogic mLogic;
     protected TargetDataLoader mTargetDataLoader;
@@ -185,32 +187,8 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
 
     protected ResolverMultiProfilePagerAdapter mMultiProfilePagerAdapter;
 
-
-    // Intent extra for connected audio devices
-    public static final String EXTRA_IS_AUDIO_CAPTURE_DEVICE = "is_audio_capture_device";
-
-    /**
-     * Integer extra to indicate which profile should be automatically selected.
-     * <p>Can only be used if there is a work profile.
-     * <p>Possible values can be either {@link #PROFILE_PERSONAL} or {@link #PROFILE_WORK}.
-     */
-    protected static final String EXTRA_SELECTED_PROFILE =
-            "com.android.internal.app.ResolverActivity.EXTRA_SELECTED_PROFILE";
-
-    /**
-     * {@link UserHandle} extra to indicate the user of the user that the starting intent
-     * originated from.
-     * <p>This is not necessarily the same as {@link #getUserId()} or {@link UserHandle#myUserId()},
-     * as there are edge cases when the intent resolver is launched in the other profile.
-     * For example, when we have 0 resolved apps in current profile and multiple resolved
-     * apps in the other profile, opening a link from the current profile launches the intent
-     * resolver in the other one. b/148536209 for more info.
-     */
-    static final String EXTRA_CALLING_USER =
-            "com.android.internal.app.ResolverActivity.EXTRA_CALLING_USER";
-
-    protected static final int PROFILE_PERSONAL = MultiProfilePagerAdapter.PROFILE_PERSONAL;
-    protected static final int PROFILE_WORK = MultiProfilePagerAdapter.PROFILE_WORK;
+    public static final int PROFILE_PERSONAL = MultiProfilePagerAdapter.PROFILE_PERSONAL;
+    public static final int PROFILE_WORK = MultiProfilePagerAdapter.PROFILE_WORK;
 
     private UserHandle mHeaderCreatorUser;
 
@@ -234,7 +212,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     }
 
     @VisibleForTesting
-    protected ResolverActivityLogic createActivityLogic() {
+    protected ActivityLogic createActivityLogic() {
         return  new ResolverActivityLogic(
                 TAG,
                 /* activity = */ this,
@@ -261,22 +239,24 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
             finish();
         }
 
+        ValidationResult<ResolverRequest> result = readResolverRequest(mActivityLaunch);
+        if (!result.isSuccess()) {
+            result.reportToLogcat(TAG);
+            finish();
+        }
+        mResolverRequest = result.getOrThrow();
         mLogic = createActivityLogic();
-        mResolvingHome = IntentExtKt.isHomeIntent(getIntent());
+        mResolvingHome = mResolverRequest.isResolvingHome();
         mTargetDataLoader = new DefaultTargetDataLoader(
                 this,
                 getLifecycle(),
-                getIntent().getBooleanExtra(
-                        ResolverActivity.EXTRA_IS_AUDIO_CAPTURE_DEVICE,
-                        /* defaultValue = */ false)
-                );
+                mResolverRequest.isAudioCaptureDevice());
         init();
         restore(savedInstanceState);
     }
 
     private void init() {
-        Intent intent = mLogic.getTargetIntent();
-        List<Intent> initialIntents = mLogic.getInitialIntents();
+        Intent intent = mResolverRequest.getIntent();
 
         // The last argument of createResolverListAdapter is whether to do special handling
         // of the last used choice to highlight it in the list.  We need to always
@@ -289,8 +269,8 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         boolean filterLastUsed = !isVoiceInteraction()
                 && !hasWorkProfile() && !hasCloneProfile();
         mMultiProfilePagerAdapter = createMultiProfilePagerAdapter(
-                requireNonNullElse(initialIntents, emptyList()).toArray(new Intent[0]),
-                /* resolutionList = */ null,
+                new Intent[0],
+                /* resolutionList = */ mResolverRequest.getResolutionList(),
                 filterLastUsed
         );
         if (configureContentView(mTargetDataLoader)) {
@@ -764,8 +744,8 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         ResolverRankerServiceResolverComparator resolverComparator =
                 new ResolverRankerServiceResolverComparator(
                         this,
-                        mLogic.getTargetIntent(),
-                        mLogic.getReferrerPackageName(),
+                        mResolverRequest.getIntent(),
+                        mActivityLaunch.getReferrerPackage(),
                         null,
                         null,
                         getResolverRankerServiceUserHandleList(userHandle),
@@ -773,8 +753,8 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         return new ResolverListController(
                 this,
                 mPackageManager,
-                mLogic.getTargetIntent(),
-                mLogic.getReferrerPackageName(),
+                mActivityLaunch.getIntent(),
+                mActivityLaunch.getReferrerPackage(),
                 mActivityLaunch.getFromUid(),
                 resolverComparator,
                 getQueryIntentsUser(userHandle));
@@ -920,7 +900,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                 filterLastUsed,
                 createListController(userHandle),
                 userHandle,
-                mLogic.getTargetIntent(),
+                mResolverRequest.getIntent(),
                 this,
                 initialIntentsUserSpace,
                 mTargetDataLoader);
@@ -964,7 +944,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                     boolean filterLastUsed) {
         ResolverListAdapter personalAdapter = createResolverListAdapter(
                 /* context */ this,
-                mLogic.getPayloadIntents(),
+                mResolverRequest.getPayloadIntents(),
                 initialIntents,
                 resolutionList,
                 filterLastUsed,
@@ -987,9 +967,8 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     }
 
     private UserHandle getIntentUser() {
-        return getIntent().hasExtra(EXTRA_CALLING_USER)
-                ? getIntent().getParcelableExtra(EXTRA_CALLING_USER)
-                : requireAnnotatedUserHandles().tabOwnerUserHandleForLaunch;
+        return Objects.requireNonNullElse(mResolverRequest.getCallingUser(),
+                requireAnnotatedUserHandles().tabOwnerUserHandleForLaunch);
     }
 
     private ResolverMultiProfilePagerAdapter createResolverMultiProfilePagerAdapterForTwoProfiles(
@@ -1018,7 +997,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         // resolver list. So filterLastUsed should be false for the other profile.
         ResolverListAdapter personalAdapter = createResolverListAdapter(
                 /* context */ this,
-                mLogic.getPayloadIntents(),
+                mResolverRequest.getPayloadIntents(),
                 selectedProfile == PROFILE_PERSONAL ? initialIntents : null,
                 resolutionList,
                 (filterLastUsed && UserHandle.myUserId()
@@ -1028,7 +1007,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         UserHandle workProfileUserHandle = requireAnnotatedUserHandles().workProfileUserHandle;
         ResolverListAdapter workAdapter = createResolverListAdapter(
                 /* context */ this,
-                mLogic.getPayloadIntents(),
+                mResolverRequest.getPayloadIntents(),
                 selectedProfile == PROFILE_WORK ? initialIntents : null,
                 resolutionList,
                 (filterLastUsed && UserHandle.myUserId()
@@ -1060,20 +1039,17 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     /**
      * Returns {@link #PROFILE_PERSONAL} or {@link #PROFILE_WORK} if the {@link
      * #EXTRA_SELECTED_PROFILE} extra was supplied, or {@code -1} if no extra was supplied.
-     * @throws IllegalArgumentException if the value passed to the {@link #EXTRA_SELECTED_PROFILE}
-     * extra is not {@link #PROFILE_PERSONAL} or {@link #PROFILE_WORK}
      */
     final int getSelectedProfileExtra() {
-        int selectedProfile = -1;
-        if (getIntent().hasExtra(EXTRA_SELECTED_PROFILE)) {
-            selectedProfile = getIntent().getIntExtra(EXTRA_SELECTED_PROFILE, /* defValue = */ -1);
-            if (selectedProfile != PROFILE_PERSONAL && selectedProfile != PROFILE_WORK) {
-                throw new IllegalArgumentException(EXTRA_SELECTED_PROFILE + " has invalid value "
-                        + selectedProfile + ". Must be either ResolverActivity.PROFILE_PERSONAL or "
-                        + "ResolverActivity.PROFILE_WORK.");
-            }
+        Profile.Type selected = mResolverRequest.getSelectedProfile();
+        if (selected == null) {
+            return -1;
         }
-        return selectedProfile;
+        switch (selected) {
+            case PERSONAL: return PROFILE_PERSONAL;
+            case WORK: return PROFILE_WORK;
+            default: return -1;
+        }
     }
 
     protected final @ProfileType int getCurrentProfile() {
@@ -1302,9 +1278,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
 
             if (!hasRecordPermission) {
                 // OK, we know the record permission, is this a capture device
-                boolean hasAudioCapture =
-                        getIntent().getBooleanExtra(
-                                ResolverActivity.EXTRA_IS_AUDIO_CAPTURE_DEVICE, false);
+                boolean hasAudioCapture = mResolverRequest.isAudioCaptureDevice();
                 enabled = !hasAudioCapture;
             }
         }
@@ -1491,7 +1465,8 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         }
         // If needed, show that intent is forwarded
         // from managed profile to owner or other way around.
-        String profileSwitchMessage = mIntentForwarding.forwardMessageFor(mLogic.getTargetIntent());
+        String profileSwitchMessage =
+                mIntentForwarding.forwardMessageFor(mResolverRequest.getIntent());
         if (profileSwitchMessage != null) {
             Toast.makeText(this, profileSwitchMessage, Toast.LENGTH_LONG).show();
         }
@@ -1771,10 +1746,9 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
             }
         }
 
-
-        CharSequence title = mLogic.getTitle() != null
-                ? mLogic.getTitle()
-                : getTitleForAction(mLogic.getTargetIntent(), mLogic.getDefaultTitleResId());
+        CharSequence title = mResolverRequest.getTitle() != null
+                ? mResolverRequest.getTitle()
+                : getTitleForAction(mResolverRequest.getIntent(), 0);
 
         if (!TextUtils.isEmpty(title)) {
             final TextView titleView = findViewById(com.android.internal.R.id.title);

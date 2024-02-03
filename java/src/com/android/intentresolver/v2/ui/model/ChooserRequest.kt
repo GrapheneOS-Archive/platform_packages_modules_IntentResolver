@@ -19,16 +19,17 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
 import android.content.Intent.ACTION_SEND_MULTIPLE
+import android.content.Intent.EXTRA_REFERRER
 import android.content.IntentFilter
 import android.content.IntentSender
+import android.net.Uri
 import android.os.Bundle
 import android.service.chooser.ChooserAction
 import android.service.chooser.ChooserTarget
 import androidx.annotation.StringRes
 import com.android.intentresolver.v2.ext.hasAction
 
-const val MAX_CHOOSER_ACTIONS = 5
-const val MAX_INITIAL_INTENTS = 2
+const val ANDROID_APP_SCHEME = "android-app"
 
 /** All of the things that are consumed from an incoming share Intent (+Extras). */
 data class ChooserRequest(
@@ -58,10 +59,10 @@ data class ChooserRequest(
     @get:StringRes val defaultTitleResource: Int = 0,
 
     /**
-     * An empty intent which carries an extra of [Intent.EXTRA_REFERRER]. To be merged with outgoing
-     * intents. This provides the original referrer value to the target.
+     * The referrer value as received by the caller. It may have been supplied via [EXTRA_REFERRER]
+     * or synthesized from callerPackageName. This value is merged into outgoing intents.
      */
-    val referrerFillInIntent: Intent,
+    val referrer: Uri?,
 
     /**
      * Choices to exclude from results.
@@ -163,18 +164,29 @@ data class ChooserRequest(
      */
     val shareTargetFilter: IntentFilter? = null
 ) {
+    val referrerPackage = referrer?.takeIf { it.scheme == ANDROID_APP_SCHEME }?.authority
+
+    fun getReferrerFillInIntent(): Intent {
+        return Intent().apply {
+            referrerPackage?.also { pkg ->
+                putExtra(EXTRA_REFERRER, Uri.parse("$ANDROID_APP_SCHEME://$pkg"))
+            }
+        }
+    }
+
+    val payloadIntents = listOf(targetIntent) + additionalTargets
 
     /** Constructs an instance from only the required values. */
     constructor(
         targetIntent: Intent,
-        referrerPackageName: String
+        launchedFromPackage: String,
+        referrer: Uri?
     ) : this(
-        targetIntent,
-        targetIntent.action,
-        targetIntent.hasAction(ACTION_SEND, ACTION_SEND_MULTIPLE),
-        targetIntent.type,
-        referrerPackageName,
-        referrerFillInIntent =
-            Intent().apply { putExtra(Intent.EXTRA_REFERRER, referrerPackageName) }
+        targetIntent = targetIntent,
+        targetAction = targetIntent.action,
+        isSendActionTarget = targetIntent.hasAction(ACTION_SEND, ACTION_SEND_MULTIPLE),
+        targetType = targetIntent.type,
+        launchedFromPackage = launchedFromPackage,
+        referrer = referrer
     )
 }

@@ -46,13 +46,14 @@ import com.android.intentresolver.v2.ext.hasAction
 import com.android.intentresolver.v2.ext.ifMatch
 import com.android.intentresolver.v2.ui.model.ActivityLaunch
 import com.android.intentresolver.v2.ui.model.ChooserRequest
-import com.android.intentresolver.v2.ui.model.MAX_CHOOSER_ACTIONS
-import com.android.intentresolver.v2.ui.model.MAX_INITIAL_INTENTS
 import com.android.intentresolver.v2.validation.ValidationResult
 import com.android.intentresolver.v2.validation.types.IntentOrUri
 import com.android.intentresolver.v2.validation.types.array
 import com.android.intentresolver.v2.validation.types.value
 import com.android.intentresolver.v2.validation.validateFrom
+
+private const val MAX_CHOOSER_ACTIONS = 5
+private const val MAX_INITIAL_INTENTS = 2
 
 private fun Intent.hasSendAction() = hasAction(ACTION_SEND, ACTION_SEND_MULTIPLE)
 
@@ -134,7 +135,7 @@ fun readChooserRequest(launch: ActivityLaunch): ValidationResult<ChooserRequest>
                 },
             title = customTitle,
             defaultTitleResource = defaultTitleResource,
-            referrerFillInIntent = referrerFillIn,
+            referrer = launch.referrer,
             filteredComponentNames = filteredComponents,
             callerChooserTargets = callerChooserTargets,
             chooserActions = chooserActions,
