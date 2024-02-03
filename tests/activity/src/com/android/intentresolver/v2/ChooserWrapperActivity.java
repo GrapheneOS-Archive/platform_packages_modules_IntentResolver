@@ -40,7 +40,6 @@ import com.android.intentresolver.chooser.DisplayResolveInfo;
 import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
-import com.android.intentresolver.v2.ui.model.ChooserRequest;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 
 import java.util.List;
@@ -55,12 +54,11 @@ public class ChooserWrapperActivity extends ChooserActivity implements IChooserW
     private UsageStatsManager mUsm;
 
     @Override
-    protected final ChooserActivityLogic createActivityLogic(ChooserRequest chooserRequest) {
+    protected final ChooserActivityLogic createActivityLogic() {
         return new TestChooserActivityLogic(
                 "ChooserWrapper",
                 /* activity = */ this,
                 this::onWorkProfileStatusUpdated,
-                chooserRequest,
                 sOverrides.annotatedUserHandles,
                 sOverrides.mWorkProfileAvailability);
     }
