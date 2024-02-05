@@ -52,6 +52,7 @@ android_test {
         "junit",
         "kotlinx_coroutines_test",
         "mockito-target-minus-junit4",
+        "platform-compat-test-rules", // PlatformCompatChangeRule
         "testables", // TestableContext/TestableResources
         "truth",
         "truth-java8-extension",

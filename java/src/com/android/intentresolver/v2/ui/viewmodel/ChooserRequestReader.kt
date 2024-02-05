@@ -23,6 +23,7 @@ import android.content.Intent.EXTRA_ALTERNATE_INTENTS
 import android.content.Intent.EXTRA_CHOOSER_CUSTOM_ACTIONS
 import android.content.Intent.EXTRA_CHOOSER_MODIFY_SHARE_ACTION
 import android.content.Intent.EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER
+import android.content.Intent.EXTRA_CHOOSER_RESULT_INTENT_SENDER
 import android.content.Intent.EXTRA_CHOOSER_TARGETS
 import android.content.Intent.EXTRA_CHOSEN_COMPONENT_INTENT_SENDER
 import android.content.Intent.EXTRA_EXCLUDE_COMPONENTS
@@ -111,7 +112,8 @@ fun readChooserRequest(
                 ?: emptyList()
 
         val chosenComponentSender =
-            optional(value<IntentSender>(EXTRA_CHOSEN_COMPONENT_INTENT_SENDER))
+            optional(value<IntentSender>(EXTRA_CHOOSER_RESULT_INTENT_SENDER))
+                ?: optional(value<IntentSender>(EXTRA_CHOSEN_COMPONENT_INTENT_SENDER))
 
         val refinementIntentSender =
             optional(value<IntentSender>(EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER))

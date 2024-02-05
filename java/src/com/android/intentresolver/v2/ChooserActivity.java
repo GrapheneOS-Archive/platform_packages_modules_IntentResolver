@@ -37,7 +37,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNullElse;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.ActivityThread;
@@ -148,6 +147,8 @@ import com.android.intentresolver.v2.platform.AppPredictionAvailable;
 import com.android.intentresolver.v2.platform.ImageEditor;
 import com.android.intentresolver.v2.platform.NearbyShare;
 import com.android.intentresolver.v2.ui.ActionTitle;
+import com.android.intentresolver.v2.ui.ShareResultSender;
+import com.android.intentresolver.v2.ui.ShareResultSenderFactory;
 import com.android.intentresolver.v2.ui.model.ActivityLaunch;
 import com.android.intentresolver.v2.ui.model.ChooserRequest;
 import com.android.intentresolver.v2.ui.viewmodel.ChooserViewModel;
@@ -275,6 +276,9 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     @Inject public DevicePolicyResources mDevicePolicyResources;
     @Inject public PackageManager mPackageManager;
     @Inject public IntentForwarding mIntentForwarding;
+    @Inject public ShareResultSenderFactory mShareResultSenderFactory;
+    @Nullable
+    private ShareResultSender mShareResultSender;
 
     private ChooserRefinementManager mRefinementManager;
 
@@ -353,6 +357,12 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         if (!mViewModel.init()) {
             finish();
             return;
+        }
+        IntentSender chosenComponentSender =
+                mViewModel.getChooserRequest().getChosenComponentSender();
+        if (chosenComponentSender != null) {
+            mShareResultSender = mShareResultSenderFactory
+                    .create(mActivityLaunch.getFromUid(), chosenComponentSender);
         }
         mLogic = createActivityLogic();
         init();
@@ -819,13 +829,13 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         }
         try {
             if (cti.startAsCaller(this, options, user.getIdentifier())) {
-                onActivityStarted(cti);
+                maybeSendShareResult(cti);
                 maybeLogCrossProfileTargetLaunch(cti, user);
             }
         } catch (RuntimeException e) {
             Slog.wtf(TAG,
                     "Unable to launch as uid " + mActivityLaunch.getFromUid()
-                            + " package " + getLaunchedFromPackage() + ", while running in "
+                            + " package " + mActivityLaunch.getFromPackage() + ", while running in "
                             + ActivityThread.currentProcessName(), e);
         }
     }
@@ -1586,19 +1596,11 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         return result;
     }
 
-    public void onActivityStarted(TargetInfo cti) {
-        ChooserRequest chooserRequest = mViewModel.getChooserRequest();
-        if (chooserRequest.getChosenComponentSender() != null) {
+    private void maybeSendShareResult(TargetInfo cti) {
+        if (mShareResultSender != null) {
             final ComponentName target = cti.getResolvedComponentName();
             if (target != null) {
-                final Intent fillIn = new Intent().putExtra(Intent.EXTRA_CHOSEN_COMPONENT, target);
-                try {
-                    chooserRequest.getChosenComponentSender().sendIntent(
-                            this, Activity.RESULT_OK, fillIn, null, null);
-                } catch (IntentSender.SendIntentException e) {
-                    Slog.e(TAG, "Unable to launch supplied IntentSender to report "
-                            + "the chosen component: " + e);
-                }
+                mShareResultSender.onComponentSelected(target, cti.isChooserTargetInfo());
             }
         }
     }
@@ -2121,6 +2123,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                         mFinishWhenStopped = true;
                     }
                 },
+                mShareResultSender,
                 (status) -> {
                     if (status != null) {
                         setResult(status);
