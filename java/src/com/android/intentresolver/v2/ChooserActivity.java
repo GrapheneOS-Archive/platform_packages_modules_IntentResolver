@@ -1924,36 +1924,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         return mEventLog;
     }
 
-    public class ChooserListController extends ResolverListController {
-        public ChooserListController(
-                Context context,
-                PackageManager pm,
-                Intent targetIntent,
-                String referrerPackageName,
-                int launchedFromUid,
-                AbstractResolverComparator resolverComparator,
-                UserHandle queryIntentsAsUser) {
-            super(
-                    context,
-                    pm,
-                    targetIntent,
-                    referrerPackageName,
-                    launchedFromUid,
-                    resolverComparator,
-                    queryIntentsAsUser);
-        }
-
-        @Override
-        public boolean isComponentFiltered(ComponentName name) {
-            return mViewModel.getChooserRequest().getFilteredComponentNames().contains(name);
-        }
-
-        @Override
-        public boolean isComponentPinned(ComponentName name) {
-            return mPinnedSharedPrefs.getBoolean(name.flattenToString(), false);
-        }
-    }
-
+    @VisibleForTesting
     public ChooserGridAdapter createChooserGridAdapter(
             Context context,
             List<Intent> payloadIntents,
@@ -2101,7 +2072,9 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 mViewModel.getChooserRequest().getReferrerPackage(),
                 requireAnnotatedUserHandles().userIdOfCallingApp,
                 resolverComparator,
-                getQueryIntentsUser(userHandle));
+                getQueryIntentsUser(userHandle),
+                mViewModel.getChooserRequest().getFilteredComponentNames(),
+                mPinnedSharedPrefs);
     }
 
     @VisibleForTesting
