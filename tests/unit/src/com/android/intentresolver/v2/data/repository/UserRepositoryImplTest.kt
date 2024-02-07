@@ -79,6 +79,24 @@ internal class UserRepositoryImplTest {
     }
 
     @Test
+    fun onHandleAvailabilityChange_userStateMaintained() = runTest {
+        val repo = createUserRepository(userManager)
+        val private = userState.createProfile(ProfileType.PRIVATE)
+        val privateUser = User(private.identifier, Role.PRIVATE)
+
+        val users by collectLastValue(repo.users)
+
+        repo.requestState(privateUser, false)
+        repo.requestState(privateUser, true)
+
+        assertWithMessage("users.size")
+                .that(users?.size ?: 0).isEqualTo(2) // personal + private
+
+        assertWithMessage("No duplicate IDs")
+                .that(users?.count { it.id == private.identifier }).isEqualTo(1)
+    }
+
+    @Test
     fun requestState() = runTest {
         val repo = createUserRepository(userManager)
         val work = userState.createProfile(ProfileType.WORK)
