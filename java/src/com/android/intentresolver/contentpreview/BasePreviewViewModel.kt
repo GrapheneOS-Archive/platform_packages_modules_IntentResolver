@@ -24,5 +24,7 @@ import androidx.lifecycle.ViewModel
 abstract class BasePreviewViewModel : ViewModel() {
     @MainThread abstract fun createOrReuseProvider(targetIntent: Intent): PreviewDataProvider
 
-    @MainThread abstract fun createOrReuseImageLoader(): ImageLoader
+    abstract val imageLoader: ImageLoader
+
+    abstract val payloadToggleInteractor: PayloadToggleInteractor?
 }
