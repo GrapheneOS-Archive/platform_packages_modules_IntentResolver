@@ -158,11 +158,14 @@ constructor(
         }
     }
 
+    private fun List<UserWithState>.update(handle: UserHandle, user: UserWithState) =
+        filter { it.user.id != handle.identifier } + user
+
     private fun handleAvailability(event: UserEvent, current: UserStates): UserStates {
         val userEntry =
             current.firstOrNull { it.user.id == event.user.identifier }
                 ?: throw UserStateException("User was not present in the map", event)
-        return current + userEntry.copy(available = !event.quietMode)
+        return current.update(event.user, userEntry.copy(available = !event.quietMode))
     }
 
     private fun handleProfileRemoved(event: UserEvent, current: UserStates): UserStates {
