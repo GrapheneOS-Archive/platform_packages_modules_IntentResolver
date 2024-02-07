@@ -46,6 +46,8 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
     private final MimeTypeClassifier mTypeClassifier;
     private final TransitionElementStatusCallback mTransitionElementStatusCallback;
     private final HeadlineGenerator mHeadlineGenerator;
+    @Nullable
+    private final CharSequence mMetadata;
     private final Flow<FileInfo> mFileInfoFlow;
     private final int mItemCount;
     @Nullable
@@ -65,7 +67,8 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
             TransitionElementStatusCallback transitionElementStatusCallback,
             Flow<FileInfo> fileInfoFlow,
             int itemCount,
-            HeadlineGenerator headlineGenerator) {
+            HeadlineGenerator headlineGenerator,
+            @Nullable CharSequence metadata) {
         mShowEditAction = isSingleImage;
         mIntentMimeType = intentMimeType;
         mActionFactory = actionFactory;
@@ -75,6 +78,7 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
         mFileInfoFlow = fileInfoFlow;
         mItemCount = itemCount;
         mHeadlineGenerator = headlineGenerator;
+        mMetadata = metadata;
 
         JavaFlowHelper.collectToList(scope, fileInfoFlow, this::setFiles);
     }
@@ -181,5 +185,6 @@ class UnifiedContentPreviewUi extends ContentPreviewUi {
         } else {
             displayHeadline(layout, mHeadlineGenerator.getFilesHeadline(count));
         }
+        displayMetadata(layout, mMetadata);
     }
 }

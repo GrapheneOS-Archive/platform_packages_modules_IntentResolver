@@ -29,8 +29,12 @@ import javax.inject.Inject
 private const val TAG = "ChooserViewModel"
 
 @HiltViewModel
-class ChooserViewModel @Inject constructor(args: SavedStateHandle, flags: ChooserServiceFlags) :
-    ViewModel() {
+class ChooserViewModel
+@Inject
+constructor(
+    args: SavedStateHandle,
+    flags: ChooserServiceFlags,
+) : ViewModel() {
 
     private val mActivityLaunch: ActivityLaunch =
         requireNotNull(args[ACTIVITY_LAUNCH_KEY]) {

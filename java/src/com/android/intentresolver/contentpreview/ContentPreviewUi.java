@@ -83,6 +83,19 @@ abstract class ContentPreviewUi {
         }
     }
 
+    protected static void displayMetadata(View layout, @Nullable CharSequence metadata) {
+        TextView metadataView = layout == null ? null : layout.findViewById(R.id.metadata);
+        if (metadataView == null) {
+            return;
+        }
+        if (!TextUtils.isEmpty(metadata)) {
+            metadataView.setText(metadata);
+            metadataView.setVisibility(View.VISIBLE);
+        } else {
+            metadataView.setVisibility(View.GONE);
+        }
+    }
+
     protected static void displayModifyShareAction(
             View layout, ChooserContentPreviewUi.ActionFactory actionFactory) {
         ActionRow.Action modifyShareAction = actionFactory.getModifyShareAction();

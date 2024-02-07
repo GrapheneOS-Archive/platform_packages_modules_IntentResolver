@@ -311,7 +311,9 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 createChooserActionFactory(),
                 mEnterTransitionAnimationDelegate,
                 new HeadlineGeneratorImpl(this),
-                ContentTypeHint.NONE);
+                ContentTypeHint.NONE,
+                mChooserRequest.getMetadataText()
+        );
 
         updateStickyContentPreview();
         if (shouldShowStickyContentPreview()

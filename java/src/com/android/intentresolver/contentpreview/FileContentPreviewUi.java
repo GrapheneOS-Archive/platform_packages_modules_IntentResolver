@@ -43,15 +43,20 @@ class FileContentPreviewUi extends ContentPreviewUi {
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
     private final HeadlineGenerator mHeadlineGenerator;
     @Nullable
+    private final CharSequence mMetadata;
+    @Nullable
     private ViewGroup mContentPreview = null;
 
     FileContentPreviewUi(
             int fileCount,
             ChooserContentPreviewUi.ActionFactory actionFactory,
-            HeadlineGenerator headlineGenerator) {
+            HeadlineGenerator headlineGenerator,
+            @Nullable CharSequence metadata
+    ) {
         mFileCount = fileCount;
         mActionFactory = actionFactory;
         mHeadlineGenerator = headlineGenerator;
+        mMetadata = metadata;
     }
 
     @Override
@@ -91,6 +96,7 @@ class FileContentPreviewUi extends ContentPreviewUi {
         inflateHeadline(headlineViewParent);
 
         displayHeadline(headlineViewParent, mHeadlineGenerator.getFilesHeadline(mFileCount));
+        displayMetadata(headlineViewParent, mMetadata);
 
         if (mFileCount == 0) {
             mContentPreview.setVisibility(View.GONE);

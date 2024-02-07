@@ -9,7 +9,11 @@ import dagger.hilt.components.SingletonComponent
 
 typealias IntentResolverFlags = com.android.intentresolver.FeatureFlags
 
+typealias FakeIntentResolverFlags = com.android.intentresolver.FakeFeatureFlagsImpl
+
 typealias ChooserServiceFlags = android.service.chooser.FeatureFlags
+
+typealias FakeChooserServiceFlags = android.service.chooser.FakeFeatureFlagsImpl
 
 @Module
 @InstallIn(SingletonComponent::class)

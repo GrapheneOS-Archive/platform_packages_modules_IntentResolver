@@ -57,6 +57,8 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
     private final ImageLoader mImageLoader;
     private final MimeTypeClassifier mTypeClassifier;
     private final HeadlineGenerator mHeadlineGenerator;
+    @Nullable
+    private final CharSequence mMetadata;
     private final boolean mIsSingleImage;
     private final int mFileCount;
     private ViewGroup mContentPreviewView;
@@ -78,7 +80,8 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
             MimeTypeClassifier typeClassifier,
-            HeadlineGenerator headlineGenerator) {
+            HeadlineGenerator headlineGenerator,
+            @Nullable CharSequence metadata) {
         if (isSingleImage && fileCount != 1) {
             throw new IllegalArgumentException(
                     "fileCount = " + fileCount + " and isSingleImage = true");
@@ -92,6 +95,7 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
         mImageLoader = imageLoader;
         mTypeClassifier = typeClassifier;
         mHeadlineGenerator = headlineGenerator;
+        mMetadata = metadata;
     }
 
     @Override
@@ -204,6 +208,7 @@ class FilesPlusTextContentPreviewUi extends ContentPreviewUi {
         }
 
         displayHeadline(headlineView, headline);
+        displayMetadata(headlineView, mMetadata);
     }
 
     private void prepareTextPreview(
