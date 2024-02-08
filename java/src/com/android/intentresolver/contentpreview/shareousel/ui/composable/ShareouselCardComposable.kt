@@ -18,7 +18,6 @@ package com.android.intentresolver.contentpreview.shareousel.ui.composable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -49,7 +48,7 @@ fun ShareouselCard(
     Box(modifier) {
         image()
         val topButtonPadding = 12.dp
-        Box(modifier = Modifier.padding(topButtonPadding).fillMaxSize()) {
+        Box(modifier = Modifier.padding(topButtonPadding).matchParentSize()) {
             SelectionIcon(selected, modifier = Modifier.align(Alignment.TopStart))
             AnimationIcon(modifier = Modifier.align(Alignment.TopEnd))
             ActionButton(
