@@ -16,8 +16,12 @@
 package com.android.intentresolver.contentpreview.shareousel.ui.viewmodel
 
 import android.graphics.Bitmap
+import com.android.intentresolver.contentpreview.ImageLoader
+import com.android.intentresolver.contentpreview.PayloadToggleInteractor
 import com.android.intentresolver.icon.ComposeIcon
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 
 data class ShareouselViewModel(
     val headline: Flow<String>,
@@ -36,3 +40,22 @@ data class ShareouselImageViewModel(
     val setSelected: (Boolean) -> Unit,
     val onActionClick: () -> Unit,
 )
+
+fun PayloadToggleInteractor.toShareouselViewModel(imageLoader: ImageLoader): ShareouselViewModel {
+    return ShareouselViewModel(
+        headline = MutableStateFlow("Shareousel"),
+        previewKeys = previewKeys,
+        actions = MutableStateFlow(emptyList()),
+        centerIndex = targetPosition,
+        previewForKey = { key ->
+            val previewInteractor = previewInteractor(key)
+            ShareouselImageViewModel(
+                bitmap = previewInteractor.previewUri.map { uri -> uri?.let { imageLoader(uri) } },
+                contentDescription = MutableStateFlow(""),
+                isSelected = previewInteractor.selected,
+                setSelected = { isSelected -> previewInteractor.setSelected(isSelected) },
+                onActionClick = {},
+            )
+        }
+    )
+}

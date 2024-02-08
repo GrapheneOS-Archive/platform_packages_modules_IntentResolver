@@ -474,7 +474,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 getCoroutineScope(getLifecycle()),
                 previewViewModel.createOrReuseProvider(chooserRequest.getTargetIntent()),
                 chooserRequest.getTargetIntent(),
-                previewViewModel.createOrReuseImageLoader(),
+                previewViewModel.getImageLoader(),
                 createChooserActionFactory(),
                 mEnterTransitionAnimationDelegate,
                 new HeadlineGeneratorImpl(this));
