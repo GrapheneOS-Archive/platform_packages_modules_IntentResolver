@@ -74,7 +74,7 @@ class CursorUriReader(
             return SparseArray()
         }
         val result = SparseArray<Uri>(leftPos - startPos)
-        for (pos in startPos ..< leftPos) {
+        for (pos in startPos until leftPos) {
             cursor
                 .getString(0)
                 ?.let(Uri::parse)
