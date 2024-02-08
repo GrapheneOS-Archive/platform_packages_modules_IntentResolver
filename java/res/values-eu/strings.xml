@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Aplikazioak ez du grabatzeko baimenik, baina baliteke audioa grabatzea USB bidezko gailu horren bidez."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Pertsonala"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Lanekoa"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Pribatua"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Ikuspegi pertsonala"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Laneko ikuspegia"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Ikuspegi pribatua"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"IKT saileko administratzaileak blokeatu egin du"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Eduki hau ezin da laneko aplikazioekin partekatu"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Eduki hau ezin da laneko aplikazioekin ireki"</string>

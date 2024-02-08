@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"កម្មវិធីនេះ​មិនទាន់បាន​ទទួលសិទ្ធិ​ថតសំឡេង​នៅឡើយទេ ប៉ុន្តែអាច​ថតសំឡេង​តាមរយៈ​ឧបករណ៍ USB នេះបាន។"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ផ្ទាល់ខ្លួន"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ការងារ"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"ឯកជន"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"ទិដ្ឋភាពផ្ទាល់ខ្លួន"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"ទិដ្ឋភាព​ការងារ"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"ទិដ្ឋភាពឯកជន"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"បានទប់ស្កាត់ដោយ​អ្នកគ្រប់គ្រង​ផ្នែកព័ត៌មានវិទ្យា​របស់អ្នក"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"ខ្លឹមសារនេះ​មិនអាចចែករំលែក​តាមរយៈ​កម្មវិធី​ការងារ​បានទេ"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ខ្លឹមសារនេះ​មិនអាចបើក​តាមរយៈ​កម្មវិធី​ការងារ​បានទេ"</string>

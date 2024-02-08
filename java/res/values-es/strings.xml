@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Esta aplicación no tiene permiso para grabar, pero podría capturar audio con este dispositivo USB."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Personal"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Trabajo"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Privada"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Ver contenido personal"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Ver contenido de trabajo"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Vista privada"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Bloqueado por tu administrador de TI"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Este contenido no se puede compartir con aplicaciones de trabajo"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Este contenido no se puede abrir con aplicaciones de trabajo"</string>
@@ -95,5 +97,5 @@
     <string name="include_text" msgid="642280283268536140">"Incluir texto"</string>
     <string name="exclude_link" msgid="1332778255031992228">"Excluir enlace"</string>
     <string name="include_link" msgid="827855767220339802">"Incluir enlace"</string>
-    <string name="pinned" msgid="7623664001331394139">"Fijada"</string>
+    <string name="pinned" msgid="7623664001331394139">"Fijado"</string>
 </resources>
