@@ -29,9 +29,9 @@ import android.stats.devicepolicy.nano.DevicePolicyEnums;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.android.intentresolver.R;
 import com.android.intentresolver.ResolvedComponentInfo;
 import com.android.intentresolver.ResolverListAdapter;
-import com.android.internal.R;
 
 import java.util.List;
 
