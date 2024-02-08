@@ -17,6 +17,8 @@
 package com.android.intentresolver.contentpreview
 
 import android.net.Uri
+import android.util.SparseArray
+import java.io.Closeable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -48,6 +50,16 @@ class PayloadToggleInteractor {
     private data class Item(
         val previewUri: Uri?,
     )
+
+    interface CursorReader : Closeable {
+        val count: Int
+        val hasMoreBefore: Boolean
+        val hasMoreAfter: Boolean
+
+        fun readPageAfter(): SparseArray<Uri>
+
+        fun readPageBefore(): SparseArray<Uri>
+    }
 }
 
 class PayloadTogglePreviewInteractor(
