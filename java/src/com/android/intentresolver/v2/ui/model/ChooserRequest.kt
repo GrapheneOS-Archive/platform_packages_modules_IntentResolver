@@ -162,7 +162,13 @@ data class ChooserRequest(
      * query for matching shortcuts. Specifically, only the [dataTypes][IntentFilter.hasDataType]
      * are considered for matching share shortcuts currently.
      */
-    val shareTargetFilter: IntentFilter? = null
+    val shareTargetFilter: IntentFilter? = null,
+
+    /** A URI for additional content */
+    val additionalContentUri: Uri? = null,
+
+    /** Focused item index (from target intent's STREAM_EXTRA) */
+    val focusedItemPosition: Int = 0,
 ) {
     val referrerPackage = referrer?.takeIf { it.scheme == ANDROID_APP_SCHEME }?.authority
 

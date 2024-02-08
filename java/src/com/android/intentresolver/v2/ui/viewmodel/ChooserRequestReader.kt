@@ -36,9 +36,11 @@ import android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK
 import android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT
 import android.content.IntentFilter
 import android.content.IntentSender
+import android.net.Uri
 import android.os.Bundle
 import android.service.chooser.ChooserAction
 import android.service.chooser.ChooserTarget
+import android.service.chooser.Flags
 import com.android.intentresolver.ChooserActivity
 import com.android.intentresolver.R
 import com.android.intentresolver.util.hasValidIcon
@@ -54,6 +56,13 @@ import com.android.intentresolver.v2.validation.validateFrom
 
 private const val MAX_CHOOSER_ACTIONS = 5
 private const val MAX_INITIAL_INTENTS = 2
+
+// TODO: replace with the new API constant, Intent#EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI
+private const val EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI =
+    "android.intent.extra.CHOOSER_ADDITIONAL_CONTENT_URI"
+// TODO: replace with the new API constant, Intent#EXTRA_CHOOSER_FOCUSED_ITEM_POSITION
+private const val EXTRA_CHOOSER_FOCUSED_ITEM_POSITION =
+    "android.intent.extra.CHOOSER_FOCUSED_ITEM_POSITION"
 
 private fun Intent.hasSendAction() = hasAction(ACTION_SEND, ACTION_SEND_MULTIPLE)
 
@@ -124,6 +133,16 @@ fun readChooserRequest(launch: ActivityLaunch): ValidationResult<ChooserRequest>
 
         val referrerFillIn = Intent().putExtra(EXTRA_REFERRER, launch.referrer)
 
+        val additionalContentUri: Uri?
+        val focusedItemPos: Int
+        if (isSendAction && Flags.chooserPayloadToggling()) {
+            additionalContentUri = optional(value<Uri>(EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI))
+            focusedItemPos = optional(value<Int>(EXTRA_CHOOSER_FOCUSED_ITEM_POSITION)) ?: 0
+        } else {
+            additionalContentUri = null
+            focusedItemPos = 0
+        }
+
         ChooserRequest(
             targetIntent = targetIntent,
             targetAction = targetIntent.action,
@@ -147,7 +166,9 @@ fun readChooserRequest(launch: ActivityLaunch): ValidationResult<ChooserRequest>
             chosenComponentSender = chosenComponentSender,
             refinementIntentSender = refinementIntentSender,
             sharedText = sharedText,
-            shareTargetFilter = targetIntent.toShareTargetFilter()
+            shareTargetFilter = targetIntent.toShareTargetFilter(),
+            additionalContentUri = additionalContentUri,
+            focusedItemPosition = focusedItemPos,
         )
     }
 }
