@@ -63,7 +63,7 @@ internal class ShareouselContentPreviewUi(
                     val vm: BasePreviewViewModel = viewModel()
                     val interactor =
                         requireNotNull(vm.payloadToggleInteractor) { "Should not be null" }
-                    val viewModel = interactor.toShareouselViewModel(vm.imageLoader)
+                    val viewModel = interactor.toShareouselViewModel(vm.imageLoader, actionFactory)
 
                     if (headlineViewParent != null) {
                         LaunchedEffect(Unit) {

@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.BufferOverflow.DROP_LATEST
@@ -40,6 +41,7 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "PayloadToggleInteractor"
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class PayloadToggleInteractor(
     // must use single-thread dispatcher (or we should enforce it with a lock)
     private val scope: CoroutineScope,

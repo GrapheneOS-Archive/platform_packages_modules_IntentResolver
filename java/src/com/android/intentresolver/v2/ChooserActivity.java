@@ -29,6 +29,7 @@ import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTE
 
 import static androidx.lifecycle.LifecycleKt.getCoroutineScope;
 
+import static com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_PAYLOAD_SELECTION;
 import static com.android.intentresolver.v2.ext.CreationExtrasExtKt.addDefaultArgs;
 import static com.android.internal.annotations.VisibleForTesting.Visibility.PROTECTED;
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
@@ -122,6 +123,7 @@ import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.contentpreview.BasePreviewViewModel;
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi;
 import com.android.intentresolver.contentpreview.HeadlineGeneratorImpl;
+import com.android.intentresolver.contentpreview.PayloadToggleInteractor;
 import com.android.intentresolver.contentpreview.PreviewViewModel;
 import com.android.intentresolver.emptystate.CompositeEmptyStateProvider;
 import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
@@ -487,12 +489,29 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 chooserRequest.getAdditionalContentUri(),
                 chooserRequest.getFocusedItemPosition(),
                 mChooserServiceFeatureFlags.chooserPayloadToggling());
+        ChooserActionFactory chooserActionFactory = createChooserActionFactory();
+        ChooserContentPreviewUi.ActionFactory actionFactory = chooserActionFactory;
+        if (previewViewModel.getPreviewDataProvider().getPreviewType()
+                == CONTENT_PREVIEW_PAYLOAD_SELECTION
+                && android.service.chooser.Flags.chooserPayloadToggling()) {
+            PayloadToggleInteractor payloadToggleInteractor =
+                    previewViewModel.getPayloadToggleInteractor();
+            if (payloadToggleInteractor != null) {
+                ChooserMutableActionFactory mutableActionFactory =
+                        new ChooserMutableActionFactory(chooserActionFactory);
+                actionFactory = mutableActionFactory;
+                JavaFlowHelper.collect(
+                        getCoroutineScope(getLifecycle()),
+                        payloadToggleInteractor.getCustomActions(),
+                        mutableActionFactory::updateCustomActions);
+            }
+        }
         mChooserContentPreviewUi = new ChooserContentPreviewUi(
                 getCoroutineScope(getLifecycle()),
                 previewViewModel.getPreviewDataProvider(),
                 chooserRequest.getTargetIntent(),
                 previewViewModel.getImageLoader(),
-                createChooserActionFactory(),
+                actionFactory,
                 mEnterTransitionAnimationDelegate,
                 new HeadlineGeneratorImpl(this),
                 chooserRequest.getContentTypeHint(),

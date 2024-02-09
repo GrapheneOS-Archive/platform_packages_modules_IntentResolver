@@ -16,11 +16,17 @@
 package com.android.intentresolver.contentpreview.shareousel.ui.viewmodel
 
 import android.graphics.Bitmap
+import androidx.core.graphics.drawable.toBitmap
+import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
 import com.android.intentresolver.contentpreview.ImageLoader
+import com.android.intentresolver.contentpreview.MutableActionFactory
 import com.android.intentresolver.contentpreview.PayloadToggleInteractor
+import com.android.intentresolver.icon.BitmapIcon
 import com.android.intentresolver.icon.ComposeIcon
+import com.android.intentresolver.widget.ActionRow.Action
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 data class ShareouselViewModel(
@@ -41,11 +47,23 @@ data class ShareouselImageViewModel(
     val setSelected: (Boolean) -> Unit,
 )
 
-fun PayloadToggleInteractor.toShareouselViewModel(imageLoader: ImageLoader): ShareouselViewModel {
+fun PayloadToggleInteractor.toShareouselViewModel(
+    imageLoader: ImageLoader,
+    actionFactory: ActionFactory
+): ShareouselViewModel {
     return ShareouselViewModel(
         headline = MutableStateFlow("Shareousel"),
         previewKeys = previewKeys,
-        actions = MutableStateFlow(emptyList()),
+        actions =
+            if (actionFactory is MutableActionFactory) {
+                actionFactory.customActionsFlow.map { actions ->
+                    actions.map { it.toActionChipViewModel() }
+                }
+            } else {
+                flow {
+                    emit(actionFactory.createCustomActions().map { it.toActionChipViewModel() })
+                }
+            },
         centerIndex = targetPosition,
         previewForKey = { key ->
             val previewInteractor = previewInteractor(key)
@@ -59,3 +77,10 @@ fun PayloadToggleInteractor.toShareouselViewModel(imageLoader: ImageLoader): Sha
         previewRowKey = { getKey(it) },
     )
 }
+
+private fun Action.toActionChipViewModel() =
+    ActionChipViewModel(
+        label?.toString() ?: "",
+        icon?.let { BitmapIcon(it.toBitmap()) },
+        onClick = { onClicked.run() }
+    )
