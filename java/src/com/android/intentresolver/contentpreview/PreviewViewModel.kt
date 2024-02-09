@@ -41,7 +41,6 @@ constructor(
     @Background private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : BasePreviewViewModel() {
     private var previewDataProvider: PreviewDataProvider? = null
-    private var imageLoader: ImagePreviewImageLoader? = null
 
     @MainThread
     override fun createOrReuseProvider(targetIntent: Intent): PreviewDataProvider =
@@ -53,19 +52,21 @@ constructor(
                 )
                 .also { previewDataProvider = it }
 
-    @MainThread
-    override fun createOrReuseImageLoader(): ImageLoader =
-        imageLoader
-            ?: ImagePreviewImageLoader(
-                    viewModelScope + dispatcher,
-                    thumbnailSize =
-                        application.resources.getDimensionPixelSize(
-                            R.dimen.chooser_preview_image_max_dimen
-                        ),
-                    application.contentResolver,
-                    cacheSize = 16
-                )
-                .also { imageLoader = it }
+    override val imageLoader by lazy {
+        ImagePreviewImageLoader(
+            viewModelScope + dispatcher,
+            thumbnailSize =
+                application.resources.getDimensionPixelSize(
+                    R.dimen.chooser_preview_image_max_dimen
+                ),
+            application.contentResolver,
+            cacheSize = 16
+        )
+    }
+
+    override val payloadToggleInteractor: PayloadToggleInteractor? by lazy {
+        PayloadToggleInteractor()
+    }
 
     companion object {
         val Factory: ViewModelProvider.Factory =
