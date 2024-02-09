@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ਇਸ ਐਪ ਨੂੰ ਰਿਕਾਰਡ ਕਰਨ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ ਦਿੱਤੀ ਗਈ ਪਰ ਇਹ USB ਡੀਵਾਈਸ ਰਾਹੀਂ ਆਡੀਓ ਕੈਪਚਰ ਕਰ ਸਕਦੀ ਹੈ।"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ਨਿੱਜੀ"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ਕੰਮ ਸੰਬੰਧੀ"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"ਨਿੱਜੀ"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"ਵਿਅਕਤੀਗਤ ਦ੍ਰਿਸ਼"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"ਕਾਰਜ ਦ੍ਰਿਸ਼"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"ਨਿੱਜੀ ਦ੍ਰਿਸ਼"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"ਤੁਹਾਡੇ ਆਈ.ਟੀ. ਪ੍ਰਸ਼ਾਸਕ ਵੱਲੋਂ ਬਲਾਕ ਕੀਤਾ ਗਿਆ"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"ਇਸ ਸਮੱਗਰੀ ਨੂੰ ਕੰਮ ਸੰਬੰਧੀ ਐਪਾਂ ਨਾਲ ਸਾਂਝਾ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ਇਸ ਸਮੱਗਰੀ ਨੂੰ ਕੰਮ ਸੰਬੰਧੀ ਐਪਾਂ ਨਾਲ ਨਹੀਂ ਖੋਲ੍ਹਿਆ ਜਾ ਸਕਦਾ"</string>

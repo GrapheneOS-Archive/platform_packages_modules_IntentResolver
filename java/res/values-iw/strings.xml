@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"‏לאפליקציה זו לא ניתנה הרשאת הקלטה, אבל אפשר להקליט אודיו באמצעות התקן ה-USB הזה."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"אישי"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"עבודה"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"פרטי"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"תצוגה אישית"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"תצוגת עבודה"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"תצוגה פרטית"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"‏נחסם על ידי מנהל ה-IT"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"אי אפשר לשתף את התוכן הזה עם אפליקציות לעבודה"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"אי אפשר לפתוח את התוכן הזה באמצעות אפליקציות לעבודה"</string>

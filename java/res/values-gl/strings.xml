@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Esta aplicación non está autorizada a realizar gravacións, pero podería capturar audio a través deste dispositivo USB."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Persoal"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Traballo"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Privada"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Vista persoal"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Vista de traballo"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Vista privada"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"O teu administrador de TI bloqueou a instalación"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Este contido non pode compartirse con aplicacións do traballo"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Este contido non pode abrirse con aplicacións do traballo"</string>

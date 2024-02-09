@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"‏لم يتم منح هذا التطبيق إذن تسجيل، ولكن يمكنه تسجيل الصوت من خلال جهاز USB هذا."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"شخصي"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"للعمل"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"المساحة الخاصّة"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"عرض المحتوى الشخصي"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"عرض محتوى العمل"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"عرض المساحة الخاصّة"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"حظر مشرف تكنولوجيا المعلومات مشاركة المحتوى"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"لا يمكن مشاركة هذا المحتوى مع تطبيقات العمل."</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"لا يمكن فتح هذا المحتوى باستخدام تطبيقات العمل."</string>

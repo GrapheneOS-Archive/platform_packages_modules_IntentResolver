@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Aunque no se le otorgó permiso de grabación a esta app, puede capturar audio con este dispositivo USB."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Personal"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Trabajo"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Privada"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Vista personal"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Vista de trabajo"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Vista privada"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Bloqueado por tu administrador de TI"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"No se pueden usar apps de trabajo para compartir este contenido"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"No se puede abrir este contenido con apps de trabajo"</string>

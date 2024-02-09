@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ଏହି ଆପ୍‌କୁ ରେକର୍ଡ କରିବାକୁ ଅନୁମତି ଦିଆଯାଇ ନାହିଁ କିନ୍ତୁ ଏହି USB ଡିଭାଇସ୍ ଜରିଆରେ ଅଡିଓ କ୍ୟାପ୍‍ଚର୍‍ କରିପାରିବ।"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ବ୍ୟକ୍ତିଗତ"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ୱାର୍କ"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"ପ୍ରାଇଭେଟ"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"ବ୍ୟକ୍ତିଗତ ଭ୍ୟୁ"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"ୱାର୍କ ଭ୍ୟୁ"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"ପ୍ରାଇଭେଟ ଭ୍ୟୁ"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"ଆପଣଙ୍କ IT ଆଡମିନଙ୍କ ଦ୍ୱାରା ବ୍ଲକ୍ କରାଯାଇଛି"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"ଏହି ବିଷୟବସ୍ତୁ ୱାର୍କ ଆପଗୁଡ଼ିକରେ ସେୟାର୍ କରାଯାଇପାରିବ ନାହିଁ"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ଏହି ବିଷୟବସ୍ତୁ ୱାର୍କ ଆପଗୁଡ଼ିକରେ ଖୋଲାଯାଇପାରିବ ନାହିଁ"</string>

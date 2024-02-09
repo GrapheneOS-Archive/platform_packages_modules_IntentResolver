@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"На апликацијава не ѝ е доделена дозвола за снимање, но може да снима аудио преку овој USB-уред."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Лични"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"За работа"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Приватно"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Личен приказ"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Работен приказ"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Приватен приказ"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Блокирано од IT-администраторот"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Овие содржини не може да се споделуваат со работни апликации"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Овие содржини не може да се отвораат со работни апликации"</string>
