@@ -212,13 +212,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
         for (int i = 0; i < mCustomActions.size(); i++) {
             final int position = i;
             ActionRow.Action actionRow = createCustomAction(
-                    mContext,
-                    mCustomActions.get(i),
-                    mFinishCallback,
-                    () -> {
-                        mLog.logCustomActionSelected(position);
-                    }
-            );
+                    mCustomActions.get(i), () -> logCustomAction(position));
             if (actionRow != null) {
                 actions.add(actionRow);
             }
@@ -232,13 +226,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
     @Override
     @Nullable
     public ActionRow.Action getModifyShareAction() {
-        return createCustomAction(
-                mContext,
-                mModifyShareAction,
-                mFinishCallback,
-                () -> {
-                    mLog.logActionSelected(EventLog.SELECTION_TYPE_MODIFY_SHARE);
-                });
+        return createCustomAction(mModifyShareAction, this::logModifyShareAction);
     }
 
     /**
@@ -374,15 +362,11 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
     }
 
     @Nullable
-    private ActionRow.Action createCustomAction(
-            Context context,
-            @Nullable ChooserAction action,
-            Consumer<Integer> finishCallback,
-            Runnable loggingRunnable) {
+    ActionRow.Action createCustomAction(@Nullable ChooserAction action, Runnable loggingRunnable) {
         if (action == null) {
             return null;
         }
-        Drawable icon = action.getIcon().loadDrawable(context);
+        Drawable icon = action.getIcon().loadDrawable(mContext);
         if (icon == null && TextUtils.isEmpty(action.getLabel())) {
             return null;
         }
@@ -399,7 +383,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
                                 null,
                                 null,
                                 ActivityOptions.makeCustomAnimation(
-                                                context,
+                                                mContext,
                                                 R.anim.slide_in_right,
                                                 R.anim.slide_out_left)
                                         .toBundle());
@@ -412,8 +396,16 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
                     if (mShareResultSender != null) {
                         mShareResultSender.onActionSelected(ShareAction.APPLICATION_DEFINED);
                     }
-                    finishCallback.accept(Activity.RESULT_OK);
+                    mFinishCallback.accept(Activity.RESULT_OK);
                 }
         );
+    }
+
+    void logCustomAction(int position) {
+        mLog.logCustomActionSelected(position);
+    }
+
+    private void logModifyShareAction() {
+        mLog.logActionSelected(EventLog.SELECTION_TYPE_MODIFY_SHARE);
     }
 }
