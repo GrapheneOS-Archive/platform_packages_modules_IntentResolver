@@ -34,9 +34,11 @@ class CursorUriReader(
     private val predicate: (Uri) -> Boolean,
 ) : PayloadToggleInteractor.CursorReader {
     override val count = cursor.count
-    // the first position of the next unread page on the right
+    // Unread ranges are:
+    // - left: [0, leftPos);
+    // - right: [rightPos, count)
+    // i.e. read range is: [leftPos, rightPos)
     private var rightPos = startPos.coerceIn(0, count)
-    // the first position of the next from the leftmost unread page on the left
     private var leftPos = rightPos
 
     override val hasMoreBefore
@@ -74,7 +76,7 @@ class CursorUriReader(
             return SparseArray()
         }
         val result = SparseArray<Uri>(leftPos - startPos)
-        for (pos in startPos ..< leftPos) {
+        for (pos in startPos until leftPos) {
             cursor
                 .getString(0)
                 ?.let(Uri::parse)
