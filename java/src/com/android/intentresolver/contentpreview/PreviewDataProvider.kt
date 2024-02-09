@@ -31,6 +31,7 @@ import androidx.annotation.OpenForTesting
 import androidx.annotation.VisibleForTesting
 import com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_FILE
 import com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_IMAGE
+import com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_PAYLOAD_SELECTION
 import com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_TEXT
 import com.android.intentresolver.measurements.runTracing
 import com.android.intentresolver.util.ownedByCurrentUser
@@ -74,7 +75,11 @@ open class PreviewDataProvider
 constructor(
     private val scope: CoroutineScope,
     private val targetIntent: Intent,
+    private val additionalContentUri: Uri?,
     private val contentResolver: ContentInterface,
+    // TODO: replace with the ChooserServiceFlags ref when PreviewViewModel dependencies are sorted
+    // out
+    private val isPayloadTogglingEnabled: Boolean,
     private val typeClassifier: MimeTypeClassifier = DefaultMimeTypeClassifier,
 ) {
 
@@ -125,6 +130,9 @@ constructor(
              * IMAGE, FILE, TEXT. */
             if (!targetIntent.isSend || records.isEmpty()) {
                 CONTENT_PREVIEW_TEXT
+            } else if (isPayloadTogglingEnabled && shouldShowPayloadSelection()) {
+                // TODO: replace with the proper flags injection
+                CONTENT_PREVIEW_PAYLOAD_SELECTION
             } else {
                 try {
                     runBlocking(scope.coroutineContext) {
@@ -141,6 +149,23 @@ constructor(
                 }
             }
         }
+    }
+
+    private fun shouldShowPayloadSelection(): Boolean {
+        val extraContentUri = additionalContentUri ?: return false
+        return runCatching {
+                val authority = extraContentUri.authority
+                // TODO: verify that authority is case-sensitive
+                records.firstOrNull { authority == it.uri.authority } == null
+            }
+            .onFailure {
+                Log.w(
+                    ContentPreviewUi.TAG,
+                    "Failed to check URI authorities; no payload toggling",
+                    it
+                )
+            }
+            .getOrDefault(false)
     }
 
     /**

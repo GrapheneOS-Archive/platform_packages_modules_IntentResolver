@@ -49,7 +49,13 @@ class PreviewViewModel(
 
     override val previewDataProvider by lazy {
         val targetIntent = requireNotNull(this.targetIntent) { "Not initialized" }
-        PreviewDataProvider(viewModelScope + dispatcher, targetIntent, contentResolver)
+        PreviewDataProvider(
+            viewModelScope + dispatcher,
+            targetIntent,
+            additionalContentUri,
+            contentResolver,
+            isPayloadTogglingEnabled,
+        )
     }
 
     override val imageLoader by lazy {
