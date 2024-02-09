@@ -17,6 +17,7 @@
 package com.android.intentresolver.contentpreview
 
 import android.net.Uri
+import android.service.chooser.ChooserAction
 import android.util.SparseArray
 import java.io.Closeable
 import kotlinx.coroutines.flow.Flow
@@ -50,6 +51,8 @@ class PayloadToggleInteractor {
     private data class Item(
         val previewUri: Uri?,
     )
+
+    data class CallbackResult(val customActions: List<ChooserAction>?)
 
     interface CursorReader : Closeable {
         val count: Int
