@@ -31,3 +31,10 @@ flag {
   description: "Use a custom view to draw target labels"
   bug: "302188527"
 }
+
+flag {
+  name: "enable_private_profile"
+  namespace: "intentresolver"
+  description: "Enable private profile support"
+  bug: "311348033"
+}
