@@ -268,6 +268,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     @Inject public ActivityLaunch mActivityLaunch;
     @Inject public FeatureFlags mFeatureFlags;
+    @Inject public android.service.chooser.FeatureFlags mChooserServiceFeatureFlags;
     @Inject public EventLog mEventLog;
     @Inject @AppPredictionAvailable public boolean mAppPredictionAvailable;
     @Inject @ImageEditor public Optional<ComponentName> mImageEditor;
@@ -480,9 +481,15 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         BasePreviewViewModel previewViewModel =
                 new ViewModelProvider(this, createPreviewViewModelFactory())
                         .get(BasePreviewViewModel.class);
+        previewViewModel.init(
+                chooserRequest.getTargetIntent(),
+                getIntent(),
+                chooserRequest.getAdditionalContentUri(),
+                chooserRequest.getFocusedItemPosition(),
+                mChooserServiceFeatureFlags.chooserPayloadToggling());
         mChooserContentPreviewUi = new ChooserContentPreviewUi(
                 getCoroutineScope(getLifecycle()),
-                previewViewModel.createOrReuseProvider(chooserRequest.getTargetIntent()),
+                previewViewModel.getPreviewDataProvider(),
                 chooserRequest.getTargetIntent(),
                 previewViewModel.getImageLoader(),
                 createChooserActionFactory(),

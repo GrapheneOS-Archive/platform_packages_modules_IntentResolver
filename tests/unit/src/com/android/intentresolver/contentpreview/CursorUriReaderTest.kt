@@ -16,13 +16,24 @@
 
 package com.android.intentresolver.contentpreview
 
+import android.content.ContentInterface
+import android.content.Intent
 import android.database.MatrixCursor
 import android.net.Uri
 import android.util.SparseArray
+import com.android.intentresolver.any
+import com.android.intentresolver.anyOrNull
+import com.android.intentresolver.mock
+import com.android.intentresolver.whenever
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class CursorUriReaderTest {
+    private val scope = TestScope()
+
     @Test
     fun readEmptyCursor() {
         val testSubject =
@@ -84,6 +95,26 @@ class CursorUriReaderTest {
 
     // TODO: add tests with filtered-out items
     // TODO: add tests with a failing cursor
+
+    @Test
+    fun testFailingQueryCall_emptyCursorCreated() =
+        scope.runTest {
+            val contentResolver =
+                mock<ContentInterface> {
+                    whenever(query(any(), any(), anyOrNull(), any()))
+                        .thenThrow(SecurityException("Test exception"))
+                }
+            val cursorReader =
+                CursorUriReader.createCursorReader(
+                    contentResolver,
+                    Uri.parse("content://auth"),
+                    Intent(Intent.ACTION_CHOOSER)
+                )
+
+            assertWithMessage("Empty cursor reader is expected")
+                .that(cursorReader.count)
+                .isEqualTo(0)
+        }
 }
 
 private fun createUri(id: Int) = Uri.parse("content://org.pkg/$id")

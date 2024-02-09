@@ -100,6 +100,9 @@ constructor(
     open val uriCount: Int
         get() = records.size
 
+    val uris: List<Uri>
+        get() = records.map { it.uri }
+
     /**
      * Returns a [Flow] of [FileInfo], for each shared URI in order, with [FileInfo.mimeType] and
      * [FileInfo.previewUri] set (a data projection tailored for the image preview UI).
