@@ -34,6 +34,10 @@ class HeadlineGeneratorImpl(private val context: Context) : HeadlineGenerator {
         )
     }
 
+    override fun getAlbumHeadline(): String {
+        return context.getString(R.string.sharing_album)
+    }
+
     override fun getImagesWithTextHeadline(text: CharSequence, count: Int): String {
         return getPluralString(
             getTemplateResource(

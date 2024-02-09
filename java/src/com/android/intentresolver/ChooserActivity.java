@@ -310,7 +310,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 previewViewModel.getImageLoader(),
                 createChooserActionFactory(),
                 mEnterTransitionAnimationDelegate,
-                new HeadlineGeneratorImpl(this));
+                new HeadlineGeneratorImpl(this),
+                ContentTypeHint.NONE);
 
         updateStickyContentPreview();
         if (shouldShowStickyContentPreview()

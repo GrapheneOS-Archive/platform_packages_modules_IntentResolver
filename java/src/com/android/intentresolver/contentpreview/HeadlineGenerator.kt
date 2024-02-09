@@ -17,11 +17,13 @@
 package com.android.intentresolver.contentpreview
 
 /**
- * HeadlineGenerator generates the text to show at the top of the sharesheet as a brief
- * description of the content being shared.
+ * HeadlineGenerator generates the text to show at the top of the sharesheet as a brief description
+ * of the content being shared.
  */
 interface HeadlineGenerator {
     fun getTextHeadline(text: CharSequence): String
+
+    fun getAlbumHeadline(): String
 
     fun getImagesWithTextHeadline(text: CharSequence, count: Int): String
 

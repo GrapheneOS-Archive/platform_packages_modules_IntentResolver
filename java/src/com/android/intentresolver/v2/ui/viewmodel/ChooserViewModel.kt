@@ -18,6 +18,7 @@ package com.android.intentresolver.v2.ui.viewmodel
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.android.intentresolver.inject.ChooserServiceFlags
 import com.android.intentresolver.v2.ui.model.ActivityLaunch
 import com.android.intentresolver.v2.ui.model.ActivityLaunch.Companion.ACTIVITY_LAUNCH_KEY
 import com.android.intentresolver.v2.ui.model.ChooserRequest
@@ -28,7 +29,8 @@ import javax.inject.Inject
 private const val TAG = "ChooserViewModel"
 
 @HiltViewModel
-class ChooserViewModel @Inject constructor(args: SavedStateHandle) : ViewModel() {
+class ChooserViewModel @Inject constructor(args: SavedStateHandle, flags: ChooserServiceFlags) :
+    ViewModel() {
 
     private val mActivityLaunch: ActivityLaunch =
         requireNotNull(args[ACTIVITY_LAUNCH_KEY]) {
@@ -36,7 +38,8 @@ class ChooserViewModel @Inject constructor(args: SavedStateHandle) : ViewModel()
         }
 
     /** The result of reading and validating the inputs provided in savedState. */
-    private val status: ValidationResult<ChooserRequest> = readChooserRequest(mActivityLaunch)
+    private val status: ValidationResult<ChooserRequest> =
+        readChooserRequest(mActivityLaunch, flags)
 
     val chooserRequest: ChooserRequest by lazy { status.getOrThrow() }
 

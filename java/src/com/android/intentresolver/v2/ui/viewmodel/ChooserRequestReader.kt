@@ -40,9 +40,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.service.chooser.ChooserAction
 import android.service.chooser.ChooserTarget
-import android.service.chooser.Flags
 import com.android.intentresolver.ChooserActivity
+import com.android.intentresolver.ContentTypeHint
 import com.android.intentresolver.R
+import com.android.intentresolver.inject.ChooserServiceFlags
 import com.android.intentresolver.util.hasValidIcon
 import com.android.intentresolver.v2.ext.hasAction
 import com.android.intentresolver.v2.ext.ifMatch
@@ -72,7 +73,10 @@ internal fun Intent.maybeAddSendActionFlags() =
         addFlags(FLAG_ACTIVITY_MULTIPLE_TASK)
     }
 
-fun readChooserRequest(launch: ActivityLaunch): ValidationResult<ChooserRequest> {
+fun readChooserRequest(
+    launch: ActivityLaunch,
+    flags: ChooserServiceFlags
+): ValidationResult<ChooserRequest> {
     val extras = launch.intent.extras ?: Bundle()
     @Suppress("DEPRECATION")
     return validateFrom(extras::get) {
@@ -135,13 +139,23 @@ fun readChooserRequest(launch: ActivityLaunch): ValidationResult<ChooserRequest>
 
         val additionalContentUri: Uri?
         val focusedItemPos: Int
-        if (isSendAction && Flags.chooserPayloadToggling()) {
+        if (isSendAction && flags.chooserPayloadToggling()) {
             additionalContentUri = optional(value<Uri>(EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI))
             focusedItemPos = optional(value<Int>(EXTRA_CHOOSER_FOCUSED_ITEM_POSITION)) ?: 0
         } else {
             additionalContentUri = null
             focusedItemPos = 0
         }
+
+        val contentTypeHint =
+            if (flags.chooserAlbumText()) {
+                when (optional(value<Int>(Intent.EXTRA_CHOOSER_CONTENT_TYPE_HINT))) {
+                    Intent.CHOOSER_CONTENT_TYPE_ALBUM -> ContentTypeHint.ALBUM
+                    else -> ContentTypeHint.NONE
+                }
+            } else {
+                ContentTypeHint.NONE
+            }
 
         ChooserRequest(
             targetIntent = targetIntent,
@@ -169,6 +183,7 @@ fun readChooserRequest(launch: ActivityLaunch): ValidationResult<ChooserRequest>
             shareTargetFilter = targetIntent.toShareTargetFilter(),
             additionalContentUri = additionalContentUri,
             focusedItemPosition = focusedItemPos,
+            contentTypeHint = contentTypeHint,
         )
     }
 }
