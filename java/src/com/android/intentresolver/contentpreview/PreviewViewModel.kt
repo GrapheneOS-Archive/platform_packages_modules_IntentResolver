@@ -65,7 +65,7 @@ constructor(
     }
 
     override val payloadToggleInteractor: PayloadToggleInteractor? by lazy {
-        PayloadToggleInteractor()
+        null // TODO: initialize PayloadToggleInteractor()
     }
 
     companion object {
