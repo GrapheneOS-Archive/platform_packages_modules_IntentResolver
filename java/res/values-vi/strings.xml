@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Ứng dụng này chưa được cấp quyền ghi âm nhưng vẫn có thể ghi âm thông qua thiết bị USB này."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Cá nhân"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Công việc"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Riêng tư"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Chế độ xem cá nhân"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Chế độ xem công việc"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Chế độ xem riêng tư"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Bị quản trị viên CNTT chặn"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Bạn không thể chia sẻ nội dung này bằng ứng dụng công việc"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Bạn không thể mở nội dung này bằng ứng dụng công việc"</string>

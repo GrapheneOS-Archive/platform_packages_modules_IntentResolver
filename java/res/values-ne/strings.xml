@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"यो एपलाई रेकर्ड गर्ने अनुमति प्रदान गरिएको छैन तर यसले यो USB यन्त्रमार्फत अडियो क्याप्चर गर्न सक्छ।"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"व्यक्तिगत"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"काम"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"निजी"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"व्यक्तिगत दृश्य"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"कार्य दृश्य"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"निजी भ्यू"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"तपाईंका IT एड्मिनले ब्लक गर्नुभएको छ"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"यो सामग्री कामसम्बन्धी एपहरूमार्फत सेयर गर्न मिल्दैन"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"यो सामग्री कामसम्बन्धी एपहरूमार्फत खोल्न मिल्दैन"</string>

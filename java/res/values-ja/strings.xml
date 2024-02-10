@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"このアプリに録音権限は付与されていませんが、この USB デバイスから音声を収集できるようになります。"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"個人用"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"仕事用"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"プライベート"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"個人用ビュー"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"仕事用ビュー"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"プライベート ビュー"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"IT 管理者によりブロックされました"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"このコンテンツを仕事用アプリと共有することはできません"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"このコンテンツを仕事用アプリで開くことはできません"</string>

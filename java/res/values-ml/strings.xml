@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ഈ ആപ്പിന് റെക്കോർഡ് അനുമതി നൽകിയിട്ടില്ല, എന്നാൽ ഈ USB ഉപകരണത്തിലൂടെ ഓഡിയോ ക്യാപ്‌ചർ ചെയ്യാനാവും."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"വ്യക്തിപരം"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ഔദ്യോഗികം"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"സ്വകാര്യം"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"വ്യക്തിപര കാഴ്‌ച"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"ഔദ്യോഗിക കാഴ്‌ച"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"സ്വകാര്യ കാഴ്ച"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"നിങ്ങളുടെ ഐടി അഡ്‌മിൻ ബ്ലോക്ക് ചെയ്‌തു"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"ഔദ്യോഗിക ആപ്പുകൾ ഉപയോഗിച്ച് ഈ ഉള്ളടക്കം പങ്കിടാനാകില്ല"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ഔദ്യോഗിക ആപ്പുകൾ ഉപയോഗിച്ച് ഈ ഉള്ളടക്കം തുറക്കാനാകില്ല"</string>

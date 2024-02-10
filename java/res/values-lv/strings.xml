@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Šai lietotnei nav piešķirta ierakstīšanas atļauja, taču tā varētu tvert audio, izmantojot šo USB ierīci."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Privātais profils"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Darba profils"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Privāts"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Personisks skats"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Darba skats"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Privātais skats"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Bloķējis jūsu IT administrators"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Šo saturu nevar kopīgot ar darba lietotnēm"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Šo saturu nevar atvērt darba lietotnēs"</string>

@@ -20,8 +20,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.intentresolver.R
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
@@ -75,7 +80,16 @@ internal class ShareouselContentPreviewUi(
                         }
                     }
 
-                    Shareousel(viewModel = viewModel)
+                    MaterialTheme(
+                        colorScheme =
+                            if (isSystemInDarkTheme()) {
+                                dynamicDarkColorScheme(LocalContext.current)
+                            } else {
+                                dynamicLightColorScheme(LocalContext.current)
+                            },
+                    ) {
+                        Shareousel(viewModel = viewModel)
+                    }
                 }
             }
         return composeView

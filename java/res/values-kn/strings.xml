@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ಈ ಆ್ಯಪ್‌ಗೆ ರೆಕಾರ್ಡ್ ಅನುಮತಿಯನ್ನು ನೀಡಲಾಗಿಲ್ಲ, ಆದರೆ ಈ USB ಸಾಧನದ ಮೂಲಕ ಆಡಿಯೊವನ್ನು ಸೆರೆಹಿಡಿಯಬಲ್ಲದು."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ವೈಯಕ್ತಿಕ"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ಕೆಲಸ"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"ಖಾಸಗಿ"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"ವೈಯಕ್ತಿಕ ವೀಕ್ಷಣೆ"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"ಕೆಲಸದ ವೀಕ್ಷಣೆ"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"ಖಾಸಗಿ ವೀಕ್ಷಣೆ"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"ನಿಮ್ಮ IT ನಿರ್ವಾಹಕರಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"ಕೆಲಸಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಆ್ಯಪ್‌ಗಳ ಈ ವಿಷಯವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುವುದಿಲ್ಲ"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ಕೆಲಸಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಆ್ಯಪ್‌ಗಳ ಈ ವಿಷಯವನ್ನು ತೆರೆಯಲಾಗುವುದಿಲ್ಲ"</string>

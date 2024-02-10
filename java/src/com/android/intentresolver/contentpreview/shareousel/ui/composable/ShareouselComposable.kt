@@ -15,7 +15,6 @@
  */
 package com.android.intentresolver.contentpreview.shareousel.ui.composable
 
-import android.os.Parcelable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -64,7 +63,7 @@ fun Shareousel(viewModel: ShareouselViewModel) {
                 Modifier.fillMaxWidth()
                     .height(dimensionResource(R.dimen.chooser_preview_image_height_tall))
         ) {
-            items(previewKeys, key = { (it as? Parcelable) ?: Unit }) { key ->
+            items(previewKeys, key = viewModel.previewRowKey) { key ->
                 ShareouselCard(viewModel.previewForKey(key))
             }
         }

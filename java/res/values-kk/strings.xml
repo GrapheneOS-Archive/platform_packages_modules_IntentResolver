@@ -76,8 +76,12 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Қолданбаға жазу рұқсаты берілмеді, бірақ ол осы USB құрылғысы арқылы дыбыс жаза алады."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Жеке"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Жұмыс"</string>
+    <!-- no translation found for resolver_private_tab (3707548826254095157) -->
+    <skip />
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Жеке көру"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Жұмыс деректерін көру"</string>
+    <!-- no translation found for resolver_private_tab_accessibility (2513122834337197252) -->
+    <skip />
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Әкімшіңіз бөгеген"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Бұл контентті жұмыс қолданбаларымен бөлісу мүмкін емес."</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Бұл контентті жұмыс қолданбаларымен ашу мүмкін емес."</string>
