@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"이 앱에는 녹음 권한이 부여되지 않았지만, 이 USB 기기를 통해 오디오를 녹음할 수 있습니다."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"개인"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"직장"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"비공개"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"개인 뷰"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"직장 뷰"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"비공개 뷰"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"IT 관리자에 의해 차단됨"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"이 콘텐츠는 직장 앱을 통해 공유할 수 없습니다."</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"이 콘텐츠는 직장 앱으로 열 수 없습니다."</string>

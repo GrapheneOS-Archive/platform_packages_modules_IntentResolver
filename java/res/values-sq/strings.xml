@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Këtij aplikacioni nuk i është dhënë leje për regjistrim, por mund të regjistrojë audio përmes kësaj pajisjeje USB."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Personal"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Puna"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Private"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Pamja personale"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Pamja e punës"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Pamja private"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Bllokuar nga administratori yt i teknologjisë së informacionit"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Kjo përmbajtje nuk mund të ndahet me aplikacione pune"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Kjo përmbajtje nuk mund të hapet me aplikacione pune"</string>

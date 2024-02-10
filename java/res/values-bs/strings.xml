@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Ovoj aplikaciji nije dato odobrenje za snimanje, ali može snimati zvuk putem ovog USB uređaja."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Lično"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Posao"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Privatno"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Prikaz ličnog sadržaja"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Prikaz poslovnog sadržaja"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Privatan prikaz"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Blokirao je vaš IT administrator"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Ovaj sadržaj nije moguće dijeliti pomoću poslovnih aplikacija"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Ovaj sadržaj nije moguće otvoriti pomoću poslovnih aplikacija"</string>

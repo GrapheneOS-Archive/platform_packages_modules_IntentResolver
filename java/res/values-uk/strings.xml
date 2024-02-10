@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Цей додаток не має дозволу на запис, але він може фіксувати звук через цей USB-пристрій."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Особисте"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Робоче"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Приватний простір"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Особистий перегляд"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Робочий перегляд"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Приватний перегляд"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Заблоковано адміністратором"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Цим контентом не можна ділитися в робочих додатках"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Цей контент не можна відкривати в робочих додатках"</string>

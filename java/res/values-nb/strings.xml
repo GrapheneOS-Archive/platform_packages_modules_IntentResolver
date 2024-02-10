@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Denne appen har ikke fått tillatelse til å spille inn, men kan ta opp lyd med denne USB-enheten."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Personlig"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Jobb"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Privat"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Personlig visning"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Jobbvisning"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Privat visning"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Blokkert av IT-administratoren din"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Dette innholdet kan ikke deles med jobbapper"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Dette innholdet kan ikke åpnes med jobbapper"</string>

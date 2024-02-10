@@ -210,6 +210,11 @@
         }
     </string>
 
+
+    <!-- Title atop a sharing UI indicating that an album (typically of photos/videos) is being
+         shared [CHAR_LIMIT=50] -->
+    <string name="sharing_album">Sharing album</string>
+
     <!-- Message indicating that the attached text has been removed from this share and only the
          images are being shared.  [CHAR LIMIT=none] -->
     <string name="sharing_images_only">{count, plural,

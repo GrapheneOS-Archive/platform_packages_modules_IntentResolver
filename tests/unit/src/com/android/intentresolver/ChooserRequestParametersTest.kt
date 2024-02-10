@@ -29,7 +29,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class ChooserRequestParametersTest {
-
     @Test
     fun testChooserActions() {
         val actionCount = 3

@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.intentresolver.ContentTypeHint
 import com.android.intentresolver.R
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
@@ -38,6 +39,7 @@ import org.junit.runner.RunWith
 class TextContentPreviewUiTest {
     private val text = "Shared Text"
     private val title = "Preview Title"
+    private val albumHeadline = "Album headline"
     private val testScope = TestScope(EmptyCoroutineContext + UnconfinedTestDispatcher())
     private val actionFactory =
         object : ChooserContentPreviewUi.ActionFactory {
@@ -49,7 +51,10 @@ class TextContentPreviewUiTest {
         }
     private val imageLoader = mock<ImageLoader>()
     private val headlineGenerator =
-        mock<HeadlineGenerator> { whenever(getTextHeadline(text)).thenReturn(text) }
+        mock<HeadlineGenerator> {
+            whenever(getTextHeadline(text)).thenReturn(text)
+            whenever(getAlbumHeadline()).thenReturn(albumHeadline)
+        }
 
     private val context
         get() = InstrumentationRegistry.getInstrumentation().context
@@ -63,6 +68,7 @@ class TextContentPreviewUiTest {
             actionFactory,
             imageLoader,
             headlineGenerator,
+            ContentTypeHint.NONE,
         )
 
     @Test
@@ -104,5 +110,36 @@ class TextContentPreviewUiTest {
         val headlineView = externalHeaderView.findViewById<TextView>(R.id.headline)
         assertThat(headlineView).isNotNull()
         assertThat(headlineView?.text).isEqualTo(text)
+    }
+
+    @Test
+    fun test_display_albumHeadlineOverride() {
+        val layoutInflater = LayoutInflater.from(context)
+        val gridLayout = layoutInflater.inflate(R.layout.chooser_grid, null, false) as ViewGroup
+
+        val albumSubject =
+            TextContentPreviewUi(
+                testScope,
+                text,
+                title,
+                /*previewThumbnail=*/ null,
+                actionFactory,
+                imageLoader,
+                headlineGenerator,
+                ContentTypeHint.ALBUM,
+            )
+
+        val previewView =
+            albumSubject.display(
+                context.resources,
+                layoutInflater,
+                gridLayout,
+                /*headlineViewParent=*/ null
+            )
+
+        assertThat(previewView).isNotNull()
+        val headlineView = previewView?.findViewById<TextView>(R.id.headline)
+        assertThat(headlineView).isNotNull()
+        assertThat(headlineView?.text).isEqualTo(albumHeadline)
     }
 }

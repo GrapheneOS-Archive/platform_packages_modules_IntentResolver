@@ -29,6 +29,7 @@ data class ShareouselViewModel(
     val actions: Flow<List<ActionChipViewModel>>,
     val centerIndex: Flow<Int>,
     val previewForKey: (key: Any) -> ShareouselImageViewModel,
+    val previewRowKey: (Any) -> Any
 )
 
 data class ActionChipViewModel(val label: String, val icon: ComposeIcon?, val onClick: () -> Unit)
@@ -56,6 +57,7 @@ fun PayloadToggleInteractor.toShareouselViewModel(imageLoader: ImageLoader): Sha
                 setSelected = { isSelected -> previewInteractor.setSelected(isSelected) },
                 onActionClick = {},
             )
-        }
+        },
+        previewRowKey = { getKey(it) },
     )
 }

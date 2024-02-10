@@ -76,8 +76,10 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ఈ యాప్‌కు రికార్డ్ చేసే అనుమతి మంజూరు కాలేదు, అయినా ఈ USB పరికరం ద్వారా ఆడియోను క్యాప్చర్ చేయగలదు."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"వ్యక్తిగతం"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"వర్క్ ప్లేస్"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"ప్రైవేట్"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"వ్యక్తిగత వీక్షణ"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"పని వీక్షణ"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"ప్రైవేట్ వీక్షణ"</string>
     <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"మీ IT అడ్మిన్ ద్వారా బ్లాక్ చేయబడింది"</string>
     <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"ఈ కంటెంట్ వర్క్ యాప్‌తో షేర్ చేయడం సాధ్యం కాదు"</string>
     <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ఈ కంటెంట్ వర్క్ యాప్‌తో తెరవడం సాధ్యం కాదు"</string>
