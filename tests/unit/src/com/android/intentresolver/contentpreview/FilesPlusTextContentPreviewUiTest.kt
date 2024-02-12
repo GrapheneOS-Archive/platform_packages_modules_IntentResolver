@@ -21,6 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.IdRes
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.android.intentresolver.R
@@ -63,6 +64,7 @@ class FilesPlusTextContentPreviewUiTest {
             whenever(getVideosHeadline(anyInt())).thenReturn(HEADLINE_VIDEOS)
             whenever(getFilesHeadline(anyInt())).thenReturn(HEADLINE_FILES)
         }
+    private val testMetadataText: CharSequence = "Test metadata text"
 
     private val context
         get() = getInstrumentation().context
@@ -74,6 +76,7 @@ class FilesPlusTextContentPreviewUiTest {
 
         verify(headlineGenerator, times(1)).getImagesHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_IMAGES)
+        verifyPreviewMetadata(previewView, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -85,6 +88,7 @@ class FilesPlusTextContentPreviewUiTest {
         verify(headlineGenerator, times(1)).getImagesHeadline(sharedFileCount)
         verifyInternalHeadlineAbsence(previewView)
         verifyPreviewHeadline(headerParent, HEADLINE_IMAGES)
+        verifyPreviewMetadata(headerParent, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -95,6 +99,7 @@ class FilesPlusTextContentPreviewUiTest {
 
         verify(headlineGenerator, times(1)).getVideosHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_VIDEOS)
+        verifyPreviewMetadata(previewView, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -106,6 +111,7 @@ class FilesPlusTextContentPreviewUiTest {
         verify(headlineGenerator, times(1)).getVideosHeadline(sharedFileCount)
         verifyInternalHeadlineAbsence(previewView)
         verifyPreviewHeadline(headerParent, HEADLINE_VIDEOS)
+        verifyPreviewMetadata(headerParent, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -116,6 +122,7 @@ class FilesPlusTextContentPreviewUiTest {
 
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_FILES)
+        verifyPreviewMetadata(previewView, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -128,6 +135,7 @@ class FilesPlusTextContentPreviewUiTest {
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verifyInternalHeadlineAbsence(previewView)
         verifyPreviewHeadline(headerParent, HEADLINE_FILES)
+        verifyPreviewMetadata(headerParent, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -138,6 +146,7 @@ class FilesPlusTextContentPreviewUiTest {
 
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_FILES)
+        verifyPreviewMetadata(previewView, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -149,6 +158,7 @@ class FilesPlusTextContentPreviewUiTest {
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verifyInternalHeadlineAbsence(previewView)
         verifyPreviewHeadline(headerParent, HEADLINE_FILES)
+        verifyPreviewMetadata(headerParent, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -160,6 +170,7 @@ class FilesPlusTextContentPreviewUiTest {
 
         verify(headlineGenerator, times(1)).getImagesHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_IMAGES)
+        verifyPreviewMetadata(previewView, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -173,6 +184,7 @@ class FilesPlusTextContentPreviewUiTest {
         verify(headlineGenerator, times(1)).getImagesHeadline(sharedFileCount)
         verifyInternalHeadlineAbsence(previewView)
         verifyPreviewHeadline(headerParent, HEADLINE_IMAGES)
+        verifyPreviewMetadata(headerParent, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -184,6 +196,7 @@ class FilesPlusTextContentPreviewUiTest {
 
         verify(headlineGenerator, times(1)).getVideosHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_VIDEOS)
+        verifyPreviewMetadata(previewView, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -197,6 +210,7 @@ class FilesPlusTextContentPreviewUiTest {
         verify(headlineGenerator, times(1)).getVideosHeadline(sharedFileCount)
         verifyInternalHeadlineAbsence(previewView)
         verifyPreviewHeadline(headerParent, HEADLINE_VIDEOS)
+        verifyPreviewMetadata(headerParent, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -208,6 +222,7 @@ class FilesPlusTextContentPreviewUiTest {
 
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_FILES)
+        verifyPreviewMetadata(previewView, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -221,6 +236,7 @@ class FilesPlusTextContentPreviewUiTest {
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verifyInternalHeadlineAbsence(previewView)
         verifyPreviewHeadline(headerParent, HEADLINE_FILES)
+        verifyPreviewMetadata(headerParent, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -233,6 +249,7 @@ class FilesPlusTextContentPreviewUiTest {
 
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_FILES)
+        verifyPreviewMetadata(previewView, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -246,6 +263,7 @@ class FilesPlusTextContentPreviewUiTest {
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verifyInternalHeadlineAbsence(previewView)
         verifyPreviewHeadline(headerParent, HEADLINE_FILES)
+        verifyPreviewMetadata(headerParent, testMetadataText)
         verifySharedText(previewView)
     }
 
@@ -262,7 +280,8 @@ class FilesPlusTextContentPreviewUiTest {
                 actionFactory,
                 imageLoader,
                 DefaultMimeTypeClassifier,
-                headlineGenerator
+                headlineGenerator,
+                testMetadataText,
             )
         val layoutInflater = LayoutInflater.from(context)
         val gridLayout = layoutInflater.inflate(R.layout.chooser_grid, null, false) as ViewGroup
@@ -273,12 +292,14 @@ class FilesPlusTextContentPreviewUiTest {
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verify(headlineGenerator, never()).getImagesHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_FILES)
+        verifyPreviewMetadata(previewView, testMetadataText)
 
         testSubject.updatePreviewMetadata(createFileInfosWithMimeTypes("image/png", "image/jpg"))
 
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verify(headlineGenerator, times(1)).getImagesHeadline(sharedFileCount)
         verifyPreviewHeadline(previewView, HEADLINE_IMAGES)
+        verifyPreviewMetadata(previewView, testMetadataText)
     }
 
     @Test
@@ -294,7 +315,8 @@ class FilesPlusTextContentPreviewUiTest {
                 actionFactory,
                 imageLoader,
                 DefaultMimeTypeClassifier,
-                headlineGenerator
+                headlineGenerator,
+                testMetadataText,
             )
         val layoutInflater = LayoutInflater.from(context)
         val gridLayout =
@@ -305,6 +327,9 @@ class FilesPlusTextContentPreviewUiTest {
 
         assertWithMessage("External headline should not be inflated by default")
             .that(externalHeaderView.findViewById<View>(R.id.headline))
+            .isNull()
+        assertWithMessage("External metadata should not be inflated by default")
+            .that(externalHeaderView.findViewById<View>(R.id.metadata))
             .isNull()
 
         val previewView =
@@ -319,12 +344,14 @@ class FilesPlusTextContentPreviewUiTest {
         verify(headlineGenerator, never()).getImagesHeadline(sharedFileCount)
         verifyInternalHeadlineAbsence(previewView)
         verifyPreviewHeadline(externalHeaderView, HEADLINE_FILES)
+        verifyPreviewMetadata(externalHeaderView, testMetadataText)
 
         testSubject.updatePreviewMetadata(createFileInfosWithMimeTypes("image/png", "image/jpg"))
 
         verify(headlineGenerator, times(1)).getFilesHeadline(sharedFileCount)
         verify(headlineGenerator, times(1)).getImagesHeadline(sharedFileCount)
         verifyPreviewHeadline(externalHeaderView, HEADLINE_IMAGES)
+        verifyPreviewMetadata(externalHeaderView, testMetadataText)
     }
 
     private fun testLoadingHeadline(
@@ -342,7 +369,8 @@ class FilesPlusTextContentPreviewUiTest {
                 actionFactory,
                 imageLoader,
                 DefaultMimeTypeClassifier,
-                headlineGenerator
+                headlineGenerator,
+                testMetadataText,
             )
         val layoutInflater = LayoutInflater.from(context)
         val gridLayout = layoutInflater.inflate(R.layout.chooser_grid, null, false) as ViewGroup
@@ -371,7 +399,8 @@ class FilesPlusTextContentPreviewUiTest {
                 actionFactory,
                 imageLoader,
                 DefaultMimeTypeClassifier,
-                headlineGenerator
+                headlineGenerator,
+                testMetadataText,
             )
         val layoutInflater = LayoutInflater.from(context)
         val gridLayout =
@@ -382,6 +411,10 @@ class FilesPlusTextContentPreviewUiTest {
 
         assertWithMessage("External headline should not be inflated by default")
             .that(externalHeaderView.findViewById<View>(R.id.headline))
+            .isNull()
+
+        assertWithMessage("External metadata should not be inflated by default")
+            .that(externalHeaderView.findViewById<View>(R.id.metadata))
             .isNull()
 
         loadedFileMetadata?.let(testSubject::updatePreviewMetadata)
@@ -398,18 +431,27 @@ class FilesPlusTextContentPreviewUiTest {
         return mimeTypes.map { mimeType -> FileInfo.Builder(uri).withMimeType(mimeType).build() }
     }
 
+    private fun verifyTextViewText(
+        parentView: View?,
+        @IdRes textViewResId: Int,
+        expectedText: CharSequence,
+    ) {
+        assertThat(parentView).isNotNull()
+        val textView = parentView?.findViewById<TextView>(textViewResId)
+        assertThat(textView).isNotNull()
+        assertThat(textView?.text).isEqualTo(expectedText)
+    }
+
     private fun verifyPreviewHeadline(headerViewParent: View?, expectedText: String) {
-        assertThat(headerViewParent).isNotNull()
-        val headlineView = headerViewParent?.findViewById<TextView>(R.id.headline)
-        assertThat(headlineView).isNotNull()
-        assertThat(headlineView?.text).isEqualTo(expectedText)
+        verifyTextViewText(headerViewParent, R.id.headline, expectedText)
+    }
+
+    private fun verifyPreviewMetadata(headerViewParent: View?, expectedText: CharSequence) {
+        verifyTextViewText(headerViewParent, R.id.metadata, expectedText)
     }
 
     private fun verifySharedText(previewView: ViewGroup?) {
-        assertThat(previewView).isNotNull()
-        val textContentView = previewView?.findViewById<TextView>(R.id.content_preview_text)
-        assertThat(textContentView).isNotNull()
-        assertThat(textContentView?.text).isEqualTo(SHARED_TEXT)
+        verifyTextViewText(previewView, R.id.content_preview_text, SHARED_TEXT)
     }
 
     private fun verifyInternalHeadlineAbsence(previewView: ViewGroup?) {
