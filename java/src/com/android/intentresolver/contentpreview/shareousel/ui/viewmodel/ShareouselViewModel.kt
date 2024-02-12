@@ -38,7 +38,6 @@ data class ShareouselImageViewModel(
     val contentDescription: Flow<String>,
     val isSelected: Flow<Boolean>,
     val setSelected: (Boolean) -> Unit,
-    val onActionClick: () -> Unit,
 )
 
 fun PayloadToggleInteractor.toShareouselViewModel(imageLoader: ImageLoader): ShareouselViewModel {
@@ -54,7 +53,6 @@ fun PayloadToggleInteractor.toShareouselViewModel(imageLoader: ImageLoader): Sha
                 contentDescription = MutableStateFlow(""),
                 isSelected = previewInteractor.selected,
                 setSelected = { isSelected -> previewInteractor.setSelected(isSelected) },
-                onActionClick = {},
             )
         }
     )
