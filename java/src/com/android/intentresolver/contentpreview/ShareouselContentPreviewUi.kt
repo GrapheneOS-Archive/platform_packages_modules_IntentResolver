@@ -21,16 +21,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.intentresolver.R
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
 import com.android.intentresolver.contentpreview.shareousel.ui.composable.Shareousel
+import com.android.intentresolver.contentpreview.shareousel.ui.viewmodel.ShareouselViewModel
 import com.android.intentresolver.contentpreview.shareousel.ui.viewmodel.toShareouselViewModel
 
 internal class ShareouselContentPreviewUi(
@@ -63,33 +73,55 @@ internal class ShareouselContentPreviewUi(
                     val vm: BasePreviewViewModel = viewModel()
                     val interactor =
                         requireNotNull(vm.payloadToggleInteractor) { "Should not be null" }
-                    val viewModel = interactor.toShareouselViewModel(vm.imageLoader, actionFactory)
 
-                    if (headlineViewParent != null) {
-                        LaunchedEffect(Unit) {
-                            viewModel.headline.collect { headline ->
-                                headlineViewParent.findViewById<TextView>(R.id.headline)?.apply {
-                                    if (headline.isNotBlank()) {
-                                        text = headline
-                                        visibility = View.VISIBLE
-                                    } else {
-                                        visibility = View.GONE
-                                    }
+                    var viewModel by remember { mutableStateOf<ShareouselViewModel?>(null) }
+                    LaunchedEffect(Unit) {
+                        viewModel =
+                            interactor.toShareouselViewModel(
+                                vm.imageLoader,
+                                actionFactory,
+                                vm.viewModelScope
+                            )
+                    }
+
+                    headlineViewParent?.let {
+                        viewModel?.let { viewModel ->
+                            LaunchedEffect(viewModel) {
+                                viewModel.headline.collect { headline ->
+                                    headlineViewParent
+                                        .findViewById<TextView>(R.id.headline)
+                                        ?.apply {
+                                            if (headline.isNotBlank()) {
+                                                text = headline
+                                                visibility = View.VISIBLE
+                                            } else {
+                                                visibility = View.GONE
+                                            }
+                                        }
                                 }
                             }
                         }
                     }
 
-                    MaterialTheme(
-                        colorScheme =
-                            if (isSystemInDarkTheme()) {
-                                dynamicDarkColorScheme(LocalContext.current)
-                            } else {
-                                dynamicLightColorScheme(LocalContext.current)
-                            },
-                    ) {
-                        Shareousel(viewModel = viewModel)
+                    viewModel?.let { viewModel ->
+                        MaterialTheme(
+                            colorScheme =
+                                if (isSystemInDarkTheme()) {
+                                    dynamicDarkColorScheme(LocalContext.current)
+                                } else {
+                                    dynamicLightColorScheme(LocalContext.current)
+                                },
+                        ) {
+                            Shareousel(viewModel = viewModel)
+                        }
                     }
+                        ?: run {
+                            Spacer(
+                                Modifier.height(
+                                    dimensionResource(R.dimen.chooser_preview_image_height_tall)
+                                )
+                            )
+                        }
                 }
             }
         return composeView

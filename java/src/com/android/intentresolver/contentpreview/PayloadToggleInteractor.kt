@@ -118,7 +118,6 @@ class PayloadToggleInteractor(
 
     fun start() {
         scope.launch {
-            publishInitialState()
             val cursorReader = cursorReaderProvider()
             val selectedItems =
                 initiallySharedUris.map { uri ->
@@ -148,31 +147,6 @@ class PayloadToggleInteractor(
         }
     }
 
-    private suspend fun publishInitialState() {
-        stateFlowSource.emit(
-            State(
-                if (0 <= focusedUriIdx && focusedUriIdx < initiallySharedUris.size) {
-                    val fileInfo = uriMetadataReader(initiallySharedUris[focusedUriIdx])
-                    listOf(
-                        Record(
-                            // a unique key that won't appear anywhere after more items are loaded
-                            -initiallySharedUris.size - 1,
-                            initiallySharedUris[focusedUriIdx],
-                            fileInfo.previewUri,
-                            fileInfo.mimeType,
-                            fileInfo.mimeType?.mimeTypeToItemType() ?: ItemType.File,
-                        ),
-                    )
-                } else {
-                    emptyList()
-                },
-                hasMoreItemsBefore = true,
-                hasMoreItemsAfter = true,
-                allowSelectionChange = false,
-            )
-        )
-    }
-
     fun loadMorePreviousItems() {
         invokeAsyncIfNotRunning(prevPageLoadingGate) {
             doLoadMorePreviousItems()
@@ -194,7 +168,6 @@ class PayloadToggleInteractor(
             val (_, selectionTracker) = waitForCursorData() ?: return@launch
             selectionTracker.setItemSelection(record.key, record, isSelected)
             val targetIntent = targetIntentModifier(selectionTracker.getSelection())
-
             val newJob = scope.launch { notifySelectionChanged(targetIntent) }
             notifySelectionJobRef.getAndSet(newJob)?.cancel()
         }
@@ -390,8 +363,10 @@ class PayloadTogglePreviewInteractor(
 
     val previewUri: Flow<Uri?>
         get() = interactor.previewUri(item)
+
     val selected: Flow<Boolean>
         get() = interactor.selected(item)
+
     val key
         get() = item.key
 }

@@ -24,16 +24,19 @@ import com.android.intentresolver.contentpreview.PayloadToggleInteractor
 import com.android.intentresolver.icon.BitmapIcon
 import com.android.intentresolver.icon.ComposeIcon
 import com.android.intentresolver.widget.ActionRow.Action
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 data class ShareouselViewModel(
     val headline: Flow<String>,
-    val previewKeys: Flow<List<Any>>,
+    val previewKeys: StateFlow<List<Any>>,
     val actions: Flow<List<ActionChipViewModel>>,
-    val centerIndex: Flow<Int>,
+    val centerIndex: StateFlow<Int>,
     val previewForKey: (key: Any) -> ShareouselImageViewModel,
     val previewRowKey: (Any) -> Any
 )
@@ -47,13 +50,14 @@ data class ShareouselImageViewModel(
     val setSelected: (Boolean) -> Unit,
 )
 
-fun PayloadToggleInteractor.toShareouselViewModel(
+suspend fun PayloadToggleInteractor.toShareouselViewModel(
     imageLoader: ImageLoader,
-    actionFactory: ActionFactory
+    actionFactory: ActionFactory,
+    scope: CoroutineScope,
 ): ShareouselViewModel {
     return ShareouselViewModel(
         headline = MutableStateFlow("Shareousel"),
-        previewKeys = previewKeys,
+        previewKeys = previewKeys.stateIn(scope),
         actions =
             if (actionFactory is MutableActionFactory) {
                 actionFactory.customActionsFlow.map { actions ->
@@ -64,7 +68,7 @@ fun PayloadToggleInteractor.toShareouselViewModel(
                     emit(actionFactory.createCustomActions().map { it.toActionChipViewModel() })
                 }
             },
-        centerIndex = targetPosition,
+        centerIndex = targetPosition.stateIn(scope),
         previewForKey = { key ->
             val previewInteractor = previewInteractor(key)
             ShareouselImageViewModel(
