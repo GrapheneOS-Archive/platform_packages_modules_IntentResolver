@@ -1,4 +1,5 @@
 package: "com.android.intentresolver"
+container: "system"
 
 # name: [a-z0-9][_a-z0-9]+
 # namespace: intentresolver
