@@ -116,7 +116,6 @@ private fun ShareouselCard(viewModel: ShareouselImageViewModel) {
                 }
         },
         selected = selected,
-        onActionClick = { viewModel.onActionClick() },
         modifier =
             Modifier.thenIf(selected) {
                     Modifier.border(
