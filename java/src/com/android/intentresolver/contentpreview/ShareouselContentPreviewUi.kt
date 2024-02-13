@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -43,7 +44,8 @@ import com.android.intentresolver.contentpreview.shareousel.ui.composable.Shareo
 import com.android.intentresolver.contentpreview.shareousel.ui.viewmodel.ShareouselViewModel
 import com.android.intentresolver.contentpreview.shareousel.ui.viewmodel.toShareouselViewModel
 
-internal class ShareouselContentPreviewUi(
+@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+class ShareouselContentPreviewUi(
     private val actionFactory: ActionFactory,
 ) : ContentPreviewUi() {
 

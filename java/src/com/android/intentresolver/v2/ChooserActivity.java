@@ -493,7 +493,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         ChooserContentPreviewUi.ActionFactory actionFactory = chooserActionFactory;
         if (previewViewModel.getPreviewDataProvider().getPreviewType()
                 == CONTENT_PREVIEW_PAYLOAD_SELECTION
-                && android.service.chooser.Flags.chooserPayloadToggling()) {
+                && mChooserServiceFeatureFlags.chooserPayloadToggling()) {
             PayloadToggleInteractor payloadToggleInteractor =
                     previewViewModel.getPayloadToggleInteractor();
             if (payloadToggleInteractor != null) {
@@ -515,8 +515,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 mEnterTransitionAnimationDelegate,
                 new HeadlineGeneratorImpl(this),
                 chooserRequest.getContentTypeHint(),
-                chooserRequest.getMetadataText()
-        );
+                chooserRequest.getMetadataText(),
+                mChooserServiceFeatureFlags.chooserPayloadToggling());
         updateStickyContentPreview();
         if (shouldShowStickyContentPreview()
                 || mChooserMultiProfilePagerAdapter
