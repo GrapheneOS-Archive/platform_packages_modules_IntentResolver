@@ -21,13 +21,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.IdRes
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.android.intentresolver.R
 import com.android.intentresolver.mock
 import com.android.intentresolver.whenever
 import com.android.intentresolver.widget.ImagePreviewView.TransitionElementStatusCallback
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -60,6 +61,7 @@ class UnifiedContentPreviewUiTest {
             whenever(getVideosHeadline(anyInt())).thenReturn(VIDEO_HEADLINE)
             whenever(getFilesHeadline(anyInt())).thenReturn(FILES_HEADLINE)
         }
+    private val testMetadataText: CharSequence = "Test metadata text"
 
     private val context
         get() = getInstrumentation().context
@@ -69,6 +71,7 @@ class UnifiedContentPreviewUiTest {
         testLoadingHeadline("image/*", files = null) { previewView ->
             verify(headlineGenerator, times(1)).getImagesHeadline(2)
             verifyPreviewHeadline(previewView, IMAGE_HEADLINE)
+            verifyPreviewMetadata(previewView, testMetadataText)
         }
     }
 
@@ -77,6 +80,7 @@ class UnifiedContentPreviewUiTest {
         testLoadingExternalHeadline("image/*", files = null) { externalHeaderView ->
             verify(headlineGenerator, times(1)).getImagesHeadline(2)
             verifyPreviewHeadline(externalHeaderView, IMAGE_HEADLINE)
+            verifyPreviewMetadata(externalHeaderView, testMetadataText)
         }
     }
 
@@ -85,6 +89,7 @@ class UnifiedContentPreviewUiTest {
         testLoadingHeadline("video/*", files = null) { previewView ->
             verify(headlineGenerator, times(1)).getVideosHeadline(2)
             verifyPreviewHeadline(previewView, VIDEO_HEADLINE)
+            verifyPreviewMetadata(previewView, testMetadataText)
         }
     }
 
@@ -93,6 +98,7 @@ class UnifiedContentPreviewUiTest {
         testLoadingExternalHeadline("video/*", files = null) { externalHeaderView ->
             verify(headlineGenerator, times(1)).getVideosHeadline(2)
             verifyPreviewHeadline(externalHeaderView, VIDEO_HEADLINE)
+            verifyPreviewMetadata(externalHeaderView, testMetadataText)
         }
     }
 
@@ -101,6 +107,7 @@ class UnifiedContentPreviewUiTest {
         testLoadingHeadline("application/pdf", files = null) { previewView ->
             verify(headlineGenerator, times(1)).getFilesHeadline(2)
             verifyPreviewHeadline(previewView, FILES_HEADLINE)
+            verifyPreviewMetadata(previewView, testMetadataText)
         }
     }
 
@@ -109,6 +116,7 @@ class UnifiedContentPreviewUiTest {
         testLoadingExternalHeadline("application/pdf", files = null) { externalHeaderView ->
             verify(headlineGenerator, times(1)).getFilesHeadline(2)
             verifyPreviewHeadline(externalHeaderView, FILES_HEADLINE)
+            verifyPreviewMetadata(externalHeaderView, testMetadataText)
         }
     }
 
@@ -117,6 +125,7 @@ class UnifiedContentPreviewUiTest {
         testLoadingHeadline("*/*", files = null) { previewView ->
             verify(headlineGenerator, times(1)).getFilesHeadline(2)
             verifyPreviewHeadline(previewView, FILES_HEADLINE)
+            verifyPreviewMetadata(previewView, testMetadataText)
         }
     }
 
@@ -125,6 +134,7 @@ class UnifiedContentPreviewUiTest {
         testLoadingExternalHeadline("*/*", files = null) { externalHeader ->
             verify(headlineGenerator, times(1)).getFilesHeadline(2)
             verifyPreviewHeadline(externalHeader, FILES_HEADLINE)
+            verifyPreviewMetadata(externalHeader, testMetadataText)
         }
     }
 
@@ -262,7 +272,8 @@ class UnifiedContentPreviewUiTest {
                     },
                     files?.let { it.asFlow() } ?: emptySourceFlow.takeWhile { it !== endMarker },
                     /*itemCount=*/ 2,
-                    headlineGenerator
+                    headlineGenerator,
+                    testMetadataText,
                 )
             val layoutInflater = LayoutInflater.from(context)
             val gridLayout = layoutInflater.inflate(R.layout.chooser_grid, null, false) as ViewGroup
@@ -302,7 +313,8 @@ class UnifiedContentPreviewUiTest {
                     },
                     files?.let { it.asFlow() } ?: emptySourceFlow.takeWhile { it !== endMarker },
                     /*itemCount=*/ 2,
-                    headlineGenerator
+                    headlineGenerator,
+                    testMetadataText,
                 )
             val layoutInflater = LayoutInflater.from(context)
             val gridLayout =
@@ -326,15 +338,28 @@ class UnifiedContentPreviewUiTest {
             emptySourceFlow.tryEmit(endMarker)
 
             verifyInternalHeadlineAbsence(previewView)
+            verifyInternalMetadataAbsence(previewView)
             verificationBlock(externalHeaderView)
         }
     }
 
+    private fun verifyTextViewText(
+        viewParent: View?,
+        @IdRes textViewResId: Int,
+        expectedText: CharSequence,
+    ) {
+        assertThat(viewParent).isNotNull()
+        val textView = viewParent?.findViewById<TextView>(textViewResId)
+        assertThat(textView).isNotNull()
+        assertThat(textView?.text).isEqualTo(expectedText)
+    }
+
     private fun verifyPreviewHeadline(headerViewParent: View?, expectedText: String) {
-        Truth.assertThat(headerViewParent).isNotNull()
-        val headlineView = headerViewParent?.findViewById<TextView>(R.id.headline)
-        Truth.assertThat(headlineView).isNotNull()
-        Truth.assertThat(headlineView?.text).isEqualTo(expectedText)
+        verifyTextViewText(headerViewParent, R.id.headline, expectedText)
+    }
+
+    private fun verifyPreviewMetadata(headerViewParent: View?, expectedText: CharSequence) {
+        verifyTextViewText(headerViewParent, R.id.metadata, expectedText)
     }
 
     private fun verifyInternalHeadlineAbsence(previewView: ViewGroup?) {
@@ -343,6 +368,14 @@ class UnifiedContentPreviewUiTest {
                 "Preview headline should not be inflated when an external headline is used"
             )
             .that(previewView?.findViewById<View>(R.id.headline))
+            .isNull()
+    }
+    private fun verifyInternalMetadataAbsence(previewView: ViewGroup?) {
+        assertWithMessage("Preview parent should not be null").that(previewView).isNotNull()
+        assertWithMessage(
+                "Preview metadata should not be inflated when an external metadata is used"
+            )
+            .that(previewView?.findViewById<View>(R.id.metadata))
             .isNull()
     }
 }

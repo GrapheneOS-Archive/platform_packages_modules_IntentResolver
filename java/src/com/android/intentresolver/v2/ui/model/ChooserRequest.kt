@@ -172,7 +172,14 @@ data class ChooserRequest(
     val focusedItemPosition: Int = 0,
 
     /** Value for [Intent.EXTRA_CHOOSER_CONTENT_TYPE_HINT] on the incoming chooser intent. */
-    val contentTypeHint: ContentTypeHint = ContentTypeHint.NONE
+    val contentTypeHint: ContentTypeHint = ContentTypeHint.NONE,
+
+    /**
+     * Metadata to be shown to the user as a part of the sharesheet window.
+     *
+     * Specified by the [Intent.EXTRA_METADATA_TEXT]
+     */
+    val metadataText: CharSequence? = null,
 ) {
     val referrerPackage = referrer?.takeIf { it.scheme == ANDROID_APP_SCHEME }?.authority
 
