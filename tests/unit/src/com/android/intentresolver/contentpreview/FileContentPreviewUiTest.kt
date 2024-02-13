@@ -35,6 +35,7 @@ import org.junit.runner.RunWith
 class FileContentPreviewUiTest {
     private val fileCount = 2
     private val text = "Sharing 2 files"
+    private val testMetadataText: CharSequence = "Test metadata text"
     private val actionFactory =
         object : ChooserContentPreviewUi.ActionFactory {
             override fun getEditButtonRunnable(): Runnable? = null
@@ -54,10 +55,11 @@ class FileContentPreviewUiTest {
             fileCount,
             actionFactory,
             headlineGenerator,
+            testMetadataText,
         )
 
     @Test
-    fun test_display_titleIsDisplayed() {
+    fun test_display_titleAndMetadataIsDisplayed() {
         val layoutInflater = LayoutInflater.from(context)
         val gridLayout = layoutInflater.inflate(R.layout.chooser_grid, null, false) as ViewGroup
 
@@ -73,6 +75,8 @@ class FileContentPreviewUiTest {
         val headlineView = previewView?.findViewById<TextView>(R.id.headline)
         assertThat(headlineView).isNotNull()
         assertThat(headlineView?.text).isEqualTo(text)
+        val metadataView = previewView?.findViewById<TextView>(R.id.metadata)
+        assertThat(metadataView?.text).isEqualTo(testMetadataText)
     }
 
     @Test
@@ -85,15 +89,19 @@ class FileContentPreviewUiTest {
             gridLayout.requireViewById<View>(R.id.chooser_headline_row_container)
 
         assertThat(externalHeaderView.findViewById<View>(R.id.headline)).isNull()
+        assertThat(externalHeaderView.findViewById<View>(R.id.metadata)).isNull()
 
         val previewView =
             testSubject.display(context.resources, layoutInflater, gridLayout, externalHeaderView)
 
         assertThat(previewView).isNotNull()
         assertThat(previewView.findViewById<View>(R.id.headline)).isNull()
+        assertThat(previewView.findViewById<View>(R.id.metadata)).isNull()
 
         val headlineView = externalHeaderView.findViewById<TextView>(R.id.headline)
         assertThat(headlineView).isNotNull()
         assertThat(headlineView?.text).isEqualTo(text)
+        val metadataView = externalHeaderView.findViewById<TextView>(R.id.metadata)
+        assertThat(metadataView?.text).isEqualTo(testMetadataText)
     }
 }

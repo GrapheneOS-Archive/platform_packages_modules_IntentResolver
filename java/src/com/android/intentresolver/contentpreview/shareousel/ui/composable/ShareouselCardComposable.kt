@@ -21,11 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -42,7 +38,6 @@ import com.android.intentresolver.R
 fun ShareouselCard(
     image: @Composable () -> Unit,
     selected: Boolean,
-    onActionClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier) {
@@ -51,32 +46,7 @@ fun ShareouselCard(
         Box(modifier = Modifier.padding(topButtonPadding).matchParentSize()) {
             SelectionIcon(selected, modifier = Modifier.align(Alignment.TopStart))
             AnimationIcon(modifier = Modifier.align(Alignment.TopEnd))
-            ActionButton(
-                onActionClick,
-                modifier =
-                    Modifier.background(
-                            MaterialTheme.colorScheme.secondary,
-                            shape = RoundedCornerShape(12.dp),
-                        )
-                        .size(32.dp)
-                        .align(Alignment.BottomEnd)
-            )
         }
-    }
-}
-
-@Composable
-private fun ActionButton(
-    onActionClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    IconButton(onClick = { onActionClick() }, modifier = modifier) {
-        Icon(
-            Icons.Outlined.Edit,
-            contentDescription = "edit",
-            tint = Color(0xFF1B1C14),
-            modifier = Modifier.padding(8.dp)
-        )
     }
 }
 

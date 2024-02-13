@@ -43,6 +43,8 @@ class TextContentPreviewUi extends ContentPreviewUi {
     @Nullable
     private final CharSequence mPreviewTitle;
     @Nullable
+    private final CharSequence mMetadata;
+    @Nullable
     private final Uri mPreviewThumbnail;
     private final ImageLoader mImageLoader;
     private final ChooserContentPreviewUi.ActionFactory mActionFactory;
@@ -53,6 +55,7 @@ class TextContentPreviewUi extends ContentPreviewUi {
             CoroutineScope scope,
             @Nullable CharSequence sharingText,
             @Nullable CharSequence previewTitle,
+            @Nullable CharSequence metadata,
             @Nullable Uri previewThumbnail,
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
@@ -61,6 +64,7 @@ class TextContentPreviewUi extends ContentPreviewUi {
         mScope = scope;
         mSharingText = sharingText;
         mPreviewTitle = previewTitle;
+        mMetadata = metadata;
         mPreviewThumbnail = previewThumbnail;
         mImageLoader = imageLoader;
         mActionFactory = actionFactory;
@@ -147,6 +151,7 @@ class TextContentPreviewUi extends ContentPreviewUi {
                 ? mHeadlineGenerator.getAlbumHeadline()
                 : mHeadlineGenerator.getTextHeadline(mSharingText);
         displayHeadline(headlineViewParent, headlineText);
+        displayMetadata(headlineViewParent, mMetadata);
 
         return contentPreviewLayout;
     }

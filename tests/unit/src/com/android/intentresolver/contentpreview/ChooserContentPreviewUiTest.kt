@@ -41,6 +41,7 @@ class ChooserContentPreviewUiTest {
     private val previewData = mock<PreviewDataProvider>()
     private val headlineGenerator = mock<HeadlineGenerator>()
     private val imageLoader = TestPreviewImageLoader(emptyMap())
+    private val testMetadataText: CharSequence = "Test metadata text"
     private val actionFactory =
         object : ActionFactory {
             override fun getCopyButtonRunnable(): Runnable? = null
@@ -64,6 +65,7 @@ class ChooserContentPreviewUiTest {
                 transitionCallback,
                 headlineGenerator,
                 ContentTypeHint.NONE,
+                testMetadataText,
             )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_TEXT)
@@ -84,6 +86,7 @@ class ChooserContentPreviewUiTest {
                 transitionCallback,
                 headlineGenerator,
                 ContentTypeHint.NONE,
+                testMetadataText,
             )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_FILE)
@@ -109,6 +112,7 @@ class ChooserContentPreviewUiTest {
                 transitionCallback,
                 headlineGenerator,
                 ContentTypeHint.NONE,
+                testMetadataText,
             )
         assertThat(testSubject.mContentPreviewUi)
             .isInstanceOf(FilesPlusTextContentPreviewUi::class.java)
@@ -134,6 +138,7 @@ class ChooserContentPreviewUiTest {
                 transitionCallback,
                 headlineGenerator,
                 ContentTypeHint.NONE,
+                testMetadataText,
             )
         assertThat(testSubject.preferredContentPreview)
             .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)

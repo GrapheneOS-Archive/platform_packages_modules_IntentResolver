@@ -21,6 +21,7 @@ package {
 aconfig_declarations {
     name: "IntentResolverFlags",
     package: "com.android.intentresolver",
+    container: "system",
     srcs: ["FeatureFlags.aconfig"],
 }
 

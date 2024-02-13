@@ -101,6 +101,9 @@ public class ChooserRequestParameters {
     @Nullable
     private final IntentFilter mTargetIntentFilter;
 
+    @Nullable
+    private final CharSequence mMetadataText;
+
     public ChooserRequestParameters(
             final Intent clientIntent,
             String referrerPackageName,
@@ -147,6 +150,12 @@ public class ChooserRequestParameters {
 
         mChooserActions = getChooserActions(clientIntent);
         mModifyShareAction = getModifyShareAction(clientIntent);
+
+        if (android.service.chooser.Flags.enableSharesheetMetadataExtra()) {
+            mMetadataText = clientIntent.getCharSequenceExtra(Intent.EXTRA_METADATA_TEXT);
+        } else {
+            mMetadataText = null;
+        }
     }
 
     public Intent getTargetIntent() {
@@ -250,6 +259,11 @@ public class ChooserRequestParameters {
     @Nullable
     public IntentFilter getTargetIntentFilter() {
         return mTargetIntentFilter;
+    }
+
+    @Nullable
+    public CharSequence getMetadataText() {
+        return mMetadataText;
     }
 
     private static boolean isSendAction(@Nullable String action) {

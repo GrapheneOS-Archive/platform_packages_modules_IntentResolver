@@ -28,6 +28,7 @@ import android.content.Intent.EXTRA_CHOSEN_COMPONENT_INTENT_SENDER
 import android.content.Intent.EXTRA_EXCLUDE_COMPONENTS
 import android.content.Intent.EXTRA_INITIAL_INTENTS
 import android.content.Intent.EXTRA_INTENT
+import android.content.Intent.EXTRA_METADATA_TEXT
 import android.content.Intent.EXTRA_REFERRER
 import android.content.Intent.EXTRA_REPLACEMENT_EXTRAS
 import android.content.Intent.EXTRA_TEXT
@@ -157,6 +158,13 @@ fun readChooserRequest(
                 ContentTypeHint.NONE
             }
 
+        val metadataText =
+            if (flags.enableSharesheetMetadataExtra()) {
+                optional(value<CharSequence>(EXTRA_METADATA_TEXT))
+            } else {
+                null
+            }
+
         ChooserRequest(
             targetIntent = targetIntent,
             targetAction = targetIntent.action,
@@ -184,6 +192,7 @@ fun readChooserRequest(
             additionalContentUri = additionalContentUri,
             focusedItemPosition = focusedItemPos,
             contentTypeHint = contentTypeHint,
+            metadataText = metadataText,
         )
     }
 }

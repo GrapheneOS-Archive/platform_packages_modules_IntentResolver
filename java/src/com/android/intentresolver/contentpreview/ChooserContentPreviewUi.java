@@ -100,7 +100,8 @@ public final class ChooserContentPreviewUi {
             ActionFactory actionFactory,
             TransitionElementStatusCallback transitionElementStatusCallback,
             HeadlineGenerator headlineGenerator,
-            ContentTypeHint contentTypeHint) {
+            ContentTypeHint contentTypeHint,
+            @Nullable CharSequence metadata) {
         mScope = scope;
         mContentPreviewUi = createContentPreview(
                 previewData,
@@ -110,7 +111,9 @@ public final class ChooserContentPreviewUi {
                 actionFactory,
                 transitionElementStatusCallback,
                 headlineGenerator,
-                contentTypeHint);
+                contentTypeHint,
+                metadata
+        );
         if (mContentPreviewUi.getType() != CONTENT_PREVIEW_IMAGE) {
             transitionElementStatusCallback.onAllTransitionElementsReady();
         }
@@ -124,8 +127,9 @@ public final class ChooserContentPreviewUi {
             ActionFactory actionFactory,
             TransitionElementStatusCallback transitionElementStatusCallback,
             HeadlineGenerator headlineGenerator,
-            ContentTypeHint contentTypeHint) {
-
+            ContentTypeHint contentTypeHint,
+            @Nullable CharSequence metadata
+    ) {
         int previewType = previewData.getPreviewType();
         if (previewType == CONTENT_PREVIEW_TEXT) {
             return createTextPreview(
@@ -134,13 +138,17 @@ public final class ChooserContentPreviewUi {
                     actionFactory,
                     imageLoader,
                     headlineGenerator,
-                    contentTypeHint);
+                    contentTypeHint,
+                    metadata
+            );
         }
         if (previewType == CONTENT_PREVIEW_FILE) {
             FileContentPreviewUi fileContentPreviewUi = new FileContentPreviewUi(
                     previewData.getUriCount(),
                     actionFactory,
-                    headlineGenerator);
+                    headlineGenerator,
+                    metadata
+            );
             if (previewData.getUriCount() > 0) {
                 previewData.getFirstFileName(mScope, fileContentPreviewUi::setFirstFileName);
             }
@@ -160,7 +168,9 @@ public final class ChooserContentPreviewUi {
                             actionFactory,
                             imageLoader,
                             typeClassifier,
-                            headlineGenerator);
+                            headlineGenerator,
+                            metadata
+                    );
             if (previewData.getUriCount() > 0) {
                 JavaFlowHelper.collectToList(
                         mScope,
@@ -180,7 +190,9 @@ public final class ChooserContentPreviewUi {
                 transitionElementStatusCallback,
                 previewData.getImagePreviewFileInfoFlow(),
                 previewData.getUriCount(),
-                headlineGenerator);
+                headlineGenerator,
+                metadata
+        );
     }
 
     public int getPreferredContentPreview() {
@@ -206,7 +218,9 @@ public final class ChooserContentPreviewUi {
             ChooserContentPreviewUi.ActionFactory actionFactory,
             ImageLoader imageLoader,
             HeadlineGenerator headlineGenerator,
-            ContentTypeHint contentTypeHint) {
+            ContentTypeHint contentTypeHint,
+            @Nullable CharSequence metadata
+    ) {
         CharSequence sharingText = targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         CharSequence previewTitle = targetIntent.getCharSequenceExtra(Intent.EXTRA_TITLE);
         ClipData previewData = targetIntent.getClipData();
@@ -222,6 +236,7 @@ public final class ChooserContentPreviewUi {
                 scope,
                 sharingText,
                 previewTitle,
+                metadata,
                 previewThumbnail,
                 actionFactory,
                 imageLoader,
