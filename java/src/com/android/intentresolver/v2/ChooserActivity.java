@@ -485,7 +485,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                         .get(BasePreviewViewModel.class);
         previewViewModel.init(
                 chooserRequest.getTargetIntent(),
-                getIntent(),
+                mActivityLaunch.getIntent(),
                 chooserRequest.getAdditionalContentUri(),
                 chooserRequest.getFocusedItemPosition(),
                 mChooserServiceFeatureFlags.chooserPayloadToggling());
@@ -805,10 +805,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             }
         }
         mChooserMultiProfilePagerAdapter.getActiveListAdapter().handlePackagesChanged();
-    }
-
-    public boolean super_shouldAutoLaunchSingleChoice(TargetInfo target) {
-        return !target.isSuspended();
     }
 
     /** Start the activity specified by the {@link TargetInfo}.*/
@@ -1652,14 +1648,12 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     }
 
     public boolean shouldAutoLaunchSingleChoice(TargetInfo target) {
-        // Note that this is only safe because the Intent handled by the ChooserActivity is
-        // guaranteed to contain no extras unknown to the local ClassLoader. That is why this
-        // method can not be replaced in the ResolverActivity whole hog.
-        if (!super_shouldAutoLaunchSingleChoice(target)) {
+        if (target.isSuspended()) {
             return false;
         }
 
-        return getIntent().getBooleanExtra(Intent.EXTRA_AUTO_LAUNCH_SINGLE_CHOICE, true);
+        return mActivityLaunch.getIntent().getBooleanExtra(Intent.EXTRA_AUTO_LAUNCH_SINGLE_CHOICE,
+                true);
     }
 
     private void showTargetDetails(TargetInfo targetInfo) {
