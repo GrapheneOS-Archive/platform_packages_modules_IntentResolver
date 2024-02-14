@@ -16,18 +16,27 @@
 package com.android.intentresolver.contentpreview.shareousel.ui.viewmodel
 
 import android.graphics.Bitmap
+import androidx.core.graphics.drawable.toBitmap
+import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
 import com.android.intentresolver.contentpreview.ImageLoader
+import com.android.intentresolver.contentpreview.MutableActionFactory
 import com.android.intentresolver.contentpreview.PayloadToggleInteractor
+import com.android.intentresolver.icon.BitmapIcon
 import com.android.intentresolver.icon.ComposeIcon
+import com.android.intentresolver.widget.ActionRow.Action
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 data class ShareouselViewModel(
     val headline: Flow<String>,
-    val previewKeys: Flow<List<Any>>,
+    val previewKeys: StateFlow<List<Any>>,
     val actions: Flow<List<ActionChipViewModel>>,
-    val centerIndex: Flow<Int>,
+    val centerIndex: StateFlow<Int>,
     val previewForKey: (key: Any) -> ShareouselImageViewModel,
     val previewRowKey: (Any) -> Any
 )
@@ -41,12 +50,25 @@ data class ShareouselImageViewModel(
     val setSelected: (Boolean) -> Unit,
 )
 
-fun PayloadToggleInteractor.toShareouselViewModel(imageLoader: ImageLoader): ShareouselViewModel {
+suspend fun PayloadToggleInteractor.toShareouselViewModel(
+    imageLoader: ImageLoader,
+    actionFactory: ActionFactory,
+    scope: CoroutineScope,
+): ShareouselViewModel {
     return ShareouselViewModel(
         headline = MutableStateFlow("Shareousel"),
-        previewKeys = previewKeys,
-        actions = MutableStateFlow(emptyList()),
-        centerIndex = targetPosition,
+        previewKeys = previewKeys.stateIn(scope),
+        actions =
+            if (actionFactory is MutableActionFactory) {
+                actionFactory.customActionsFlow.map { actions ->
+                    actions.map { it.toActionChipViewModel() }
+                }
+            } else {
+                flow {
+                    emit(actionFactory.createCustomActions().map { it.toActionChipViewModel() })
+                }
+            },
+        centerIndex = targetPosition.stateIn(scope),
         previewForKey = { key ->
             val previewInteractor = previewInteractor(key)
             ShareouselImageViewModel(
@@ -59,3 +81,10 @@ fun PayloadToggleInteractor.toShareouselViewModel(imageLoader: ImageLoader): Sha
         previewRowKey = { getKey(it) },
     )
 }
+
+private fun Action.toActionChipViewModel() =
+    ActionChipViewModel(
+        label?.toString() ?: "",
+        icon?.let { BitmapIcon(it.toBitmap()) },
+        onClick = { onClicked.run() }
+    )

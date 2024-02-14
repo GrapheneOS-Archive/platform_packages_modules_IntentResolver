@@ -18,6 +18,9 @@ package com.android.intentresolver.contentpreview
 
 import android.content.Intent
 import android.net.Uri
+import android.platform.test.annotations.RequiresFlagsDisabled
+import android.platform.test.flag.junit.CheckFlagsRule
+import android.platform.test.flag.junit.DeviceFlagsValueProvider
 import com.android.intentresolver.ContentTypeHint
 import com.android.intentresolver.TestPreviewImageLoader
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi.ActionFactory
@@ -31,6 +34,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.never
 import org.mockito.Mockito.times
@@ -51,6 +55,7 @@ class ChooserContentPreviewUiTest {
             override fun getExcludeSharedTextAction(): Consumer<Boolean> = Consumer<Boolean> {}
         }
     private val transitionCallback = mock<ImagePreviewView.TransitionElementStatusCallback>()
+    @get:Rule val checkFlagsRule: CheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule()
 
     @Test
     fun test_textPreviewType_useTextPreviewUi() {
@@ -124,6 +129,36 @@ class ChooserContentPreviewUiTest {
     fun test_imagePreviewTypeWithoutText_useImagePreviewUi() {
         val uri = Uri.parse("content://org.pkg.app/img.png")
         whenever(previewData.previewType).thenReturn(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
+        whenever(previewData.uriCount).thenReturn(2)
+        whenever(previewData.firstFileInfo)
+            .thenReturn(FileInfo.Builder(uri).withPreviewUri(uri).withMimeType("image/png").build())
+        whenever(previewData.imagePreviewFileInfoFlow).thenReturn(MutableSharedFlow())
+        val testSubject =
+            ChooserContentPreviewUi(
+                testScope,
+                previewData,
+                Intent(Intent.ACTION_SEND),
+                imageLoader,
+                actionFactory,
+                transitionCallback,
+                headlineGenerator,
+                ContentTypeHint.NONE,
+                testMetadataText,
+            )
+        assertThat(testSubject.preferredContentPreview)
+            .isEqualTo(ContentPreviewType.CONTENT_PREVIEW_IMAGE)
+        assertThat(testSubject.mContentPreviewUi).isInstanceOf(UnifiedContentPreviewUi::class.java)
+        verify(previewData, times(1)).imagePreviewFileInfoFlow
+        verify(transitionCallback, never()).onAllTransitionElementsReady()
+    }
+
+    @Test
+    @RequiresFlagsDisabled(android.service.chooser.Flags.FLAG_CHOOSER_PAYLOAD_TOGGLING)
+    fun test_imagePayloadSelectionType_useImagePreviewUi() {
+        // Event if we returned wrong type due to a bug, we should not use payload selection UI
+        val uri = Uri.parse("content://org.pkg.app/img.png")
+        whenever(previewData.previewType)
+            .thenReturn(ContentPreviewType.CONTENT_PREVIEW_PAYLOAD_SELECTION)
         whenever(previewData.uriCount).thenReturn(2)
         whenever(previewData.firstFileInfo)
             .thenReturn(FileInfo.Builder(uri).withPreviewUri(uri).withMimeType("image/png").build())
