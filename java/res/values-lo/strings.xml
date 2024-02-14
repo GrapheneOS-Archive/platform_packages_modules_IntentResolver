@@ -66,6 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{ກຳລັງແບ່ງປັນວິດີໂອພ້ອມລິ້ງ}other{ກຳລັງແບ່ງປັນ # ວິດີໂອພ້ອມລິ້ງ}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{ກຳລັງແບ່ງປັນໄຟລ໌ພ້ອມຂໍ້ຄວາມ}other{ກຳລັງແບ່ງປັນ # ໄຟລ໌ພ້ອມຂໍ້ຄວາມ}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{ກຳລັງແບ່ງປັນໄຟລ໌ພ້ອມລິ້ງ}other{ກຳລັງແບ່ງປັນ # ໄຟລ໌ພ້ອມລິ້ງ}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"ກຳລັງແບ່ງປັນອະລະບ້ຳ"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{ຮູບເທົ່ານັ້ນ}other{ຮູບເທົ່ານັ້ນ}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{ວິດີໂອເທົ່ານັ້ນ}other{ວິດີໂອເທົ່ານັ້ນ}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ໄຟລ໌ເທົ່ານັ້ນ}other{ໄຟລ໌ເທົ່ານັ້ນ}}"</string>

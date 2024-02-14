@@ -66,6 +66,8 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{שיתוף סרטון עם קישור}one{שיתוף # סרטונים עם קישור}two{שיתוף # סרטונים עם קישור}other{שיתוף # סרטונים עם קישור}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{שיתוף קובץ עם טקסט}one{שיתוף # קבצים עם טקסט}two{שיתוף # קבצים עם טקסט}other{שיתוף # קבצים עם טקסט}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{שיתוף תמונה עם קישור}one{שיתוף # תמונות עם קישור}two{שיתוף # תמונות עם קישור}other{שיתוף # תמונות עם קישור}}"</string>
+    <!-- no translation found for sharing_album (191743129899503345) -->
+    <skip />
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{תמונה בלבד}one{תמונות בלבד}two{תמונות בלבד}other{תמונות בלבד}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{סרטון בלבד}one{סרטונים בלבד}two{סרטונים בלבד}other{סרטונים בלבד}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{קובץ בלבד}one{קבצים בלבד}two{קבצים בלבד}other{קבצים בלבד}}"</string>
