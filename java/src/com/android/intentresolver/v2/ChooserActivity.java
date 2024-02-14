@@ -29,6 +29,7 @@ import static android.view.WindowManager.LayoutParams.SYSTEM_FLAG_HIDE_NON_SYSTE
 
 import static androidx.lifecycle.LifecycleKt.getCoroutineScope;
 
+import static com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_PAYLOAD_SELECTION;
 import static com.android.intentresolver.v2.ext.CreationExtrasExtKt.addDefaultArgs;
 import static com.android.internal.annotations.VisibleForTesting.Visibility.PROTECTED;
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
@@ -37,7 +38,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNullElse;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.ActivityThread;
@@ -123,6 +123,7 @@ import com.android.intentresolver.chooser.TargetInfo;
 import com.android.intentresolver.contentpreview.BasePreviewViewModel;
 import com.android.intentresolver.contentpreview.ChooserContentPreviewUi;
 import com.android.intentresolver.contentpreview.HeadlineGeneratorImpl;
+import com.android.intentresolver.contentpreview.PayloadToggleInteractor;
 import com.android.intentresolver.contentpreview.PreviewViewModel;
 import com.android.intentresolver.emptystate.CompositeEmptyStateProvider;
 import com.android.intentresolver.emptystate.CrossProfileIntentsChecker;
@@ -148,6 +149,8 @@ import com.android.intentresolver.v2.platform.AppPredictionAvailable;
 import com.android.intentresolver.v2.platform.ImageEditor;
 import com.android.intentresolver.v2.platform.NearbyShare;
 import com.android.intentresolver.v2.ui.ActionTitle;
+import com.android.intentresolver.v2.ui.ShareResultSender;
+import com.android.intentresolver.v2.ui.ShareResultSenderFactory;
 import com.android.intentresolver.v2.ui.model.ActivityLaunch;
 import com.android.intentresolver.v2.ui.model.ChooserRequest;
 import com.android.intentresolver.v2.ui.viewmodel.ChooserViewModel;
@@ -267,6 +270,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     @Inject public ActivityLaunch mActivityLaunch;
     @Inject public FeatureFlags mFeatureFlags;
+    @Inject public android.service.chooser.FeatureFlags mChooserServiceFeatureFlags;
     @Inject public EventLog mEventLog;
     @Inject @AppPredictionAvailable public boolean mAppPredictionAvailable;
     @Inject @ImageEditor public Optional<ComponentName> mImageEditor;
@@ -275,6 +279,9 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     @Inject public DevicePolicyResources mDevicePolicyResources;
     @Inject public PackageManager mPackageManager;
     @Inject public IntentForwarding mIntentForwarding;
+    @Inject public ShareResultSenderFactory mShareResultSenderFactory;
+    @Nullable
+    private ShareResultSender mShareResultSender;
 
     private ChooserRefinementManager mRefinementManager;
 
@@ -353,6 +360,12 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         if (!mViewModel.init()) {
             finish();
             return;
+        }
+        IntentSender chosenComponentSender =
+                mViewModel.getChooserRequest().getChosenComponentSender();
+        if (chosenComponentSender != null) {
+            mShareResultSender = mShareResultSenderFactory
+                    .create(mActivityLaunch.getFromUid(), chosenComponentSender);
         }
         mLogic = createActivityLogic();
         init();
@@ -470,12 +483,35 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         BasePreviewViewModel previewViewModel =
                 new ViewModelProvider(this, createPreviewViewModelFactory())
                         .get(BasePreviewViewModel.class);
+        previewViewModel.init(
+                chooserRequest.getTargetIntent(),
+                getIntent(),
+                chooserRequest.getAdditionalContentUri(),
+                chooserRequest.getFocusedItemPosition(),
+                mChooserServiceFeatureFlags.chooserPayloadToggling());
+        ChooserActionFactory chooserActionFactory = createChooserActionFactory();
+        ChooserContentPreviewUi.ActionFactory actionFactory = chooserActionFactory;
+        if (previewViewModel.getPreviewDataProvider().getPreviewType()
+                == CONTENT_PREVIEW_PAYLOAD_SELECTION
+                && android.service.chooser.Flags.chooserPayloadToggling()) {
+            PayloadToggleInteractor payloadToggleInteractor =
+                    previewViewModel.getPayloadToggleInteractor();
+            if (payloadToggleInteractor != null) {
+                ChooserMutableActionFactory mutableActionFactory =
+                        new ChooserMutableActionFactory(chooserActionFactory);
+                actionFactory = mutableActionFactory;
+                JavaFlowHelper.collect(
+                        getCoroutineScope(getLifecycle()),
+                        payloadToggleInteractor.getCustomActions(),
+                        mutableActionFactory::updateCustomActions);
+            }
+        }
         mChooserContentPreviewUi = new ChooserContentPreviewUi(
                 getCoroutineScope(getLifecycle()),
-                previewViewModel.createOrReuseProvider(chooserRequest.getTargetIntent()),
+                previewViewModel.getPreviewDataProvider(),
                 chooserRequest.getTargetIntent(),
                 previewViewModel.getImageLoader(),
-                createChooserActionFactory(),
+                actionFactory,
                 mEnterTransitionAnimationDelegate,
                 new HeadlineGeneratorImpl(this),
                 chooserRequest.getContentTypeHint(),
@@ -819,13 +855,13 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         }
         try {
             if (cti.startAsCaller(this, options, user.getIdentifier())) {
-                onActivityStarted(cti);
+                maybeSendShareResult(cti);
                 maybeLogCrossProfileTargetLaunch(cti, user);
             }
         } catch (RuntimeException e) {
             Slog.wtf(TAG,
                     "Unable to launch as uid " + mActivityLaunch.getFromUid()
-                            + " package " + getLaunchedFromPackage() + ", while running in "
+                            + " package " + mActivityLaunch.getFromPackage() + ", while running in "
                             + ActivityThread.currentProcessName(), e);
         }
     }
@@ -1586,19 +1622,11 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         return result;
     }
 
-    public void onActivityStarted(TargetInfo cti) {
-        ChooserRequest chooserRequest = mViewModel.getChooserRequest();
-        if (chooserRequest.getChosenComponentSender() != null) {
+    private void maybeSendShareResult(TargetInfo cti) {
+        if (mShareResultSender != null) {
             final ComponentName target = cti.getResolvedComponentName();
             if (target != null) {
-                final Intent fillIn = new Intent().putExtra(Intent.EXTRA_CHOSEN_COMPONENT, target);
-                try {
-                    chooserRequest.getChosenComponentSender().sendIntent(
-                            this, Activity.RESULT_OK, fillIn, null, null);
-                } catch (IntentSender.SendIntentException e) {
-                    Slog.e(TAG, "Unable to launch supplied IntentSender to report "
-                            + "the chosen component: " + e);
-                }
+                mShareResultSender.onComponentSelected(target, cti.isChooserTargetInfo());
             }
         }
     }
@@ -2121,6 +2149,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                         mFinishWhenStopped = true;
                     }
                 },
+                mShareResultSender,
                 (status) -> {
                     if (status != null) {
                         setResult(status);

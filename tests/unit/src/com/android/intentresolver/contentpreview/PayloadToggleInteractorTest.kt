@@ -20,7 +20,7 @@ import android.content.Intent
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestScope
@@ -56,13 +56,22 @@ class PayloadToggleInteractorTest {
             scheduler.runCurrent()
 
             testSubject.stateFlow.first().let { initialState ->
-                assertThat(initialState.items).hasSize(4)
-                assertThat(initialState.items.map { it.uri })
+                assertWithMessage("Two pages (2 items each) are expected to be initially read")
+                    .that(initialState.items)
+                    .hasSize(4)
+                assertWithMessage("Unexpected cursor values")
+                    .that(initialState.items.map { it.uri })
                     .containsExactly(*Array<Uri>(4, ::makeUri))
                     .inOrder()
-                assertThat(initialState.hasMoreItemsBefore).isFalse()
-                assertThat(initialState.hasMoreItemsAfter).isTrue()
-                assertThat(initialState.allowSelectionChange).isTrue()
+                assertWithMessage("No more items are expected to the left")
+                    .that(initialState.hasMoreItemsBefore)
+                    .isFalse()
+                assertWithMessage("No more items are expected to the right")
+                    .that(initialState.hasMoreItemsAfter)
+                    .isTrue()
+                assertWithMessage("Selections should no be disabled")
+                    .that(initialState.allowSelectionChange)
+                    .isTrue()
             }
 
             testSubject.loadMoreNextItems()
@@ -71,13 +80,21 @@ class PayloadToggleInteractorTest {
             scheduler.runCurrent()
 
             testSubject.stateFlow.first().let { state ->
-                assertThat(state.items.map { it.uri })
+                assertWithMessage("Unexpected cursor values")
+                    .that(state.items.map { it.uri })
                     .containsExactly(*Array(6, ::makeUri))
                     .inOrder()
-                assertThat(state.hasMoreItemsBefore).isFalse()
-                assertThat(state.hasMoreItemsAfter).isTrue()
-                assertThat(state.allowSelectionChange).isTrue()
-                assertThat(state.items.map { testSubject.selected(it).first() })
+                assertWithMessage("No more items are expected to the left")
+                    .that(state.hasMoreItemsBefore)
+                    .isFalse()
+                assertWithMessage("No more items are expected to the right")
+                    .that(state.hasMoreItemsAfter)
+                    .isTrue()
+                assertWithMessage("Selections should no be disabled")
+                    .that(state.allowSelectionChange)
+                    .isTrue()
+                assertWithMessage("Wrong selected items")
+                    .that(state.items.map { testSubject.selected(it).first() })
                     .containsExactly(true, false, true, false, false, true)
                     .inOrder()
             }

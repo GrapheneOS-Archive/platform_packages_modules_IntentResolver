@@ -17,27 +17,41 @@
 package com.android.intentresolver
 
 import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.android.intentresolver.contentpreview.BasePreviewViewModel
 import com.android.intentresolver.contentpreview.ImageLoader
 import com.android.intentresolver.contentpreview.PayloadToggleInteractor
-import com.android.intentresolver.contentpreview.PreviewDataProvider
 
 /** A test content preview model that supports image loader override. */
 class TestContentPreviewViewModel(
     private val viewModel: BasePreviewViewModel,
-    private val imageLoaderDelegate: ImageLoader?,
+    override val imageLoader: ImageLoader,
 ) : BasePreviewViewModel() {
-    override fun createOrReuseProvider(targetIntent: Intent): PreviewDataProvider =
-        viewModel.createOrReuseProvider(targetIntent)
 
-    override val imageLoader: ImageLoader
-        get() = imageLoaderDelegate ?: viewModel.imageLoader
+    override val previewDataProvider
+        get() = viewModel.previewDataProvider
 
     override val payloadToggleInteractor: PayloadToggleInteractor?
         get() = viewModel.payloadToggleInteractor
+
+    override fun init(
+        targetIntent: Intent,
+        chooserIntent: Intent,
+        additionalContentUri: Uri?,
+        focusedItemIdx: Int,
+        isPayloadTogglingEnabled: Boolean,
+    ) {
+        viewModel.init(
+            targetIntent,
+            chooserIntent,
+            additionalContentUri,
+            focusedItemIdx,
+            isPayloadTogglingEnabled
+        )
+    }
 
     companion object {
         fun wrap(

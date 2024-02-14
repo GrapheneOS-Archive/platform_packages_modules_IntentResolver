@@ -18,12 +18,14 @@ package com.android.intentresolver.contentpreview;
 
 import static com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_FILE;
 import static com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_IMAGE;
+import static com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_PAYLOAD_SELECTION;
 import static com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_TEXT;
 
 import android.content.ClipData;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.service.chooser.Flags;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -154,6 +156,13 @@ public final class ChooserContentPreviewUi {
             }
             return fileContentPreviewUi;
         }
+
+        //TODO: use flags injection
+        if (previewType == CONTENT_PREVIEW_PAYLOAD_SELECTION && Flags.chooserPayloadToggling()) {
+            transitionElementStatusCallback.onAllTransitionElementsReady(); // TODO
+            return new ShareouselContentPreviewUi(actionFactory);
+        }
+
         boolean isSingleImageShare = previewData.getUriCount() == 1
                 && typeClassifier.isImageType(previewData.getFirstFileInfo().getMimeType());
         CharSequence text = targetIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);

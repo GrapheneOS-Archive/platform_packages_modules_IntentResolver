@@ -16,10 +16,22 @@
 
 package com.android.intentresolver.contentpreview
 
+import android.content.ContentInterface
+import android.content.Intent
 import android.database.Cursor
+import android.database.MatrixCursor
 import android.net.Uri
+import android.os.Bundle
+import android.os.CancellationSignal
 import android.util.Log
 import android.util.SparseArray
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.coroutineScope
+
+// TODO: replace with the new API AdditionalContentContract$Columns#URI
+private const val ColumnUri = "uri"
+// TODO: replace with the new API AdditionalContentContract$CursorExtraKeys#POSITION
+private const val ExtraPosition = "position"
 
 private const val TAG = ContentPreviewUi.TAG
 
@@ -97,5 +109,39 @@ class CursorUriReader(
 
     override fun close() {
         cursor.close()
+    }
+
+    companion object {
+        suspend fun createCursorReader(
+            contentResolver: ContentInterface,
+            uri: Uri,
+            chooserIntent: Intent
+        ): CursorUriReader {
+            val cancellationSignal = CancellationSignal()
+            val cursor =
+                try {
+                    coroutineScope {
+                        runCatching {
+                                contentResolver.query(
+                                    uri,
+                                    arrayOf(ColumnUri),
+                                    Bundle().apply {
+                                        putParcelable(Intent.EXTRA_INTENT, chooserIntent)
+                                    },
+                                    cancellationSignal
+                                )
+                            }
+                            .getOrNull()
+                            ?: MatrixCursor(arrayOf(ColumnUri))
+                    }
+                } catch (e: CancellationException) {
+                    cancellationSignal.cancel()
+                    throw e
+                }
+            return CursorUriReader(cursor, cursor.extras?.getInt(ExtraPosition, 0) ?: 0, 128) {
+                // TODO: check that authority is case-sensitive for resolution reasons
+                it.authority != uri.authority
+            }
+        }
     }
 }

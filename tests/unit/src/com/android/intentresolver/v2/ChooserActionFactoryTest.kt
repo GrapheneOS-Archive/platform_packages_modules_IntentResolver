@@ -134,17 +134,18 @@ class ChooserActionFactoryTest {
             }
         val testSubject =
             ChooserActionFactory(
-                context,
-                chooserRequest.targetIntent,
-                chooserRequest.referrerPackageName,
-                chooserRequest.chooserActions,
-                chooserRequest.modifyShareAction,
-                Optional.empty(),
-                logger,
-                {},
-                { null },
-                mock(),
-                {},
+                /* context = */ context,
+                /* targetIntent = */ chooserRequest.targetIntent,
+                /* referrerPackageName = */ chooserRequest.referrerPackageName,
+                /* chooserActions = */ chooserRequest.chooserActions,
+                /* modifyShareAction = */ chooserRequest.modifyShareAction,
+                /* imageEditor = */ Optional.empty(),
+                /* log = */ logger,
+                /* onUpdateSharedTextIsExcluded = */ {},
+                /* firstVisibleImageQuery = */ { null },
+                /* activityStarter = */ mock(),
+                /* shareResultSender = */ null,
+                /* finishCallback = */ {},
             )
         assertThat(testSubject.copyButtonRunnable).isNull()
     }
@@ -160,17 +161,18 @@ class ChooserActionFactoryTest {
             }
         val testSubject =
             ChooserActionFactory(
-                context,
-                chooserRequest.targetIntent,
-                chooserRequest.referrerPackageName,
-                chooserRequest.chooserActions,
-                chooserRequest.modifyShareAction,
-                Optional.empty(),
-                logger,
-                {},
-                { null },
-                mock(),
-                {},
+                /* context = */ context,
+                /* targetIntent = */ chooserRequest.targetIntent,
+                /* referrerPackageName = */ chooserRequest.referrerPackageName,
+                /* chooserActions = */ chooserRequest.chooserActions,
+                /* modifyShareAction = */ chooserRequest.modifyShareAction,
+                /* imageEditor = */ Optional.empty(),
+                /* log = */ logger,
+                /* onUpdateSharedTextIsExcluded = */ {},
+                /* firstVisibleImageQuery = */ { null },
+                /* activityStarter = */ mock(),
+                /* shareResultSender = */ null,
+                /* finishCallback = */ {},
             )
         assertThat(testSubject.copyButtonRunnable).isNull()
     }
@@ -186,17 +188,18 @@ class ChooserActionFactoryTest {
             }
         val testSubject =
             ChooserActionFactory(
-                context,
-                chooserRequest.targetIntent,
-                chooserRequest.referrerPackageName,
-                chooserRequest.chooserActions,
-                chooserRequest.modifyShareAction,
-                Optional.empty(),
-                logger,
-                {},
-                { null },
-                mock(),
-                {},
+                /* context = */ context,
+                /* targetIntent = */ chooserRequest.targetIntent,
+                /* referrerPackageName = */ chooserRequest.referrerPackageName,
+                /* chooserActions = */ chooserRequest.chooserActions,
+                /* modifyShareAction = */ chooserRequest.modifyShareAction,
+                /* imageEditor = */ Optional.empty(),
+                /* log = */ logger,
+                /* onUpdateSharedTextIsExcluded = */ {},
+                /* firstVisibleImageQuery = */ { null },
+                /* activityStarter = */ mock(),
+                /* shareResultSender = */ null,
+                /* finishCallback = */ {},
             )
         assertThat(testSubject.copyButtonRunnable).isNotNull()
     }
@@ -228,17 +231,18 @@ class ChooserActionFactoryTest {
         }
 
         return ChooserActionFactory(
-            context,
-            chooserRequest.targetIntent,
-            chooserRequest.referrerPackageName,
-            chooserRequest.chooserActions,
-            chooserRequest.modifyShareAction,
-            Optional.empty(),
-            logger,
-            {},
-            { null },
-            mock(),
-            resultConsumer
+            /* context = */ context,
+            /* targetIntent = */ chooserRequest.targetIntent,
+            /* referrerPackageName = */ chooserRequest.referrerPackageName,
+            /* chooserActions = */ chooserRequest.chooserActions,
+            /* modifyShareAction = */ chooserRequest.modifyShareAction,
+            /* imageEditor = */ Optional.empty(),
+            /* log = */ logger,
+            /* onUpdateSharedTextIsExcluded = */ {},
+            /* firstVisibleImageQuery = */ { null },
+            /* activityStarter = */ mock(),
+            /* shareResultSender = */ null,
+            /* finishCallback = */ resultConsumer
         )
     }
 }
