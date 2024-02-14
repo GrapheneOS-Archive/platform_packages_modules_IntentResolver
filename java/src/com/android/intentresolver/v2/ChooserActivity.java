@@ -138,8 +138,6 @@ import com.android.intentresolver.model.AppPredictionServiceResolverComparator;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.shortcuts.AppPredictorFactory;
 import com.android.intentresolver.shortcuts.ShortcutLoader;
-import com.android.intentresolver.v2.MultiProfilePagerAdapter.ProfileType;
-import com.android.intentresolver.v2.MultiProfilePagerAdapter.TabConfig;
 import com.android.intentresolver.v2.data.repository.DevicePolicyResources;
 import com.android.intentresolver.v2.emptystate.NoAppsAvailableEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider;
@@ -148,6 +146,12 @@ import com.android.intentresolver.v2.emptystate.WorkProfilePausedEmptyStateProvi
 import com.android.intentresolver.v2.platform.AppPredictionAvailable;
 import com.android.intentresolver.v2.platform.ImageEditor;
 import com.android.intentresolver.v2.platform.NearbyShare;
+import com.android.intentresolver.v2.profiles.ChooserMultiProfilePagerAdapter;
+import com.android.intentresolver.v2.profiles.MultiProfilePagerAdapter;
+import com.android.intentresolver.v2.profiles.MultiProfilePagerAdapter.ProfileType;
+import com.android.intentresolver.v2.profiles.OnProfileSelectedListener;
+import com.android.intentresolver.v2.profiles.OnSwitchOnWorkSelectedListener;
+import com.android.intentresolver.v2.profiles.TabConfig;
 import com.android.intentresolver.v2.ui.ActionTitle;
 import com.android.intentresolver.v2.ui.ShareResultSender;
 import com.android.intentresolver.v2.ui.ShareResultSenderFactory;
@@ -245,7 +249,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private ResolverActivity.PickTargetOptionRequest mPickOptionRequest;
 
     @Nullable
-    private MultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener mOnSwitchOnWorkSelectedListener;
+    private OnSwitchOnWorkSelectedListener mOnSwitchOnWorkSelectedListener;
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1169,7 +1173,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 R.layout.resolver_profile_tab_button,
                 com.android.internal.R.id.profile_pager,
                 () -> onProfileTabSelected(viewPager.getCurrentItem()),
-                new MultiProfilePagerAdapter.OnProfileSelectedListener() {
+                new OnProfileSelectedListener() {
                     @Override
                     public void onProfilePageSelected(@ProfileType int profileId, int pageNumber) {}
 
