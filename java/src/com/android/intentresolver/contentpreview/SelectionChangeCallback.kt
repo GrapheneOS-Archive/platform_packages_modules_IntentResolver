@@ -22,11 +22,9 @@ import android.content.Intent.EXTRA_CHOOSER_CUSTOM_ACTIONS
 import android.content.Intent.EXTRA_INTENT
 import android.net.Uri
 import android.os.Bundle
+import android.service.chooser.AdditionalContentContract.MethodNames.ON_SELECTION_CHANGED
 import android.service.chooser.ChooserAction
 import com.android.intentresolver.contentpreview.PayloadToggleInteractor.CallbackResult
-
-// TODO: replace with the new API AdditionalContentContract$MethodNames#ON_SELECTION_CHANGED
-private const val MethodName = "onSelectionChanged"
 
 /**
  * Encapsulates payload change callback invocation to the sharing app; handles callback arguments
@@ -41,7 +39,7 @@ class SelectionChangeCallback(
         contentResolver
             .call(
                 requireNotNull(uri.authority) { "URI authority can not be null" },
-                MethodName,
+                ON_SELECTION_CHANGED,
                 uri.toString(),
                 Bundle().apply {
                     putParcelable(

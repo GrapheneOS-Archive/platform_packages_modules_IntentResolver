@@ -23,15 +23,12 @@ import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Bundle
 import android.os.CancellationSignal
+import android.service.chooser.AdditionalContentContract.Columns
+import android.service.chooser.AdditionalContentContract.CursorExtraKeys
 import android.util.Log
 import android.util.SparseArray
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
-
-// TODO: replace with the new API AdditionalContentContract$Columns#URI
-private const val ColumnUri = "uri"
-// TODO: replace with the new API AdditionalContentContract$CursorExtraKeys#POSITION
-private const val ExtraPosition = "position"
 
 private const val TAG = ContentPreviewUi.TAG
 
@@ -124,7 +121,7 @@ class CursorUriReader(
                         runCatching {
                                 contentResolver.query(
                                     uri,
-                                    arrayOf(ColumnUri),
+                                    arrayOf(Columns.URI),
                                     Bundle().apply {
                                         putParcelable(Intent.EXTRA_INTENT, chooserIntent)
                                     },
@@ -132,13 +129,17 @@ class CursorUriReader(
                                 )
                             }
                             .getOrNull()
-                            ?: MatrixCursor(arrayOf(ColumnUri))
+                            ?: MatrixCursor(arrayOf(Columns.URI))
                     }
                 } catch (e: CancellationException) {
                     cancellationSignal.cancel()
                     throw e
                 }
-            return CursorUriReader(cursor, cursor.extras?.getInt(ExtraPosition, 0) ?: 0, 128) {
+            return CursorUriReader(
+                cursor,
+                cursor.extras?.getInt(CursorExtraKeys.POSITION, 0) ?: 0,
+                128,
+            ) {
                 // TODO: check that authority is case-sensitive for resolution reasons
                 it.authority != uri.authority
             }
