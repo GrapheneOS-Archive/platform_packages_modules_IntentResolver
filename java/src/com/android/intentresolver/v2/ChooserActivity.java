@@ -47,6 +47,7 @@ import android.app.prediction.AppPredictor;
 import android.app.prediction.AppTarget;
 import android.app.prediction.AppTargetEvent;
 import android.app.prediction.AppTargetId;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -278,6 +279,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     @Inject public TargetDataLoader mTargetDataLoader;
     @Inject public DevicePolicyResources mDevicePolicyResources;
     @Inject public PackageManager mPackageManager;
+    @Inject public ClipboardManager mClipboardManager;
     @Inject public IntentForwarding mIntentForwarding;
     @Inject public ShareResultSenderFactory mShareResultSenderFactory;
     @Nullable
@@ -2149,7 +2151,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                         setResult(status);
                     }
                     finish();
-                });
+                },
+                mClipboardManager);
     }
 
     /*
