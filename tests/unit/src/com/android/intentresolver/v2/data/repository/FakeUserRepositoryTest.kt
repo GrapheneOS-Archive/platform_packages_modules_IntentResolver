@@ -33,7 +33,7 @@ class FakeUserRepositoryTest {
 
     @Test
     fun init() = runTest {
-        val repo = FakeUserRepository(personalUser, workUser, privateUser)
+        val repo = FakeUserRepository(listOf(personalUser, workUser, privateUser))
 
         val users by collectLastValue(repo.users)
         assertThat(users).containsExactly(personalUser, workUser, privateUser)
@@ -41,7 +41,7 @@ class FakeUserRepositoryTest {
 
     @Test
     fun addUser() = runTest {
-        val repo = FakeUserRepository()
+        val repo = FakeUserRepository(emptyList())
 
         val users by collectLastValue(repo.users)
         assertThat(users).isEmpty()
@@ -55,7 +55,7 @@ class FakeUserRepositoryTest {
 
     @Test
     fun removeUser() = runTest {
-        val repo = FakeUserRepository(personalUser, workUser)
+        val repo = FakeUserRepository(listOf(personalUser, workUser))
 
         val users by collectLastValue(repo.users)
         repo.removeUser(workUser)
@@ -67,7 +67,7 @@ class FakeUserRepositoryTest {
 
     @Test
     fun isAvailable_defaultValue() = runTest {
-        val repo = FakeUserRepository(personalUser, workUser)
+        val repo = FakeUserRepository(listOf(personalUser, workUser))
 
         val available by collectLastValue(repo.availability)
 
@@ -80,7 +80,7 @@ class FakeUserRepositoryTest {
 
     @Test
     fun isAvailable() = runTest {
-        val repo = FakeUserRepository(personalUser, workUser)
+        val repo = FakeUserRepository(listOf(personalUser, workUser))
 
         val available by collectLastValue(repo.availability)
         assertThat(available!![workUser]).isTrue()
@@ -94,7 +94,7 @@ class FakeUserRepositoryTest {
 
     @Test
     fun isAvailable_addRemove() = runTest {
-        val repo = FakeUserRepository(personalUser, workUser)
+        val repo = FakeUserRepository(listOf(personalUser, workUser))
 
         val available by collectLastValue(repo.availability)
         assertThat(available!![workUser]).isTrue()

@@ -131,11 +131,12 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
             Callable</* @Nullable */ View> firstVisibleImageQuery,
             ActionActivityStarter activityStarter,
             @Nullable ShareResultSender shareResultSender,
-            Consumer</* @Nullable */ Integer> finishCallback) {
+            Consumer</* @Nullable */ Integer> finishCallback,
+            ClipboardManager clipboardManager) {
         this(
                 context,
                 makeCopyButtonRunnable(
-                        context,
+                        clipboardManager,
                         targetIntent,
                         referrerPackageName,
                         finishCallback,
@@ -181,13 +182,12 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
         if (mShareResultSender != null) {
             mEditButtonRunnable = () -> {
                 mShareResultSender.onActionSelected(ShareAction.SYSTEM_EDIT);
-                mEditButtonRunnable.run();
+                editButtonRunnable.run();
             };
             if (mCopyButtonRunnable != null) {
                 mCopyButtonRunnable = () -> {
                     mShareResultSender.onActionSelected(ShareAction.SYSTEM_COPY);
-                    //noinspection DataFlowIssue
-                    mCopyButtonRunnable.run();
+                    copyButtonRunnable.run();
                 };
             }
         }
@@ -245,7 +245,7 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
 
     @Nullable
     private static Runnable makeCopyButtonRunnable(
-            Context context,
+            ClipboardManager clipboardManager,
             Intent targetIntent,
             String referrerPackageName,
             Consumer<Integer> finishCallback,
@@ -261,8 +261,6 @@ public final class ChooserActionFactory implements ChooserContentPreviewUi.Actio
             return null;
         }
         return () -> {
-            ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(
-                    Context.CLIPBOARD_SERVICE);
             clipboardManager.setPrimaryClipAsPackage(clipData, referrerPackageName);
 
             log.logActionSelected(EventLog.SELECTION_TYPE_COPY);

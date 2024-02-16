@@ -318,7 +318,8 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 mEnterTransitionAnimationDelegate,
                 new HeadlineGeneratorImpl(this),
                 ContentTypeHint.NONE,
-                mChooserRequest.getMetadataText()
+                mChooserRequest.getMetadataText(),
+                /*isPayloadTogglingEnabled =*/ false
         );
 
         updateStickyContentPreview();
