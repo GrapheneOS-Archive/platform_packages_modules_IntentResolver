@@ -18,10 +18,10 @@ package com.android.intentresolver.v2.domain.interactor
 
 import com.android.intentresolver.v2.coroutines.collectLastValue
 import com.android.intentresolver.v2.data.repository.FakeUserRepository
-import com.android.intentresolver.v2.domain.model.Profile
-import com.android.intentresolver.v2.domain.model.Profile.Type.PERSONAL
-import com.android.intentresolver.v2.domain.model.Profile.Type.PRIVATE
-import com.android.intentresolver.v2.domain.model.Profile.Type.WORK
+import com.android.intentresolver.v2.shared.model.Profile
+import com.android.intentresolver.v2.shared.model.Profile.Type.PERSONAL
+import com.android.intentresolver.v2.shared.model.Profile.Type.PRIVATE
+import com.android.intentresolver.v2.shared.model.Profile.Type.WORK
 import com.android.intentresolver.v2.shared.model.User
 import com.android.intentresolver.v2.shared.model.User.Role
 import com.google.common.truth.Truth.assertThat

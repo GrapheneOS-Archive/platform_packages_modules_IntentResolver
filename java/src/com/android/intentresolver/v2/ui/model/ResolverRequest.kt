@@ -19,7 +19,7 @@ package com.android.intentresolver.v2.ui.model
 import android.content.Intent
 import android.content.pm.ResolveInfo
 import android.os.UserHandle
-import com.android.intentresolver.v2.domain.model.Profile
+import com.android.intentresolver.v2.shared.model.Profile
 import com.android.intentresolver.v2.ext.isHomeIntent
 
 /** All of the things that are consumed from an incoming Intent Resolution request (+Extras). */
