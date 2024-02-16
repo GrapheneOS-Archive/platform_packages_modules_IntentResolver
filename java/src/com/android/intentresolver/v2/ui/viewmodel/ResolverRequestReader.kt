@@ -20,7 +20,7 @@ import android.os.Bundle
 import android.os.UserHandle
 import com.android.intentresolver.v2.ResolverActivity.PROFILE_PERSONAL
 import com.android.intentresolver.v2.ResolverActivity.PROFILE_WORK
-import com.android.intentresolver.v2.domain.model.Profile
+import com.android.intentresolver.v2.shared.model.Profile
 import com.android.intentresolver.v2.ui.model.ActivityLaunch
 import com.android.intentresolver.v2.ui.model.ResolverRequest
 import com.android.intentresolver.v2.validation.Validation
