@@ -66,6 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{لنک کے ساتھ ویڈیو کا اشتراک کیا جا رہا ہے}other{لنک کے ساتھ # ویڈیوز کا اشتراک کیا جا رہا ہے}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{ٹیکسٹ کے ساتھ فائل کا اشتراک کیا جا رہا ہے}other{ٹیکسٹ کے ساتھ # فائلز کا اشتراک کیا جا رہا ہے}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{لنک کے ساتھ فائل کا اشتراک کیا جا رہا ہے}other{لنک کے ساتھ # فائلز کا اشتراک کیا جا رہا ہے}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"البم کا اشتراک کیا جا رہا ہے"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{صرف تصویر}other{صرف تصاویر}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{صرف ویڈیو}other{صرف ویڈیوز}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{صرف فائل}other{صرف فائلز}}"</string>

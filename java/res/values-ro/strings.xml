@@ -66,6 +66,8 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Se trimite videoclipul cu linkul}few{Se trimit # videoclipuri cu linkul}other{Se trimit # de videoclipuri cu linkul}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Se trimite fișierul cu text}few{Se trimit # fișiere cu text}other{Se trimit # de fișiere cu text}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Se trimite fișierul cu linkul}few{Se trimit # fișiere cu linkul}other{Se trimit # de fișiere cu linkul}}"</string>
+    <!-- no translation found for sharing_album (191743129899503345) -->
+    <skip />
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Numai imaginea}few{Numai imaginile}other{Numai imaginile}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Numai videoclipul}few{Numai videoclipurile}other{Numai videoclipurile}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Numai fișierul}few{Numai fișierele}other{Numai fișierele}}"</string>
