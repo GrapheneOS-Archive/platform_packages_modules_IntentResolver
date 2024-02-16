@@ -31,6 +31,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.android.intentresolver.ChooserRequestParameters
 import com.android.intentresolver.logging.EventLog
 import com.android.intentresolver.mock
+import com.android.intentresolver.v2.ui.ShareResultSender
+import com.android.intentresolver.v2.ui.model.ShareAction
 import com.android.intentresolver.whenever
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
@@ -45,7 +47,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito
+import org.mockito.Mockito.eq
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 
 @RunWith(AndroidJUnit4::class)
 class ChooserActionFactoryTest {
@@ -94,7 +98,7 @@ class ChooserActionFactoryTest {
         // click it
         customActions[0].onClicked.run()
 
-        Mockito.verify(logger).logCustomActionSelected(eq(0))
+        verify(logger).logCustomActionSelected(eq(0))
         assertEquals(Activity.RESULT_OK, resultConsumer.latestReturn)
         // Verify the pending intent has been called
         assertTrue("Timed out waiting for broadcast", countdown.await(2500, TimeUnit.MILLISECONDS))
@@ -114,7 +118,7 @@ class ChooserActionFactoryTest {
         val action = factory.modifyShareAction ?: error("Modify share action should not be null")
         action.onClicked.run()
 
-        Mockito.verify(logger).logActionSelected(eq(EventLog.SELECTION_TYPE_MODIFY_SHARE))
+        verify(logger).logActionSelected(eq(EventLog.SELECTION_TYPE_MODIFY_SHARE))
         assertEquals(Activity.RESULT_OK, resultConsumer.latestReturn)
         // Verify the pending intent has been called
         assertTrue("Timed out waiting for broadcast", countdown.await(2500, TimeUnit.MILLISECONDS))
@@ -146,6 +150,7 @@ class ChooserActionFactoryTest {
                 /* activityStarter = */ mock(),
                 /* shareResultSender = */ null,
                 /* finishCallback = */ {},
+                /* clipboardManager = */ mock(),
             )
         assertThat(testSubject.copyButtonRunnable).isNull()
     }
@@ -173,12 +178,13 @@ class ChooserActionFactoryTest {
                 /* activityStarter = */ mock(),
                 /* shareResultSender = */ null,
                 /* finishCallback = */ {},
+                /* clipboardManager = */ mock(),
             )
         assertThat(testSubject.copyButtonRunnable).isNull()
     }
 
     @Test
-    fun sendActionWithText_nonNullCopyRunnable() {
+    fun sendActionWithTextCopyRunnable() {
         val targetIntent = Intent(Intent.ACTION_SEND).apply { putExtra(Intent.EXTRA_TEXT, "Text") }
 
         val chooserRequest =
@@ -186,6 +192,8 @@ class ChooserActionFactoryTest {
                 whenever(this.targetIntent).thenReturn(targetIntent)
                 whenever(chooserActions).thenReturn(ImmutableList.of())
             }
+
+        val resultSender = mock<ShareResultSender>()
         val testSubject =
             ChooserActionFactory(
                 /* context = */ context,
@@ -198,10 +206,15 @@ class ChooserActionFactoryTest {
                 /* onUpdateSharedTextIsExcluded = */ {},
                 /* firstVisibleImageQuery = */ { null },
                 /* activityStarter = */ mock(),
-                /* shareResultSender = */ null,
+                /* shareResultSender = */ resultSender,
                 /* finishCallback = */ {},
+                /* clipboardManager = */ mock(),
             )
         assertThat(testSubject.copyButtonRunnable).isNotNull()
+
+        testSubject.copyButtonRunnable?.run()
+
+        verify(resultSender, times(1)).onActionSelected(ShareAction.SYSTEM_COPY)
     }
 
     private fun createFactory(includeModifyShare: Boolean = false): ChooserActionFactory {
@@ -242,7 +255,8 @@ class ChooserActionFactoryTest {
             /* firstVisibleImageQuery = */ { null },
             /* activityStarter = */ mock(),
             /* shareResultSender = */ null,
-            /* finishCallback = */ resultConsumer
+            /* finishCallback = */ resultConsumer,
+            /* clipboardManager = */ mock(),
         )
     }
 }
