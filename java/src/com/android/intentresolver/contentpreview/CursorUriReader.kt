@@ -140,7 +140,6 @@ class CursorUriReader(
                 cursor.extras?.getInt(CursorExtraKeys.POSITION, 0) ?: 0,
                 128,
             ) {
-                // TODO: check that authority is case-sensitive for resolution reasons
                 it.authority != uri.authority
             }
         }

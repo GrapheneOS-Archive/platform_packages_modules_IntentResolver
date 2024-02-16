@@ -110,7 +110,8 @@ class ChooserMutableActionFactoryTest {
             /* firstVisibleImageQuery = */ { null },
             /* activityStarter = */ mock(),
             /* shareResultSender = */ null,
-            /* finishCallback = */ resultConsumer
+            /* finishCallback = */ resultConsumer,
+            mock()
         )
     }
 
