@@ -100,15 +100,18 @@ import com.android.intentresolver.emptystate.EmptyStateProvider;
 import com.android.intentresolver.icons.DefaultTargetDataLoader;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
-import com.android.intentresolver.v2.MultiProfilePagerAdapter.OnSwitchOnWorkSelectedListener;
-import com.android.intentresolver.v2.MultiProfilePagerAdapter.ProfileType;
-import com.android.intentresolver.v2.MultiProfilePagerAdapter.TabConfig;
 import com.android.intentresolver.v2.data.repository.DevicePolicyResources;
 import com.android.intentresolver.v2.domain.model.Profile;
 import com.android.intentresolver.v2.emptystate.NoAppsAvailableEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
 import com.android.intentresolver.v2.emptystate.WorkProfilePausedEmptyStateProvider;
+import com.android.intentresolver.v2.profiles.MultiProfilePagerAdapter;
+import com.android.intentresolver.v2.profiles.OnSwitchOnWorkSelectedListener;
+import com.android.intentresolver.v2.profiles.MultiProfilePagerAdapter.ProfileType;
+import com.android.intentresolver.v2.profiles.OnProfileSelectedListener;
+import com.android.intentresolver.v2.profiles.TabConfig;
+import com.android.intentresolver.v2.profiles.ResolverMultiProfilePagerAdapter;
 import com.android.intentresolver.v2.ui.ActionTitle;
 import com.android.intentresolver.v2.ui.model.ActivityLaunch;
 import com.android.intentresolver.v2.ui.model.ResolverRequest;
@@ -1865,7 +1868,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                 R.layout.resolver_profile_tab_button,
                 com.android.internal.R.id.profile_pager,
                 () -> onProfileTabSelected(viewPager.getCurrentItem()),
-                new MultiProfilePagerAdapter.OnProfileSelectedListener() {
+                new OnProfileSelectedListener() {
                     @Override
                     public void onProfilePageSelected(@ProfileType int profileId, int pageNumber) {
                         resetButtonBar();

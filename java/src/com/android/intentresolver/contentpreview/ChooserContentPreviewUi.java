@@ -25,7 +25,6 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.service.chooser.Flags;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,6 +50,7 @@ import kotlinx.coroutines.CoroutineScope;
 public final class ChooserContentPreviewUi {
 
     private final CoroutineScope mScope;
+    private final boolean mIsPayloadTogglingEnabled;
 
     /**
      * Delegate to build the default system action buttons to display in the preview layout, if/when
@@ -103,8 +103,11 @@ public final class ChooserContentPreviewUi {
             TransitionElementStatusCallback transitionElementStatusCallback,
             HeadlineGenerator headlineGenerator,
             ContentTypeHint contentTypeHint,
-            @Nullable CharSequence metadata) {
+            @Nullable CharSequence metadata,
+            // TODO: replace with the FeatureFlag ref when v1 is gone
+            boolean isPayloadTogglingEnabled) {
         mScope = scope;
+        mIsPayloadTogglingEnabled = isPayloadTogglingEnabled;
         mContentPreviewUi = createContentPreview(
                 previewData,
                 targetIntent,
@@ -157,8 +160,7 @@ public final class ChooserContentPreviewUi {
             return fileContentPreviewUi;
         }
 
-        //TODO: use flags injection
-        if (previewType == CONTENT_PREVIEW_PAYLOAD_SELECTION && Flags.chooserPayloadToggling()) {
+        if (previewType == CONTENT_PREVIEW_PAYLOAD_SELECTION && mIsPayloadTogglingEnabled) {
             transitionElementStatusCallback.onAllTransitionElementsReady(); // TODO
             return new ShareouselContentPreviewUi(actionFactory);
         }

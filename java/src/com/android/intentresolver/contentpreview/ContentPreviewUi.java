@@ -30,12 +30,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import com.android.intentresolver.R;
 import com.android.intentresolver.widget.ActionRow;
 import com.android.intentresolver.widget.ScrollableImagePreviewView;
 
-abstract class ContentPreviewUi {
+@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+public abstract class ContentPreviewUi {
     private static final int IMAGE_FADE_IN_MILLIS = 150;
     static final String TAG = "ChooserPreview";
 

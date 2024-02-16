@@ -155,7 +155,6 @@ constructor(
         val extraContentUri = additionalContentUri ?: return false
         return runCatching {
                 val authority = extraContentUri.authority
-                // TODO: verify that authority is case-sensitive
                 records.firstOrNull { authority == it.uri.authority } == null
             }
             .onFailure {

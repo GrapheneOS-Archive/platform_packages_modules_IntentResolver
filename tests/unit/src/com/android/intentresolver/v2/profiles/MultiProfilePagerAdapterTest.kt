@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver.v2
+package com.android.intentresolver.v2.profiles
 
 import android.os.UserHandle
 import android.view.LayoutInflater
@@ -28,7 +28,6 @@ import com.android.intentresolver.R
 import com.android.intentresolver.ResolverListAdapter
 import com.android.intentresolver.emptystate.EmptyStateProvider
 import com.android.intentresolver.mock
-import com.android.intentresolver.v2.MultiProfilePagerAdapter.TabConfig
 import com.android.intentresolver.whenever
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat

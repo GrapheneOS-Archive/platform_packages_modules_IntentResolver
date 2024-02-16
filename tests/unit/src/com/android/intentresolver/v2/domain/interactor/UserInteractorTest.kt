@@ -45,7 +45,7 @@ class UserInteractorTest {
     fun launchedByProfile(): Unit = runTest {
         val profileInteractor =
             UserInteractor(
-                userRepository = FakeUserRepository(personalUser, cloneUser),
+                userRepository = FakeUserRepository(listOf(personalUser, cloneUser)),
                 launchedAs = personalUser.handle
             )
 
@@ -58,7 +58,7 @@ class UserInteractorTest {
     fun launchedByProfile_asClone(): Unit = runTest {
         val profileInteractor =
             UserInteractor(
-                userRepository = FakeUserRepository(personalUser, cloneUser),
+                userRepository = FakeUserRepository(listOf(personalUser, cloneUser)),
                 launchedAs = cloneUser.handle
             )
         val profiles by collectLastValue(profileInteractor.launchedAsProfile)
@@ -70,7 +70,7 @@ class UserInteractorTest {
     fun profiles_withPersonal(): Unit = runTest {
         val profileInteractor =
             UserInteractor(
-                userRepository = FakeUserRepository(personalUser),
+                userRepository = FakeUserRepository(listOf(personalUser)),
                 launchedAs = personalUser.handle
             )
 
@@ -81,7 +81,7 @@ class UserInteractorTest {
 
     @Test
     fun profiles_addClone(): Unit = runTest {
-        val fakeUserRepo = FakeUserRepository(personalUser)
+        val fakeUserRepo = FakeUserRepository(listOf(personalUser))
         val profileInteractor =
             UserInteractor(userRepository = fakeUserRepo, launchedAs = personalUser.handle)
 
@@ -96,7 +96,7 @@ class UserInteractorTest {
     fun profiles_withPersonalAndClone(): Unit = runTest {
         val profileInteractor =
             UserInteractor(
-                userRepository = FakeUserRepository(personalUser, cloneUser),
+                userRepository = FakeUserRepository(listOf(personalUser, cloneUser)),
                 launchedAs = personalUser.handle
             )
         val profiles by collectLastValue(profileInteractor.profiles)
@@ -108,7 +108,8 @@ class UserInteractorTest {
     fun profiles_withAllSupportedTypes(): Unit = runTest {
         val profileInteractor =
             UserInteractor(
-                userRepository = FakeUserRepository(personalUser, cloneUser, workUser, privateUser),
+                userRepository =
+                    FakeUserRepository(listOf(personalUser, cloneUser, workUser, privateUser)),
                 launchedAs = personalUser.handle
             )
         val profiles by collectLastValue(profileInteractor.profiles)
@@ -125,7 +126,8 @@ class UserInteractorTest {
     fun profiles_preservesIterationOrder(): Unit = runTest {
         val profileInteractor =
             UserInteractor(
-                userRepository = FakeUserRepository(workUser, cloneUser, privateUser, personalUser),
+                userRepository =
+                    FakeUserRepository(listOf(workUser, cloneUser, privateUser, personalUser)),
                 launchedAs = personalUser.handle
             )
 
@@ -141,7 +143,7 @@ class UserInteractorTest {
 
     @Test
     fun isAvailable_defaultValue() = runTest {
-        val userRepo = FakeUserRepository(personalUser)
+        val userRepo = FakeUserRepository(listOf(personalUser))
         userRepo.addUser(workUser, false)
 
         val profileInteractor =
@@ -156,7 +158,7 @@ class UserInteractorTest {
 
     @Test
     fun isAvailable() = runTest {
-        val userRepo = FakeUserRepository(workUser, personalUser)
+        val userRepo = FakeUserRepository(listOf(workUser, personalUser))
         val profileInteractor =
             UserInteractor(userRepository = userRepo, launchedAs = personalUser.handle)
         val workAvailable by collectLastValue(profileInteractor.isAvailable(WORK))
@@ -183,7 +185,7 @@ class UserInteractorTest {
      */
     @Test
     fun updateState() = runTest {
-        val userRepo = FakeUserRepository(workUser, personalUser)
+        val userRepo = FakeUserRepository(listOf(workUser, personalUser))
         val userInteractor =
             UserInteractor(userRepository = userRepo, launchedAs = personalUser.handle)
         val workProfile = Profile(Profile.Type.WORK, workUser)
