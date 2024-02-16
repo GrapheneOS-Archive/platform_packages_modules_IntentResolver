@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
 /** A simple repository which can be initialized from a list and updated. */
-class FakeUserRepository(vararg userList: User) : UserRepository {
+class FakeUserRepository(userList: List<User>) : UserRepository {
     internal data class UserState(val user: User, val available: Boolean)
 
     private val userState = MutableStateFlow(userList.map { UserState(it, available = true) })
@@ -47,7 +47,7 @@ class FakeUserRepository(vararg userList: User) : UserRepository {
     override val availability =
         userState.map { userStateList -> userStateList.associate { it.user to it.available } }
 
-    override suspend fun requestState(user: User, available: Boolean) {
+    fun updateState(user: User, available: Boolean) {
         userState.update { userStateList ->
             userStateList.map { userState ->
                 if (userState.user.id == user.id) {
@@ -57,5 +57,9 @@ class FakeUserRepository(vararg userList: User) : UserRepository {
                 }
             }
         }
+    }
+
+    override suspend fun requestState(user: User, available: Boolean) {
+        updateState(user, available)
     }
 }
