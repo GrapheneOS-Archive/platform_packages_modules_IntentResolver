@@ -66,6 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Sharing video with link}other{Sharing # videos with link}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Sharing file with text}other{Sharing # files with text}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Sharing file with link}other{Sharing # files with link}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"Sharing album"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Image only}other{Images only}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Video only}other{Videos only}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{File only}other{Files only}}"</string>

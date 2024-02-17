@@ -19,8 +19,8 @@ package com.android.intentresolver.v2.domain.interactor
 import android.os.UserHandle
 import com.android.intentresolver.inject.ApplicationUser
 import com.android.intentresolver.v2.data.repository.UserRepository
-import com.android.intentresolver.v2.domain.model.Profile
-import com.android.intentresolver.v2.domain.model.Profile.Type
+import com.android.intentresolver.v2.shared.model.Profile
+import com.android.intentresolver.v2.shared.model.Profile.Type
 import com.android.intentresolver.v2.shared.model.User
 import com.android.intentresolver.v2.shared.model.User.Role
 import javax.inject.Inject

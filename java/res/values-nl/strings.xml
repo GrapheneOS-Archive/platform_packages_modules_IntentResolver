@@ -66,6 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Video delen via link}other{# video\'s delen via link}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Bestand delen via tekstbericht}other{# bestanden delen via tekstbericht}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Bestand delen via link}other{# bestanden delen via link}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"Album wordt gedeeld"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Alleen afbeelding}other{Alleen afbeeldingen}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Alleen video}other{Alleen video\'s}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Alleen bestand}other{Alleen bestanden}}"</string>

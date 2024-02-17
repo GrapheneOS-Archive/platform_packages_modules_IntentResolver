@@ -66,6 +66,8 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Надсилання відео з посиланням}one{Надсилання # відео з посиланням}few{Надсилання # відео з посиланням}many{Надсилання # відео з посиланням}other{Надсилання # відео з посиланням}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Надсилання файлу з текстом}one{Надсилання # файлу з текстом}few{Надсилання # файлів із текстом}many{Надсилання # файлів із текстом}other{Надсилання # файлу з текстом}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Надсилання файлу з посиланням}one{Надсилання # файлу з посиланням}few{Надсилання # файлів із посиланням}many{Надсилання # файлів із посиланням}other{Надсилання # файлу з посиланням}}"</string>
+    <!-- no translation found for sharing_album (191743129899503345) -->
+    <skip />
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Лише зображення}one{Лише зображення}few{Лише зображення}many{Лише зображення}other{Лише зображення}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Лише відео}one{Лише відео}few{Лише відео}many{Лише відео}other{Лише відео}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Лише файл}one{Лише файли}few{Лише файли}many{Лише файли}other{Лише файли}}"</string>

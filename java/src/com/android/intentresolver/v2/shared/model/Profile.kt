@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.intentresolver.v2.domain.model
+package com.android.intentresolver.v2.shared.model
 
-import com.android.intentresolver.v2.domain.model.Profile.Type
-import com.android.intentresolver.v2.shared.model.User
+import com.android.intentresolver.v2.shared.model.Profile.Type
 
 /**
- * A domain layer model which associates [users][User] into a [Type] instance.
+ * Associates [users][User] into a [Type] instance.
  *
  * This is a simple abstraction which combines a primary [user][User] with an optional
  * [cloned apps][User.Role.CLONE] user. This encapsulates the cloned app user id, while still being
