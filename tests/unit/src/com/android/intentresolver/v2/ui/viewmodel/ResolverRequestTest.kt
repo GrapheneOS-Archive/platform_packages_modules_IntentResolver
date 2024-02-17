@@ -22,7 +22,7 @@ import android.os.UserHandle
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import com.android.intentresolver.v2.ResolverActivity.PROFILE_WORK
-import com.android.intentresolver.v2.domain.model.Profile.Type.WORK
+import com.android.intentresolver.v2.shared.model.Profile.Type.WORK
 import com.android.intentresolver.v2.ui.model.ActivityLaunch
 import com.android.intentresolver.v2.ui.model.ResolverRequest
 import com.android.intentresolver.v2.validation.UncaughtException

@@ -15,6 +15,7 @@
  */
 package com.android.intentresolver.v2.ext
 
+import android.content.ComponentName
 import android.content.Intent
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -33,6 +34,20 @@ class IntentExtTest {
         val sendIntent = Intent(Intent.ACTION_SEND)
         assertThat(sendIntent.hasAction(Intent.ACTION_SEND)).isTrue()
         assertThat(sendIntent.hasAction(Intent.ACTION_VIEW)).isFalse()
+    }
+
+    @Test
+    fun hasComponent() {
+        assertThat(Intent().hasComponent()).isFalse()
+        assertThat(Intent().setComponent(ComponentName("A", "B")).hasComponent()).isTrue()
+    }
+
+    @Test
+    fun hasSendAction() {
+        assertThat(Intent(Intent.ACTION_SEND).hasSendAction()).isTrue()
+        assertThat(Intent(Intent.ACTION_SEND_MULTIPLE).hasSendAction()).isTrue()
+        assertThat(Intent(Intent.ACTION_SENDTO).hasSendAction()).isFalse()
+        assertThat(Intent(Intent.ACTION_VIEW).hasSendAction()).isFalse()
     }
 
     @Test

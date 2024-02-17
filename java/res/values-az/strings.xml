@@ -66,6 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Link olan video paylaşılır}other{Link olan # video paylaşılır}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Mətn olan fayl paylaşılır}other{Mətn olan # fayl paylaşılır}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Link olan fayl paylaşılır}other{Link olan # fayl paylaşılır}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"Albom paylaşılır"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Yalnız şəkil}other{Yalnız şəkillər}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Yalnız video}other{Yalnız videolar}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Yalnız fayl}other{Yalnız fayllar}}"</string>

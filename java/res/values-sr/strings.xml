@@ -66,6 +66,8 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Дели се видео са линком}one{Дели се # видео са линком}few{Деле се # видео снимка са линком}other{Дели се # видеа са линком}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Дели се фајл са текстом}one{Дели се # фајл са текстом}few{Деле се # фајла са текстом}other{Дели се # фајлова са текстом}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Дели се фајл са линком}one{Дели се # фајл са линком}few{Деле се # фајла са линком}other{Дели се # фајлова са линком}}"</string>
+    <!-- no translation found for sharing_album (191743129899503345) -->
+    <skip />
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Само слика}one{Само слике}few{Само слике}other{Само слике}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Само видео}one{Само видео снимци}few{Само видео снимци}other{Само видео снимци}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Само фајл}one{Само фајлови}few{Само фајлови}other{Само фајлови}}"</string>

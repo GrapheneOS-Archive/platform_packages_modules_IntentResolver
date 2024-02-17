@@ -66,6 +66,8 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Споделяне на видеоклипа чрез връзка}other{Споделяне на # видеоклипа чрез връзка}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Споделяне на файла чрез SMS съобщение}other{Споделяне на # файла чрез SMS съобщение}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Споделяне на файла чрез връзка}other{Споделяне на # файла чрез връзка}}"</string>
+    <!-- no translation found for sharing_album (191743129899503345) -->
+    <skip />
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Само изображение}other{Само изображения}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Само видеоклип}other{Само видеоклипове}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Само файл}other{Само файлове}}"</string>

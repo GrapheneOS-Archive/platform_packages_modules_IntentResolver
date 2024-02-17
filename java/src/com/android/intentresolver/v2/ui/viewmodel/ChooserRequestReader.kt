@@ -17,8 +17,6 @@ package com.android.intentresolver.v2.ui.viewmodel
 
 import android.content.ComponentName
 import android.content.Intent
-import android.content.Intent.ACTION_SEND
-import android.content.Intent.ACTION_SEND_MULTIPLE
 import android.content.Intent.EXTRA_ALTERNATE_INTENTS
 import android.content.Intent.EXTRA_CHOOSER_CUSTOM_ACTIONS
 import android.content.Intent.EXTRA_CHOOSER_MODIFY_SHARE_ACTION
@@ -47,7 +45,7 @@ import com.android.intentresolver.ContentTypeHint
 import com.android.intentresolver.R
 import com.android.intentresolver.inject.ChooserServiceFlags
 import com.android.intentresolver.util.hasValidIcon
-import com.android.intentresolver.v2.ext.hasAction
+import com.android.intentresolver.v2.ext.hasSendAction
 import com.android.intentresolver.v2.ext.ifMatch
 import com.android.intentresolver.v2.ui.model.ActivityLaunch
 import com.android.intentresolver.v2.ui.model.ChooserRequest
@@ -59,8 +57,6 @@ import com.android.intentresolver.v2.validation.validateFrom
 
 private const val MAX_CHOOSER_ACTIONS = 5
 private const val MAX_INITIAL_INTENTS = 2
-
-private fun Intent.hasSendAction() = hasAction(ACTION_SEND, ACTION_SEND_MULTIPLE)
 
 internal fun Intent.maybeAddSendActionFlags() =
     ifMatch(Intent::hasSendAction) {
@@ -77,7 +73,7 @@ fun readChooserRequest(
     return validateFrom(extras::get) {
         val targetIntent = required(IntentOrUri(EXTRA_INTENT)).maybeAddSendActionFlags()
 
-        val isSendAction = targetIntent.hasAction(ACTION_SEND, ACTION_SEND_MULTIPLE)
+        val isSendAction = targetIntent.hasSendAction()
 
         val additionalTargets =
             optional(array<Intent>(EXTRA_ALTERNATE_INTENTS))?.map { it.maybeAddSendActionFlags() }

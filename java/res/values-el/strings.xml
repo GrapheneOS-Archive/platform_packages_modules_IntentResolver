@@ -66,6 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Κοινοποίηση βίντεο με σύνδεσμο}other{Κοινοποίηση # βίντεο με σύνδεσμο}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Κοινοποίηση αρχείου με κείμενο}other{Κοινοποίηση # αρχείων με κείμενο}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Κοινοποίηση αρχείου με σύνδεσμο}other{Κοινοποίηση # αρχείων με σύνδεσμο}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"Κοινοποίηση λευκώματος"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Μόνο εικόνα}other{Μόνο εικόνες}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Μόνο βίντεο}other{Μόνο βίντεο}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Μόνο αρχείο}other{Μόνο αρχεία}}"</string>

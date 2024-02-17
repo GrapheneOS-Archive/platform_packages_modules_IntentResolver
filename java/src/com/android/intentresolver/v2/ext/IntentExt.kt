@@ -32,8 +32,14 @@ inline fun Intent.ifMatch(
 /** True if the Intent has one of the specified actions. */
 fun Intent.hasAction(vararg actions: String): Boolean = action in actions
 
+/** True if the Intent has a specific component target */
+fun Intent.hasComponent(): Boolean = (component != null)
+
 /** True if the Intent has a single matching category. */
 fun Intent.hasSingleCategory(category: String) = categories.singleOrNull() == category
+
+/** True if the Intent is a SEND or SEND_MULTIPLE action. */
+fun Intent.hasSendAction() = hasAction(Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE)
 
 /** True if the Intent resolves to the special Home (Launcher) component */
 fun Intent.isHomeIntent() = hasAction(Intent.ACTION_MAIN) && hasSingleCategory(Intent.CATEGORY_HOME)

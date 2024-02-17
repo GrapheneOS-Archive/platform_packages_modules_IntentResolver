@@ -66,6 +66,8 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{مشاركة فيديو واحد ورابط}zero{مشاركة # فيديو ورابط}two{مشاركة فيديوهَين ورابط}few{مشاركة # فيديوهات ورابط}many{مشاركة # فيديو ورابط}other{مشاركة # فيديو ورابط}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{مشاركة ملف واحد ونص}zero{مشاركة # ملف ونص}two{مشاركة # ملفَّين ونص}few{مشاركة # ملفات ونص}many{مشاركة # ملفًا ونص}other{مشاركة # ملف ونص}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{مشاركة ملف واحد ورابط}zero{مشاركة # ملف ورابط}two{مشاركة ملفَّين ورابط}few{مشاركة # ملفات ورابط}many{مشاركة # ملفًا ورابط}other{مشاركة # ملف ورابط}}"</string>
+    <!-- no translation found for sharing_album (191743129899503345) -->
+    <skip />
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{الصورة فقط}zero{الصور فقط}two{الصورتان فقط}few{الصور فقط}many{الصور فقط}other{الصور فقط}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{الفيديو فقط}zero{الفيديوهات فقط}two{الفيديوهان فقط}few{الفيديوهات فقط}many{الفيديوهات فقط}other{الفيديوهات فقط}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{الملف فقط}zero{الملفات فقط}two{الملفان فقط}few{الملفات فقط}many{الملفات فقط}other{الملفات فقط}}"</string>
