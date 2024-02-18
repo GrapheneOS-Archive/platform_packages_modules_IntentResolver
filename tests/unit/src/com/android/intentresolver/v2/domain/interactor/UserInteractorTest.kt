@@ -41,6 +41,10 @@ class UserInteractorTest {
     private val workUser = User(id = baseId + 2, role = Role.WORK)
     private val privateUser = User(id = baseId + 3, role = Role.PRIVATE)
 
+    val personalProfile = Profile(PERSONAL, personalUser)
+    val workProfile = Profile(WORK, workUser)
+    val privateProfile = Profile(PRIVATE, privateUser)
+
     @Test
     fun launchedByProfile(): Unit = runTest {
         val profileInteractor =
@@ -146,37 +150,37 @@ class UserInteractorTest {
         val userRepo = FakeUserRepository(listOf(personalUser))
         userRepo.addUser(workUser, false)
 
-        val profileInteractor =
+        val interactor =
             UserInteractor(userRepository = userRepo, launchedAs = personalUser.handle)
-        val personalAvailable by collectLastValue(profileInteractor.isAvailable(PERSONAL))
-        val workAvailable by collectLastValue(profileInteractor.isAvailable(WORK))
 
-        assertWithMessage("personalAvailable").that(personalAvailable!!).isTrue()
+        val availability by collectLastValue(interactor.availability)
 
-        assertWithMessage("workAvailable").that(workAvailable!!).isFalse()
+        assertWithMessage("personalAvailable").that(availability?.get(personalProfile)).isTrue()
+        assertWithMessage("workAvailable").that(availability?.get(workProfile)).isFalse()
     }
 
     @Test
     fun isAvailable() = runTest {
         val userRepo = FakeUserRepository(listOf(workUser, personalUser))
-        val profileInteractor =
+        val interactor =
             UserInteractor(userRepository = userRepo, launchedAs = personalUser.handle)
-        val workAvailable by collectLastValue(profileInteractor.isAvailable(WORK))
+
+        val availability by collectLastValue(interactor.availability)
 
         // Default state is enabled in FakeUserManager
-        assertWithMessage("workAvailable").that(workAvailable).isTrue()
+        assertWithMessage("workAvailable").that(availability?.get(workProfile)).isTrue()
 
         // Making user unavailable makes profile unavailable
         userRepo.requestState(workUser, false)
-        assertWithMessage("workAvailable").that(workAvailable).isFalse()
+        assertWithMessage("workAvailable").that(availability?.get(workProfile)).isFalse()
 
         // Making user available makes profile available again
         userRepo.requestState(workUser, true)
-        assertWithMessage("workAvailable").that(workAvailable).isTrue()
+        assertWithMessage("workAvailable").that(availability?.get(workProfile)).isTrue()
 
-        // When a user is removed availability should update to false
+        // When a user is removed availability is removed as well.
         userRepo.removeUser(workUser)
-        assertWithMessage("workAvailable").that(workAvailable).isFalse()
+        assertWithMessage("workAvailable").that(availability?.get(workProfile)).isNull()
     }
 
     /**

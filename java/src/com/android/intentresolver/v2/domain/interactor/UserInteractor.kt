@@ -26,9 +26,7 @@ import com.android.intentresolver.v2.shared.model.User.Role
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 
 /** The high level User interface. */
 class UserInteractor
@@ -67,20 +65,16 @@ constructor(
                 it.primary.id == launchedAs.identifier || it.clone?.id == launchedAs.identifier
             }
         }
-
     /**
-     * Provides a flow to report on the availability of the profile. An unavailable profile may be
+     * Provides a flow to report on the availability of profile. An unavailable profile may be
      * hidden or appear disabled within the app.
      */
-    fun isAvailable(type: Type): Flow<Boolean> {
-        val profileFlow = profiles.map { list -> list.firstOrNull { it.type == type } }
-        return combine(profileFlow, userRepository.availability) { profile, availability ->
-            when (profile) {
-                null -> false
-                else -> availability.getOrDefault(profile.primary, false)
+    val availability: Flow<Map<Profile, Boolean>> =
+        combine(profiles, userRepository.availability) { profiles, availability ->
+            profiles.associateWith {
+                availability.getOrDefault(it.primary, false)
             }
         }
-    }
 
     /**
      * Request the profile state be updated. In the case of enabling, the operation could take
