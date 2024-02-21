@@ -66,8 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{ਲਿੰਕ ਨਾਲ ਵੀਡੀਓ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}one{ਲਿੰਕ ਨਾਲ # ਵੀਡੀਓ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}other{ਲਿੰਕ ਨਾਲ # ਵੀਡੀਓ ਸਾਂਝੇ ਕੀਤੇ ਜਾ ਰਹੇ ਹਨ}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{ਲਿਖਤ ਸੁਨੇਹੇ ਨਾਲ ਫ਼ਾਈਲ ਨੂੰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}one{ਲਿਖਤ ਸੁਨੇਹੇ ਨਾਲ # ਫ਼ਾਈਲ ਨੂੰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}other{ਲਿਖਤ ਸੁਨੇਹੇ ਨਾਲ # ਫ਼ਾਈਲਾਂ ਨੂੰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{ਲਿੰਕ ਨਾਲ ਫ਼ਾਈਲ ਨੂੰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}one{ਲਿੰਕ ਨਾਲ # ਫ਼ਾਈਲ ਨੂੰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}other{ਲਿੰਕ ਨਾਲ # ਫ਼ਾਈਲਾਂ ਨੂੰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ}}"</string>
-    <!-- no translation found for sharing_album (191743129899503345) -->
-    <skip />
+    <string name="sharing_album" msgid="191743129899503345">"ਐਲਬਮ ਨੂੰ ਸਾਂਝਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{ਸਿਰਫ਼ ਚਿੱਤਰ}one{ਸਿਰਫ਼ ਚਿੱਤਰ}other{ਸਿਰਫ਼ ਚਿੱਤਰ}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{ਸਿਰਫ਼ ਵੀਡੀਓ}one{ਸਿਰਫ਼ ਵੀਡੀਓ}other{ਸਿਰਫ਼ ਵੀਡੀਓ}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ਸਿਰਫ਼ ਫ਼ਾਈਲ}one{ਸਿਰਫ਼ ਫ਼ਾਈਲ}other{ਸਿਰਫ਼ ਫ਼ਾਈਲਾਂ}}"</string>

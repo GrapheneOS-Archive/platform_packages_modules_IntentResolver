@@ -66,8 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Deler video med et link}one{Deler # video med et link}other{Deler # videoer med et link}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Deler fil med tekst}one{Deler # fil med tekst}other{Deler # filer med tekst}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Deler fil med et link}one{Deler # fil med et link}other{Deler # filer med et link}}"</string>
-    <!-- no translation found for sharing_album (191743129899503345) -->
-    <skip />
+    <string name="sharing_album" msgid="191743129899503345">"Albummet deles"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Kun billedet}one{Kun billedet}other{Kun billeder}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Kun video}one{Kun video}other{Kun videoer}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Kun filen}one{Kun filen}other{Kun filer}}"</string>

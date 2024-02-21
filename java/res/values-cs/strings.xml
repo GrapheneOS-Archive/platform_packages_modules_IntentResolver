@@ -66,8 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Sdílení videa s odkazem}few{Sdílení # videí s odkazem}many{Sdílení # videa s odkazem}other{Sdílení # videí s odkazem}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Sdílení souboru s textem}few{Sdílení # souborů s textem}many{Sdílení # souboru s textem}other{Sdílení # souborů s textem}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Sdílení souboru s odkazem}few{Sdílení # souborů s odkazem}many{Sdílení # souboru s odkazem}other{Sdílení # souborů s odkazem}}"</string>
-    <!-- no translation found for sharing_album (191743129899503345) -->
-    <skip />
+    <string name="sharing_album" msgid="191743129899503345">"Sdílení alba"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Pouze obrázek}few{Pouze obrázky}many{Pouze obrázky}other{Pouze obrázky}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Pouze video}few{Pouze videa}many{Pouze videa}other{Pouze videa}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Pouze soubor}few{Pouze soubory}many{Pouze soubory}other{Pouze soubory}}"</string>
