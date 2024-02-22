@@ -156,7 +156,7 @@ import com.android.intentresolver.v2.profiles.TabConfig;
 import com.android.intentresolver.v2.ui.ActionTitle;
 import com.android.intentresolver.v2.ui.ShareResultSender;
 import com.android.intentresolver.v2.ui.ShareResultSenderFactory;
-import com.android.intentresolver.v2.ui.model.ActivityLaunch;
+import com.android.intentresolver.v2.ui.model.ActivityModel;
 import com.android.intentresolver.v2.ui.model.ChooserRequest;
 import com.android.intentresolver.v2.ui.viewmodel.ChooserViewModel;
 import com.android.intentresolver.widget.ImagePreviewView;
@@ -273,7 +273,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private static final int SCROLL_STATUS_SCROLLING_VERTICAL = 1;
     private static final int SCROLL_STATUS_SCROLLING_HORIZONTAL = 2;
 
-    @Inject public ActivityLaunch mActivityLaunch;
+    @Inject public ActivityModel mActivityModel;
     @Inject public FeatureFlags mFeatureFlags;
     @Inject public android.service.chooser.FeatureFlags mChooserServiceFeatureFlags;
     @Inject public EventLog mEventLog;
@@ -347,15 +347,15 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     public CreationExtras getDefaultViewModelCreationExtras() {
         return addDefaultArgs(
                 super.getDefaultViewModelCreationExtras(),
-                new Pair<>(ActivityLaunch.ACTIVITY_LAUNCH_KEY, mActivityLaunch));
+                new Pair<>(ActivityModel.ACTIVITY_MODEL_KEY, mActivityModel));
     }
 
     @Override
     protected final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
-        Log.i(TAG, "activityLaunch=" + mActivityLaunch.toString());
-        int callerUid = mActivityLaunch.getFromUid();
+        Log.i(TAG, "activityLaunch=" + mActivityModel.toString());
+        int callerUid = mActivityModel.getLaunchedFromUid();
         if (callerUid < 0 || UserHandle.isIsolated(callerUid)) {
             Log.e(TAG, "Can't start a resolver from uid " + callerUid);
             finish();
@@ -371,7 +371,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                 mViewModel.getChooserRequest().getChosenComponentSender();
         if (chosenComponentSender != null) {
             mShareResultSender = mShareResultSenderFactory
-                    .create(mActivityLaunch.getFromUid(), chosenComponentSender);
+                    .create(mActivityModel.getLaunchedFromUid(), chosenComponentSender);
         }
         mLogic = createActivityLogic();
         init();
@@ -491,7 +491,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                         .get(BasePreviewViewModel.class);
         previewViewModel.init(
                 chooserRequest.getTargetIntent(),
-                mActivityLaunch.getIntent(),
+                mActivityModel.getIntent(),
                 chooserRequest.getAdditionalContentUri(),
                 chooserRequest.getFocusedItemPosition(),
                 mChooserServiceFeatureFlags.chooserPayloadToggling());
@@ -862,9 +862,9 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             }
         } catch (RuntimeException e) {
             Slog.wtf(TAG,
-                    "Unable to launch as uid " + mActivityLaunch.getFromUid()
-                            + " package " + mActivityLaunch.getFromPackage() + ", while running in "
-                            + ActivityThread.currentProcessName(), e);
+                    "Unable to launch as uid " + mActivityModel.getLaunchedFromUid()
+                            + " package " + mActivityModel.getLaunchedFromPackage() +
+                            ", while running in " + ActivityThread.currentProcessName(), e);
         }
     }
 
@@ -1658,7 +1658,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             return false;
         }
 
-        return mActivityLaunch.getIntent().getBooleanExtra(Intent.EXTRA_AUTO_LAUNCH_SINGLE_CHOICE,
+        return mActivityModel.getIntent().getBooleanExtra(Intent.EXTRA_AUTO_LAUNCH_SINGLE_CHOICE,
                 true);
     }
 

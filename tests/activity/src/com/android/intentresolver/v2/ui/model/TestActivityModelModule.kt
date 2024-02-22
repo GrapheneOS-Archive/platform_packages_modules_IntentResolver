@@ -24,13 +24,17 @@ import dagger.hilt.android.scopes.ActivityScoped
 import dagger.hilt.testing.TestInstallIn
 
 @Module
-@TestInstallIn(components = [ActivityComponent::class], replaces = [ActivityLaunchModule::class])
-class TestActivityLaunchModule {
+@TestInstallIn(components = [ActivityComponent::class], replaces = [ActivityModelModule::class])
+class TestActivityModelModule {
 
     @Provides
     @ActivityScoped
-    fun activityLaunch(activity: Activity): ActivityLaunch {
-        return ActivityLaunch(activity.intent, LAUNCHED_FROM_UID, LAUNCHED_FROM_PACKAGE, REFERRER)
+    fun activityModel(activity: Activity): ActivityModel {
+        return ActivityModel(
+            intent = activity.intent,
+            launchedFromUid = LAUNCHED_FROM_UID,
+            launchedFromPackage = LAUNCHED_FROM_PACKAGE,
+            referrer = REFERRER)
     }
 
     companion object {

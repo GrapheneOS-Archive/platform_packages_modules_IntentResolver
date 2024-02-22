@@ -22,14 +22,14 @@ import android.os.Parcelable
 import com.android.intentresolver.v2.ext.readParcelable
 import com.android.intentresolver.v2.ext.requireParcelable
 
-/** Contains Activity-scope information about the state at launch time. */
-data class ActivityLaunch(
+/** Contains Activity-scope information about the state when started. */
+data class ActivityModel(
     /** The [Intent] received by the app */
     val intent: Intent,
     /** The identifier for the sending app and user */
-    val fromUid: Int,
+    val launchedFromUid: Int,
     /** The package of the sending app */
-    val fromPackage: String,
+    val launchedFromPackage: String,
     /** The referrer as supplied to the activity. */
     val referrer: Uri?
 ) : Parcelable {
@@ -37,8 +37,8 @@ data class ActivityLaunch(
         source: Parcel
     ) : this(
         intent = source.requireParcelable(),
-        fromUid = source.readInt(),
-        fromPackage = requireNotNull(source.readString()),
+        launchedFromUid = source.readInt(),
+        launchedFromPackage = requireNotNull(source.readString()),
         referrer = source.readParcelable()
     )
 
@@ -49,20 +49,20 @@ data class ActivityLaunch(
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeParcelable(intent, flags)
-        dest.writeInt(fromUid)
-        dest.writeString(fromPackage)
+        dest.writeInt(launchedFromUid)
+        dest.writeString(launchedFromPackage)
         dest.writeParcelable(referrer, flags)
     }
 
     companion object {
-        const val ACTIVITY_LAUNCH_KEY = "com.android.intentresolver.ACTIVITY_LAUNCH"
+        const val ACTIVITY_MODEL_KEY = "com.android.intentresolver.ACTIVITY_MODEL"
 
         @JvmField
         @Suppress("unused")
         val CREATOR =
-            object : Parcelable.Creator<ActivityLaunch> {
-                override fun newArray(size: Int) = arrayOfNulls<ActivityLaunch>(size)
-                override fun createFromParcel(source: Parcel) = ActivityLaunch(source)
+            object : Parcelable.Creator<ActivityModel> {
+                override fun newArray(size: Int) = arrayOfNulls<ActivityModel>(size)
+                override fun createFromParcel(source: Parcel) = ActivityModel(source)
             }
     }
 }
