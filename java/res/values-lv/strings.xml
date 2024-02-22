@@ -66,8 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Tiek kopīgots videoklips ar saiti}zero{Tiek kopīgoti # videoklipi ar saitēm}one{Tiek kopīgots # videoklips ar saitēm}other{Tiek kopīgoti # videoklipi ar saitēm}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Tiek kopīgots fails ar tekstu}zero{Tiek kopīgoti # faili ar tekstu}one{Tiek kopīgots # fails ar tekstu}other{Tiek kopīgoti # faili ar tekstu}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Tiek kopīgots fails ar saiti}zero{Tiek kopīgoti # faili ar saitēm}one{Tiek kopīgots # fails ar saitēm}other{Tiek kopīgoti # faili ar saitēm}}"</string>
-    <!-- no translation found for sharing_album (191743129899503345) -->
-    <skip />
+    <string name="sharing_album" msgid="191743129899503345">"Notiek albuma kopīgošana"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Tikai attēls}zero{Tikai attēli}one{Tikai attēli}other{Tikai attēli}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Tikai videoklips}zero{Tikai videoklipi}one{Tikai videoklipi}other{Tikai videoklipi}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Tikai fails}zero{Tikai faili}one{Tikai faili}other{Tikai faili}}"</string>

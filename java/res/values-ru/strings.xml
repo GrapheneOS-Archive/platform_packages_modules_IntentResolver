@@ -66,8 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Отправка видео со ссылкой}one{Отправка # видео со ссылкой}few{Отправка # видео со ссылкой}many{Отправка # видео со ссылкой}other{Отправка # видео со ссылкой}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Отправка файла с текстом}one{Отправка # файла с текстом}few{Отправка # файлов с текстом}many{Отправка # файлов с текстом}other{Отправка # файла с текстом}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Отправка файла со ссылкой}one{Отправка # файла со ссылкой}few{Отправка # файлов со ссылкой}many{Отправка # файлов со ссылкой}other{Отправка # файла со ссылкой}}"</string>
-    <!-- no translation found for sharing_album (191743129899503345) -->
-    <skip />
+    <string name="sharing_album" msgid="191743129899503345">"Предоставляется доступ к альбому"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Только изображение}one{Только изображения}few{Только изображения}many{Только изображения}other{Только изображения}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Только видео}one{Только видео}few{Только видео}many{Только видео}other{Только видео}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Только файл}one{Только файлы}few{Только файлы}many{Только файлы}other{Только файлы}}"</string>
