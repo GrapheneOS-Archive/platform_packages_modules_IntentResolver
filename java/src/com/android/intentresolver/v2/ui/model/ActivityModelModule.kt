@@ -25,19 +25,19 @@ import dagger.hilt.android.scopes.ActivityScoped
 
 @Module
 @InstallIn(ActivityComponent::class)
-object ActivityLaunchModule {
+object ActivityModelModule {
 
     @Provides
     @ActivityScoped
-    fun callerInfo(activity: Activity): ActivityLaunch {
-        return ActivityLaunch(
-            activity.intent,
-            activity.launchedFromUid,
-            requireNotNull(activity.launchedFromPackage) {
+    fun activityModel(activity: Activity): ActivityModel {
+        return ActivityModel(
+            intent = activity.intent,
+            launchedFromUid = activity.launchedFromUid,
+            launchedFromPackage = requireNotNull(activity.launchedFromPackage) {
                 "activity.launchedFromPackage was null. This is expected to be non-null for " +
-                    "any system-signed application!"
+                        "any system-signed application!"
             },
-            activity.referrer
+            referrer = activity.referrer
         )
     }
 }

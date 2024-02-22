@@ -29,7 +29,7 @@ class ActivityLaunchTest {
 
     @Test
     fun testDefaultValues() {
-        val input = ActivityLaunch(Intent(ACTION_CHOOSER), 0, "example.com", null)
+        val input = ActivityModel(Intent(ACTION_CHOOSER), 0, "example.com", null)
 
         val output = input.toParcelAndBack()
 
@@ -40,7 +40,7 @@ class ActivityLaunchTest {
     fun testCommonValues() {
         val intent = Intent(ACTION_CHOOSER).apply { putExtra(EXTRA_TEXT, "Test") }
         val input =
-            ActivityLaunch(intent, 1234, "com.example", Uri.parse("android-app://example.com"))
+            ActivityModel(intent, 1234, "com.example", Uri.parse("android-app://example.com"))
 
         val output = input.toParcelAndBack()
 
@@ -50,10 +50,10 @@ class ActivityLaunchTest {
     @Test
     fun testReferrerPackage_withAppReferrer_usesReferrer() {
         val launch1 =
-            ActivityLaunch(
+            ActivityModel(
                 intent = Intent(),
-                fromUid = 1000,
-                fromPackage = "other.example.com",
+                launchedFromUid = 1000,
+                launchedFromPackage = "other.example.com",
                 referrer = Uri.parse("android-app://app.example.com")
             )
 
@@ -63,10 +63,10 @@ class ActivityLaunchTest {
     @Test
     fun testReferrerPackage_httpReferrer_isNull() {
         val launch =
-            ActivityLaunch(
+            ActivityModel(
                 intent = Intent(),
-                fromUid = 1000,
-                fromPackage = "example.com",
+                launchedFromUid = 1000,
+                launchedFromPackage = "example.com",
                 referrer = Uri.parse("http://some.other.value")
             )
 
@@ -76,29 +76,29 @@ class ActivityLaunchTest {
     @Test
     fun testReferrerPackage_nullReferrer_isNull() {
         val launch =
-            ActivityLaunch(
+            ActivityModel(
                 intent = Intent(),
-                fromUid = 1000,
-                fromPackage = "example.com",
+                launchedFromUid = 1000,
+                launchedFromPackage = "example.com",
                 referrer = null
             )
 
         assertThat(launch.referrerPackage).isNull()
     }
 
-    private fun assertEquals(expected: ActivityLaunch, actual: ActivityLaunch) {
+    private fun assertEquals(expected: ActivityModel, actual: ActivityModel) {
         // Test fields separately: Intent does not override equals()
         assertWithMessage("%s.filterEquals(%s)", actual.intent, expected.intent)
             .that(actual.intent.filterEquals(expected.intent))
             .isTrue()
 
         assertWithMessage("actual fromUid is equal to expected")
-            .that(actual.fromUid)
-            .isEqualTo(expected.fromUid)
+            .that(actual.launchedFromUid)
+            .isEqualTo(expected.launchedFromUid)
 
         assertWithMessage("actual fromPackage is equal to expected")
-            .that(actual.fromPackage)
-            .isEqualTo(expected.fromPackage)
+            .that(actual.launchedFromPackage)
+            .isEqualTo(expected.launchedFromPackage)
 
         assertWithMessage("actual referrer is equal to expected")
             .that(actual.referrer)
