@@ -18,13 +18,25 @@ package com.android.intentresolver.contentpreview
 
 import android.content.ContentInterface
 import android.content.Intent
-import android.content.Intent.EXTRA_CHOOSER_CUSTOM_ACTIONS
+import android.content.Intent.EXTRA_CHOOSER_MODIFY_SHARE_ACTION
+import android.content.Intent.EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER
+import android.content.Intent.EXTRA_CHOOSER_TARGETS
 import android.content.Intent.EXTRA_INTENT
+import android.content.IntentSender
 import android.net.Uri
 import android.os.Bundle
 import android.service.chooser.AdditionalContentContract.MethodNames.ON_SELECTION_CHANGED
 import android.service.chooser.ChooserAction
-import com.android.intentresolver.contentpreview.PayloadToggleInteractor.CallbackResult
+import android.service.chooser.ChooserTarget
+import com.android.intentresolver.contentpreview.PayloadToggleInteractor.ShareouselUpdate
+import com.android.intentresolver.v2.ui.viewmodel.readAlternateIntents
+import com.android.intentresolver.v2.ui.viewmodel.readChooserActions
+import com.android.intentresolver.v2.validation.ValidationResult
+import com.android.intentresolver.v2.validation.types.array
+import com.android.intentresolver.v2.validation.types.value
+import com.android.intentresolver.v2.validation.validateFrom
+
+private const val TAG = "SelectionChangeCallback"
 
 /**
  * Encapsulates payload change callback invocation to the sharing app; handles callback arguments
@@ -34,8 +46,8 @@ class SelectionChangeCallback(
     private val uri: Uri,
     private val chooserIntent: Intent,
     private val contentResolver: ContentInterface,
-) : (Intent) -> CallbackResult? {
-    fun onSelectionChanged(targetIntent: Intent): CallbackResult? =
+) : (Intent) -> ShareouselUpdate? {
+    fun onSelectionChanged(targetIntent: Intent): ShareouselUpdate? =
         contentResolver
             .call(
                 requireNotNull(uri.authority) { "URI authority can not be null" },
@@ -49,20 +61,35 @@ class SelectionChangeCallback(
                 }
             )
             ?.let { bundle ->
-                val actions =
-                    if (bundle.containsKey(EXTRA_CHOOSER_CUSTOM_ACTIONS)) {
-                        bundle
-                            .getParcelableArray(
-                                EXTRA_CHOOSER_CUSTOM_ACTIONS,
-                                ChooserAction::class.java
-                            )
-                            ?.filterNotNull()
-                            ?: emptyList()
+                readCallbackResponse(bundle).let { validation ->
+                    if (validation.isSuccess()) {
+                        validation.value
                     } else {
+                        validation.reportToLogcat(TAG)
                         null
                     }
-                CallbackResult(actions)
+                }
             }
 
     override fun invoke(targetIntent: Intent) = onSelectionChanged(targetIntent)
+
+    private fun readCallbackResponse(bundle: Bundle): ValidationResult<ShareouselUpdate> {
+        return validateFrom(bundle::get) {
+            val customActions = readChooserActions()
+            val modifyShareAction =
+                optional(value<ChooserAction>(EXTRA_CHOOSER_MODIFY_SHARE_ACTION))
+            val alternateIntents = readAlternateIntents()
+            val callerTargets = optional(array<ChooserTarget>(EXTRA_CHOOSER_TARGETS))
+            val refinementIntentSender =
+                optional(value<IntentSender>(EXTRA_CHOOSER_REFINEMENT_INTENT_SENDER))
+
+            ShareouselUpdate(
+                customActions,
+                modifyShareAction,
+                alternateIntents,
+                callerTargets,
+                refinementIntentSender,
+            )
+        }
+    }
 }
