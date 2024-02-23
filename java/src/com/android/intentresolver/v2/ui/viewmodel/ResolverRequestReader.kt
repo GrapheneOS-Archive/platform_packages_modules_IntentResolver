@@ -21,7 +21,7 @@ import android.os.UserHandle
 import com.android.intentresolver.v2.ResolverActivity.PROFILE_PERSONAL
 import com.android.intentresolver.v2.ResolverActivity.PROFILE_WORK
 import com.android.intentresolver.v2.shared.model.Profile
-import com.android.intentresolver.v2.ui.model.ActivityLaunch
+import com.android.intentresolver.v2.ui.model.ActivityModel
 import com.android.intentresolver.v2.ui.model.ResolverRequest
 import com.android.intentresolver.v2.validation.Validation
 import com.android.intentresolver.v2.validation.ValidationResult
@@ -33,7 +33,7 @@ const val EXTRA_SELECTED_PROFILE =
     "com.android.internal.app.ResolverActivity.EXTRA_SELECTED_PROFILE"
 const val EXTRA_IS_AUDIO_CAPTURE_DEVICE = "is_audio_capture_device"
 
-fun readResolverRequest(launch: ActivityLaunch): ValidationResult<ResolverRequest> {
+fun readResolverRequest(launch: ActivityModel): ValidationResult<ResolverRequest> {
     @Suppress("DEPRECATION")
     return validateFrom((launch.intent.extras ?: Bundle())::get) {
         val callingUser = optional(value<UserHandle>(EXTRA_CALLING_USER))

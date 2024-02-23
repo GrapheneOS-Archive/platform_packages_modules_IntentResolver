@@ -113,7 +113,7 @@ import com.android.intentresolver.v2.profiles.OnProfileSelectedListener;
 import com.android.intentresolver.v2.profiles.TabConfig;
 import com.android.intentresolver.v2.profiles.ResolverMultiProfilePagerAdapter;
 import com.android.intentresolver.v2.ui.ActionTitle;
-import com.android.intentresolver.v2.ui.model.ActivityLaunch;
+import com.android.intentresolver.v2.ui.model.ActivityModel;
 import com.android.intentresolver.v2.ui.model.ResolverRequest;
 import com.android.intentresolver.v2.validation.ValidationResult;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
@@ -149,7 +149,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         ResolverListAdapter.ResolverListCommunicator {
 
     @Inject public PackageManager mPackageManager;
-    @Inject public ActivityLaunch mActivityLaunch;
+    @Inject public ActivityModel mActivityModel;
     @Inject public DevicePolicyResources mDevicePolicyResources;
     @Inject public IntentForwarding mIntentForwarding;
     private ResolverRequest mResolverRequest;
@@ -227,7 +227,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     public CreationExtras getDefaultViewModelCreationExtras() {
         return addDefaultArgs(
                 super.getDefaultViewModelCreationExtras(),
-                new Pair<>(ActivityLaunch.ACTIVITY_LAUNCH_KEY,  mActivityLaunch));
+                new Pair<>(ActivityModel.ACTIVITY_MODEL_KEY, mActivityModel));
     }
 
     @Override
@@ -235,14 +235,14 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_DeviceDefault_Resolver);
         Log.i(TAG, "onCreate");
-        Log.i(TAG, "activityLaunch=" + mActivityLaunch.toString());
-        int callerUid = mActivityLaunch.getFromUid();
+        Log.i(TAG, "activityLaunch=" + mActivityModel.toString());
+        int callerUid = mActivityModel.getLaunchedFromUid();
         if (callerUid < 0 || UserHandle.isIsolated(callerUid)) {
             Log.e(TAG, "Can't start a resolver from uid " + callerUid);
             finish();
         }
 
-        ValidationResult<ResolverRequest> result = readResolverRequest(mActivityLaunch);
+        ValidationResult<ResolverRequest> result = readResolverRequest(mActivityModel);
         if (!result.isSuccess()) {
             result.reportToLogcat(TAG);
             finish();
@@ -748,7 +748,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
                 new ResolverRankerServiceResolverComparator(
                         this,
                         mResolverRequest.getIntent(),
-                        mActivityLaunch.getReferrerPackage(),
+                        mActivityModel.getReferrerPackage(),
                         null,
                         null,
                         getResolverRankerServiceUserHandleList(userHandle),
@@ -756,9 +756,9 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         return new ResolverListController(
                 this,
                 mPackageManager,
-                mActivityLaunch.getIntent(),
-                mActivityLaunch.getReferrerPackage(),
-                mActivityLaunch.getFromUid(),
+                mActivityModel.getIntent(),
+                mActivityModel.getReferrerPackage(),
+                mActivityModel.getLaunchedFromUid(),
                 resolverComparator,
                 getQueryIntentsUser(userHandle));
     }
@@ -1479,7 +1479,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
             }
         } catch (RuntimeException e) {
             Slog.wtf(TAG,
-                    "Unable to launch as uid " + mActivityLaunch.getFromUid()
+                    "Unable to launch as uid " + mActivityModel.getLaunchedFromUid()
                     + " package " + getLaunchedFromPackage() + ", while running in "
                     + ActivityThread.currentProcessName(), e);
         }
