@@ -28,7 +28,6 @@ import android.content.Intent.EXTRA_EXCLUDE_COMPONENTS
 import android.content.Intent.EXTRA_INITIAL_INTENTS
 import android.content.Intent.EXTRA_INTENT
 import android.content.Intent.EXTRA_METADATA_TEXT
-import android.content.Intent.EXTRA_REFERRER
 import android.content.Intent.EXTRA_REPLACEMENT_EXTRAS
 import android.content.Intent.EXTRA_TEXT
 import android.content.Intent.EXTRA_TITLE
@@ -49,6 +48,7 @@ import com.android.intentresolver.v2.ext.hasSendAction
 import com.android.intentresolver.v2.ext.ifMatch
 import com.android.intentresolver.v2.ui.model.ActivityModel
 import com.android.intentresolver.v2.ui.model.ChooserRequest
+import com.android.intentresolver.v2.validation.Validation
 import com.android.intentresolver.v2.validation.ValidationResult
 import com.android.intentresolver.v2.validation.types.IntentOrUri
 import com.android.intentresolver.v2.validation.types.array
@@ -75,9 +75,7 @@ fun readChooserRequest(
 
         val isSendAction = targetIntent.hasSendAction()
 
-        val additionalTargets =
-            optional(array<Intent>(EXTRA_ALTERNATE_INTENTS))?.map { it.maybeAddSendActionFlags() }
-                ?: emptyList()
+        val additionalTargets = readAlternateIntents() ?: emptyList()
 
         val replacementExtras = optional(value<Bundle>(EXTRA_REPLACEMENT_EXTRAS))
 
@@ -119,15 +117,9 @@ fun readChooserRequest(
 
         val sharedText = optional(value<CharSequence>(EXTRA_TEXT))
 
-        val chooserActions =
-            optional(array<ChooserAction>(EXTRA_CHOOSER_CUSTOM_ACTIONS))
-                ?.filter { hasValidIcon(it) }
-                ?.take(MAX_CHOOSER_ACTIONS)
-                ?: emptyList()
+        val chooserActions = readChooserActions() ?: emptyList()
 
         val modifyShareAction = optional(value<ChooserAction>(EXTRA_CHOOSER_MODIFY_SHARE_ACTION))
-
-        val referrerFillIn = Intent().putExtra(EXTRA_REFERRER, launch.referrer)
 
         val additionalContentUri: Uri?
         val focusedItemPos: Int
@@ -187,6 +179,14 @@ fun readChooserRequest(
         )
     }
 }
+
+fun Validation.readAlternateIntents(): List<Intent>? =
+    optional(array<Intent>(EXTRA_ALTERNATE_INTENTS))?.map { it.maybeAddSendActionFlags() }
+
+fun Validation.readChooserActions(): List<ChooserAction>? =
+    optional(array<ChooserAction>(EXTRA_CHOOSER_CUSTOM_ACTIONS))
+        ?.filter { hasValidIcon(it) }
+        ?.take(MAX_CHOOSER_ACTIONS)
 
 private fun Intent.toShareTargetFilter(): IntentFilter? {
     return type?.let {

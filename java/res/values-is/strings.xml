@@ -66,8 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Deilir myndskeiði með tengli}one{Deilir # myndskeiði með tengli}other{Deilir # myndskeiðum með tengli}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Deilir skrá með texta}one{Deilir # skrá með texta}other{Deilir # skrám með texta}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Deilir skrá með tengli}one{Deilir # skrá með tengli}other{Deilir # skrám með tengli}}"</string>
-    <!-- no translation found for sharing_album (191743129899503345) -->
-    <skip />
+    <string name="sharing_album" msgid="191743129899503345">"Deilir albúmi"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Eingöngu mynd}one{Eingöngu myndir}other{Eingöngu myndir}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Eingöngu myndskeið}one{Eingöngu myndskeið}other{Eingöngu myndskeið}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Eingöngu skrá}one{Eingöngu skrár}other{Eingöngu skrár}}"</string>

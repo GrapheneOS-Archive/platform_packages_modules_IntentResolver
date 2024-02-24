@@ -17,8 +17,10 @@
 package com.android.intentresolver.contentpreview
 
 import android.content.Intent
+import android.content.IntentSender
 import android.net.Uri
 import android.service.chooser.ChooserAction
+import android.service.chooser.ChooserTarget
 import android.util.Log
 import android.util.SparseArray
 import java.io.Closeable
@@ -43,7 +45,7 @@ private const val TAG = "PayloadToggleInteractor"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PayloadToggleInteractor(
-    // must use single-thread dispatcher (or we should enforce it with a lock)
+    // TODO: a single-thread dispatcher is currently expected. iterate on the synchronization logic.
     private val scope: CoroutineScope,
     private val initiallySharedUris: List<Uri>,
     private val focusedUriIdx: Int,
@@ -51,7 +53,7 @@ class PayloadToggleInteractor(
     private val cursorReaderProvider: suspend () -> CursorReader,
     private val uriMetadataReader: (Uri) -> FileInfo,
     private val targetIntentModifier: (List<Item>) -> Intent,
-    private val selectionCallback: (Intent) -> CallbackResult?,
+    private val selectionCallback: (Intent) -> ShareouselUpdate?,
 ) {
     private var cursorDataRef = CompletableDeferred<CursorData?>()
     private val records = LinkedList<Record>()
@@ -183,7 +185,7 @@ class PayloadToggleInteractor(
         val (reader, selectionTracker) = waitForCursorData() ?: return
         if (!reader.hasMoreBefore) return
 
-        val newItems = reader.readPageBefore().toRecords()
+        val newItems = reader.readPageBefore().toItems()
         selectionTracker.onStartItemsAdded(newItems)
         for (i in newItems.size() - 1 downTo 0) {
             records.add(
@@ -224,7 +226,7 @@ class PayloadToggleInteractor(
         val (reader, selectionTracker) = waitForCursorData() ?: return
         if (!reader.hasMoreAfter) return
 
-        val newItems = reader.readPageAfter().toRecords()
+        val newItems = reader.readPageAfter().toItems()
         selectionTracker.onEndItemsAdded(newItems)
         for (i in 0 until newItems.size()) {
             val key = newItems.keyAt(i)
@@ -254,7 +256,7 @@ class PayloadToggleInteractor(
         }
     }
 
-    private fun SparseArray<Uri>.toRecords(): SparseArray<Item> {
+    private fun SparseArray<Uri>.toItems(): SparseArray<Item> {
         val items = SparseArray<Item>(size())
         for (i in 0 until size()) {
             val key = keyAt(i)
@@ -335,7 +337,14 @@ class PayloadToggleInteractor(
         val isSelected = MutableStateFlow(false)
     }
 
-    data class CallbackResult(val customActions: List<ChooserAction>?)
+    data class ShareouselUpdate(
+        // for all properties, null value means no change
+        val customActions: List<ChooserAction>? = null,
+        val modifyShareAction: ChooserAction? = null,
+        val alternateIntents: List<Intent>? = null,
+        val callerTargets: List<ChooserTarget>? = null,
+        val refinementIntentSender: IntentSender? = null,
+    )
 
     private data class CursorData(
         val reader: CursorReader,
