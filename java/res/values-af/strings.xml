@@ -66,8 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Deel tans video met skakel}other{Deel tans # video’s met skakel}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Deel tans lêer met teks}other{Deel tans # lêers met teks}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Deel tans lêer met skakel}other{Deel tans # lêers met skakel}}"</string>
-    <!-- no translation found for sharing_album (191743129899503345) -->
-    <skip />
+    <string name="sharing_album" msgid="191743129899503345">"Deel tans album"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Net prent}other{Net prente}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Net video}other{Net video’s}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Net lêer}other{Net lêers}}"</string>

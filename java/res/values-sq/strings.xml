@@ -66,8 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Po ndahet një video me lidhje}other{Po ndahen # video me lidhje}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Po ndahet një skedar me tekst}other{Po ndahen # skedarë me tekst}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Po ndahet një skedar me lidhje}other{Po ndahen # skedarë me lidhje}}"</string>
-    <!-- no translation found for sharing_album (191743129899503345) -->
-    <skip />
+    <string name="sharing_album" msgid="191743129899503345">"Albumi po ndahet"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Vetëm imazhi}other{Vetëm imazhet}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Vetëm videoja}other{Vetëm videot}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Vetëm skedari}other{Vetëm skedarët}}"</string>

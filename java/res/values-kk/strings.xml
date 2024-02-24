@@ -66,8 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Сілтемесі бар бейне жіберу}other{Сілтемесі бар # бейне жіберу}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Мәтіні бар файл жіберу}other{Мәтіні бар # файл жіберу}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Сілтемесі бар файл жіберу}other{Сілтемесі бар # файл жіберу}}"</string>
-    <!-- no translation found for sharing_album (191743129899503345) -->
-    <skip />
+    <string name="sharing_album" msgid="191743129899503345">"Альбомды бөлісу"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Тек сурет}other{Тек суреттер}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Тек бейне}other{Тек бейнелер}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Тек файл}other{Тек файлдар}}"</string>

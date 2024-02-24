@@ -66,8 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Havolali videoni yuborish}other{# ta havolali videoni yuborish}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Matnli faylni yuborish}other{# ta matnli faylni yuborish}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Havolali faylni yuborish}other{# ta havolali faylni yuborish}}"</string>
-    <!-- no translation found for sharing_album (191743129899503345) -->
-    <skip />
+    <string name="sharing_album" msgid="191743129899503345">"Albom ulashilmoqda"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Faqat rasm}other{Faqat rasmlar}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Faqat video}other{Faqat videolar}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Faqat fayl}other{Faqat fayllar}}"</string>
