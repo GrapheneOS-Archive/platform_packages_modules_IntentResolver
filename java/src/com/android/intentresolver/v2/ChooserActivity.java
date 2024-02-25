@@ -273,6 +273,7 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private static final int SCROLL_STATUS_SCROLLING_VERTICAL = 1;
     private static final int SCROLL_STATUS_SCROLLING_HORIZONTAL = 2;
 
+    @Inject public ChooserHelper mChooserHelper;
     @Inject public ActivityModel mActivityModel;
     @Inject public FeatureFlags mFeatureFlags;
     @Inject public android.service.chooser.FeatureFlags mChooserServiceFeatureFlags;
@@ -354,7 +355,11 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     protected final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
-        Log.i(TAG, "activityLaunch=" + mActivityModel.toString());
+        Log.i(TAG, "mActivityModel=" + mActivityModel.toString());
+
+        // The postInit hook is invoked when this function returns, via Lifecycle.
+        mChooserHelper.setPostCreateCallback(this::init);
+
         int callerUid = mActivityModel.getLaunchedFromUid();
         if (callerUid < 0 || UserHandle.isIsolated(callerUid)) {
             Log.e(TAG, "Can't start a resolver from uid " + callerUid);
@@ -374,7 +379,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
                     .create(mActivityModel.getLaunchedFromUid(), chosenComponentSender);
         }
         mLogic = createActivityLogic();
-        init();
     }
 
     private void init() {
