@@ -6,6 +6,16 @@ container: "system"
 # bug: "Feature_Bug_#" or "<none>"
 
 flag {
+  name: "fix_target_list_footer"
+  namespace: "intentresolver"
+  description: "Update app target grid footer on window insets change"
+  bug: "324011248"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}
+
+flag {
   name: "scrollable_preview"
   namespace: "intentresolver"
   description: "Makes preview scrollable with multiple profiles"
