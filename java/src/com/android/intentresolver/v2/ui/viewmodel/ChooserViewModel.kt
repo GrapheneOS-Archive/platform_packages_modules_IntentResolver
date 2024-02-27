@@ -22,7 +22,10 @@ import com.android.intentresolver.inject.ChooserServiceFlags
 import com.android.intentresolver.v2.ui.model.ActivityModel
 import com.android.intentresolver.v2.ui.model.ActivityModel.Companion.ACTIVITY_MODEL_KEY
 import com.android.intentresolver.v2.ui.model.ChooserRequest
+import com.android.intentresolver.v2.validation.Invalid
+import com.android.intentresolver.v2.validation.Valid
 import com.android.intentresolver.v2.validation.ValidationResult
+import com.android.intentresolver.v2.validation.log
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -45,12 +48,17 @@ constructor(
     private val status: ValidationResult<ChooserRequest> =
         readChooserRequest(mActivityModel, flags)
 
-    val chooserRequest: ChooserRequest by lazy { status.getOrThrow() }
+    val chooserRequest: ChooserRequest by lazy {
+        when(status) {
+            is Valid -> status.value
+            is Invalid -> error(status.errors)
+        }
+    }
 
     fun init(): Boolean {
         Log.i(TAG, "viewModel init")
-        if (!status.isSuccess()) {
-            status.reportToLogcat(TAG)
+        if (status is Invalid) {
+            status.errors.forEach { finding -> finding.log(TAG) }
             return false
         }
         Log.i(TAG, "request = $chooserRequest")

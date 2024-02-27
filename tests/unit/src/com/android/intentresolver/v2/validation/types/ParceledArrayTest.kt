@@ -4,8 +4,9 @@ import android.content.Intent
 import android.graphics.Point
 import com.android.intentresolver.v2.validation.Importance.CRITICAL
 import com.android.intentresolver.v2.validation.Importance.WARNING
-import com.android.intentresolver.v2.validation.RequiredValueMissing
-import com.android.intentresolver.v2.validation.ValidationResultSubject.Companion.assertThat
+import com.android.intentresolver.v2.validation.Invalid
+import com.android.intentresolver.v2.validation.NoValue
+import com.android.intentresolver.v2.validation.Valid
 import com.android.intentresolver.v2.validation.ValueIsWrongType
 import com.android.intentresolver.v2.validation.WrongElementType
 import com.google.common.truth.Truth.assertThat
@@ -21,7 +22,8 @@ class ParceledArrayTest {
 
         val result = keyValidator.validate(values::get, CRITICAL)
 
-        assertThat(result).findings().isEmpty()
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<List<String>>
         assertThat(result.value).containsExactly("String")
     }
 
@@ -33,9 +35,10 @@ class ParceledArrayTest {
 
         val result = keyValidator.validate(values::get, CRITICAL)
 
-        assertThat(result).value().isNull()
-        assertThat(result)
-            .findings()
+        assertThat(result).isInstanceOf(Invalid::class.java)
+        result as Invalid<List<Intent>>
+
+        assertThat(result.errors)
             .containsExactly(
                 // TODO: report with a new class `WrongElementType` to improve clarity
                 WrongElementType(
@@ -55,8 +58,10 @@ class ParceledArrayTest {
 
         val result = keyValidator.validate(source = { null }, CRITICAL)
 
-        assertThat(result).value().isNull()
-        assertThat(result).findings().containsExactly(RequiredValueMissing("key", Intent::class))
+        assertThat(result).isInstanceOf(Invalid::class.java)
+        result as Invalid<List<Intent>>
+
+        assertThat(result.errors).containsExactly(NoValue("key", CRITICAL, Intent::class))
     }
 
     /** Check validation passes when value is null and importance is [WARNING] (optional). */
@@ -66,8 +71,10 @@ class ParceledArrayTest {
 
         val result = keyValidator.validate(source = { null }, WARNING)
 
-        assertThat(result).findings().isEmpty()
-        assertThat(result.value).isNull()
+        assertThat(result).isInstanceOf(Invalid::class.java)
+        result as Invalid<List<Intent>>
+
+        assertThat(result.errors).isEmpty()
     }
 
     /** Check correct failure result when the array value itself is the wrong type. */
@@ -78,9 +85,10 @@ class ParceledArrayTest {
 
         val result = keyValidator.validate(values::get, CRITICAL)
 
-        assertThat(result).value().isNull()
-        assertThat(result)
-            .findings()
+        assertThat(result).isInstanceOf(Invalid::class.java)
+        result as Invalid<List<Intent>>
+
+        assertThat(result.errors)
             .containsExactly(
                 ValueIsWrongType(
                     "key",

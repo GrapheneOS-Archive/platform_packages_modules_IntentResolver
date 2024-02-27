@@ -115,6 +115,10 @@ import com.android.intentresolver.v2.profiles.ResolverMultiProfilePagerAdapter;
 import com.android.intentresolver.v2.ui.ActionTitle;
 import com.android.intentresolver.v2.ui.model.ActivityModel;
 import com.android.intentresolver.v2.ui.model.ResolverRequest;
+import com.android.intentresolver.v2.validation.Finding;
+import com.android.intentresolver.v2.validation.FindingsKt;
+import com.android.intentresolver.v2.validation.Invalid;
+import com.android.intentresolver.v2.validation.Valid;
 import com.android.intentresolver.v2.validation.ValidationResult;
 import com.android.intentresolver.widget.ResolverDrawerLayout;
 import com.android.internal.annotations.VisibleForTesting;
@@ -135,6 +139,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
@@ -243,11 +248,16 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         }
 
         ValidationResult<ResolverRequest> result = readResolverRequest(mActivityModel);
-        if (!result.isSuccess()) {
-            result.reportToLogcat(TAG);
+        if (result instanceof Invalid) {
+            ((Invalid) result).getErrors().forEach(new Consumer<Finding>() {
+                @Override
+                public void accept(Finding finding) {
+                    FindingsKt.log(finding, TAG);
+                }
+            });
             finish();
         }
-        mResolverRequest = result.getOrThrow();
+        mResolverRequest = ((Valid<ResolverRequest>) result).getValue();
         mLogic = createActivityLogic();
         mResolvingHome = mResolverRequest.isResolvingHome();
         mTargetDataLoader = new DefaultTargetDataLoader(

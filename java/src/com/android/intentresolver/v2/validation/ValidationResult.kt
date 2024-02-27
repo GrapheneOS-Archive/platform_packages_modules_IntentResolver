@@ -15,25 +15,12 @@
  */
 package com.android.intentresolver.v2.validation
 
-import android.util.Log
+sealed interface ValidationResult<T>
 
-sealed interface ValidationResult<T> {
-    val value: T?
-    val findings: List<Finding>
-
-    fun isSuccess() = value != null
-
-    fun getOrThrow(): T =
-        checkNotNull(value) { "The result was invalid: " + findings.joinToString(separator = "\n") }
-
-    fun reportToLogcat(tag: String) {
-        findings.forEach { Log.println(it.logcatPriority, tag, it.toString()) }
-    }
+data class Valid<T>(val value: T, val warnings: List<Finding> = emptyList()) : ValidationResult<T> {
+    constructor(value: T, warning: Finding) : this(value, listOf(warning))
 }
 
-data class Valid<T>(override val value: T?, override val findings: List<Finding> = emptyList()) :
-    ValidationResult<T>
-
-data class Invalid<T>(override val findings: List<Finding>) : ValidationResult<T> {
-    override val value: T? = null
+data class Invalid<T>(val errors: List<Finding> = emptyList()) : ValidationResult<T> {
+    constructor(error: Finding) : this(listOf(error))
 }
