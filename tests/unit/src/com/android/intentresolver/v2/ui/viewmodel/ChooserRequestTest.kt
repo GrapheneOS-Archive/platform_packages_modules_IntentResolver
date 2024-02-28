@@ -21,6 +21,8 @@ import android.content.Intent.ACTION_SEND
 import android.content.Intent.ACTION_SEND_MULTIPLE
 import android.content.Intent.ACTION_VIEW
 import android.content.Intent.EXTRA_ALTERNATE_INTENTS
+import android.content.Intent.EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI
+import android.content.Intent.EXTRA_CHOOSER_FOCUSED_ITEM_POSITION
 import android.content.Intent.EXTRA_INTENT
 import android.content.Intent.EXTRA_REFERRER
 import android.net.Uri
@@ -31,18 +33,12 @@ import com.android.intentresolver.ContentTypeHint
 import com.android.intentresolver.inject.FakeChooserServiceFlags
 import com.android.intentresolver.v2.ui.model.ActivityModel
 import com.android.intentresolver.v2.ui.model.ChooserRequest
-import com.android.intentresolver.v2.validation.RequiredValueMissing
-import com.android.intentresolver.v2.validation.ValidationResultSubject.Companion.assertThat
+import com.android.intentresolver.v2.validation.Importance
+import com.android.intentresolver.v2.validation.Invalid
+import com.android.intentresolver.v2.validation.NoValue
+import com.android.intentresolver.v2.validation.Valid
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
-
-// TODO: replace with the new API constant, Intent#EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI
-private const val EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI =
-    "android.intent.extra.CHOOSER_ADDITIONAL_CONTENT_URI"
-
-// TODO: replace with the new API constant, Intent#EXTRA_CHOOSER_FOCUSED_ITEM_POSITION
-private const val EXTRA_CHOOSER_FOCUSED_ITEM_POSITION =
-    "android.intent.extra.CHOOSER_FOCUSED_ITEM_POSITION"
 
 private fun createActivityModel(
     targetIntent: Intent?,
@@ -70,26 +66,30 @@ class ChooserRequestTest {
 
     @Test
     fun missingIntent() {
-        val launch = createActivityModel(targetIntent = null)
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
+        val model = createActivityModel(targetIntent = null)
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
 
-        assertThat(result).value().isNull()
-        assertThat(result)
-            .findings()
-            .containsExactly(RequiredValueMissing(EXTRA_INTENT, Intent::class))
+        assertThat(result).isInstanceOf(Invalid::class.java)
+        result as Invalid<ChooserRequest>
+
+        assertThat(result.errors)
+            .containsExactly(NoValue(EXTRA_INTENT, Importance.CRITICAL, Intent::class))
     }
 
     @Test
     fun referrerFillIn() {
         val referrer = Uri.parse("android-app://example.com")
-        val launch = createActivityModel(targetIntent = Intent(ACTION_SEND), referrer)
-        launch.intent.putExtras(bundleOf(EXTRA_REFERRER to referrer))
+        val model = createActivityModel(targetIntent = Intent(ACTION_SEND), referrer)
+        model.intent.putExtras(bundleOf(EXTRA_REFERRER to referrer))
 
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
 
-        val fillIn = result.value?.getReferrerFillInIntent()
-        assertThat(fillIn?.hasExtra(EXTRA_REFERRER)).isTrue()
-        assertThat(fillIn?.getParcelableExtra(EXTRA_REFERRER, Uri::class.java)).isEqualTo(referrer)
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ChooserRequest>
+
+        val fillIn = result.value.getReferrerFillInIntent()
+        assertThat(fillIn.hasExtra(EXTRA_REFERRER)).isTrue()
+        assertThat(fillIn.getParcelableExtra(EXTRA_REFERRER, Uri::class.java)).isEqualTo(referrer)
     }
 
     @Test
@@ -97,45 +97,59 @@ class ChooserRequestTest {
         val referrer = Uri.parse("http://example.com")
         val intent = Intent().putExtras(bundleOf(EXTRA_INTENT to Intent(ACTION_SEND)))
 
-        val launch = createActivityModel(targetIntent = intent, referrer = referrer)
+        val model = createActivityModel(targetIntent = intent, referrer = referrer)
 
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
 
-        assertThat(result.value?.referrerPackage).isNull()
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ChooserRequest>
+
+        assertThat(result.value.referrerPackage).isNull()
     }
 
     @Test
     fun referrerPackage_fromAppReferrer() {
         val referrer = Uri.parse("android-app://example.com")
-        val launch = createActivityModel(targetIntent = Intent(ACTION_SEND), referrer)
+        val model = createActivityModel(targetIntent = Intent(ACTION_SEND), referrer)
 
-        launch.intent.putExtras(bundleOf(EXTRA_REFERRER to referrer))
+        model.intent.putExtras(bundleOf(EXTRA_REFERRER to referrer))
 
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
 
-        assertThat(result.value?.referrerPackage).isEqualTo(referrer.authority)
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ChooserRequest>
+
+        assertThat(result.value.referrerPackage).isEqualTo(referrer.authority)
     }
 
     @Test
     fun payloadIntents_includesTargetThenAdditional() {
         val intent1 = Intent(ACTION_SEND)
         val intent2 = Intent(ACTION_SEND_MULTIPLE)
-        val launch = createActivityModel(targetIntent = intent1, additionalIntents = listOf(intent2))
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
+        val model = createActivityModel(
+            targetIntent = intent1,
+            additionalIntents = listOf(intent2)
+        )
 
-        assertThat(result.value?.payloadIntents).containsExactly(intent1, intent2)
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
+
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ChooserRequest>
+
+        assertThat(result.value.payloadIntents).containsExactly(intent1, intent2)
     }
 
     @Test
     fun testRequest_withOnlyRequiredValues() {
         val intent = Intent().putExtras(bundleOf(EXTRA_INTENT to Intent(ACTION_SEND)))
-        val launch = createActivityModel(targetIntent = intent)
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
+        val model = createActivityModel(targetIntent = intent)
 
-        assertThat(result).value().isNotNull()
-        val value: ChooserRequest = result.getOrThrow()
-        assertThat(value.launchedFromPackage).isEqualTo(launch.launchedFromPackage)
-        assertThat(result).findings().isEmpty()
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
+
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ChooserRequest>
+
+        assertThat(result.value.launchedFromPackage).isEqualTo(model.launchedFromPackage)
     }
 
     @Test
@@ -143,18 +157,19 @@ class ChooserRequestTest {
         fakeChooserServiceFlags.setFlag(Flags.FLAG_CHOOSER_PAYLOAD_TOGGLING, true)
         val uri = Uri.parse("content://org.pkg/path")
         val position = 10
-        val launch =
+        val model =
             createActivityModel(targetIntent = Intent(ACTION_SEND)).apply {
                 intent.putExtra(EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI, uri)
                 intent.putExtra(EXTRA_CHOOSER_FOCUSED_ITEM_POSITION, position)
             }
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
 
-        assertThat(result).value().isNotNull()
-        val value: ChooserRequest = result.getOrThrow()
-        assertThat(value.additionalContentUri).isEqualTo(uri)
-        assertThat(value.focusedItemPosition).isEqualTo(position)
-        assertThat(result).findings().isEmpty()
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
+
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ChooserRequest>
+
+        assertThat(result.value.additionalContentUri).isEqualTo(uri)
+        assertThat(result.value.focusedItemPosition).isEqualTo(position)
     }
 
     @Test
@@ -162,46 +177,51 @@ class ChooserRequestTest {
         fakeChooserServiceFlags.setFlag(Flags.FLAG_CHOOSER_PAYLOAD_TOGGLING, false)
         val uri = Uri.parse("content://org.pkg/path")
         val position = 10
-        val launch =
+        val model =
             createActivityModel(targetIntent = Intent(ACTION_SEND)).apply {
                 intent.putExtra(EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI, uri)
                 intent.putExtra(EXTRA_CHOOSER_FOCUSED_ITEM_POSITION, position)
             }
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
 
-        assertThat(result).value().isNotNull()
-        val value: ChooserRequest = result.getOrThrow()
-        assertThat(value.additionalContentUri).isNull()
-        assertThat(value.focusedItemPosition).isEqualTo(0)
-        assertThat(result).findings().isEmpty()
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ChooserRequest>
+
+        assertThat(result.value.additionalContentUri).isNull()
+        assertThat(result.value.focusedItemPosition).isEqualTo(0)
+        assertThat(result.warnings).isEmpty()
     }
 
     @Test
     fun testRequest_actionSendWithInvalidAdditionalContentUri() {
         fakeChooserServiceFlags.setFlag(Flags.FLAG_CHOOSER_PAYLOAD_TOGGLING, true)
-        val launch =
+        val model =
             createActivityModel(targetIntent = Intent(ACTION_SEND)).apply {
-                intent.putExtra(EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI, "content://org.pkg/path")
-                intent.putExtra(EXTRA_CHOOSER_FOCUSED_ITEM_POSITION, "1")
+                intent.putExtra(EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI, "__invalid__")
+                intent.putExtra(EXTRA_CHOOSER_FOCUSED_ITEM_POSITION, "__invalid__")
             }
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
 
-        assertThat(result).value().isNotNull()
-        val value: ChooserRequest = result.getOrThrow()
-        assertThat(value.additionalContentUri).isNull()
-        assertThat(value.focusedItemPosition).isEqualTo(0)
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
+
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ChooserRequest>
+
+        assertThat(result.value.additionalContentUri).isNull()
+        assertThat(result.value.focusedItemPosition).isEqualTo(0)
     }
 
     @Test
     fun testRequest_actionSendWithoutAdditionalContentUri() {
         fakeChooserServiceFlags.setFlag(Flags.FLAG_CHOOSER_PAYLOAD_TOGGLING, true)
-        val launch = createActivityModel(targetIntent = Intent(ACTION_SEND))
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
+        val model = createActivityModel(targetIntent = Intent(ACTION_SEND))
 
-        assertThat(result).value().isNotNull()
-        val value: ChooserRequest = result.getOrThrow()
-        assertThat(value.additionalContentUri).isNull()
-        assertThat(value.focusedItemPosition).isEqualTo(0)
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
+
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ChooserRequest>
+
+        assertThat(result.value.additionalContentUri).isNull()
+        assertThat(result.value.focusedItemPosition).isEqualTo(0)
     }
 
     @Test
@@ -209,52 +229,53 @@ class ChooserRequestTest {
         fakeChooserServiceFlags.setFlag(Flags.FLAG_CHOOSER_PAYLOAD_TOGGLING, true)
         val uri = Uri.parse("content://org.pkg/path")
         val position = 10
-        val launch =
-            createActivityModel(targetIntent = Intent(ACTION_VIEW)).apply {
+        val model = createActivityModel(targetIntent = Intent(ACTION_VIEW)).apply {
                 intent.putExtra(EXTRA_CHOOSER_ADDITIONAL_CONTENT_URI, uri)
                 intent.putExtra(EXTRA_CHOOSER_FOCUSED_ITEM_POSITION, position)
             }
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
 
-        assertThat(result).value().isNotNull()
-        val value: ChooserRequest = result.getOrThrow()
-        assertThat(value.additionalContentUri).isNull()
-        assertThat(value.focusedItemPosition).isEqualTo(0)
-        assertThat(result).findings().isEmpty()
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
+
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ChooserRequest>
+
+        assertThat(result.value.additionalContentUri).isNull()
+        assertThat(result.value.focusedItemPosition).isEqualTo(0)
+        assertThat(result.warnings).isEmpty()
     }
 
     @Test
     fun testAlbumType() {
         fakeChooserServiceFlags.setFlag(Flags.FLAG_CHOOSER_ALBUM_TEXT, true)
-        val launch = createActivityModel(Intent(ACTION_SEND))
-        launch.intent.putExtra(
+        val model = createActivityModel(Intent(ACTION_SEND))
+        model.intent.putExtra(
             Intent.EXTRA_CHOOSER_CONTENT_TYPE_HINT,
             Intent.CHOOSER_CONTENT_TYPE_ALBUM
         )
 
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
 
-        val value: ChooserRequest = result.getOrThrow()
-        assertThat(value.contentTypeHint).isEqualTo(ContentTypeHint.ALBUM)
-        assertThat(result).findings().isEmpty()
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ChooserRequest>
+
+        assertThat(result.value.contentTypeHint).isEqualTo(ContentTypeHint.ALBUM)
+        assertThat(result.warnings).isEmpty()
     }
 
     @Test
     fun metadataText_whenFlagFalse_isNull() {
-        // Arrange
         fakeChooserServiceFlags.setFlag(Flags.FLAG_ENABLE_SHARESHEET_METADATA_EXTRA, false)
         val metadataText: CharSequence = "Test metadata text"
-        val launch =
-            createActivityModel(targetIntent = Intent()).apply {
+        val model = createActivityModel(targetIntent = Intent()).apply {
                 intent.putExtra(Intent.EXTRA_METADATA_TEXT, metadataText)
             }
 
-        // Act
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
 
-        // Assert
-        assertThat(result).value().isNotNull()
-        assertThat(result.value?.metadataText).isNull()
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ChooserRequest>
+
+        assertThat(result.value.metadataText).isNull()
     }
 
     @Test
@@ -262,16 +283,15 @@ class ChooserRequestTest {
         // Arrange
         fakeChooserServiceFlags.setFlag(Flags.FLAG_ENABLE_SHARESHEET_METADATA_EXTRA, true)
         val metadataText: CharSequence = "Test metadata text"
-        val launch =
-            createActivityModel(targetIntent = Intent()).apply {
+        val model = createActivityModel(targetIntent = Intent()).apply {
                 intent.putExtra(Intent.EXTRA_METADATA_TEXT, metadataText)
             }
 
-        // Act
-        val result = readChooserRequest(launch, fakeChooserServiceFlags)
+        val result = readChooserRequest(model, fakeChooserServiceFlags)
 
-        // Assert
-        assertThat(result).value().isNotNull()
-        assertThat(result.value?.metadataText).isEqualTo(metadataText)
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ChooserRequest>
+
+        assertThat(result.value.metadataText).isEqualTo(metadataText)
     }
 }

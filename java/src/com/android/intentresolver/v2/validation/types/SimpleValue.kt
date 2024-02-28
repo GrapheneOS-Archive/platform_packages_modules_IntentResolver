@@ -16,7 +16,8 @@
 package com.android.intentresolver.v2.validation.types
 
 import com.android.intentresolver.v2.validation.Importance
-import com.android.intentresolver.v2.validation.RequiredValueMissing
+import com.android.intentresolver.v2.validation.Invalid
+import com.android.intentresolver.v2.validation.NoValue
 import com.android.intentresolver.v2.validation.Valid
 import com.android.intentresolver.v2.validation.ValidationResult
 import com.android.intentresolver.v2.validation.Validator
@@ -36,19 +37,21 @@ class SimpleValue<T : Any>(
             expected.isInstance(value) -> return Valid(expected.cast(value))
 
             // No value is present.
-            value == null -> createResult(importance, RequiredValueMissing(key, expected))
+            value == null -> when (importance) {
+                Importance.WARNING -> Invalid() // No warnings if optional, but missing
+                Importance.CRITICAL -> Invalid(NoValue(key, importance, expected))
+            }
 
             // The value is some other type.
             else ->
-                createResult(
-                    importance,
+                Invalid(listOf(
                     ValueIsWrongType(
                         key,
                         importance,
                         actualType = value::class,
                         allowedTypes = listOf(expected)
                     )
-                )
+                ))
         }
     }
 }

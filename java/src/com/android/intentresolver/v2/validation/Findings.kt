@@ -34,8 +34,12 @@ val Finding.logcatPriority
     get() =
         when (importance) {
             CRITICAL -> Log.ERROR
-            else -> Log.WARN
+            WARNING -> Log.WARN
         }
+
+fun Finding.log(tag: String) {
+    Log.println(logcatPriority, tag, message)
+}
 
 private fun formatMessage(key: String? = null, msg: String) = buildString {
     key?.also { append("['$key']: ") }
@@ -52,18 +56,21 @@ data class IgnoredValue(
         get() = formatMessage(key, "Ignored. $reason")
 }
 
-data class RequiredValueMissing(
+data class NoValue(
     val key: String,
+    override val importance: Importance,
     val allowedType: KClass<*>,
 ) : Finding {
-
-    override val importance = CRITICAL
 
     override val message: String
         get() =
             formatMessage(
                 key,
-                "expected value of ${allowedType.simpleName}, " + "but no value was present"
+                if (importance == CRITICAL) {
+                    "expected value of ${allowedType.simpleName}, " + "but no value was present"
+                } else {
+                    "no ${allowedType.simpleName} value present"
+                }
             )
 }
 

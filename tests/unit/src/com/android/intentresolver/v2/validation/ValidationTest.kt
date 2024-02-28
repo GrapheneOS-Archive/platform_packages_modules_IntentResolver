@@ -1,6 +1,5 @@
 package com.android.intentresolver.v2.validation
 
-import com.android.intentresolver.v2.validation.ValidationResultSubject.Companion.assertThat
 import com.android.intentresolver.v2.validation.types.value
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
@@ -16,8 +15,12 @@ class ValidationTest {
                 val required: Int = required(value<Int>("key"))
                 "return value: $required"
             }
-        assertThat(result).value().isEqualTo("return value: 1")
-        assertThat(result).findings().isEmpty()
+
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<String>
+
+        assertThat(result.value).isEqualTo("return value: 1")
+        assertThat(result.warnings).isEmpty()
     }
 
     /** Test reporting of absent required values. */
@@ -29,9 +32,12 @@ class ValidationTest {
                 fail("'required' should have thrown an exception")
                 "return value"
             }
-        assertThat(result).isFailure()
-        assertThat(result).findings().containsExactly(
-            RequiredValueMissing("key", Int::class))
+
+        assertThat(result).isInstanceOf(Invalid::class.java)
+        result as Invalid<String>
+
+        assertThat(result.errors).containsExactly(
+            NoValue("key", Importance.CRITICAL, Int::class))
     }
 
     /** Test optional values are ignored when absent. */
@@ -42,20 +48,28 @@ class ValidationTest {
                 val optional: Int? = optional(value<Int>("key"))
                 "return value: $optional"
             }
-        assertThat(result).value().isEqualTo("return value: 1")
-        assertThat(result).findings().isEmpty()
+
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<String>
+
+        assertThat(result.value).isEqualTo("return value: 1")
+        assertThat(result.warnings).isEmpty()
     }
 
     /** Test optional values are ignored when absent. */
     @Test
     fun optional_valueAbsent() {
-        val result: ValidationResult<String?> =
+        val result: ValidationResult<String> =
             validateFrom({ null }) {
                 val optional: String? = optional(value<String>("key"))
                 "return value: $optional"
             }
-        assertThat(result).isSuccess()
-        assertThat(result).findings().isEmpty()
+
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<String>
+
+        assertThat(result.value).isEqualTo("return value: null")
+        assertThat(result.warnings).isEmpty()
     }
 
     /** Test reporting of ignored values. */
@@ -66,9 +80,12 @@ class ValidationTest {
                 ignored(value<Int>("key"), "no longer supported")
                 "result value"
             }
-        assertThat(result).value().isEqualTo("result value")
-        assertThat(result)
-                .findings()
+
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<String>
+
+        assertThat(result.value).isEqualTo("result value")
+        assertThat(result.warnings)
                 .containsExactly(IgnoredValue("key", "no longer supported"))
     }
 
@@ -80,8 +97,11 @@ class ValidationTest {
                 ignored(value<Int>("key"), "ignored when option foo is set")
                 "result value"
             }
-        assertThat(result).value().isEqualTo("result value")
-        assertThat(result).findings().isEmpty()
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<String>
+
+        assertThat(result.value).isEqualTo("result value")
+        assertThat(result.warnings).isEmpty()
     }
 
     /** Test handling of exceptions in the validation function. */
@@ -91,9 +111,12 @@ class ValidationTest {
             validateFrom({ null }) {
                 error("something")
             }
-        assertThat(result).isFailure()
-        val findingTypes = result.findings.map { it::class }
-        assertThat(findingTypes.first()).isEqualTo(UncaughtException::class)
+
+        assertThat(result).isInstanceOf(Invalid::class.java)
+        result as Invalid<String>
+
+        val errorType = result.errors.map { it::class }.first()
+        assertThat(errorType).isEqualTo(UncaughtException::class)
     }
 
 }

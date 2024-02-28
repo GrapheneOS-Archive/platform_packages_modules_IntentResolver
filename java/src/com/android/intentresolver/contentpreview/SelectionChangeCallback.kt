@@ -31,7 +31,10 @@ import android.service.chooser.ChooserTarget
 import com.android.intentresolver.contentpreview.PayloadToggleInteractor.ShareouselUpdate
 import com.android.intentresolver.v2.ui.viewmodel.readAlternateIntents
 import com.android.intentresolver.v2.ui.viewmodel.readChooserActions
+import com.android.intentresolver.v2.validation.Invalid
+import com.android.intentresolver.v2.validation.Valid
 import com.android.intentresolver.v2.validation.ValidationResult
+import com.android.intentresolver.v2.validation.log
 import com.android.intentresolver.v2.validation.types.array
 import com.android.intentresolver.v2.validation.types.value
 import com.android.intentresolver.v2.validation.validateFrom
@@ -61,11 +64,10 @@ class SelectionChangeCallback(
                 }
             )
             ?.let { bundle ->
-                readCallbackResponse(bundle).let { validation ->
-                    if (validation.isSuccess()) {
-                        validation.value
-                    } else {
-                        validation.reportToLogcat(TAG)
+                return when (val result = readCallbackResponse(bundle)) {
+                    is Valid -> result.value
+                    is Invalid -> {
+                        result.errors.forEach { it.log(TAG) }
                         null
                     }
                 }
