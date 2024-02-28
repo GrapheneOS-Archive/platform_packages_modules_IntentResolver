@@ -314,6 +314,17 @@ class SelectionTrackerTest {
 
         assertThat(testSubject.getPendingItems()).containsExactly(u1)
     }
+
+    @Test
+    fun testUnselectOnlySelectedItem_itemRemainsSelected() {
+        val u1 = makeUri(1)
+
+        val testSubject = SelectionTracker(listOf(u1), 0, 1) { this }
+        testSubject.onEndItemsAdded(SparseArray<Uri>(1).apply { append(0, u1) })
+        assertThat(testSubject.isItemSelected(0)).isTrue()
+        assertThat(testSubject.setItemSelection(0, u1, false)).isFalse()
+        assertThat(testSubject.isItemSelected(0)).isTrue()
+    }
 }
 
 private fun makeUri(id: Int) = Uri.parse("content://org.pkg.app/img-$id.png")

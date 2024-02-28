@@ -165,13 +165,14 @@ class PayloadToggleInteractor(
 
     fun setSelected(item: Item, isSelected: Boolean) {
         val record = item as Record
-        record.isSelected.value = isSelected
         scope.launch {
             val (_, selectionTracker) = waitForCursorData() ?: return@launch
-            selectionTracker.setItemSelection(record.key, record, isSelected)
-            val targetIntent = targetIntentModifier(selectionTracker.getSelection())
-            val newJob = scope.launch { notifySelectionChanged(targetIntent) }
-            notifySelectionJobRef.getAndSet(newJob)?.cancel()
+            if (selectionTracker.setItemSelection(record.key, record, isSelected)) {
+                val targetIntent = targetIntentModifier(selectionTracker.getSelection())
+                val newJob = scope.launch { notifySelectionChanged(targetIntent) }
+                notifySelectionJobRef.getAndSet(newJob)?.cancel()
+                record.isSelected.value = selectionTracker.isItemSelected(record.key)
+            }
         }
     }
 
