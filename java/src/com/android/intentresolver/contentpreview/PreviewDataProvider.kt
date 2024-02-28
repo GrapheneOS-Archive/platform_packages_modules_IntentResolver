@@ -18,7 +18,6 @@ package com.android.intentresolver.contentpreview
 
 import android.content.ContentInterface
 import android.content.Intent
-import android.database.Cursor
 import android.media.MediaMetadata
 import android.net.Uri
 import android.provider.DocumentsContract
@@ -277,8 +276,7 @@ constructor(
         val isImageType: Boolean
             get() = typeClassifier.isImageType(mimeType)
         val supportsImageType: Boolean by lazy {
-            contentResolver.getStreamTypesSafe(uri)?.firstOrNull(typeClassifier::isImageType) !=
-                null
+            contentResolver.getStreamTypesSafe(uri).firstOrNull(typeClassifier::isImageType) != null
         }
         val supportsThumbnail: Boolean
             get() = query.supportsThumbnail
@@ -290,7 +288,8 @@ constructor(
         private val query by lazy { readQueryResult() }
 
         private fun readQueryResult(): QueryResult =
-            contentResolver.querySafe(uri)?.use { cursor ->
+            // TODO: rewrite using methods from UiMetadataHelpers.kt
+            contentResolver.querySafe(uri, METADATA_COLUMNS)?.use { cursor ->
                 if (!cursor.moveToFirst()) return@use null
 
                 var flagColIdx = -1
@@ -370,52 +369,4 @@ private fun getFileName(uri: Uri): String {
     } else {
         fileName.substring(index + 1)
     }
-}
-
-private fun ContentInterface.getTypeSafe(uri: Uri): String? =
-    runTracing("getType") {
-        try {
-            getType(uri)
-        } catch (e: SecurityException) {
-            logProviderPermissionWarning(uri, "mime type")
-            null
-        } catch (t: Throwable) {
-            Log.e(ContentPreviewUi.TAG, "Failed to read metadata, uri: $uri", t)
-            null
-        }
-    }
-
-private fun ContentInterface.getStreamTypesSafe(uri: Uri): Array<String>? =
-    runTracing("getStreamTypes") {
-        try {
-            getStreamTypes(uri, "*/*")
-        } catch (e: SecurityException) {
-            logProviderPermissionWarning(uri, "stream types")
-            null
-        } catch (t: Throwable) {
-            Log.e(ContentPreviewUi.TAG, "Failed to read stream types, uri: $uri", t)
-            null
-        }
-    }
-
-private fun ContentInterface.querySafe(uri: Uri): Cursor? =
-    runTracing("query") {
-        try {
-            query(uri, METADATA_COLUMNS, null, null)
-        } catch (e: SecurityException) {
-            logProviderPermissionWarning(uri, "metadata")
-            null
-        } catch (t: Throwable) {
-            Log.e(ContentPreviewUi.TAG, "Failed to read metadata, uri: $uri", t)
-            null
-        }
-    }
-
-private fun logProviderPermissionWarning(uri: Uri, dataName: String) {
-    // The ContentResolver already logs the exception. Log something more informative.
-    Log.w(
-        ContentPreviewUi.TAG,
-        "Could not read $uri $dataName. If a preview is desired, call Intent#setClipData() to" +
-            " ensure that the sharesheet is given permission."
-    )
 }
