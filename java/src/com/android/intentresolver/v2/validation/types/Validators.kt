@@ -15,13 +15,6 @@
  */
 package com.android.intentresolver.v2.validation.types
 
-import com.android.intentresolver.v2.validation.Finding
-import com.android.intentresolver.v2.validation.Importance
-import com.android.intentresolver.v2.validation.Importance.CRITICAL
-import com.android.intentresolver.v2.validation.Importance.WARNING
-import com.android.intentresolver.v2.validation.Invalid
-import com.android.intentresolver.v2.validation.Valid
-import com.android.intentresolver.v2.validation.ValidationResult
 import com.android.intentresolver.v2.validation.Validator
 
 inline fun <reified T : Any> value(key: String): Validator<T> {
@@ -30,16 +23,4 @@ inline fun <reified T : Any> value(key: String): Validator<T> {
 
 inline fun <reified T : Any> array(key: String): Validator<List<T>> {
     return ParceledArray(key, T::class)
-}
-
-/**
- * Convenience function to wrap a finding in an appropriate result type.
- *
- * An error [finding] is suppressed when [importance] == [WARNING]
- */
-internal fun <T> createResult(importance: Importance, finding: Finding): ValidationResult<T> {
-    return when (importance) {
-        WARNING -> Valid(null, listOf(finding).filter { it.importance == WARNING })
-        CRITICAL -> Invalid(listOf(finding))
-    }
 }
