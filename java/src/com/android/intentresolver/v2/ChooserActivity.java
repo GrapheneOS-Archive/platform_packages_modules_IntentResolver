@@ -381,6 +381,120 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         mLogic = createActivityLogic();
     }
 
+    @Override
+    protected final void onStart() {
+        super.onStart();
+
+        this.getWindow().addSystemFlags(SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS);
+        if (hasWorkProfile()) {
+            mLogic.getWorkProfileAvailabilityManager().registerWorkProfileStateReceiver(this);
+        }
+    }
+
+    @Override
+    protected final void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: " + getComponentName().flattenToShortString());
+        mFinishWhenStopped = false;
+        mRefinementManager.onActivityResume();
+    }
+
+    @Override
+    protected final void onStop() {
+        super.onStop();
+
+        final Window window = this.getWindow();
+        final WindowManager.LayoutParams attrs = window.getAttributes();
+        attrs.privateFlags &= ~SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
+        window.setAttributes(attrs);
+
+        if (mRegistered) {
+            mPersonalPackageMonitor.unregister();
+            if (mWorkPackageMonitor != null) {
+                mWorkPackageMonitor.unregister();
+            }
+            mRegistered = false;
+        }
+        final Intent intent = getIntent();
+        if ((intent.getFlags() & FLAG_ACTIVITY_NEW_TASK) != 0 && !isVoiceInteraction()
+                && !mRetainInOnStop) {
+            // This resolver is in the unusual situation where it has been
+            // launched at the top of a new task.  We don't let it be added
+            // to the recent tasks shown to the user, and we need to make sure
+            // that each time we are launched we get the correct launching
+            // uid (not re-using the same resolver from an old launching uid),
+            // so we will now finish ourself since being no longer visible,
+            // the user probably can't get back to us.
+            if (!isChangingConfigurations()) {
+                finish();
+            }
+        }
+        mLogic.getWorkProfileAvailabilityManager().unregisterWorkProfileStateReceiver(this);
+
+        if (mRefinementManager != null) {
+            mRefinementManager.onActivityStop(isChangingConfigurations());
+        }
+
+        if (mFinishWhenStopped) {
+            mFinishWhenStopped = false;
+            finish();
+        }
+    }
+
+    @Override
+    protected final void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        ViewPager viewPager = findViewById(com.android.internal.R.id.profile_pager);
+        if (viewPager != null) {
+            outState.putInt(LAST_SHOWN_TAB_KEY, viewPager.getCurrentItem());
+        }
+    }
+
+    @Override
+    protected final void onRestart() {
+        super.onRestart();
+        if (!mRegistered) {
+            mPersonalPackageMonitor.register(
+                    this,
+                    getMainLooper(),
+                    requireAnnotatedUserHandles().personalProfileUserHandle,
+                    false);
+            if (hasWorkProfile()) {
+                if (mWorkPackageMonitor == null) {
+                    mWorkPackageMonitor = createPackageMonitor(
+                            mChooserMultiProfilePagerAdapter.getWorkListAdapter());
+                }
+                mWorkPackageMonitor.register(
+                        this,
+                        getMainLooper(),
+                        requireAnnotatedUserHandles().workProfileUserHandle,
+                        false);
+            }
+            mRegistered = true;
+        }
+        WorkProfileAvailabilityManager workProfileAvailabilityManager =
+                mLogic.getWorkProfileAvailabilityManager();
+        if (hasWorkProfile() && workProfileAvailabilityManager.isWaitingToEnableWorkProfile()) {
+            if (workProfileAvailabilityManager.isQuietModeEnabled()) {
+                workProfileAvailabilityManager.markWorkProfileEnabledBroadcastReceived();
+            }
+        }
+        mChooserMultiProfilePagerAdapter.getActiveListAdapter().handlePackagesChanged();
+    }
+
+    @Override
+    protected final void onDestroy() {
+        super.onDestroy();
+
+        if (isFinishing()) {
+            mLatencyTracker.onActionCancel(ACTION_LOAD_SHARE_SHEET);
+        }
+
+        mBackgroundThreadPoolExecutor.shutdownNow();
+
+        destroyProfileRecords();
+    }
+
     private void init() {
         mIntentReceivedTime.set(System.currentTimeMillis());
         mLatencyTracker.onActionStart(ACTION_LOAD_SHARE_SHEET);
@@ -776,47 +890,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
         mHeaderCreatorUser = listAdapter.getUserHandle();
     }
 
-    @Override
-    protected final void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        ViewPager viewPager = findViewById(com.android.internal.R.id.profile_pager);
-        if (viewPager != null) {
-            outState.putInt(LAST_SHOWN_TAB_KEY, viewPager.getCurrentItem());
-        }
-    }
-
-    @Override
-    protected final void onRestart() {
-        super.onRestart();
-        if (!mRegistered) {
-            mPersonalPackageMonitor.register(
-                    this,
-                    getMainLooper(),
-                    requireAnnotatedUserHandles().personalProfileUserHandle,
-                    false);
-            if (hasWorkProfile()) {
-                if (mWorkPackageMonitor == null) {
-                    mWorkPackageMonitor = createPackageMonitor(
-                            mChooserMultiProfilePagerAdapter.getWorkListAdapter());
-                }
-                mWorkPackageMonitor.register(
-                        this,
-                        getMainLooper(),
-                        requireAnnotatedUserHandles().workProfileUserHandle,
-                        false);
-            }
-            mRegistered = true;
-        }
-        WorkProfileAvailabilityManager workProfileAvailabilityManager =
-                mLogic.getWorkProfileAvailabilityManager();
-        if (hasWorkProfile() && workProfileAvailabilityManager.isWaitingToEnableWorkProfile()) {
-            if (workProfileAvailabilityManager.isQuietModeEnabled()) {
-                workProfileAvailabilityManager.markWorkProfileEnabledBroadcastReceived();
-            }
-        }
-        mChooserMultiProfilePagerAdapter.getActiveListAdapter().handlePackagesChanged();
-    }
-
     /** Start the activity specified by the {@link TargetInfo}.*/
     public final void safelyStartActivity(TargetInfo cti) {
         // In case cloned apps are present, we would want to start those apps in cloned user
@@ -945,16 +1018,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
             return appInfo.targetSdkVersion >= Build.VERSION_CODES.LOLLIPOP;
         } catch (PackageManager.NameNotFoundException e) {
             return false;
-        }
-    }
-
-    @Override
-    protected final void onStart() {
-        super.onStart();
-
-        this.getWindow().addSystemFlags(SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS);
-        if (hasWorkProfile()) {
-            mLogic.getWorkProfileAvailabilityManager().registerWorkProfileStateReceiver(this);
         }
     }
 
@@ -1440,14 +1503,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume: " + getComponentName().flattenToShortString());
-        mFinishWhenStopped = false;
-        mRefinementManager.onActivityResume();
-    }
-
-    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super_onConfigurationChanged(newConfig);
         ViewPager viewPager = findViewById(com.android.internal.R.id.profile_pager);
@@ -1540,61 +1595,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     @VisibleForTesting
     public Cursor queryResolver(ContentResolver resolver, Uri uri) {
         return resolver.query(uri, null, null, null, null);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        final Window window = this.getWindow();
-        final WindowManager.LayoutParams attrs = window.getAttributes();
-        attrs.privateFlags &= ~SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
-        window.setAttributes(attrs);
-
-        if (mRegistered) {
-            mPersonalPackageMonitor.unregister();
-            if (mWorkPackageMonitor != null) {
-                mWorkPackageMonitor.unregister();
-            }
-            mRegistered = false;
-        }
-        final Intent intent = getIntent();
-        if ((intent.getFlags() & FLAG_ACTIVITY_NEW_TASK) != 0 && !isVoiceInteraction()
-                && !mRetainInOnStop) {
-            // This resolver is in the unusual situation where it has been
-            // launched at the top of a new task.  We don't let it be added
-            // to the recent tasks shown to the user, and we need to make sure
-            // that each time we are launched we get the correct launching
-            // uid (not re-using the same resolver from an old launching uid),
-            // so we will now finish ourself since being no longer visible,
-            // the user probably can't get back to us.
-            if (!isChangingConfigurations()) {
-                finish();
-            }
-        }
-        mLogic.getWorkProfileAvailabilityManager().unregisterWorkProfileStateReceiver(this);
-
-        if (mRefinementManager != null) {
-            mRefinementManager.onActivityStop(isChangingConfigurations());
-        }
-
-        if (mFinishWhenStopped) {
-            mFinishWhenStopped = false;
-            finish();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (isFinishing()) {
-            mLatencyTracker.onActionCancel(ACTION_LOAD_SHARE_SHEET);
-        }
-
-        mBackgroundThreadPoolExecutor.shutdownNow();
-
-        destroyProfileRecords();
     }
 
     private void destroyProfileRecords() {

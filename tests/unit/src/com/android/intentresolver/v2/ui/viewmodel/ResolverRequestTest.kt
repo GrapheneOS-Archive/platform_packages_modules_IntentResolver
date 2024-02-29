@@ -24,9 +24,11 @@ import androidx.core.os.bundleOf
 import com.android.intentresolver.v2.ResolverActivity.PROFILE_WORK
 import com.android.intentresolver.v2.shared.model.Profile.Type.WORK
 import com.android.intentresolver.v2.ui.model.ActivityModel
+import com.android.intentresolver.v2.ui.model.ChooserRequest
 import com.android.intentresolver.v2.ui.model.ResolverRequest
+import com.android.intentresolver.v2.validation.Invalid
 import com.android.intentresolver.v2.validation.UncaughtException
-import com.android.intentresolver.v2.validation.ValidationResultSubject.Companion.assertThat
+import com.android.intentresolver.v2.validation.Valid
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
@@ -51,13 +53,15 @@ class ResolverRequestTest {
         val activity = createActivityModel(intent)
 
         val result = readResolverRequest(activity)
-        assertThat(result).isSuccess()
-        assertThat(result).findings().isEmpty()
-        val value: ResolverRequest = result.getOrThrow()
 
-        assertThat(value.intent.filterEquals(activity.intent)).isTrue()
-        assertThat(value.callingUser).isNull()
-        assertThat(value.selectedProfile).isNull()
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ResolverRequest>
+
+        assertThat(result.warnings).isEmpty()
+
+        assertThat(result.value.intent.filterEquals(activity.intent)).isTrue()
+        assertThat(result.value.callingUser).isNull()
+        assertThat(result.value.selectedProfile).isNull()
     }
 
     @Test
@@ -72,9 +76,11 @@ class ResolverRequestTest {
 
         val result = readResolverRequest(activity)
 
-        assertThat(result).isFailure()
+        assertThat(result).isInstanceOf(Invalid::class.java)
+        result as Invalid<ResolverRequest>
+
         assertWithMessage("the first finding")
-            .that(result.findings.firstOrNull())
+            .that(result.errors.firstOrNull())
             .isInstanceOf(UncaughtException::class.java)
     }
 
@@ -89,9 +95,12 @@ class ResolverRequestTest {
 
         val result = readResolverRequest(activity)
 
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ResolverRequest>
+
         // Assert that payloadIntents does NOT include EXTRA_ALTERNATE_INTENTS
         // that is only supported for Chooser and should be not be added here.
-        assertThat(result.value?.payloadIntents).containsExactly(intent1)
+        assertThat(result.value.payloadIntents).containsExactly(intent1)
     }
 
     @Test
@@ -109,12 +118,12 @@ class ResolverRequestTest {
 
         val result = readResolverRequest(activity)
 
-        assertThat(result).value().isNotNull()
-        val value: ResolverRequest = result.getOrThrow()
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<ResolverRequest>
 
-        assertThat(value.intent.filterEquals(activity.intent)).isTrue()
-        assertThat(value.isAudioCaptureDevice).isTrue()
-        assertThat(value.callingUser).isEqualTo(UserHandle.of(123))
-        assertThat(value.selectedProfile).isEqualTo(WORK)
+        assertThat(result.value.intent.filterEquals(activity.intent)).isTrue()
+        assertThat(result.value.isAudioCaptureDevice).isTrue()
+        assertThat(result.value.callingUser).isEqualTo(UserHandle.of(123))
+        assertThat(result.value.selectedProfile).isEqualTo(WORK)
     }
 }

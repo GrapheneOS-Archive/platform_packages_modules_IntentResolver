@@ -15,8 +15,10 @@
  */
 package com.android.intentresolver.v2.validation.types
 
+import android.content.Intent
 import com.android.intentresolver.v2.validation.Importance
-import com.android.intentresolver.v2.validation.RequiredValueMissing
+import com.android.intentresolver.v2.validation.Invalid
+import com.android.intentresolver.v2.validation.NoValue
 import com.android.intentresolver.v2.validation.Valid
 import com.android.intentresolver.v2.validation.ValidationResult
 import com.android.intentresolver.v2.validation.Validator
@@ -37,8 +39,10 @@ class ParceledArray<T : Any>(
 
         return when (val value: Any? = source(key)) {
             // No value present.
-            null -> createResult(importance, RequiredValueMissing(key, elementType))
-
+            null -> when (importance) {
+                Importance.WARNING -> Invalid() // No warnings if optional, but missing
+                Importance.CRITICAL -> Invalid(NoValue(key, importance, elementType))
+            }
             // A parcel does not transfer the element type information for parcelable
             // arrays. This leads to a restored type of Array<Parcelable>, which is
             // incompatible with Array<T : Parcelable>.
@@ -54,8 +58,7 @@ class ParceledArray<T : Any>(
 
                     // At least one incorrect element type found.
                     else ->
-                        createResult(
-                            importance,
+                        Invalid(
                             WrongElementType(
                                 key,
                                 importance,
@@ -69,8 +72,7 @@ class ParceledArray<T : Any>(
 
             // The value is not an Array at all.
             else ->
-                createResult(
-                    importance,
+                Invalid(
                     ValueIsWrongType(
                         key,
                         importance,

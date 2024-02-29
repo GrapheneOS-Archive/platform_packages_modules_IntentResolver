@@ -7,8 +7,9 @@ import androidx.core.net.toUri
 import androidx.test.ext.truth.content.IntentSubject.assertThat
 import com.android.intentresolver.v2.validation.Importance.CRITICAL
 import com.android.intentresolver.v2.validation.Importance.WARNING
-import com.android.intentresolver.v2.validation.RequiredValueMissing
-import com.android.intentresolver.v2.validation.ValidationResultSubject.Companion.assertThat
+import com.android.intentresolver.v2.validation.Invalid
+import com.android.intentresolver.v2.validation.NoValue
+import com.android.intentresolver.v2.validation.Valid
 import com.android.intentresolver.v2.validation.ValueIsWrongType
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -22,7 +23,9 @@ class IntentOrUriTest {
         val values = mapOf("key" to Intent("GO"))
 
         val result = keyValidator.validate(values::get, CRITICAL)
-        assertThat(result).findings().isEmpty()
+
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<Intent>
         assertThat(result.value).hasAction("GO")
     }
 
@@ -33,7 +36,9 @@ class IntentOrUriTest {
         val values = mapOf("key" to Intent("GO").toUri(URI_INTENT_SCHEME).toUri())
 
         val result = keyValidator.validate(values::get, CRITICAL)
-        assertThat(result).findings().isEmpty()
+
+        assertThat(result).isInstanceOf(Valid::class.java)
+        result as Valid<Intent>
         assertThat(result.value).hasAction("GO")
     }
 
@@ -44,8 +49,11 @@ class IntentOrUriTest {
 
         val result = keyValidator.validate({ null }, CRITICAL)
 
-        assertThat(result).value().isNull()
-        assertThat(result).findings().containsExactly(RequiredValueMissing("key", Intent::class))
+        assertThat(result).isInstanceOf(Invalid::class.java)
+        result as Invalid<Intent>
+
+        assertThat(result.errors)
+                .containsExactly(NoValue("key", CRITICAL, Intent::class))
     }
 
     /** Check validation passes when value is null and importance is [WARNING] (optional). */
@@ -55,8 +63,9 @@ class IntentOrUriTest {
 
         val result = keyValidator.validate(source = { null }, WARNING)
 
-        assertThat(result).findings().isEmpty()
-        assertThat(result.value).isNull()
+        assertThat(result).isInstanceOf(Invalid::class.java)
+        result as Invalid<List<Intent>>
+        assertThat(result.errors).isEmpty()
     }
 
     /**
@@ -69,9 +78,10 @@ class IntentOrUriTest {
 
         val result = keyValidator.validate(values::get, CRITICAL)
 
-        assertThat(result).value().isNull()
-        assertThat(result)
-            .findings()
+        assertThat(result).isInstanceOf(Invalid::class.java)
+        result as Invalid<Intent>
+
+        assertThat(result.errors)
             .containsExactly(
                 ValueIsWrongType(
                     "key",
@@ -92,9 +102,10 @@ class IntentOrUriTest {
 
         val result = keyValidator.validate(values::get, WARNING)
 
-        assertThat(result).value().isNull()
-        assertThat(result)
-                .findings()
+        assertThat(result).isInstanceOf(Invalid::class.java)
+        result as Invalid<Intent>
+
+        assertThat(result.errors)
                 .containsExactly(
                     ValueIsWrongType(
                         "key",

@@ -90,7 +90,7 @@ fun <T> validateFrom(source: (String) -> Any?, validate: Validation.() -> T): Va
                     is InvalidResultError -> Invalid(validation.findings)
 
                     // Some other exception was thrown from [validate],
-                    else -> Invalid(findings = listOf(UncaughtException(it)))
+                    else -> Invalid(error = UncaughtException(it))
                 }
             }
         )
@@ -107,8 +107,8 @@ private class ValidationImpl(val source: (String) -> Any?) : Validation {
 
     override fun <T> ignored(property: Validator<T>, reason: String) {
         val result = property.validate(source, WARNING)
-        if (result.value != null) {
-            // Note: Any findings about the value (result.findings) are ignored.
+        if (result is Valid) {
+            // Note: Any warnings about the value itself (result.findings) are ignored.
             findings += IgnoredValue(property.key, reason)
         }
     }
@@ -117,8 +117,16 @@ private class ValidationImpl(val source: (String) -> Any?) : Validation {
         return runCatching { property.validate(source, importance) }
             .fold(
                 onSuccess = { result ->
-                    findings += result.findings
-                    result.value
+                    return when (result) {
+                        is Valid -> {
+                            findings += result.warnings
+                            result.value
+                        }
+                        is Invalid -> {
+                            findings += result.errors
+                            null
+                        }
+                    }
                 },
                 onFailure = {
                     findings += UncaughtException(it, property.key)
