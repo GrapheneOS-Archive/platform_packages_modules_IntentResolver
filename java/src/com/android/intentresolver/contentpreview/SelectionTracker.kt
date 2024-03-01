@@ -131,7 +131,7 @@ class SelectionTracker<Item>(
             selections[key] = item
             return true
         }
-        if (!isSelected && idx >= 0) {
+        if (!isSelected && idx >= 0 && selections.size() > 1) {
             selections.removeAt(idx)
             return true
         }
