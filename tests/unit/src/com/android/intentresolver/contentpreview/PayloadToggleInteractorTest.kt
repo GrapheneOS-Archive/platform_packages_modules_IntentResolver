@@ -99,6 +99,56 @@ class PayloadToggleInteractorTest {
                     .inOrder()
             }
         }
+
+    @Test
+    fun testItemsSelection() =
+        testScope.runTest {
+            val cursorReader = CursorUriReader(createCursor(10), 2, 2) { true }
+            val testSubject =
+                PayloadToggleInteractor(
+                        scope = testScope.backgroundScope,
+                        initiallySharedUris = listOf(makeUri(0)),
+                        focusedUriIdx = 1,
+                        mimeTypeClassifier = DefaultMimeTypeClassifier,
+                        cursorReaderProvider = { cursorReader },
+                        uriMetadataReader = { uri ->
+                            FileInfo.Builder(uri)
+                                .withMimeType("image/png")
+                                .withPreviewUri(uri)
+                                .build()
+                        },
+                        selectionCallback = { null },
+                        targetIntentModifier = { Intent(Intent.ACTION_SEND) },
+                    )
+                    .apply { start() }
+
+            scheduler.runCurrent()
+            val items = testSubject.stateFlow.first().items
+            assertWithMessage("An initially selected item should be selected")
+                .that(testSubject.selected(items[0]).first())
+                .isTrue()
+            assertWithMessage("An item that was not initially selected should not be selected")
+                .that(testSubject.selected(items[1]).first())
+                .isFalse()
+
+            testSubject.setSelected(items[0], false)
+            scheduler.runCurrent()
+            assertWithMessage("The only selected item can not be unselected")
+                .that(testSubject.selected(items[0]).first())
+                .isTrue()
+
+            testSubject.setSelected(items[1], true)
+            scheduler.runCurrent()
+            assertWithMessage("An item selection status should be published")
+                .that(testSubject.selected(items[1]).first())
+                .isTrue()
+
+            testSubject.setSelected(items[0], false)
+            scheduler.runCurrent()
+            assertWithMessage("An item can be unselected when there's another selected item")
+                .that(testSubject.selected(items[0]).first())
+                .isFalse()
+        }
 }
 
 private fun createCursor(count: Int): Cursor {

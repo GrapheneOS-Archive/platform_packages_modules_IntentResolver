@@ -46,12 +46,14 @@ class TargetIntentModifier<Item>(
             } else {
                 putParcelableArrayListExtra(EXTRA_STREAM, uris)
             }
-            clipData =
-                ClipData("", arrayOf(targetMimeType), ClipData.Item(uris[0])).also {
-                    for (i in 1 until uris.size) {
-                        it.addItem(ClipData.Item(uris[i]))
+            if (uris.isNotEmpty()) {
+                clipData =
+                    ClipData("", arrayOf(targetMimeType), ClipData.Item(uris[0])).also {
+                        for (i in 1 until uris.size) {
+                            it.addItem(ClipData.Item(uris[i]))
+                        }
                     }
-                }
+            }
         }
     }
 
