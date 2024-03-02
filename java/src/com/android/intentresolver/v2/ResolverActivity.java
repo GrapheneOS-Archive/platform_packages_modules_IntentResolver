@@ -101,17 +101,17 @@ import com.android.intentresolver.icons.DefaultTargetDataLoader;
 import com.android.intentresolver.icons.TargetDataLoader;
 import com.android.intentresolver.model.ResolverRankerServiceResolverComparator;
 import com.android.intentresolver.v2.data.repository.DevicePolicyResources;
-import com.android.intentresolver.v2.shared.model.Profile;
 import com.android.intentresolver.v2.emptystate.NoAppsAvailableEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider;
 import com.android.intentresolver.v2.emptystate.NoCrossProfileEmptyStateProvider.DevicePolicyBlockerEmptyState;
-import com.android.intentresolver.v2.emptystate.WorkProfilePausedEmptyStateProvider;
+import com.android.intentresolver.v2.emptystate.ResolverWorkProfilePausedEmptyStateProvider;
 import com.android.intentresolver.v2.profiles.MultiProfilePagerAdapter;
-import com.android.intentresolver.v2.profiles.OnSwitchOnWorkSelectedListener;
 import com.android.intentresolver.v2.profiles.MultiProfilePagerAdapter.ProfileType;
 import com.android.intentresolver.v2.profiles.OnProfileSelectedListener;
-import com.android.intentresolver.v2.profiles.TabConfig;
+import com.android.intentresolver.v2.profiles.OnSwitchOnWorkSelectedListener;
 import com.android.intentresolver.v2.profiles.ResolverMultiProfilePagerAdapter;
+import com.android.intentresolver.v2.profiles.TabConfig;
+import com.android.intentresolver.v2.shared.model.Profile;
 import com.android.intentresolver.v2.ui.ActionTitle;
 import com.android.intentresolver.v2.ui.model.ActivityModel;
 import com.android.intentresolver.v2.ui.model.ResolverRequest;
@@ -924,7 +924,7 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         final EmptyStateProvider blockerEmptyStateProvider = createBlockerEmptyStateProvider();
 
         final EmptyStateProvider workProfileOffEmptyStateProvider =
-                new WorkProfilePausedEmptyStateProvider(this, workProfileUserHandle,
+                new ResolverWorkProfilePausedEmptyStateProvider(this, workProfileUserHandle,
                         mLogic.getWorkProfileAvailabilityManager(),
                         /* onSwitchOnWorkSelectedListener= */
                         () -> {
