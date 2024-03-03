@@ -31,6 +31,7 @@ import static androidx.lifecycle.LifecycleKt.getCoroutineScope;
 
 import static com.android.intentresolver.contentpreview.ContentPreviewType.CONTENT_PREVIEW_PAYLOAD_SELECTION;
 import static com.android.intentresolver.v2.ext.CreationExtrasExtKt.addDefaultArgs;
+import static com.android.intentresolver.v2.ui.model.ActivityModel.ACTIVITY_MODEL_KEY;
 import static com.android.internal.annotations.VisibleForTesting.Visibility.PROTECTED;
 import static com.android.internal.util.LatencyTracker.ACTION_LOAD_SHARE_SHEET;
 
@@ -274,7 +275,6 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private static final int SCROLL_STATUS_SCROLLING_HORIZONTAL = 2;
 
     @Inject public ChooserHelper mChooserHelper;
-    @Inject public ActivityModel mActivityModel;
     @Inject public FeatureFlags mFeatureFlags;
     @Inject public android.service.chooser.FeatureFlags mChooserServiceFeatureFlags;
     @Inject public EventLog mEventLog;
@@ -333,7 +333,13 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     private boolean mFinishWhenStopped = false;
 
     private final AtomicLong mIntentReceivedTime = new AtomicLong(-1);
+
+    protected ActivityModel createActivityModel() {
+        return ActivityModel.createFrom(this);
+    }
+
     private ChooserViewModel mViewModel;
+    private ActivityModel mActivityModel;
 
     @VisibleForTesting
     protected ChooserActivityLogic createActivityLogic() {
@@ -348,30 +354,32 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
     public CreationExtras getDefaultViewModelCreationExtras() {
         return addDefaultArgs(
                 super.getDefaultViewModelCreationExtras(),
-                new Pair<>(ActivityModel.ACTIVITY_MODEL_KEY, mActivityModel));
+                new Pair<>(ACTIVITY_MODEL_KEY, createActivityModel()));
     }
 
     @Override
     protected final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
-        Log.i(TAG, "mActivityModel=" + mActivityModel.toString());
-
-        // The postInit hook is invoked when this function returns, via Lifecycle.
-        mChooserHelper.setPostCreateCallback(this::init);
+        mViewModel = new ViewModelProvider(this).get(ChooserViewModel.class);
+        mActivityModel = mViewModel.getActivityModel();
 
         int callerUid = mActivityModel.getLaunchedFromUid();
         if (callerUid < 0 || UserHandle.isIsolated(callerUid)) {
             Log.e(TAG, "Can't start a resolver from uid " + callerUid);
             finish();
         }
+
         setTheme(R.style.Theme_DeviceDefault_Chooser);
         Tracer.INSTANCE.markLaunched();
-        mViewModel = new ViewModelProvider(this).get(ChooserViewModel.class);
         if (!mViewModel.init()) {
             finish();
             return;
         }
+
+        // The post-create callback is invoked when this function returns, via Lifecycle.
+        mChooserHelper.setPostCreateCallback(this::init);
+
         IntentSender chosenComponentSender =
                 mViewModel.getChooserRequest().getChosenComponentSender();
         if (chosenComponentSender != null) {
