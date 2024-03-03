@@ -18,14 +18,17 @@ package com.android.intentresolver.v2.ext
 
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.core.os.bundleOf
 import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 
-/** Adds one or more key-value pairs to the default Args bundle in this extras instance. */
+/**
+ * Returns a new instance with additional [values] added to the existing default args Bundle (if
+ * present), otherwise adds a new entry with a copy of this bundle.
+ */
 fun CreationExtras.addDefaultArgs(vararg values: Pair<String, Parcelable>): CreationExtras {
     val defaultArgs: Bundle = get(DEFAULT_ARGS_KEY) ?: Bundle()
-    for ((key, value) in values) {
-        defaultArgs.putParcelable(key, value)
-    }
-    return this
+    defaultArgs.putAll(bundleOf(*values))
+    return MutableCreationExtras(this).apply { set(DEFAULT_ARGS_KEY, defaultArgs) }
 }
