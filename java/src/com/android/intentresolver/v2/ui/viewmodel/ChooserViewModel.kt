@@ -39,17 +39,17 @@ constructor(
     flags: ChooserServiceFlags,
 ) : ViewModel() {
 
-    private val mActivityModel: ActivityModel =
+    /** Parcelable-only references provided from the creating Activity */
+    val activityModel: ActivityModel =
         requireNotNull(args[ACTIVITY_MODEL_KEY]) {
             "ActivityModel missing in SavedStateHandle! ($ACTIVITY_MODEL_KEY)"
         }
 
     /** The result of reading and validating the inputs provided in savedState. */
-    private val status: ValidationResult<ChooserRequest> =
-        readChooserRequest(mActivityModel, flags)
+    private val status: ValidationResult<ChooserRequest> = readChooserRequest(activityModel, flags)
 
     val chooserRequest: ChooserRequest by lazy {
-        when(status) {
+        when (status) {
             is Valid -> status.value
             is Invalid -> error(status.errors)
         }
