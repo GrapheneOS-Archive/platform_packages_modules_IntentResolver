@@ -154,11 +154,10 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
         ResolverListAdapter.ResolverListCommunicator {
 
     @Inject public PackageManager mPackageManager;
-    @Inject public ActivityModel mActivityModel;
     @Inject public DevicePolicyResources mDevicePolicyResources;
     @Inject public IntentForwarding mIntentForwarding;
     private ResolverRequest mResolverRequest;
-
+    private ActivityModel mActivityModel;
     protected ActivityLogic mLogic;
     protected TargetDataLoader mTargetDataLoader;
     private boolean mResolvingHome;
@@ -218,6 +217,9 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
             }
         };
     }
+    protected ActivityModel createActivityModel() {
+        return ActivityModel.createFrom(this);
+    }
 
     @VisibleForTesting
     protected ActivityLogic createActivityLogic() {
@@ -232,15 +234,17 @@ public class ResolverActivity extends Hilt_ResolverActivity implements
     public CreationExtras getDefaultViewModelCreationExtras() {
         return addDefaultArgs(
                 super.getDefaultViewModelCreationExtras(),
-                new Pair<>(ActivityModel.ACTIVITY_MODEL_KEY, mActivityModel));
+                new Pair<>(ActivityModel.ACTIVITY_MODEL_KEY, ActivityModel.createFrom(this)));
     }
 
     @Override
     protected final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_DeviceDefault_Resolver);
+        mActivityModel = createActivityModel();
+
         Log.i(TAG, "onCreate");
-        Log.i(TAG, "activityLaunch=" + mActivityModel.toString());
+        Log.i(TAG, "activityModel=" + mActivityModel.toString());
         int callerUid = mActivityModel.getLaunchedFromUid();
         if (callerUid < 0 || UserHandle.isIsolated(callerUid)) {
             Log.e(TAG, "Can't start a resolver from uid " + callerUid);
