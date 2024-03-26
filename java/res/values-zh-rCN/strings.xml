@@ -66,7 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{正在分享带有链接的视频}other{正在分享带有链接的 # 个视频}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{正在分享带有文本的文件}other{正在分享带有文本的 # 个文件}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{正在分享带有链接的文件}other{正在分享带有链接的 # 个文件}}"</string>
-    <string name="sharing_album" msgid="191743129899503345">"正在共享影集"</string>
+    <string name="sharing_album" msgid="191743129899503345">"分享影集"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{仅限图片}other{仅限图片}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{仅限视频}other{仅限视频}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{仅限文件}other{仅限文件}}"</string>

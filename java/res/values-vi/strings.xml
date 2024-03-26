@@ -66,7 +66,7 @@
     <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Đang chia sẻ video có đường liên kết}other{Đang chia sẻ # video có đường liên kết}}"</string>
     <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Đang chia sẻ tệp có văn bản}other{Đang chia sẻ # tệp có văn bản}}"</string>
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Đang chia sẻ tệp có đường liên kết}other{Đang chia sẻ # tệp có đường liên kết}}"</string>
-    <string name="sharing_album" msgid="191743129899503345">"Đang chia sẻ album"</string>
+    <string name="sharing_album" msgid="191743129899503345">"Chia sẻ album"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Chỉ chia sẻ hình ảnh}other{Chỉ chia sẻ các hình ảnh}}"</string>
     <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Chỉ chia sẻ video}other{Chỉ chia sẻ các video}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Chỉ chia sẻ tệp}other{Chỉ chia sẻ các tệp}}"</string>
