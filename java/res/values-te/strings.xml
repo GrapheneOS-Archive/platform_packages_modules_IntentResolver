@@ -32,7 +32,7 @@
     <string name="whichEditApplicationLabel" msgid="5992662938338600364">"ఎడిట్"</string>
     <string name="whichSendApplication" msgid="59510564281035884">"షేర్ చేయండి"</string>
     <string name="whichSendApplicationNamed" msgid="495577664218765855">"<xliff:g id="APP">%1$s</xliff:g> యాప్‌తో షేర్ చేయండి"</string>
-    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"షేర్ చేయి"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"షేర్ చేయండి"</string>
     <string name="whichSendToApplication" msgid="2724450540348806267">"దీన్ని ఉపయోగించి పంపండి"</string>
     <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"<xliff:g id="APP">%1$s</xliff:g> యాప్‌ను ఉపయోగించి పంపండి"</string>
     <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"పంపండి"</string>
@@ -57,7 +57,7 @@
     <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ మరో # ఫైల్}other{+ మరో # ఫైల్స్}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"టెక్స్ట్‌ను షేర్ చేయడం"</string>
     <string name="sharing_link" msgid="2307694372813942916">"లింక్‌ను షేర్ చేయడం"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ఇమేజ్‌ను షేర్ చేయడం}other{# ఇమేజ్‌లను షేర్ చేయడం}}"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ఈ ఇమేజ్‌ను షేర్ చేస్తున్నారు}other{ఈ # ఇమేజ్‌లను షేర్ చేస్తున్నారు}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{వీడియోను షేర్ చేయడం}other{# వీడియోలను షేర్ చేయడం}}"</string>
     <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# ఫైల్‌ను షేర్ చేస్తోంది}other{# ఫైళ్లను షేర్ చేస్తోంది}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{టెక్స్ట్ మెసేజ్ పంపడం ద్వారా ఇమేజ్‌ను షేర్ చేయడం}other{టెక్స్ట్ మెసేజ్ పంపడం ద్వారా # ఇమేజ్‌లను షేర్ చేయడం}}"</string>
