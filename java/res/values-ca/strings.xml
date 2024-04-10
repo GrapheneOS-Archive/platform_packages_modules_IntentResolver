@@ -57,7 +57,7 @@
     <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{# fitxer més}many{# de fitxers més}other{# fitxers més}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"S\'està compartint text"</string>
     <string name="sharing_link" msgid="2307694372813942916">"S\'està compartint un enllaç"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{S\'està compartint una imatge}many{S\'estan compartint # d\'imatges}other{S\'estan compartint # imatges}}"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Comparteix una imatge}many{Comparteix # d\'imatges}other{Comparteix # imatges}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{S\'està compartint un vídeo}many{S\'estan compartint # de vídeos}other{S\'estan compartint # vídeos}}"</string>
     <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{S\'està compartint # fitxer}many{S\'estan compartint # de fitxers}other{S\'estan compartint # fitxers}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{S\'està compartint la imatge amb text}many{S\'estan compartint # d\'imatges amb text}other{S\'estan compartint # imatges amb text}}"</string>

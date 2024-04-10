@@ -57,7 +57,7 @@
     <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{a # ďalší súbor}few{a # ďalšie súbory}many{+ # more files}other{a # ďalších súborov}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Zdieľa sa textová správa"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Zdieľa sa odkaz"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Zdieľa sa obrázok}few{Zdieľajú sa # obrázky}many{Sharing # images}other{Zdieľa sa # obrázkov}}"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Zdieľanie obrázku}few{Zdieľanie # obrázkov}many{Sharing # images}other{Zdieľanie # obrázkov}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Zdieľa sa video}few{Zdieľajú sa # videá}many{Sharing # videos}other{Zdieľa sa # videí}}"</string>
     <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Zdieľa sa # súbor}few{Zdieľajú sa # súbory}many{Sharing # files}other{Zdieľa sa # súborov}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Zdieľa sa obrázok s textom}few{Zdieľajú sa # obrázky s textom}many{Sharing # images with text}other{Zdieľa sa # obrázkov s textom}}"</string>
