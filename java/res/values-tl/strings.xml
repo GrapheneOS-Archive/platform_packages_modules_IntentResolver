@@ -32,7 +32,7 @@
     <string name="whichEditApplicationLabel" msgid="5992662938338600364">"I-edit"</string>
     <string name="whichSendApplication" msgid="59510564281035884">"Ibahagi"</string>
     <string name="whichSendApplicationNamed" msgid="495577664218765855">"Ibahagi gamit ang <xliff:g id="APP">%1$s</xliff:g>"</string>
-    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"Ibahagi"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"I-share"</string>
     <string name="whichSendToApplication" msgid="2724450540348806267">"Ipadala gamit ang"</string>
     <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"Ipadala gamit ang <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"Ipadala"</string>
@@ -57,7 +57,7 @@
     <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # pang file}one{+ # pang file}other{+ # pang file}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Ibinabahagi ang text"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Ibinabahagi ang link"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Ibinabahagi ang larawan}one{Ibinabahagi ang # larawan}other{Ibinabahagi ang # na larawan}}"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Shine-share ang larawan}one{Shine-share ang # larawan}other{Shine-share ang # na larawan}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Ibinabahagi ang video}one{Ibinabahagi ang # video}other{Ibinabahagi ang # na video}}"</string>
     <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Nagshe-share ng # file}one{Nagshe-share ng # file}other{Nagshe-share ng # na file}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Nagbabahagi ng larawang may text}one{Nagbabahagi ng # larawang may text}other{Nagbabahagi ng # na larawang may text}}"</string>
