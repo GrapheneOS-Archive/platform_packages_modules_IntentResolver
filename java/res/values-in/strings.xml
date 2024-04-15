@@ -55,7 +55,7 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"Edit"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # file}other{+ # file}}"</string>
     <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # file lainnya}other{+ # file lainnya}}"</string>
-    <string name="sharing_text" msgid="8137537443603304062">"Berbagi teks"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Teks yang akan dibagikan"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Berbagi link"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Berbagi gambar}other{Berbagi # gambar}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Membagikan video}other{Membagikan # video}}"</string>

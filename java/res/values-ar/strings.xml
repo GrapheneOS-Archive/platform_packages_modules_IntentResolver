@@ -49,7 +49,7 @@
     <string name="forward_intent_to_work" msgid="2906094223089139419">"أنت تستخدم هذا التطبيق في ملفك الشخصي للعمل"</string>
     <string name="activity_resolver_use_always" msgid="8674194687637555245">"دائمًا"</string>
     <string name="activity_resolver_use_once" msgid="594173435998892989">"مرة واحدة فقط"</string>
-    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"لا يتوافق تطبيق \"<xliff:g id="APP">%1$s</xliff:g>\" مع الملف الشخصي للعمل."</string>
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"لا يتوافق تطبيق \"<xliff:g id="APP">%1$s</xliff:g>\" مع ملف العمل."</string>
     <string name="pin_specific_target" msgid="5057063421361441406">"تثبيت <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="unpin_specific_target" msgid="3115158908159857777">"إزالة تثبيت <xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="screenshot_edit" msgid="3857183660047569146">"تعديل"</string>
