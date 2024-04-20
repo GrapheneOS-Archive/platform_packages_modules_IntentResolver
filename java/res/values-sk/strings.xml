@@ -55,7 +55,7 @@
     <string name="screenshot_edit" msgid="3857183660047569146">"Upraviť"</string>
     <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # súbor}few{+ # súbory}many{+ # files}other{+ # súborov}}"</string>
     <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{a # ďalší súbor}few{a # ďalšie súbory}many{+ # more files}other{a # ďalších súborov}}"</string>
-    <string name="sharing_text" msgid="8137537443603304062">"Zdieľa sa textová správa"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Zdieľanie textu"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Zdieľa sa odkaz"</string>
     <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Zdieľanie obrázku}few{Zdieľanie # obrázkov}many{Sharing # images}other{Zdieľanie # obrázkov}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Zdieľa sa video}few{Zdieľajú sa # videá}many{Sharing # videos}other{Zdieľa sa # videí}}"</string>
