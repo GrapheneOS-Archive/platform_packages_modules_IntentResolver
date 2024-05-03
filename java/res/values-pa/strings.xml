@@ -42,7 +42,7 @@
     <string name="whichImageCaptureApplication" msgid="7830965894804399333">"ਇਸ ਨਾਲ ਚਿਤਰ ਕੈਪਚਰ ਕਰੋ"</string>
     <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"<xliff:g id="APP">%1$s</xliff:g> ਨਾਲ ਚਿੱਤਰ ਨੂੰ ਕੈਪਚਰ ਕਰੋ"</string>
     <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"ਚਿਤਰ ਕੈਪਚਰ ਕਰੋ"</string>
-    <string name="use_a_different_app" msgid="2062380818535918975">"ਇੱਕ ਵੱਖਰਾ ਖਾਤਾ ਵਰਤੋ"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"ਕੋਈ ਵੱਖਰੀ ਐਪ ਵਰਤੋ"</string>
     <string name="chooseActivity" msgid="6659724877523973446">"ਕਾਰਵਾਈ ਚੁਣੋ"</string>
     <string name="noApplications" msgid="1139487441772284671">"ਕੋਈ ਐਪਾਂ ਇਸ ਕਾਰਵਾਈ ਨੂੰ ਨਹੀਂ ਕਰ ਸਕਦੀਆਂ।"</string>
     <string name="forward_intent_to_owner" msgid="6454987608971162379">"ਤੁਸੀਂ ਇਹ ਐਪ ਆਪਣੀ ਕਾਰਜ ਪ੍ਰੋਫਾਈਲ ਦੇ ਬਾਹਰ ਵਰਤ ਰਹੇ ਹੋ"</string>
@@ -77,7 +77,7 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ਇਸ ਐਪ ਨੂੰ ਰਿਕਾਰਡ ਕਰਨ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ ਦਿੱਤੀ ਗਈ ਪਰ ਇਹ USB ਡੀਵਾਈਸ ਰਾਹੀਂ ਆਡੀਓ ਕੈਪਚਰ ਕਰ ਸਕਦੀ ਹੈ।"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ਨਿੱਜੀ"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"ਕੰਮ ਸੰਬੰਧੀ"</string>
-    <string name="resolver_private_tab" msgid="3707548826254095157">"ਨਿੱਜੀ"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"ਪ੍ਰਾਈਵੇਟ"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"ਵਿਅਕਤੀਗਤ ਦ੍ਰਿਸ਼"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"ਕਾਰਜ ਦ੍ਰਿਸ਼"</string>
     <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"ਨਿੱਜੀ ਦ੍ਰਿਸ਼"</string>

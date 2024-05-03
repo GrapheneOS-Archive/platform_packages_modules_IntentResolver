@@ -42,7 +42,7 @@
     <string name="whichImageCaptureApplication" msgid="7830965894804399333">"ഇനിപ്പറയുന്നതിൽ ചിത്രം എടുക്കുക:"</string>
     <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"<xliff:g id="APP">%1$s</xliff:g> ഉപയോഗിച്ച് ചിത്രം എടുക്കുക"</string>
     <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"ചിത്രം എടുക്കുക"</string>
-    <string name="use_a_different_app" msgid="2062380818535918975">"മറ്റൊരു അപ്ലിക്കേഷൻ ഉപയോഗിക്കുക"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"മറ്റൊരു ആപ്പ് ഉപയോഗിക്കുക"</string>
     <string name="chooseActivity" msgid="6659724877523973446">"ഒരു പ്രവർത്തനം തിരഞ്ഞെടുക്കുക"</string>
     <string name="noApplications" msgid="1139487441772284671">"അപ്ലിക്കേഷനുകൾക്കൊന്നും ഈ പ്രവർത്തനം നിർവഹിക്കാനാവില്ല."</string>
     <string name="forward_intent_to_owner" msgid="6454987608971162379">"നിങ്ങളുടെ ഔദ്യോഗിക പ്രൊഫൈലിന് പുറത്ത് ഈ അപ്ലിക്കേഷൻ ഉപയോഗിക്കുന്നു"</string>
