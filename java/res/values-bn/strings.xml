@@ -42,7 +42,7 @@
     <string name="whichImageCaptureApplication" msgid="7830965894804399333">"এই দিয়ে ছবি তুলুন"</string>
     <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"<xliff:g id="APP">%1$s</xliff:g> দিয়ে ছবি তুলুন"</string>
     <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"ছবি তুলুন"</string>
-    <string name="use_a_different_app" msgid="2062380818535918975">"আলাদা কোনো অ্যাপ্লিকেশান ব্যবহার করুন"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"আলাদা কোনও অ্যাপ ব্যবহার করুন"</string>
     <string name="chooseActivity" msgid="6659724877523973446">"একটি অ্যাকশন বেছে নিন"</string>
     <string name="noApplications" msgid="1139487441772284671">"কোনো অ্যাপ্লিকেশানই এই ক্রিয়া সঞ্চালন করতে পারবে না৷"</string>
     <string name="forward_intent_to_owner" msgid="6454987608971162379">"আপনি এই অ্যাপ্লিকেশানটি আপনার কর্মস্থলের প্রোফাইলের বাইরে ব্যবহার করছেন"</string>
@@ -77,7 +77,7 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"এই অ্যাপকে রেকর্ড করার অনুমতি দেওয়া হয়নি কিন্তু USB ডিভাইসের মাধ্যমে সেটি অডিও রেকর্ড করতে পারে।"</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"ব্যক্তিগত"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"অফিস"</string>
-    <string name="resolver_private_tab" msgid="3707548826254095157">"ব্যক্তিগত"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"প্রাইভেট"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"ব্যক্তিগত ভিউ"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"অফিসের ভিউ"</string>
     <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"ব্যক্তিগত ভিউ"</string>

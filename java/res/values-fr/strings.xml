@@ -57,7 +57,7 @@
     <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # autre fichier}one{+ # autre fichier}many{+ # autres fichiers}other{+ # autres fichiers}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Texte à partager"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Partager le lien"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Partage de l\'image…}one{Partage de # image…}many{Partage de # d\'images…}other{Partage de # images…}}"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Partager l\'image…}one{Partager # image…}many{Partager # d\'images…}other{Partager # images…}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Partage de la vidéo…}one{Partage de # vidéo…}many{Partage de # de vidéos…}other{Partage de # vidéos…}}"</string>
     <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Partage de # fichier}one{Partage de # fichier}many{Partage de # fichiers}other{Partage de # fichiers}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Partager 1 image avec du texte}one{Partager # image avec du texte}many{Partager # images avec du texte}other{Partager # images avec du texte}}"</string>
@@ -77,7 +77,7 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Cette application n\'a pas reçu l\'autorisation d\'enregistrer des contenus audio, mais peut le faire via ce périphérique USB."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Personnel"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Professionnel"</string>
-    <string name="resolver_private_tab" msgid="3707548826254095157">"Mode privé"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Privé"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Vue personnelle"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Vue professionnelle"</string>
     <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Affichage en mode privé"</string>

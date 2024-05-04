@@ -42,7 +42,7 @@
     <string name="whichImageCaptureApplication" msgid="7830965894804399333">"यस मार्फत छविलाई कैंद गर्नुहोस्"</string>
     <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"<xliff:g id="APP">%1$s</xliff:g> मार्फत फोटो खिच्नुहोस्"</string>
     <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"छविलाई कैंद गर्नुहोस्"</string>
-    <string name="use_a_different_app" msgid="2062380818535918975">"फरक एप प्रयोग गर्नुहोस्"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"अर्को एप प्रयोग गर्नुहोस्"</string>
     <string name="chooseActivity" msgid="6659724877523973446">"कारबाही चयन गर्नुहोस्"</string>
     <string name="noApplications" msgid="1139487441772284671">"कुनै पनि एपहरूले यो कार्य गर्न सक्दैनन्।"</string>
     <string name="forward_intent_to_owner" msgid="6454987608971162379">"तपाईं तपाईंको कार्य प्रोफाइल बाहिर यो एप प्रयोग गरिरहनु भएको छ"</string>

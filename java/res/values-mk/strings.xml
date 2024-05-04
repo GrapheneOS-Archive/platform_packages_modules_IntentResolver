@@ -42,7 +42,7 @@
     <string name="whichImageCaptureApplication" msgid="7830965894804399333">"Сними слика со"</string>
     <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"Снимање слика со <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"Сними слика"</string>
-    <string name="use_a_different_app" msgid="2062380818535918975">"Користи различна апликација"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"Употреби друга апликација"</string>
     <string name="chooseActivity" msgid="6659724877523973446">"Избирање дејство"</string>
     <string name="noApplications" msgid="1139487441772284671">"Нема апликации што можат да го извршат ова дејство."</string>
     <string name="forward_intent_to_owner" msgid="6454987608971162379">"Ја користите апликацијата надвор од работниот профил"</string>

@@ -77,7 +77,7 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"इस ऐप्लिकेशन को रिकॉर्ड करने की अनुमति नहीं दी गई है. हालांकि, ऐप्लिकेशन इस यूएसबी डिवाइस से ऐसा कर सकता है."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"निजी प्रोफ़ाइल"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"वर्क प्रोफ़ाइल"</string>
-    <string name="resolver_private_tab" msgid="3707548826254095157">"निजी"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"प्राइवेट"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"निजी व्यू"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"वर्क व्यू"</string>
     <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"निजी व्यू"</string>

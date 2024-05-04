@@ -42,7 +42,7 @@
     <string name="whichImageCaptureApplication" msgid="7830965894804399333">"ບັນທຶກຮູບພາບດ້ວຍ"</string>
     <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"ບັນທຶກຮູບພາບດ້ວຍ <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"ບັນທຶກຮູບພາບ"</string>
-    <string name="use_a_different_app" msgid="2062380818535918975">"ນຳໃຊ້ແອັບຯອື່ນ"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"ໃຊ້ແອັບອື່ນ"</string>
     <string name="chooseActivity" msgid="6659724877523973446">"ເລືອກຄຳສັ່ງ"</string>
     <string name="noApplications" msgid="1139487441772284671">"ບໍ່ມີແອັບຯໃດສາມາດເຮັດວຽກນີ້ໄດ້."</string>
     <string name="forward_intent_to_owner" msgid="6454987608971162379">"​ທ່ານ​ກຳ​ລັງ​ໃຊ້​ແອັບຯ​ນີ້ນອກ​ໂປຣ​ໄຟລ໌​ບ່ອນ​ເຮັດ​ວຽກ​ຂອງ​ທ່ານ"</string>

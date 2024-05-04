@@ -68,7 +68,7 @@
     <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Дели се фајл са линком}one{Дели се # фајл са линком}few{Деле се # фајла са линком}other{Дели се # фајлова са линком}}"</string>
     <string name="sharing_album" msgid="191743129899503345">"Дељени албум"</string>
     <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Само слика}one{Само слике}few{Само слике}other{Само слике}}"</string>
-    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Само видео}one{Само видео снимци}few{Само видео снимци}other{Само видео снимци}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Само видео}one{Само видеи}few{Само видеи}other{Само видеи}}"</string>
     <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Само фајл}one{Само фајлови}few{Само фајлови}other{Само фајлови}}"</string>
     <string name="image_preview_a11y_description" msgid="297102643932491797">"Сличица за преглед слике"</string>
     <string name="video_preview_a11y_description" msgid="683440858811095990">"Сличица за преглед видеа"</string>

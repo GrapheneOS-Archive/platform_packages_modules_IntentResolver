@@ -77,7 +77,7 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Diese App hat noch keine Berechtigung zum Aufnehmen erhalten, könnte aber Audioaufnahmen über dieses USB-Gerät machen."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Privat"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Geschäftlich"</string>
-    <string name="resolver_private_tab" msgid="3707548826254095157">"Privat"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Vertraulich"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Private Ansicht"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Geschäftliche Ansicht"</string>
     <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Private Ansicht"</string>

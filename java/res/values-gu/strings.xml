@@ -42,7 +42,7 @@
     <string name="whichImageCaptureApplication" msgid="7830965894804399333">"આની સાથે છબી કૅપ્ચર કરો"</string>
     <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"<xliff:g id="APP">%1$s</xliff:g> વડે છબી કૅપ્ચર કરો"</string>
     <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"છબી કૅપ્ચર કરો"</string>
-    <string name="use_a_different_app" msgid="2062380818535918975">"અલગ એપ્લિકેશનનો ઉપયોગ કરો"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"અલગ ઍપનો ઉપયોગ કરો"</string>
     <string name="chooseActivity" msgid="6659724877523973446">"ક્રિયા પસંદ કરો"</string>
     <string name="noApplications" msgid="1139487441772284671">"કોઈ ઍપ્લિકેશન આ ક્રિયા કરી શકતી નથી."</string>
     <string name="forward_intent_to_owner" msgid="6454987608971162379">"તમે તમારી કાર્ય પ્રોફાઇલની બહાર આ એપ્લિકેશનનો ઉપયોગ કરી રહ્યાં છો"</string>

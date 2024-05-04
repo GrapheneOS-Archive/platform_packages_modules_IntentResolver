@@ -77,7 +77,7 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Ta aplikacja nie ma uprawnień do nagrywania, ale może rejestrować dźwięk za pomocą tego urządzenia USB."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Osobiste"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Służbowe"</string>
-    <string name="resolver_private_tab" msgid="3707548826254095157">"Prywatna"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Prywatne"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Widok osobisty"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Widok służbowy"</string>
     <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Widok prywatny"</string>
