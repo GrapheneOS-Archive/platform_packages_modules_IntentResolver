@@ -57,7 +57,7 @@
     <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{i još # fajl}one{i još # fajl}few{i još # fajla}other{i još # fajlova}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Dijeljenje teksta"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Dijeljenje linka"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Dijeljenje slike}one{Dijeljenje # slike}few{Dijeljenje # slike}other{Dijeljenje # slika}}"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Dijeli se slika}one{Dijeli se # slika}few{Dijele se # slike}other{Dijeli se # slika}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Dijeljenje videozapisa}one{Dijeljenje # videozapisa}few{Dijeljenje # videozapisa}other{Dijeljenje # videozapisa}}"</string>
     <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Dijeljenje # fajla}one{Dijeljenje # fajla}few{Dijeljenje # fajla}other{Dijeljenje # fajlova}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Dijeljenje slike putem poruke}one{Dijeljenje # slike putem poruke}few{Dijeljenje # slike putem poruke}other{Dijeljenje # slika putem poruke}}"</string>
