@@ -57,7 +57,7 @@
     <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # autre fichier}one{+ # autre fichier}many{+ # autres fichiers}other{+ # autres fichiers}}"</string>
     <string name="sharing_text" msgid="8137537443603304062">"Texte à partager"</string>
     <string name="sharing_link" msgid="2307694372813942916">"Partager le lien"</string>
-    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Partager l\'image…}one{Partager # image…}many{Partager # d\'images…}other{Partager # images…}}"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Partager l\'image}one{Partager # image}many{Partager # d\'images}other{Partager # images}}"</string>
     <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Partage de la vidéo…}one{Partage de # vidéo…}many{Partage de # de vidéos…}other{Partage de # vidéos…}}"</string>
     <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Partage de # fichier}one{Partage de # fichier}many{Partage de # fichiers}other{Partage de # fichiers}}"</string>
     <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Partager 1 image avec du texte}one{Partager # image avec du texte}many{Partager # images avec du texte}other{Partager # images avec du texte}}"</string>

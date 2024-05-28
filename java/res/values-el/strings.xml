@@ -77,7 +77,7 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Δεν έχει εκχωρηθεί άδεια εγγραφής σε αυτή την εφαρμογή, αλλά μέσω αυτής της συσκευής USB θα μπορεί να εγγράφει ήχο."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Προσωπικό"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Εργασία"</string>
-    <string name="resolver_private_tab" msgid="3707548826254095157">"Ιδιωτική"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Ιδιωτικός"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Προσωπική προβολή"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Προβολή εργασίας"</string>
     <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Ιδιωτική προβολή"</string>
