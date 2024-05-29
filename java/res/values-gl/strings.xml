@@ -77,7 +77,7 @@
     <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Esta aplicación non está autorizada a realizar gravacións, pero podería capturar audio a través deste dispositivo USB."</string>
     <string name="resolver_personal_tab" msgid="1381052735324320565">"Persoal"</string>
     <string name="resolver_work_tab" msgid="3588325717455216412">"Traballo"</string>
-    <string name="resolver_private_tab" msgid="3707548826254095157">"Privada"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Privado"</string>
     <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Vista persoal"</string>
     <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Vista de traballo"</string>
     <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Vista privada"</string>
