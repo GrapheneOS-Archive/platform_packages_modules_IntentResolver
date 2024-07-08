@@ -54,6 +54,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 import android.service.chooser.ChooserTarget;
 import android.util.Log;
 import android.util.Slog;
@@ -234,6 +235,12 @@ public class ChooserActivity extends Hilt_ChooserActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (Settings.Global.getInt(getContentResolver(), Settings.Global.SECURE_FRP_MODE, 0) == 1) {
+            Log.e(TAG, "Sharing disabled due to active FRP lock.");
+            super.onCreate(savedInstanceState);
+            finish();
+            return;
+        }
         Tracer.INSTANCE.markLaunched();
         final long intentReceivedTime = System.currentTimeMillis();
         mLatencyTracker.onActionStart(ACTION_LOAD_SHARE_SHEET);
